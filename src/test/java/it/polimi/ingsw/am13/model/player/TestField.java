@@ -13,15 +13,13 @@ public class TestField {
 
     @Test
     public void testCountResources() {
-        Field field = new Field();
-        Map<Coordinates, CardSidePlayable> cards = new HashMap<>();
-        cards.put(new Coordinates(0,1), new CardSidePlayable(null,
-                Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL)),
-                Arrays.asList(Resource.ANIMAL), null, Color.ANIMAL));
-        cards.put(new Coordinates(0,4), new CardSidePlayable(null,
+        Field field = new Field(null);
+        field.playCardSide(new CardSidePlayable(null,
+                        Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL)),
+                        Arrays.asList(Resource.ANIMAL), null, Color.ANIMAL), new Coordinates(0,2));
+        field.playCardSide(new CardSidePlayable(null,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL)),
-                Arrays.asList(Resource.ANIMAL, Resource.PLANT), null, Color.ANIMAL));
-        field.setField(cards);
+                Arrays.asList(Resource.ANIMAL, Resource.PLANT), null, Color.ANIMAL), new Coordinates(0,4));
 
         Map<Resource, Integer> freqs = field.countResources();
         assertTrue(freqs.containsKey(Resource.ANIMAL));

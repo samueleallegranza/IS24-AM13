@@ -36,13 +36,13 @@ public class Field {
     public Map<Resource, Integer> countResources() {
         Map<Resource, Integer> freqs = new HashMap<>();
         for(CardSidePlayable card : field.values()) {
-            for(Resource r : card.getCenterResources()) {
+            for (Resource r : card.getCenterResources()) {
                 if (freqs.keySet().contains(r))
                     freqs.put(r, freqs.get(r) + 1);
                 else
                     freqs.put(r, 1);
             }
-            for(Corner c : card.getCorners()) {
+            for (Corner c : card.getCorners()) {
                 Resource r = c.getResource();
                 if (freqs.keySet().contains(r))
                     freqs.put(r, freqs.get(r) + 1);
