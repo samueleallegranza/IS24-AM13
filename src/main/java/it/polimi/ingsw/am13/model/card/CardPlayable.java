@@ -2,11 +2,17 @@ package it.polimi.ingsw.am13.model.card;
 
 public abstract class CardPlayable extends Card {
 
-    final private Color color;
+    private final CardSidePlayable front;
+    private final CardSidePlayable back;
 
-    public CardPlayable(String id, CardSide front, CardSide back, Color color) {
-        super(id, front, back);
-        this.color = color;
+    public CardPlayable(String id, CardSidePlayable front, CardSidePlayable back) {
+        super(id);
+        this.front = front;
+        this.back = back;
+    }
+
+    public CardSidePlayable getPlayedCardSide() {
+        return getPlayedSide()==Side.SIDEFRONT ? front : back;
     }
 
 }

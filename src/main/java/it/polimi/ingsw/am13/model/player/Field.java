@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class Field {
 
-    private final CardStarter startCard; //mayba useless
+    private final CardStarter startCard; //maybe useless
     private final Map<Coordinates, CardSidePlayable> field;
 
     public Field(CardStarter starterCard) {
@@ -37,14 +37,16 @@ public class Field {
         Map<Resource, Integer> freqs = new HashMap<>();
         for(CardSidePlayable card : field.values()) {
             for (Resource r : card.getCenterResources()) {
-                if (freqs.keySet().contains(r))
+                if (freqs.containsKey(r))
                     freqs.put(r, freqs.get(r) + 1);
                 else
                     freqs.put(r, 1);
             }
             for (Corner c : card.getCorners()) {
+                if(c.isCovered())        // There can be a resource only if the corner if not covered (there could be a NO_RESOURCE)
+                    continue;
                 Resource r = c.getResource();
-                if (freqs.keySet().contains(r))
+                if (freqs.containsKey(r))
                     freqs.put(r, freqs.get(r) + 1);
                 else
                     freqs.put(r, 1);

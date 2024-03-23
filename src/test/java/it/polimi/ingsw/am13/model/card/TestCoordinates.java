@@ -1,16 +1,15 @@
 package it.polimi.ingsw.am13.model.card;
 
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class TestCoordinates {
+public class TestCoordinates {
 
     @Test
-    void testAdd() {
+    public void testAdd() {
         Coordinates res;
         try {
             res = new Coordinates(0,2).add(new Coordinates(-1,3));
@@ -26,7 +25,7 @@ class TestCoordinates {
     }
 
     @Test
-    void testFetchNearCoordinates() {
+    public void testFetchNearCoordinates() {
         try {
             Set<Coordinates> nears = new Coordinates(0,0).fetchNearCoordinates();
             assertEquals(4, nears.size());
@@ -40,7 +39,7 @@ class TestCoordinates {
     }
 
     @Test
-    void testHasCoords() {
+    public void testHasCoords() {
         try {
             Coordinates c = new Coordinates(1,-9);
             assertTrue(c.hasCoords(1,-9));
@@ -52,7 +51,7 @@ class TestCoordinates {
     }
 
     @Test
-    void testEquals() {
+    public void testEquals() {
         try {
             Coordinates c1 = new Coordinates(1,5);
             Coordinates c2 = new Coordinates(1,5);

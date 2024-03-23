@@ -1,8 +1,123 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-public class PointsPattern implements PointsPlayable {
+import it.polimi.ingsw.am13.model.card.Color;
+import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
+import it.polimi.ingsw.am13.model.player.Field;
+
+import java.security.InvalidParameterException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Representation of an objective card of type 'x points for each pattern with 3 card in a certain position and with certain colors'
+ * (fourth type of objective card presented in rulebook).
+ * Note that, according to rules, the patterns cannot intersect, and the points are calculating with the maximum number of disjunctive patterns found.
+ * The pattern is represented starting from the upper card by using two vectors that can be (-1,-1), (0,-1), (1,-1).
+ * The vectors represent where the card right below the previous one is: in order, the next card is to the left / below / to the right of the previous card.
+ * An object instantiated from this class is immutable.
+ */
+public class PointsPattern implements PointsObjective {
+
+    /**
+     * Color of the upper card
+     */
+    private final Color color1;
+    /**
+     * Color of the bottom card
+     */
+    private final Color color3;
+    /**
+     * Color of the middle card
+     */
+    private final Color color2;
+    /**
+     * Vector representing position of middle card with respect to upper card
+     * Mathmatically vec12 = (coordinates of middle card) - (coordinates of upper card)
+     * It can be only one among (-1,-1), (0,-1), (1,-1)
+     */
+    private final Coordinates vec12;
+    /**
+     * Vector representing position of bottom card with respect to upper card
+     * Mathmatically vec12 = (coordinates of bottom card) - (coordinates of upper card)
+     * It can be only one among (-2,-2), (-1,-2), (1,-2), (2,-2)
+     */
+    private final Coordinates vec13;
+    /**
+     * Represetns how many points the card gives for each complete non-intersecting pattern is present in field
+     */
+    private final int points;
+
+    /**
+     *
+     * @param color1 Color of upper card
+     * @param color2 Color of middle card
+     * @param color3 Color of bottom card
+     * @param pos12 Position of middle card with respect to upper card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
+     * @param pos23 Position of bottom card with respect to middle card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
+     * @param points How many points the card gives for each complete non-intersecting pattern is present in field
+     * @throws InvalidParameterException If vac12 or vec23 are not among their possible values
+     */
+    public PointsPattern(Color color1, Color color2, Color color3, int pos12, int pos23, int points) throws InvalidPointsPatternException {
+        if(pos12!=-1 && pos12!=0 && pos12!=1)
+            throw new InvalidPointsPatternException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
+        if(pos23!=-1 && pos23!=0 && pos23!=1)
+            throw new InvalidPointsPatternException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
+
+        this.color1 = color1;
+        this.color2 = color2;
+        this.color3 = color3;
+        try {
+            vec12 = new Coordinates(pos12, (pos12==0)?-2:-1);
+            vec13 = vec12.add(pos23, (pos23==0)?-2:-1);
+        } catch (InvalidCoordinatesException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
+        this.points = points;
+    }
+
+
+    /**
+     * Calculate points of the card, according to how many (at most) non-intersercint patterns with right colors are found.
+     * @param field Field of the player for whom you want to calculate the points given by the card objective.
+     * @return Number of points guaranteed by the card objective
+     */
     @Override
-    public int getPoints() {
-        return 0;
+    public int calcPoints(Field field) {
+        int count = 0;
+
+        // I search through all coordinates the ones of first card of a patter of this type
+        // I then sort these coordinates by largest x, and collect them as a list
+        List<Coordinates> firstPossiblePos = field.getField().entrySet().stream()
+                .filter(x -> x.getValue().getColor()==color1)
+                .filter(x -> {
+                    Coordinates coord2 = x.getKey().add(vec12);
+                    return field.getField().containsKey(coord2) && field.getField().get(coord2).getColor()==color2;
+                }).filter(x -> {
+                    Coordinates coord3 = x.getKey().add(vec13);
+                    return field.getField().containsKey(coord3) && field.getField().get(coord3).getColor()==color3;
+                }).map(Map.Entry::getKey)
+                .sorted( (c1, c2) -> Integer.compare(c2.getPosY(), c1.getPosY())).toList();
+
+        //Now I have all possible patterns, but they can still intersect
+        //I start from the pattern in the highest part of field, and validate a pattern only if its 3 cards don't intersect a patter above it
+        //The list is sorted by decreasing height of patterns, hence I only check if a patter intersects a coordinate already appeared before
+        Set<Coordinates> alreadyUsed = new HashSet<>();
+        for(Coordinates coord1 : firstPossiblePos) {
+            Coordinates coord2 = coord1.add(vec12);
+            Coordinates coord3 = coord1.add(vec13);
+            if(!alreadyUsed.contains(coord2) && !alreadyUsed.contains(coord3)) {
+                count++;
+                alreadyUsed.add(coord1);
+                alreadyUsed.add(coord2);
+                alreadyUsed.add(coord3);
+            }
+        }
+
+        return count * points;
     }
 }

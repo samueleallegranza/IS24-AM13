@@ -14,7 +14,7 @@ public class TestCorner {
      * This test verifies that isPlaceable and addLink are working correctly
      */
     @Test
-    public void checkPlaceable(){
+    public void testCheckPlaceable(){
         Resource r=Resource.FUNGUS;
         Corner corner=new Corner(r);
         assertEquals(r,corner.getResource());

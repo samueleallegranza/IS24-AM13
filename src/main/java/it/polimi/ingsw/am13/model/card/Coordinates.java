@@ -109,4 +109,9 @@ public class Coordinates {
     public int hashCode() {
         return Objects.hash(posX, posY);
     }
+
+    @Override
+    public String toString() {
+        return "{coord (" + posX + ", " + posY + ")";
+    }
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 public abstract class Card {
     private final String id;
-    private final List<CardSide> sides;
     private Coordinates coord;
     private boolean isPlayed;
     private Side playedSide;
