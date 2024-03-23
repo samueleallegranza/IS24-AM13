@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
+import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.List;
 import java.util.Map;
@@ -77,10 +78,12 @@ public class CardSidePlayable extends CardSide{
     }
 
     /**
+     *
+     * @param field the field of the player
      * @return the points the player gets when playing this card
      */
-    public int calcPoints(){
-        return points.calcPoints(this);
+    public int calcPoints(Field field){
+        return points.calcPoints(this,field);
     }
 
 }
