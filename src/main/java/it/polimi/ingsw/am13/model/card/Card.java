@@ -10,8 +10,11 @@ public abstract class Card {
     private Side playedSide;
 
     //Costruttore
-    Card(String id, CardSide front, CardSide back) {
+    Card(String id) {
         this.id = id;
-        sides = Arrays.asList(front, back);
+    }
+
+    public Side getPlayedSide() {
+        return playedSide;
     }
 }
