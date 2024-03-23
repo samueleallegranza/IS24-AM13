@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am13.model.card.points;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +34,10 @@ public class TestPointsResource {
         }
         catch (InvalidCoordinatesException e){
             System.out.println("Invalid coordinates");
+        } catch (RequirementsNotMetException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidPlayCardException e) {
+            throw new RuntimeException(e);
         }
 
     }

@@ -4,6 +4,4 @@ import it.polimi.ingsw.am13.model.player.ColorToken;
 
 public class Token {
     private ColorToken color;
-
-    private String pngFinal;
 }

@@ -2,7 +2,9 @@ package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
 
@@ -67,7 +69,7 @@ public class TestPointsPattern {
 
             assertEquals(3, points.calcPoints(field));
 
-        } catch (InvalidCoordinatesException e) {
+        } catch (InvalidCoordinatesException | InvalidPlayCardException | RequirementsNotMetException e) {
             throw new RuntimeException(e);
         }
     }

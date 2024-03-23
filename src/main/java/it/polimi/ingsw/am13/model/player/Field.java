@@ -1,57 +1,286 @@
 package it.polimi.ingsw.am13.model.player;
 
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
+import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Class which represents the status of the game field of a specific player. It keeps track of played cards and visible
+ * resources. It performs actions and queries related to the player's field.
+ * -> Card positions are referenced with Coordinates (see Coordinates class for a detailed description of the system)
+ * -> Resource counters are stored in a Map in the form of (Resource, count) key-value pair
+ */
 public class Field {
+    /**
+     * Link to the starter card positioned at coordinates (0,0).
+     */
+    private final CardStarter startCard;
+    // TODO: does startCard still need to be saved here?
 
-    private final CardStarter startCard; //maybe useless
+    /**
+     * Description of the player's card positions using a sparse matrix representation.
+     * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.
+     */
     private final Map<Coordinates, CardSidePlayable> field;
 
+    /**
+     * Resource counters stored in a Map in the form of (Resource, count) key-value pair.
+     * Please note that 'NO_RESOURCE' resources are tracked too.
+     */
+    private Map<Resource, Integer> resources;
+
+    /**
+     * Constructor of the Field. It initializes all resource counters to 0.
+     * @param starterCard Starter card chosen by the player.
+     */
     public Field(CardStarter starterCard) {
         this.startCard = starterCard;
-        field=new HashMap<>();
+        field = new HashMap<>();
+        resources = new HashMap<>();
+
+        // Initialization of resources
+        for(Resource res: Resource.values())
+            resources.put(res, 0);
     }
 
-    public CardSidePlayable getCardAt(Coordinates coordinates){
-        return field.get(coordinates);
-    }
-    public List<Coordinates> getAvailablePos() {
-        return null;
-    }
-
-    public void playCardSide(CardSidePlayable card, Coordinates coord) {
-        field.put(coord,card);
+    /**
+     * Retrieves the placed card in the Field at given coordinates.
+     * @param coords Coordinates of the card.
+     * @return If present, the card side at given coordinates. If not present, null.
+     */
+    public CardSidePlayable getCardAtCoord(Coordinates coords){
+        return field.getOrDefault(coords, null);
     }
 
-    //public void addCardSide(CardSidePlayable card, Coordinates coord) I believe that's what the above method does
+    /**
+     * Retrieves the root of the field's cards (the starter card in position (0,0)).
+     * @return Starter card side placed on the Field.
+     * @throws InvalidCoordinatesException If called too early in the game, starter card could not have been placed yet.
+     */
+    public CardSidePlayable getRoot() throws InvalidCoordinatesException {
+        Coordinates origin = new Coordinates(0,0);
+        return this.getCardAtCoord(origin);
+    }
 
+    /**
+     * Increase by 1 the counter of the given resource.
+     * @param res Resource to be incremented.
+     */
+    private void addResource(Resource res) {
+        this.resources.computeIfPresent(res, (key, val) -> val + 1);
+    }
+
+    /**
+     * Decrease by 1 the counter of the given resource.
+     * @param res Resource to be decremented.
+     */
+    private void removeResource(Resource res) {
+        this.resources.computeIfPresent(res, (key, val) -> val - 1);
+    }
+
+    /**
+     * Retrieves the number of visible resources in the Field.
+     * @param res Resource of which count needs to be retrieved.
+     */
+    private int getResourceCount(Resource res) {
+        return this.resources.get(res);
+    }
+
+    /**
+     * Checks if a card is placeable in a certain position of the Field applying the rules described in the rulebook.
+     * A card can be placed at given coordinates if and only if the following requirements are satisfied:
+     *  1) Coordinates are valid (checked in Coordinates class)
+     *  2) There's no card placed at given coordinates yet
+     *  3) There is at least a card in one of the surrounding coordinates
+     *  4) All the existing surrounding corners are placeable
+     * @param coords Coordinates to be checked
+     * @return true if a new card can be placed in the spot, false otherwise
+     */
+    private boolean cardIsPlaceableAtCoord(Coordinates coords) {
+        // handle special coordinates (0,0) reserved for the starter card, it needs different checks
+        if((coords.getPosX() == 0) && (coords.getPosY() == 0) && !this.field.containsKey(coords))
+            return true;
+
+        // check if the spot is already occupied by a card
+        if(this.field.containsKey(coords))
+            return false;
+
+        // calculate surrounding coordinates of the given one
+        ArrayList<Coordinates> surroundingCoords = new ArrayList<Coordinates>();
+        try {
+            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()+1)); // 'ul'
+            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()+1)); // 'ur'
+            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()-1)); // 'lr'
+            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()-1)); // 'll'
+        } catch (InvalidCoordinatesException e) {
+            // TODO: Decide how to handle "impossible" Exceptions
+            System.out.println("cardIsPlaceableAtCoord() calculates invalid coordinates");
+            return false;
+        }
+        // set the corner index to be checked for every surrounding coordinate
+        int[] surroundingCornerIdx = {2, 3, 0, 1}; // clockwise corner checks: 'lr', 'll', 'ul', 'ur'
+
+        // the spot is valid if and only if the following requirements are satisfied:
+        // 1) there is at least a card in one of the surrounding spots
+        // 2) all the surrounding corners are placeable
+        boolean hasAdjacent = false;
+        boolean allPlaceable = true;
+        CardSidePlayable currCard;
+        // perform checks in clockwise order starting from upper left spot
+        for(int i=0; i<4; i++) {
+            currCard = getCardAtCoord(surroundingCoords.get(i));
+            // check if the card exists
+            if (currCard != null) {
+                hasAdjacent = true;
+                // check if the card's corner of our interest is placeable
+                if (!currCard.getCorners().get(surroundingCornerIdx[i]).isPlaceable()) {
+                    allPlaceable = false;
+                    break; // no need to iterate further
+                }
+            }
+        }
+
+        // return if the spot is valid by combining the two requirements
+        return allPlaceable && hasAdjacent;
+    }
+
+    /**
+     * Retrieves the List of coordinates in which new cards can be placed. It returns all and only the coordinates
+     * for which cardIsPlaceableAtCoord() returns true for the actual Field situation.
+     * @return A list of coordinates in which a card can be placed.
+     */
+    public ArrayList<Coordinates> getAvailableCoord() {
+        ArrayList<Coordinates> surroundingCoords;
+        Coordinates targetCoord;
+        Set<Coordinates> availableCoordSet = new HashSet<>();
+
+        // loop over coordinates of cards placed on the field
+        for(Coordinates currCoord: this.field.keySet()) {
+
+            // calculate surrounding coordinates of the current one
+            surroundingCoords = new ArrayList<>();
+            try {
+                surroundingCoords.add(new Coordinates(currCoord.getPosX()-1, currCoord.getPosY()+1)); // 'ul'
+                surroundingCoords.add(new Coordinates(currCoord.getPosX()+1, currCoord.getPosY()+1)); // 'ur'
+                surroundingCoords.add(new Coordinates(currCoord.getPosX()+1, currCoord.getPosY()-1)); // 'lr'
+                surroundingCoords.add(new Coordinates(currCoord.getPosX()-1, currCoord.getPosY()-1)); // 'll'
+            } catch (InvalidCoordinatesException e) {
+                // TODO: Decide how to handle "impossible" Exceptions
+                System.out.println("getAvailableCoord() calculates invalid coordinates");
+                return new ArrayList<>();
+            }
+
+            // loop over surrounding coordinates and save the playable ones in a Set
+            for(int cornerIdx=0; cornerIdx<4; cornerIdx++) {
+                targetCoord = surroundingCoords.get(cornerIdx);
+                if(cardIsPlaceableAtCoord(targetCoord)) {
+                    availableCoordSet.add(targetCoord);
+                }
+            }
+        }
+
+        // transform the Set into an ArrayList which contains all the playable coordinates and return it
+        return new ArrayList<>(availableCoordSet);
+    }
+
+    /**
+     * Play a card side at given coordinates on the Field. Automatically updates the counters of visible resources.
+     * If the card can't be placed because of invalid Coordinates, InvalidPlayCardException is thrown.
+     * If the card can't be placed because of requirements not met, RequirementsNotMetException is thrown.
+     * @param card The card side to be placed on the Field.
+     * @param coords Coordinates where to place the new card.
+     * @throws InvalidPlayCardException Positioning error of the card at given coordinates.
+     * @throws RequirementsNotMetException At least one Requirement is not satisfied for the given card.
+     */
+    public void playCardSide(CardSidePlayable card, Coordinates coords) throws InvalidPlayCardException, RequirementsNotMetException {
+        // check if card is placeable at given coord, if not throw Exception
+        if(!cardIsPlaceableAtCoord(coords))
+            throw new InvalidPlayCardException();
+
+        // check if every card's requirement is met immediately before placing the new card. If not throw Exception
+        Map<Resource, Integer> cardRequirements = card.getRequirements();
+        for(Resource currResource: cardRequirements.keySet())
+            if(getResourceCount(currResource) < cardRequirements.get(currResource))
+                throw new RequirementsNotMetException();
+
+        // remove the resources of covered corners from the set of visible ones and update coverage
+        //      calculate surrounding coordinates of the given one
+        ArrayList<Coordinates> surroundingCoords = new ArrayList<Coordinates>();
+        try {
+            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()+1)); // 'ul'
+            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()+1)); // 'ur'
+            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()-1)); // 'lr'
+            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()-1)); // 'll'
+        } catch (InvalidCoordinatesException e) {
+            // TODO: Decide how to handle "impossible" Exceptions
+            System.out.println("playCardSide() calculates invalid coordinates");
+        }
+        //      set the corner index to be checked for every surrounding coordinate
+        int[] surroundingCornerIdx = {2, 3, 0, 1}; // clockwise corner checks: 'lr', 'll', 'ul', 'ur'
+
+        // loop over each corner that will be covered by new card
+        Resource coveredResource;
+        Corner coveredCorner;
+        CardSidePlayable coveredCard;
+        for(int i=0; i<4; i++) {
+            // decrement by 1 the corner resource from the visible resources set, if there's one
+            if(getCardAtCoord(surroundingCoords.get(i)) != null) {
+                coveredCard = getCardAtCoord(surroundingCoords.get(i));
+                coveredCorner = getCardAtCoord(surroundingCoords.get(i)).getCorners().get(surroundingCornerIdx[i]);
+
+                // decrement covered resource of corner
+                coveredResource = coveredCorner.getResource();
+                removeResource(coveredResource);
+
+                // update coverage & linkage of corner
+                coveredCorner.coverCorner();
+                try {
+                    coveredCorner.addLinkToCard(card);
+                } catch (VariableAlreadySetException e) {
+                    throw new InvalidPlayCardException();
+                }
+
+                // update linkage of new card
+                try {
+                    card.getCorners().get(i).addLinkToCard(coveredCard);
+                } catch (VariableAlreadySetException e) {
+                    throw new InvalidPlayCardException();
+                }
+            }
+        }
+
+        // add card resources to the visible resources set
+        for(Corner currCorner: card.getCorners())
+            addResource(currCorner.getResource());  // corner resources
+
+        for(Resource centerRes: card.getCenterResources())
+            addResource(centerRes);                 // center resources
+
+        // finally, place the card on the field at the given coordinates
+        field.put(coords, card);
+    }
+
+    /**
+     * Getter for visible resource counters of the Field.
+     * The resource counters are stored in a Map in the form of (Resource, count) key-value pair.
+     * @return Map containing the counters of visible resources
+     */
+    public Map<Resource, Integer> countResources() {
+        // TODO: change the name of this function into getResources (this is basically a setter...)
+        return this.resources;
+    }
+
+    /**
+     * Getter for the data structure which describes the player's card positioned on the Field
+     * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.
+     * @return Data structure which describes the player's card positions
+     */
     public Map<Coordinates, CardSidePlayable> getField() {
         return field;
     }
 
-    public Map<Resource, Integer> countResources() {
-        Map<Resource, Integer> freqs = new HashMap<>();
-        for(CardSidePlayable card : field.values()) {
-            for (Resource r : card.getCenterResources()) {
-                if (freqs.containsKey(r))
-                    freqs.put(r, freqs.get(r) + 1);
-                else
-                    freqs.put(r, 1);
-            }
-            for (Corner c : card.getCorners()) {
-                if(c.isCovered())        // There can be a resource only if the corner if not covered (there could be a NO_RESOURCE)
-                    continue;
-                Resource r = c.getResource();
-                if (freqs.containsKey(r))
-                    freqs.put(r, freqs.get(r) + 1);
-                else
-                    freqs.put(r, 1);
-            }
-        }
-        return freqs;
-    }
 }

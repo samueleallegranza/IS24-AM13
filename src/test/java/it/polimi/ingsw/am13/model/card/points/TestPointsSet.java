@@ -3,6 +3,8 @@ package it.polimi.ingsw.am13.model.card.points;
 import static org.junit.jupiter.api.Assertions.*;
 
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import org.junit.jupiter.api.Test;
 
 import it.polimi.ingsw.am13.model.card.*;
@@ -34,9 +36,13 @@ public class TestPointsSet {
             assertEquals(4, points.calcPoints(field));
 
             // Now 1 plant is not visible
-            field.getCardAt(new Coordinates(0,4)).getCorners().get(0).coverCorner();
+            field.getCardAtCoord(new Coordinates(0,4)).getCorners().get(0).coverCorner();
             assertEquals(2, points.calcPoints(field));
         } catch (InvalidCoordinatesException e) {
+            throw new RuntimeException(e);
+        } catch (RequirementsNotMetException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidPlayCardException e) {
             throw new RuntimeException(e);
         }
     }
