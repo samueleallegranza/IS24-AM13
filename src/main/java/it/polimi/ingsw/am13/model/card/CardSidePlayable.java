@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * This class represents one of the two sides of a playable card
  */
-public class CardSidePlayable extends CardSide{
+public class CardSidePlayable {
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
      */
