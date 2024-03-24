@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import java.util.Set;
+
+import java.util.List;
 
 public class TestCoordinates {
 
@@ -27,7 +28,7 @@ public class TestCoordinates {
     @Test
     public void testFetchNearCoordinates() {
         try {
-            Set<Coordinates> nears = new Coordinates(0,0).fetchNearCoordinates();
+            List<Coordinates> nears = new Coordinates(0,0).fetchNearCoordinates();
             assertEquals(4, nears.size());
             assertTrue(nears.contains(new Coordinates(-1,1)));
             assertTrue(nears.contains(new Coordinates(1,1)));

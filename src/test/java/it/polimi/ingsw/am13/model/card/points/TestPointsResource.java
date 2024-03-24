@@ -3,6 +3,7 @@ import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
 import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
+import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
 
@@ -18,12 +19,17 @@ public class TestPointsResource {
     public void testSetGet(){
         int points=2;
         Map<Resource,Integer> req=new HashMap<>();
-        List<Corner> corners=new ArrayList<>(Arrays.asList(new Corner(Resource.PLANT),new Corner(),new Corner(),new Corner()));
-        List<Resource> centerResources=new ArrayList<>(Arrays.asList(Resource.PLANT));
+        List<Corner> corners=new ArrayList<>(Arrays.asList(new Corner(Resource.PLANT),new Corner(Resource.NO_RESOURCE),new Corner(),new Corner()));
+        List<Resource> centerResources=new ArrayList<>(List.of(Resource.PLANT));
         PointsResource pointsResource=new PointsResource(points,Resource.PLANT);
         CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,pointsResource, Color.PLANT);
         CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
-        Field field=new Field(cardStarter);
+        Field field=new Field();
+        try {
+            field.initStartCard(cardStarter);
+        } catch (VariableAlreadySetException e) {
+            throw new RuntimeException(e);
+        }
         Coordinates origin;
         try{
             origin=new Coordinates(0,0);
@@ -31,14 +37,8 @@ public class TestPointsResource {
             Coordinates coordinates=new Coordinates(1,1);
             field.playCardSide(cardSide,coordinates);
             assertEquals(4*points,pointsResource.calcPoints(cardSide,field));
-        }
-        catch (InvalidCoordinatesException e){
-            System.out.println("Invalid coordinates");
-        } catch (RequirementsNotMetException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidPlayCardException e) {
+        } catch (RequirementsNotMetException | InvalidPlayCardException | InvalidCoordinatesException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

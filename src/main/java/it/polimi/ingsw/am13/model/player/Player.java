@@ -3,19 +3,21 @@ package it.polimi.ingsw.am13.model.player;
 import it.polimi.ingsw.am13.model.card.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class Player {
 
     private final String nickname;
     private final Token token;
-    private Field field;
-    private final ArrayList<CardPlayable> handCards;
+    private final Field field;
+    private final List<CardPlayable> handCards;
     private CardObjective personalObjective;
     private int points;
 
     public Player(String nick, Token token) {
         this.nickname = nick;
         this.token = token;
+        field = new Field();
         handCards = new ArrayList<>();
     }
 

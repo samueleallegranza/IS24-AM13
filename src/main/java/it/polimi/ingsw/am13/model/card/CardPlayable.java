@@ -15,4 +15,11 @@ public abstract class CardPlayable extends Card {
         return getPlayedSide()==Side.SIDEFRONT ? front : back;
     }
 
+    public CardSidePlayable getFront() {
+        return front;
+    }
+
+    public CardSidePlayable getBack() {
+        return back;
+    }
 }

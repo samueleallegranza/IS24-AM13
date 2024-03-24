@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am13.model.player;
 
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
-import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
-import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
+import it.polimi.ingsw.am13.model.exceptions.*;
 
 import java.util.*;
 
@@ -18,7 +15,7 @@ public class Field {
     /**
      * Link to the starter card positioned at coordinates (0,0).
      */
-    private final CardStarter startCard;
+    private CardStarter startCard;
     // TODO: does startCard still need to be saved here?
 
     /**
@@ -31,20 +28,31 @@ public class Field {
      * Resource counters stored in a Map in the form of (Resource, count) key-value pair.
      * Please note that 'NO_RESOURCE' resources are tracked too.
      */
-    private Map<Resource, Integer> resources;
+    private final Map<Resource, Integer> resources;
 
     /**
      * Constructor of the Field. It initializes all resource counters to 0.
-     * @param starterCard Starter card chosen by the player.
      */
-    public Field(CardStarter starterCard) {
-        this.startCard = starterCard;
+    public Field() {
+        this.startCard = null;
         field = new HashMap<>();
         resources = new HashMap<>();
 
         // Initialization of resources
         for(Resource res: Resource.values())
             resources.put(res, 0);
+    }
+
+    /**
+     * Initialize the start card for the Field. Once initialized, the start card cannot change.
+     * This method only stores start card, but does not actually play it. It corresponds to player only drawing the start card.
+     * @param startCard Start card to be set for the field
+     * @throws VariableAlreadySetException If the start card has been already set
+     */
+    public void initStartCard(CardStarter startCard) throws VariableAlreadySetException {
+        if(this.startCard != null)
+            throw new VariableAlreadySetException();
+        this.startCard = startCard;
     }
 
     /**
@@ -110,17 +118,7 @@ public class Field {
             return false;
 
         // calculate surrounding coordinates of the given one
-        ArrayList<Coordinates> surroundingCoords = new ArrayList<Coordinates>();
-        try {
-            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()+1)); // 'ul'
-            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()+1)); // 'ur'
-            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()-1)); // 'lr'
-            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()-1)); // 'll'
-        } catch (InvalidCoordinatesException e) {
-            // TODO: Decide how to handle "impossible" Exceptions
-            System.out.println("cardIsPlaceableAtCoord() calculates invalid coordinates");
-            return false;
-        }
+        List<Coordinates> surroundingCoords = coords.fetchNearCoordinates();
         // set the corner index to be checked for every surrounding coordinate
         int[] surroundingCornerIdx = {2, 3, 0, 1}; // clockwise corner checks: 'lr', 'll', 'ul', 'ur'
 
@@ -153,8 +151,8 @@ public class Field {
      * for which cardIsPlaceableAtCoord() returns true for the actual Field situation.
      * @return A list of coordinates in which a card can be placed.
      */
-    public ArrayList<Coordinates> getAvailableCoord() {
-        ArrayList<Coordinates> surroundingCoords;
+    public List<Coordinates> getAvailableCoord() {
+        List<Coordinates> surroundingCoords;
         Coordinates targetCoord;
         Set<Coordinates> availableCoordSet = new HashSet<>();
 
@@ -162,17 +160,7 @@ public class Field {
         for(Coordinates currCoord: this.field.keySet()) {
 
             // calculate surrounding coordinates of the current one
-            surroundingCoords = new ArrayList<>();
-            try {
-                surroundingCoords.add(new Coordinates(currCoord.getPosX()-1, currCoord.getPosY()+1)); // 'ul'
-                surroundingCoords.add(new Coordinates(currCoord.getPosX()+1, currCoord.getPosY()+1)); // 'ur'
-                surroundingCoords.add(new Coordinates(currCoord.getPosX()+1, currCoord.getPosY()-1)); // 'lr'
-                surroundingCoords.add(new Coordinates(currCoord.getPosX()-1, currCoord.getPosY()-1)); // 'll'
-            } catch (InvalidCoordinatesException e) {
-                // TODO: Decide how to handle "impossible" Exceptions
-                System.out.println("getAvailableCoord() calculates invalid coordinates");
-                return new ArrayList<>();
-            }
+            surroundingCoords = currCoord.fetchNearCoordinates();
 
             // loop over surrounding coordinates and save the playable ones in a Set
             for(int cornerIdx=0; cornerIdx<4; cornerIdx++) {
@@ -189,17 +177,25 @@ public class Field {
 
     /**
      * Play a card side at given coordinates on the Field. Automatically updates the counters of visible resources.
-     * If the card can't be placed because of invalid Coordinates, InvalidPlayCardException is thrown.
+     * If the card can't be placed because of invalid Coordinates, or startCard is not properly initialized, InvalidPlayCardException is thrown.
      * If the card can't be placed because of requirements not met, RequirementsNotMetException is thrown.
      * @param card The card side to be placed on the Field.
      * @param coords Coordinates where to place the new card.
-     * @throws InvalidPlayCardException Positioning error of the card at given coordinates.
+     * @throws InvalidPlayCardException Positioning error of the card at given coordinates, or startCard is not yet initialized,
+     * or first side played as (0,0) is not a side of startCard.
      * @throws RequirementsNotMetException At least one Requirement is not satisfied for the given card.
      */
     public void playCardSide(CardSidePlayable card, Coordinates coords) throws InvalidPlayCardException, RequirementsNotMetException {
+        // A move can be done only after startCard has been set, and the first move can be only to play a side of startCard in (0,0)
+        if(startCard==null || (field.isEmpty() && !coords.hasCoords(0,0)))
+            throw new InvalidPlayCardException("Starter card not yet set, or trying to play without playing starter card before");
+        if(coords.hasCoords(0,0) && card!=startCard.getFront() && card!=startCard.getBack())
+            throw new InvalidPlayCardException("Card side played as first is not a side of Starter card " + startCard);
+
         // check if card is placeable at given coord, if not throw Exception
-        if(!cardIsPlaceableAtCoord(coords))
-            throw new InvalidPlayCardException();
+        if(!cardIsPlaceableAtCoord(coords)) {
+            throw new InvalidPlayCardException("Card " + card + " not placeable at coords " + coords);
+        }
 
         // check if every card's requirement is met immediately before placing the new card. If not throw Exception
         Map<Resource, Integer> cardRequirements = card.getRequirements();
@@ -209,16 +205,7 @@ public class Field {
 
         // remove the resources of covered corners from the set of visible ones and update coverage
         //      calculate surrounding coordinates of the given one
-        ArrayList<Coordinates> surroundingCoords = new ArrayList<Coordinates>();
-        try {
-            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()+1)); // 'ul'
-            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()+1)); // 'ur'
-            surroundingCoords.add(new Coordinates(coords.getPosX()+1, coords.getPosY()-1)); // 'lr'
-            surroundingCoords.add(new Coordinates(coords.getPosX()-1, coords.getPosY()-1)); // 'll'
-        } catch (InvalidCoordinatesException e) {
-            // TODO: Decide how to handle "impossible" Exceptions
-            System.out.println("playCardSide() calculates invalid coordinates");
-        }
+        List<Coordinates> surroundingCoords = coords.fetchNearCoordinates();
         //      set the corner index to be checked for every surrounding coordinate
         int[] surroundingCornerIdx = {2, 3, 0, 1}; // clockwise corner checks: 'lr', 'll', 'ul', 'ur'
 
@@ -269,8 +256,7 @@ public class Field {
      * The resource counters are stored in a Map in the form of (Resource, count) key-value pair.
      * @return Map containing the counters of visible resources
      */
-    public Map<Resource, Integer> countResources() {
-        // TODO: change the name of this function into getResources (this is basically a setter...)
+    public Map<Resource, Integer> getResourcesInField() {
         return this.resources;
     }
 

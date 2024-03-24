@@ -1,8 +1,5 @@
 package it.polimi.ingsw.am13.model.card;
 
-import java.util.Arrays;
-import java.util.List;
-
 public abstract class Card {
     private final String id;
     private Coordinates coord;

@@ -73,14 +73,14 @@ public class Coordinates {
     }
 
     /**
-     * Creates the set of 4 coordinates that are near this coordinate in game field.
+     * Creates the ordered list of 4 coordinates that are near this coordinate in game field.
      * The 'near coordinates' are the ones where a new card could be placed with respect to a card in these coordinates.
-     * @return Set of the 4 near coordinates
+     * @return List of the 4 near coordinates, in order 'upper left', 'upper right', 'lower right', 'lower left'
      */
-    public Set<Coordinates> fetchNearCoordinates() {
+    public List<Coordinates> fetchNearCoordinates() {
         try {
-            return new HashSet<>(Arrays.asList(this.add(-1,1), this.add(1,1),
-                    this.add(-1,-1), this.add(1,-1)));
+            return new ArrayList<>(Arrays.asList(this.add(-1,1), this.add(1,1),
+                    this.add(1,-1), this.add(-1,-1)));
         } catch (InvalidCoordinatesException e) {
             // It can never happen
             throw new RuntimeException(e);

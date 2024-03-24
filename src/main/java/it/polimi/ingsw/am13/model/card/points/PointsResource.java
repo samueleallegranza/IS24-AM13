@@ -38,7 +38,7 @@ public class PointsResource implements PointsPlayable {
      */
     @Override
     public int calcPoints(CardSidePlayable cardSidePlayable, Field field) {
-        Map<Resource,Integer> freqs=field.countResources();
+        Map<Resource,Integer> freqs=field.getResourcesInField();
         return freqs.get(resource)*points;
     }
 }

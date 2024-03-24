@@ -1,16 +1,49 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
-import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
+import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestPointsPattern {
+
+    final CardSidePlayable starter = new CardSidePlayable(
+            new HashMap<>(),
+            Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
+            new ArrayList<>(),
+            new PointsInstant(0),
+            Color.NO_COLOR
+    );  // nothing
+    final CardStarter starter_card = new CardStarter("starter001", starter, starter);
+
+    private void playCard(Field field, Color color, int x, int y) {
+        try {
+            field.playCardSide(
+                    new CardSidePlayable(
+                            new HashMap<>(),
+                            Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
+                            new ArrayList<>(),
+                            new PointsInstant(0),
+                            color
+                    ), new Coordinates(x, y)
+            );
+        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void playStart(Field field) {
+        try {
+            field.playCardSide(starter, new Coordinates(0,0));
+        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     public void testPointsPatternValidParam() {
@@ -25,52 +58,37 @@ public class TestPointsPattern {
     }
 
     @Test
-    public void testCalcPoints() throws InvalidPointsPatternException {
-        try {
-            PointsPattern points = new PointsPattern(Color.FUNGUS, Color.ANIMAL, Color.ANIMAL,
-                    -1,0, 1);
-            // 2 points for pattern left - under
+    public void testCalcPoints() throws InvalidPointsPatternException, VariableAlreadySetException {
+        PointsPattern points = new PointsPattern(Color.FUNGUS, Color.ANIMAL, Color.ANIMAL,
+                -1,0, 1);
+        // 2 points for pattern F - left - A - under - A
 
-            Field field = new Field(null);
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.FUNGUS), new Coordinates(0,2));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(-1,1));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(-1,-1));
+        Field field = new Field();
+        field.initStartCard(starter_card);
+        playStart(field);
 
-            assertEquals(1, points.calcPoints(field));
+        playCard(field, Color.FUNGUS, -1,-1);
+        playCard(field, Color.ANIMAL, -2,-2);
+        playCard(field, Color.NO_COLOR, -3,-3);
+        assertEquals(0, points.calcPoints(field));
 
-            // Now I add another patter non-intersecting right under the previous one.
-            // There's a column of 4 Animal cards in x=-1
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.FUNGUS), new Coordinates(0,-2));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(-1,-3));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(-1,-5));
+        playCard(field, Color.ANIMAL, -2,-4);
+        assertEquals(1, points.calcPoints(field));
 
-            assertEquals(2, points.calcPoints(field));
+        playCard(field, Color.FUNGUS, -1,-5);
+        playCard(field, Color.ANIMAL, -2,-6);
+        playCard(field, Color.NO_COLOR, -3,-7);
+        playCard(field, Color.ANIMAL, -2,-8);
+        assertEquals(2, points.calcPoints(field));
 
-            // Now I add another patter intersecting between the previous ones.
-            // There's also a column of 3 Fungus cards in x=0
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.FUNGUS), new Coordinates(0,0));
+        // Now I add a Fungus such that 3 pattern intersect. Only 2 should be counted
+        playCard(field, Color.FUNGUS, -1,-3);
+        assertEquals(2, points.calcPoints(field));
 
-            assertEquals(2, points.calcPoints(field));
-
-            //If I add another patter at same level, it should count
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.FUNGUS), new Coordinates(2,0));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(1,-1));
-            field.playCardSide(new CardSidePlayable(null, null, null,
-                    null, Color.ANIMAL), new Coordinates(1,-3));
-
-            assertEquals(3, points.calcPoints(field));
-
-        } catch (InvalidCoordinatesException | InvalidPlayCardException | RequirementsNotMetException e) {
-            throw new RuntimeException(e);
-        }
+        // If I add another patter at the same level, it should not be a problem
+        playCard(field, Color.FUNGUS, 1,-1);
+        playCard(field, Color.ANIMAL, 0,-2);
+        playCard(field, Color.ANIMAL, 0,-4);
+        assertEquals(3, points.calcPoints(field));
     }
 }

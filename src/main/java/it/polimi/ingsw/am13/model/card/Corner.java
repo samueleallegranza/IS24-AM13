@@ -25,8 +25,9 @@ public class Corner {
     private CardSidePlayable link;
 
     /**
-     *This is a constructor of a visible corner
-     * @param resource
+     * This is a constructor of a visible corner
+     * @param resource Resource present on the corner.
+     *                 If the corner is visible but has no resource, use <code>Resource.NO_RESOURCE</code>
      */
     public Corner(Resource resource){
         this.visibility=true;

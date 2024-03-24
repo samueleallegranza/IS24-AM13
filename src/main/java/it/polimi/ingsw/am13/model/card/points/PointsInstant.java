@@ -30,5 +30,4 @@ public class PointsInstant implements PointsPlayable {
     public int calcPoints(CardSidePlayable cardSide, Field field) {
         return points;
     }
-
 }

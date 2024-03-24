@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Representation of an objective card of type 'x points for each pattern with 3 card in a certain position and with certain colors'
+ * Representation of an objective card of type "x points for each pattern with 3 card in a certain position and with certain colors"
  * (fourth type of objective card presented in rulebook).
  * Note that, according to rules, the patterns cannot intersect, and the points are calculating with the maximum number of disjunctive patterns found.
  * The pattern is represented starting from the upper card by using two vectors that can be (-1,-1), (0,-1), (1,-1).
@@ -59,7 +59,7 @@ public class PointsPattern implements PointsObjective {
      * @param pos12 Position of middle card with respect to upper card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
      * @param pos23 Position of bottom card with respect to middle card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
      * @param points How many points the card gives for each complete non-intersecting pattern is present in field
-     * @throws InvalidParameterException If vac12 or vec23 are not among their possible values
+     * @throws InvalidParameterException If pos12 or pos23 are not among their possible values
      */
     public PointsPattern(Color color1, Color color2, Color color3, int pos12, int pos23, int points) throws InvalidPointsPatternException {
         if(pos12!=-1 && pos12!=0 && pos12!=1)
