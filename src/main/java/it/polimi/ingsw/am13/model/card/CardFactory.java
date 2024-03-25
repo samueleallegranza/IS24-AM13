@@ -2,11 +2,9 @@ package it.polimi.ingsw.am13.model.card;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.polimi.ingsw.am13.model.card.points.PointsCorner;
-import it.polimi.ingsw.am13.model.card.points.PointsInstant;
-import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
-import it.polimi.ingsw.am13.model.card.points.PointsResource;
+import it.polimi.ingsw.am13.model.card.points.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,29 +12,17 @@ import java.util.*;
 
 // initDecks di match chiamerà 4 volte questi metodi in modo da creare i 4 deck
 
-// nomenclatura angoli delle carte:
-// e - empty: visibility = true, noresource
-// n - nothing: visibility = false, noresource
-// p - plant
-// a - animal
-// i - insect
-// f - fungus
-// q - quill
-// m - manuscript
-// w - inkwell
-
-// nomenclatura pointsType delle cardGold
-// c - PointsCorner
-// n - PointsInstant
-// q/m/w - Points
-
-// nomenclatura pointsType di cardsObjective
-// p - pattern
-// s - set: se il set ha elementi di tipo diverso allora req è un tipo
-
 public class CardFactory {
+    /**
+     * Path to <code>card_data.json</code> file
+     */
     private final static String CARD_JSON_PATH = "src/main/resources/json/card_data.json";
 
+    /**
+     * Deserializes a list of Resource cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
+     * @return LinkedList of CardResource
+     * @throws InvalidCardCreationException if it fails to create a valid card
+     */
     public LinkedList<CardResource> createCardsResource() throws InvalidCardCreationException {
         LinkedList<CardResource> deck = new LinkedList<>();
         try {
@@ -70,12 +56,17 @@ public class CardFactory {
                 deck.add(new CardResource(id, sideFront, sideBack));
             }
 
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
     }
 
+    /**
+     * Deserializes a list of Gold cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
+     * @return LinkedList of CardGold
+     * @throws InvalidCardCreationException if it fails to create a valid card
+     */
     public LinkedList<CardGold> createCardsGold() throws InvalidCardCreationException{
         LinkedList<CardGold> deck = new LinkedList<>();
         try {
@@ -121,20 +112,102 @@ public class CardFactory {
                 deck.add(new CardGold(id, sideFront, sideBack));
             }
 
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
     }
 
-    public LinkedList<CardStarter> createCardsStarter() {
-        return null;
+    /**
+     * Deserializes a list of Starter cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
+     * @return LinkedList of CardStarter
+     * @throws InvalidCardCreationException if it fails to create a valid card
+     */
+    public LinkedList<CardStarter> createCardsStarter() throws InvalidCardCreationException{
+        LinkedList<CardStarter> deck = new LinkedList<>();
+        try {
+            JsonNode cardsFront = getFrontsNode("cardsStarter");
+            JsonNode cardsBack = getBacksNode("cardsStarter");
+            JsonNode cardFront;
+            JsonNode cardBack;
+
+            for (int i = 0; i < 16; i++) {
+                cardFront = cardsFront.get(i);
+                cardBack = cardsBack.get(i);
+
+                String id = cardFront.get("code").asText().replace("f","");
+                Color color = Color.NO_COLOR;
+                // --- SideFront construction
+                // starterCards have no requirements so the map is empty
+                Map<Resource, Integer> reqs = new HashMap<>();
+                List<Corner> cornersFront = getCorners(cardFront);
+                List<Resource> centerFront = new ArrayList<>();
+                int j=0;
+                while (cardFront.get("center").get(j) != null && j<3){
+                    centerFront.add(resourceConverter(cardFront.get("center").get(j).asText().charAt(0)));
+                    j++;
+                }
+                // cardStarters never reward points
+                PointsPlayable pointsFront = new PointsInstant(0);
+                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color);
+
+                // -- SideBack construction
+                List<Corner> cornersBack = getCorners(cardBack);
+                List<Resource> centerBack = new ArrayList<>();
+                // cardBacks never reward points
+                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsFront, color);
+                deck.add(new CardStarter(id, sideFront, sideBack));
+            }
+
+        } catch (IOException | RuntimeException e) {
+            throw new InvalidCardCreationException(e.getMessage());
+        }
+        return deck;
     }
 
-    public LinkedList<CardObjective> createCardsObjective() {
-        return null;
+    /**
+     * Deserializes a list of Objective cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
+     * @return LinkedList of CardObjective
+     * @throws InvalidCardCreationException if it fails to create a valid card
+     */
+    public LinkedList<CardObjective> createCardsObjective()  throws InvalidCardCreationException{
+        LinkedList<CardObjective> deck = new LinkedList<>();
+        try {
+            JsonNode cardsFront = getFrontsNode("cardsObjective");
+            JsonNode cardFront;
+
+            for (int i = 0; i < 16; i++) {
+                cardFront = cardsFront.get(i);
+
+                String id = cardFront.get("code").asText().replace("f","");
+                // --- SideFront construction
+                int points = cardFront.get("points").asInt();
+                // pointsType p = pattern
+                if(cardFront.get("pointsType").asText().charAt(0) == 'p'){
+                    Color col1 = colorConverter(cardFront.get("color1").asText());
+                    Color col2 = colorConverter(cardFront.get("color2").asText());
+                    Color col3 = colorConverter(cardFront.get("color3").asText());
+                    int pos12 = cardFront.get("pos1").asInt();
+                    int pos23 = cardFront.get("pos1").asInt();
+                    deck.add(new CardObjective(id, points, col1, col2, col3, pos12, pos23));
+                } else if (cardFront.get("pointsType").asText().charAt(0) == 's') {
+                    Map<Resource, Integer> set = new HashMap<>();
+                    int j = 0;
+                    while(cardFront.get("set").get(j) != null && j<3){
+                        set.put(resourceConverter(cardFront.get("set").get(j).get("type").asText().charAt(0)), cardFront.get("reqs").get(j).get("num").asInt());
+                        j++;
+                    }
+                    deck.add(new CardObjective(id, points, set));
+                }
+            }
+
+        } catch (IOException | InvalidPointsPatternException | RuntimeException e) {
+            throw new InvalidCardCreationException(e.getMessage());
+        }
+        return deck;
     }
 
+    // Utils methods
     private JsonNode getFrontsNode(String cardType) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         try {

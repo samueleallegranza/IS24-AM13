@@ -930,28 +930,34 @@
           ]
         }
       ],
-      "cardBack" : [{}]
+      "cardBack" : [
+        {
+          "code":"s000b",
+          "ul":"f",
+          "ur":"p",
+          "lr":"a",
+          "ll":"i",
+          "center":[
+          ]
+        }
+      ]
     },
     "cardsObjective": {
       "cardFront" : [
         {
           "code":"o000f",
           "pointsType" : "p",
-          "color1": "",
-          "color2": "",
-          "color3": "",
-          "pos1": "",
-          "pos2": "",
-          "points" : ""
+          "color1": "f",
+          "color2": "f",
+          "color3": "f",
+          "pos1": "-1",
+          "pos2": "-1",
+          "points" : "2"
         },
         {
-          "code":"o001f",
+          "code":"o008f",
           "pointsType" : "s",
-          "reqs":[
-            {
-              "type":"f",
-              "num": 3
-            },
+          "set":[
             {
               "type":"f",
               "num": 3
