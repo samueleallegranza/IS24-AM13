@@ -37,8 +37,8 @@ public class CardSidePlayable {
      * This is the constructor of a cardSidePlayable
      * @param requirements the resources needed to play this card side(it's empty if no resource is required)
      * @param corners the 4 corners of the card side(in order, they are: upper left, upper right, lower right, lower left)
-     * @param centerResources the resources at the center of the card side
-     * @param points the points the player gets when playing this card side
+     * @param centerResources the resources at the center of the card side(it's empty if there are no resources in the center)
+     * @param points the points the player gets when playing this card side(use PointsInstant(0) if the card rewards no points)
      * @param color the color of this card
      */
     public CardSidePlayable(Map<Resource, Integer> requirements, List<Corner> corners, List<Resource> centerResources, PointsPlayable points, Color color) {

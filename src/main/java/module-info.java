@@ -3,6 +3,7 @@ module it.polimi.ingsw.am13 {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
+    requires com.fasterxml.jackson.databind;
 
     opens it.polimi.ingsw.am13 to javafx.fxml;
     exports it.polimi.ingsw.am13;
