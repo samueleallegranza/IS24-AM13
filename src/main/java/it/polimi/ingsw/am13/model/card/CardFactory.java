@@ -20,7 +20,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Resource cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return LinkedList of CardResource
+     * @return <code>LinkedList<></code> of CardResource
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardResource> createCardsResource() throws InvalidCardCreationException {
@@ -33,7 +33,7 @@ public class CardFactory {
 
             for (int i = 0; i < 40; i++) {
                 cardFront = cardsFront.get(i);
-                cardBack = cardsBack.get(i);
+                cardBack = cardsBack.get((i/10)%10);
 
                 String id = cardFront.get("code").asText().replace("f","");
                 Color color = colorConverter(cardBack.get("center").asText());
@@ -56,7 +56,7 @@ public class CardFactory {
                 deck.add(new CardResource(id, sideFront, sideBack));
             }
 
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
@@ -64,7 +64,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Gold cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return LinkedList of CardGold
+     * @return <code>LinkedList<></code> of CardGold
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardGold> createCardsGold() throws InvalidCardCreationException{
@@ -77,7 +77,7 @@ public class CardFactory {
 
             for (int i = 0; i < 40; i++) {
                 cardFront = cardsFront.get(i);
-                cardBack = cardsBack.get(i);
+                cardBack = cardsBack.get((i/10)%10);
 
                 String id = cardFront.get("code").asText().replace("f","");
                 Color color = colorConverter(cardBack.get("center").asText());
@@ -112,7 +112,7 @@ public class CardFactory {
                 deck.add(new CardGold(id, sideFront, sideBack));
             }
 
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
@@ -120,7 +120,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Starter cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return LinkedList of CardStarter
+     * @return <code>LinkedList<></code> of CardStarter
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardStarter> createCardsStarter() throws InvalidCardCreationException{
@@ -131,7 +131,7 @@ public class CardFactory {
             JsonNode cardFront;
             JsonNode cardBack;
 
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 6; i++) {
                 cardFront = cardsFront.get(i);
                 cardBack = cardsBack.get(i);
 
@@ -159,7 +159,7 @@ public class CardFactory {
                 deck.add(new CardStarter(id, sideFront, sideBack));
             }
 
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
@@ -167,7 +167,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Objective cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return LinkedList of CardObjective
+     * @return <code>LinkedList<></code> of CardObjective
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardObjective> createCardsObjective()  throws InvalidCardCreationException{
@@ -188,7 +188,7 @@ public class CardFactory {
                     Color col2 = colorConverter(cardFront.get("color2").asText());
                     Color col3 = colorConverter(cardFront.get("color3").asText());
                     int pos12 = cardFront.get("pos1").asInt();
-                    int pos23 = cardFront.get("pos1").asInt();
+                    int pos23 = cardFront.get("pos2").asInt();
                     deck.add(new CardObjective(id, points, col1, col2, col3, pos12, pos23));
                 } else if (cardFront.get("pointsType").asText().charAt(0) == 's') {
                     Map<Resource, Integer> set = new HashMap<>();
@@ -201,24 +201,34 @@ public class CardFactory {
                 }
             }
 
-        } catch (IOException | InvalidPointsPatternException | RuntimeException e) {
+        } catch (IOException | InvalidPointsPatternException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
     }
 
     // Utils methods
+    /**
+     *
+     * @param cardType String used to reference this card type in the <code>card_data.json</code>
+     * @return JsonNode of the list of "front sides" of the given {@code cardType}
+     * @throws IOException If it fails to retrieve the correct JsonNode from the JSON file
+     * @see JsonNode
+     */
     private JsonNode getFrontsNode(String cardType) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode jsonRootNode = mapper.readTree(new File(CARD_JSON_PATH));
-            JsonNode cardTypeNode = jsonRootNode.get("cards").get(cardType);
-            return cardTypeNode.get("cardsFront");
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        JsonNode jsonRootNode = mapper.readTree(new File(CARD_JSON_PATH));
+        JsonNode cardTypeNode = jsonRootNode.get("cards").get(cardType);
+        return cardTypeNode.get("cardsFront");
     }
+
+    /**
+     *
+     * @param cardType String used to reference this card type in the <code>card_data.json</code>
+     * @return JsonNode of the list of "front sides" of the given {@code cardType}
+     * @throws IOException If it fails to retrieve the correct JsonNode from the JSON file
+     * @see JsonNode
+     */
     private JsonNode getBacksNode(String cardType) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -231,6 +241,11 @@ public class CardFactory {
         }
     }
 
+    /**
+     *
+     * @param cardSide {@code JsonNode} of the card side to which the corners are a part of.
+     * @return <code>List<></code> of {@link Corner} objects
+     */
     private List<Corner> getCorners(JsonNode cardSide){
         List<Corner> corners = new ArrayList<>();
         char[] crnrs = new char[4];
@@ -247,12 +262,22 @@ public class CardFactory {
         return corners;
     }
 
+    /**
+     *
+     * @param c
+     * @return corresponding {@link Corner}
+     */
     private Corner cornerConverter(char c){
         if(c == 'n')
             return new Corner();
         return new Corner(resourceConverter(c));
     }
 
+    /**
+     *
+     * @param s
+     * @return corresponding {@link Color}
+     */
     private Color colorConverter(String s){
         char c = s.charAt(0);
         return switch (c) {
@@ -264,10 +289,14 @@ public class CardFactory {
         };
     }
 
+    /**
+     *
+     * @param c
+     * @return corresponding {@link Resource}
+     */
     private Resource resourceConverter(char c){
         return switch (c) {
-            case 'n' -> Resource.NO_RESOURCE;
-            case 'e' -> Resource.NO_RESOURCE;
+            case 'n', 'e' -> Resource.NO_RESOURCE;
             case 'p' -> Resource.PLANT;
             case 'a' -> Resource.ANIMAL;
             case 'f' -> Resource.FUNGUS;
@@ -279,6 +308,10 @@ public class CardFactory {
         };
     }
 
+    /**
+     *
+     * @return <code>List</code> of empty corners
+     */
     private List<Corner> emptyCorners(){
         List<Corner> emptyCorners = new ArrayList<>();
         for (int j = 0; j < 4; j++) {
