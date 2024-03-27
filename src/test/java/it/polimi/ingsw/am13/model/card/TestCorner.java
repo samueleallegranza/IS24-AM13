@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.card.points.PointsInstant;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ public class TestCorner {
      * This test verifies that isPlaceable and addLink are working correctly
      */
     @Test
-    public void testCheckPlaceable(){
+    public void testCheckPlaceable() throws InvalidCardCreationException {
         Resource r=Resource.FUNGUS;
         Corner corner=new Corner(r);
         assertEquals(r,corner.getResource());
@@ -22,7 +23,7 @@ public class TestCorner {
         corner.coverCorner();
         assertFalse(corner.isPlaceable());
         int npoints=3;
-        CardSidePlayable cardSidePlayable=new CardSidePlayable(new HashMap<>(),new ArrayList<>(),new ArrayList<>(),new PointsInstant(npoints), Color.NO_COLOR);
+        CardSidePlayable cardSidePlayable=new CardSidePlayable(new HashMap<>(),Corner.generateEmptyCorners(),new ArrayList<>(),new PointsInstant(npoints), Color.NO_COLOR);
         try{
             corner.addLinkToCard(cardSidePlayable);
             assertEquals(corner.getLink(),cardSidePlayable);

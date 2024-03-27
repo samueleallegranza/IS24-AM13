@@ -22,6 +22,9 @@ public class TestPointsPattern {
     );  // nothing
     final CardStarter starter_card = new CardStarter("starter001", starter, starter);
 
+    public TestPointsPattern() throws InvalidCardCreationException {
+    }
+
     private void playCard(Field field, Color color, int x, int y) {
         try {
             field.playCardSide(
@@ -33,7 +36,8 @@ public class TestPointsPattern {
                             color
                     ), new Coordinates(x, y)
             );
-        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException e) {
+        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException |
+                 InvalidCardCreationException e) {
             throw new RuntimeException(e);
         }
     }

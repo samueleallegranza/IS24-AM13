@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.List;
@@ -40,8 +41,14 @@ public class CardSidePlayable {
      * @param centerResources the resources at the center of the card side(it's empty if there are no resources in the center)
      * @param points the points the player gets when playing this card side(use PointsInstant(0) if the card rewards no points)
      * @param color the color of this card
+     * @throws InvalidCardCreationException If list of corners is not of size 4, or requirements or centerResources contain <code>Resource.NO_RESOURCE</code>
      */
-    public CardSidePlayable(Map<Resource, Integer> requirements, List<Corner> corners, List<Resource> centerResources, PointsPlayable points, Color color) {
+    public CardSidePlayable(Map<Resource, Integer> requirements, List<Corner> corners, List<Resource> centerResources,
+                            PointsPlayable points, Color color) throws InvalidCardCreationException {
+        if(corners.size()!=4)
+            throw new InvalidCardCreationException("The card side " + this + " is tried to be created with a list of corners not of size 4");
+        if(requirements.containsKey(Resource.NO_RESOURCE) || centerResources.contains(Resource.NO_RESOURCE))
+            throw new InvalidCardCreationException("You're trying to create a playable card side with requirements or centerResources containing NO_RESOURCE");
         this.requirements = requirements;
         this.corners = corners;
         this.centerResources = centerResources;

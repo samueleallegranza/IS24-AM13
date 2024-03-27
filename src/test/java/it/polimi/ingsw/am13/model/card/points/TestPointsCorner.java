@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ public class TestPointsCorner {
      * In particular, it checks that by adding two links, the calculated value is 2*points
      */
     @Test
-    public void testSetGet(){
+    public void testSetGet() throws InvalidCardCreationException {
         int points=2;
         Map<Resource,Integer> req=new HashMap<>();
         List<Corner> corners= Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner(Resource.PLANT));

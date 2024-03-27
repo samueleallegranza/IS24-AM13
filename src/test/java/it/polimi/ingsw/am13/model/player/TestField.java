@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.card.points.PointsInstant;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
-import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
-import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
+import it.polimi.ingsw.am13.model.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -18,7 +15,7 @@ public class TestField {
     private final HashMap<Resource, Integer> norequirements = new HashMap<>();
 
     @Test
-    public void testGetCardAtCoord() {
+    public void testGetCardAtCoord() throws InvalidCardCreationException {
         try {
             CardSidePlayable starter = new CardSidePlayable(
                     norequirements,
@@ -60,7 +57,7 @@ public class TestField {
     }
 
     @Test
-    public void testGetRoot() {
+    public void testGetRoot() throws InvalidCardCreationException {
         try {
             CardSidePlayable starter = new CardSidePlayable(
                     norequirements,
@@ -99,7 +96,7 @@ public class TestField {
     }
 
     @Test
-    void testGetAvailableCoord() throws InvalidCoordinatesException, RequirementsNotMetException, InvalidPlayCardException, VariableAlreadySetException {
+    void testGetAvailableCoord() throws InvalidCoordinatesException, RequirementsNotMetException, InvalidPlayCardException, VariableAlreadySetException, InvalidCardCreationException {
         CardSidePlayable starter = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
@@ -144,7 +141,7 @@ public class TestField {
     }
 
     @Test
-    public void testCountResources() {
+    public void testCountResources() throws InvalidCardCreationException {
         CardSidePlayable starter_clear = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
@@ -218,7 +215,7 @@ public class TestField {
     }
 
     @Test
-    public void testCountResources2() {
+    public void testCountResources2() throws InvalidCardCreationException {
         try {
             Field field = new Field();
             CardSidePlayable startSide = new CardSidePlayable(
@@ -274,7 +271,7 @@ public class TestField {
                     new CardSidePlayable(
                             new HashMap<>(),
                             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
-                            List.of(Resource.NO_RESOURCE),
+                            new ArrayList<>(),
                             new PointsInstant(0),
                             Color.NO_COLOR
                     ), new Coordinates(3,1)

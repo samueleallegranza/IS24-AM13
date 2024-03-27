@@ -2,10 +2,7 @@ package it.polimi.ingsw.am13.model.card.points;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayCardException;
-import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
-import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
+import it.polimi.ingsw.am13.model.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import it.polimi.ingsw.am13.model.card.*;
@@ -15,46 +12,9 @@ import java.util.*;
 
 public class TestPointsSet {
 
-    final CardSidePlayable starter = new CardSidePlayable(
-            new HashMap<>(),
-            Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
-            new ArrayList<>(),
-            new PointsInstant(0),
-            Color.NO_COLOR
-    );  // nothing
-    final CardStarter starter_card = new CardStarter("starter001", starter, starter);
-
-    CardSidePlayable side1 = new CardSidePlayable(
-            new HashMap<>(),
-            Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
-            List.of(Resource.PLANT),
-            new PointsInstant(0),
-            Color.NO_COLOR
-    );  // 4 plant
-    CardSidePlayable side2 = new CardSidePlayable(
-            new HashMap<>(),
-            Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE), new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE)),
-            List.of(Resource.ANIMAL),
-            new PointsInstant(0),
-            Color.NO_COLOR
-    );  // 3 animal
-    CardSidePlayable side3 = new CardSidePlayable(
-            new HashMap<>(),
-            Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
-            List.of(Resource.PLANT),
-            new PointsInstant(0),
-            Color.NO_COLOR
-    );  // 4 plant
-    CardSidePlayable side4 = new CardSidePlayable(
-            new HashMap<>(),
-            Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
-            List.of(Resource.PLANT),
-            new PointsInstant(0),
-            Color.NO_COLOR
-    );  // 4 plant
 
     @Test
-    public void testCalcPoints1(){
+    public void testCalcPoints1() throws InvalidCardCreationException {
         try {
             Map<Resource, Integer> resForPoints = new HashMap<>();
             resForPoints.put(Resource.ANIMAL, 1);
@@ -123,7 +83,7 @@ public class TestPointsSet {
                     new CardSidePlayable(
                             new HashMap<>(),
                             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
-                            List.of(Resource.NO_RESOURCE),
+                            List.of(),
                             new PointsInstant(0),
                             Color.NO_COLOR
                     ), new Coordinates(3,1)

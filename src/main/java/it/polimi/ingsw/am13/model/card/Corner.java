@@ -2,6 +2,9 @@ package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This is a class that represents one of the four corners of the side of a card
  */
@@ -90,6 +93,15 @@ public class Corner {
     public void addLinkToCard(CardSidePlayable cardSidePlayable) throws VariableAlreadySetException {
         if(link!=null) throw new VariableAlreadySetException();
         link=cardSidePlayable;
+    }
+
+    /**
+     * Utility method useful for tests. Generates a list of four visible empty corners (as in back side of resource cards)
+     * @return New list of four visible empty corners (as in back side of resource cards)
+     */
+    public static List<Corner> generateEmptyCorners() {
+        return Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE),
+                new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE));
     }
 
 }
