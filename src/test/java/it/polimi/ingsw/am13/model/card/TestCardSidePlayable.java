@@ -27,11 +27,6 @@ public class TestCardSidePlayable {
         CardSidePlayable starterFront=new CardSidePlayable(requirements,corners,centerResources,points, Color.NO_COLOR);
         CardStarter cardStarter=new CardStarter("s001",starterFront,starterFront);
         Field field=new Field();
-        try {
-            field.initStartCard(cardStarter);
-        } catch (VariableAlreadySetException e) {
-            throw new RuntimeException(e);
-        }
         assertEquals(npoints,starterFront.calcPoints(field));
     }
 }

@@ -26,11 +26,6 @@ public class TestPointsCorner {
         CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR);
         CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
         Field field=new Field();
-        try {
-            field.initStartCard(cardStarter);
-        } catch (VariableAlreadySetException e) {
-            throw new RuntimeException(e);
-        }
         assertEquals(0,pointsCorner.calcPoints(cardSide,field));
         try {
             corners.get(0).addLinkToCard(cardSide);

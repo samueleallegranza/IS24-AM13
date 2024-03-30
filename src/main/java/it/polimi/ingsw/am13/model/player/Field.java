@@ -13,12 +13,6 @@ import java.util.*;
  */
 public class Field {
     /**
-     * Link to the starter card positioned at coordinates (0,0).
-     */
-    private CardStarter startCard;
-    // TODO: does startCard still need to be saved here?
-
-    /**
      * Description of the player's card positions using a sparse matrix representation.
      * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.
      */
@@ -34,25 +28,12 @@ public class Field {
      * Constructor of the Field. It initializes all resource counters to 0.
      */
     public Field() {
-        this.startCard = null;
         field = new HashMap<>();
         resources = new HashMap<>();
 
         // Initialization of resources
         for(Resource res: Resource.values())
             resources.put(res, 0);
-    }
-
-    /**
-     * Initialize the start card for the Field. Once initialized, the start card cannot change.
-     * This method only stores start card, but does not actually play it. It corresponds to player only drawing the start card.
-     * @param startCard Start card to be set for the field
-     * @throws VariableAlreadySetException If the start card has been already set
-     */
-    public void initStartCard(CardStarter startCard) throws VariableAlreadySetException {
-        if(this.startCard != null)
-            throw new VariableAlreadySetException();
-        this.startCard = startCard;
     }
 
     /**
@@ -187,10 +168,8 @@ public class Field {
      */
     public void playCardSide(CardSidePlayable card, Coordinates coords) throws InvalidPlayCardException, RequirementsNotMetException {
         // A move can be done only after startCard has been set, and the first move can be only to play a side of startCard in (0,0)
-        if(startCard==null || (field.isEmpty() && !coords.hasCoords(0,0)))
+        if(field.isEmpty() && !coords.hasCoords(0,0))
             throw new InvalidPlayCardException("Starter card not yet set, or trying to play without playing starter card before");
-        if(coords.hasCoords(0,0) && card!=startCard.getFront() && card!=startCard.getBack())
-            throw new InvalidPlayCardException("Card side played as first is not a side of Starter card " + startCard);
 
         // check if card is placeable at given coord, if not throw Exception
         if(!cardIsPlaceableAtCoord(coords)) {

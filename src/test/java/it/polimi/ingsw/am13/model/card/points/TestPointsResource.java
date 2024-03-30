@@ -22,11 +22,6 @@ public class TestPointsResource {
         CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,pointsResource, Color.PLANT);
         CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
         Field field=new Field();
-        try {
-            field.initStartCard(cardStarter);
-        } catch (VariableAlreadySetException e) {
-            throw new RuntimeException(e);
-        }
         Coordinates origin;
         try{
             origin=new Coordinates(0,0);

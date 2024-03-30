@@ -41,7 +41,6 @@ public class TestField {
             );
 
             Field f = new Field();
-            f.initStartCard(starter_card);
             f.playCardSide(starter, new Coordinates(0,0));
             f.playCardSide(resource1, new Coordinates(1, 1));
             f.playCardSide(resource2, new Coordinates(1, -1));
@@ -50,7 +49,7 @@ public class TestField {
             assert(f.getCardAtCoord(new Coordinates(1,1)) == resource1);
             assert(f.getCardAtCoord(new Coordinates(1,-1)) == resource2);
             assert(f.getCardAtCoord(new Coordinates(-99,-99)) == null);
-        } catch (VariableAlreadySetException | InvalidPlayCardException | InvalidCoordinatesException |
+        } catch (InvalidPlayCardException | InvalidCoordinatesException |
                  RequirementsNotMetException e) {
             throw new RuntimeException(e);
         }
@@ -83,13 +82,12 @@ public class TestField {
             );
 
             Field f = new Field();
-            f.initStartCard(starter_card);
             f.playCardSide(starter, new Coordinates(0,0));
             f.playCardSide(resource1, new Coordinates(1, 1));
             f.playCardSide(resource2, new Coordinates(1, -1));
 
             assertSame(f.getRoot(), starter);
-        } catch (VariableAlreadySetException | InvalidPlayCardException | RequirementsNotMetException |
+        } catch (InvalidPlayCardException | RequirementsNotMetException |
                  InvalidCoordinatesException e) {
             throw new RuntimeException(e);
         }
@@ -121,7 +119,6 @@ public class TestField {
         );
 
         Field f = new Field();
-        f.initStartCard(starter_card);
         f.playCardSide(starter, new Coordinates(0,0));
         f.playCardSide(resource1, new Coordinates(1, 1));
         f.playCardSide(resource2, new Coordinates(1, -1));
@@ -161,7 +158,6 @@ public class TestField {
 
         try {
             Field field = new Field();
-            field.initStartCard(starter_clear_card);
             field.playCardSide(starter_clear, new Coordinates(0,0));
 
             field.playCardSide(
@@ -208,8 +204,7 @@ public class TestField {
             assertEquals(6,freqs.get(Resource.ANIMAL));
             assertEquals(5,freqs.get(Resource.PLANT));
 
-        } catch (RequirementsNotMetException | InvalidCoordinatesException | InvalidPlayCardException |
-                 VariableAlreadySetException e) {
+        } catch (RequirementsNotMetException | InvalidCoordinatesException | InvalidPlayCardException e) {
             throw new RuntimeException(e);
         }
     }
@@ -225,7 +220,6 @@ public class TestField {
                     new PointsInstant(0),
                     Color.NO_COLOR
             );
-            field.initStartCard(new CardStarter("s001f", startSide, startSide));
             field.playCardSide(startSide, new Coordinates(0,0)
             );
             assertEquals(0, field. getResourcesInField().get(Resource.PLANT));
@@ -278,8 +272,7 @@ public class TestField {
             );      // I should cover 1 animal
             assertEquals(8, field. getResourcesInField().get(Resource.PLANT));
             assertEquals(2, field.getResourcesInField().get(Resource.ANIMAL));
-        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException |
-                 VariableAlreadySetException e) {
+        } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException e) {
             throw new RuntimeException(e);
         }
     }

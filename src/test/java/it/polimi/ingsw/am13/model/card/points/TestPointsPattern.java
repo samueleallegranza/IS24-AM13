@@ -68,7 +68,6 @@ public class TestPointsPattern {
         // 2 points for pattern F - left - A - under - A
 
         Field field = new Field();
-        field.initStartCard(starter_card);
         playStart(field);
 
         playCard(field, Color.FUNGUS, -1,-1);
