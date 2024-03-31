@@ -1182,7 +1182,7 @@
         }]
     },
     "cardsStarter": {
-      "cardFront" : [
+      "cardsFront" : [
         {
           "code":"s000f",
           "ul":"e",
@@ -1250,7 +1250,7 @@
           ]
         }
       ],
-      "cardBack" : [
+      "cardsBack" : [
         {
           "code":"s000b",
           "ul":"f",
@@ -1308,7 +1308,7 @@
       ]
     },
     "cardsObjective": {
-      "cardFront" : [
+      "cardsFront" : [
         {
           "code":"o000f",
           "pointsType" : "p",

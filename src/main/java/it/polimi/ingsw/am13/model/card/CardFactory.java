@@ -197,7 +197,7 @@ public class CardFactory {
                     Map<Resource, Integer> set = new HashMap<>();
                     int j = 0;
                     while(cardFront.get("set").get(j) != null && j<3){
-                        set.put(resourceConverter(cardFront.get("set").get(j).get("type").asText().charAt(0)), cardFront.get("reqs").get(j).get("num").asInt());
+                        set.put(resourceConverter(cardFront.get("set").get(j).get("type").asText().charAt(0)), cardFront.get("set").get(j).get("num").asInt());
                         j++;
                     }
                     deck.add(new CardObjective(id, points, set));
