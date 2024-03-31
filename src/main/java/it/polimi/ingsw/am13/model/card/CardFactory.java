@@ -10,7 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-// initDecks di match chiamerà 4 volte questi metodi in modo da creare i 4 deck
+/**
+ * This class parses the information of card_json and creates {@link Card}
+ * objects in accordance to the Factory pattern
+ */
 
 public class CardFactory {
     /**
