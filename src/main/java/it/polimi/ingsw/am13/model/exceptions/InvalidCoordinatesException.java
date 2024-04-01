@@ -5,4 +5,7 @@ package it.polimi.ingsw.am13.model.exceptions;
  * game coordinates used improperly during the game itself.
  */
 public class InvalidCoordinatesException extends ModelException {
+    public InvalidCoordinatesException() {
+        super();
+    }
 }

@@ -111,7 +111,7 @@ public class CardFactory {
                 centerBack.add(resourceConverter(cardBack.get("center").asText().charAt(0)));
                 // cardBacks never reward points
                 PointsPlayable pointsBack = new PointsInstant(0);
-                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsBack, color);
+                CardSidePlayable sideBack = new CardSidePlayable(new HashMap<>(), cornersBack, centerBack, pointsBack, color);
                 deck.add(new CardGold(id, sideFront, sideBack));
             }
 

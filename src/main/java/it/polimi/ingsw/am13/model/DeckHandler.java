@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.model.card.Card;
+import it.polimi.ingsw.am13.model.card.CardPlayable;
 import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 /**
@@ -18,18 +20,23 @@ public class DeckHandler<T extends Card>{
     /**
      * It stores the deck's two cards which are visible at all times on the field.
      */
-    private List<T> visibleCards;
+    private final List<T> visibleCards;
 
     /**
      * Creates a new {@link Deck} and the two visible cards by drawing them from the deck.
      * @param deck LinkedList of the deck's cards
-     * @throws InvalidDrawCardException if the initialized deck is empty
      */
-    public DeckHandler(LinkedList<T> deck) throws InvalidDrawCardException{
+    public DeckHandler(LinkedList<T> deck){
         this.deck = new Deck<T>(deck);
         this.deck.shuffle();
-        visibleCards.add(drawFromDeck());
-        visibleCards.add(drawFromDeck());
+        visibleCards=new ArrayList<>();
+        try {
+            visibleCards.add(drawFromDeck());
+            visibleCards.add(drawFromDeck());
+        }
+        catch (InvalidDrawCardException e){
+            System.out.println("The passed list in not sufficiently big to initialize the deck");
+        }
     }
 
     /**
@@ -38,6 +45,7 @@ public class DeckHandler<T extends Card>{
      * @throws InvalidDrawCardException if the deck is empty
      */
     public T drawFromDeck() throws InvalidDrawCardException {
+        //System.out.println("deckk");
         return deck.draw();
     }
 
@@ -51,7 +59,9 @@ public class DeckHandler<T extends Card>{
      */
     public T drawFromTable(int visibleIndex) throws InvalidDrawCardException{
         T card = visibleCards.get(visibleIndex);
-        visibleCards.add(visibleIndex, deck.draw());
+        visibleCards.remove(visibleIndex);
+        if(!deck.isEmpty())
+            visibleCards.add(visibleIndex, deck.draw());
         return card;
     }
 
@@ -73,5 +83,41 @@ public class DeckHandler<T extends Card>{
      */
     public boolean isDeckEmpty(){
         return deck.isEmpty();
+    }
+
+    /**
+     * Retrieves a copy of the first card of the deck without removing it.
+     * This method should not be used to carry out the game flow.
+     * @return the first card of the deck
+     * @throws InvalidDrawCardException if the deck is empty
+     */
+    public T getDeckTop() throws InvalidDrawCardException {
+        return deck.getTop();
+    }
+
+    public List<T> getVisibleCards(){
+        return visibleCards;
+    }
+    public List<T> getPickables() throws InvalidDrawCardException{
+        List<T> pickableCards=new ArrayList<>();
+        if(!deck.isEmpty())
+            pickableCards.add(deck.getTop());
+        pickableCards.addAll(visibleCards);
+        return pickableCards;
+    }
+
+    public boolean pickCard(CardPlayable cardPlayable) throws InvalidDrawCardException{
+        boolean found=false;
+        if(!deck.isEmpty() && getDeckTop()==cardPlayable){
+            drawFromDeck();
+            found=true;
+        }
+        for (int i = 0; i < visibleCards.size() && !found; i++) {
+            if(showFromTable(i)==cardPlayable){
+                drawFromTable(i);
+                found=true;
+            }
+        }
+        return found;
     }
 }

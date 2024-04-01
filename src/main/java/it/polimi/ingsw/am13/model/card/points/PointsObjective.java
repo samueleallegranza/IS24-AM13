@@ -3,7 +3,7 @@ package it.polimi.ingsw.am13.model.card.points;
 import it.polimi.ingsw.am13.model.player.Field;
 
 /**
- * Representation of points of a objective card.
+ * Representation of points of an objective card.
  * It contains information about how to calculate the points, and allows to actually calculate them given a field.
  * Following the game rules, it should be used to calculate points once the turn-phase is finished.
  */

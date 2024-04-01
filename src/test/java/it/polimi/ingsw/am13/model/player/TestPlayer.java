@@ -51,9 +51,14 @@ public class TestPlayer {
                 2,
                 objres
         );
-
+        //set possible personal objectives
+        player.initPossiblePersonalObjectives(objectiveCard,objectiveCard);
         // Initialize objective card for the player
-        player.initObjective(objectiveCard);
+        try{
+            player.initObjective(objectiveCard);
+        } catch (InvalidChoiceException e){
+            System.out.println("The passed objective card is not one of the two objective cards assigned to the given player");
+        }
 
         // Attempt to initialize objective card again, should throw VariableAlreadySetException
         assertThrows(VariableAlreadySetException.class, () -> {
@@ -89,8 +94,11 @@ public class TestPlayer {
         player.initStarter(starterCard);
 
         // Play the starter card front side
-        player.playStarter(Side.SIDEFRONT);
-
+        try {
+            player.playStarter(Side.SIDEFRONT);
+        } catch (InvalidChoiceException e){
+            System.out.println("The passed side does not belong to the starter card assigned to the given player");
+        }
         // Attempt to play the starter card again, should throw InvalidPlayCardException
         assertThrows(InvalidPlayCardException.class, () -> {
             player.playStarter(Side.SIDEBACK);
@@ -98,7 +106,7 @@ public class TestPlayer {
     }
 
     @Test
-    public void testPlayCard() throws InvalidCardCreationException, VariableAlreadySetException, PlayerHandException, InvalidPlayCardException, RequirementsNotMetException, PlayerHandException, InvalidCoordinatesException {
+    public void testPlayCard() throws InvalidCardCreationException, VariableAlreadySetException, InvalidPlayCardException, RequirementsNotMetException, PlayerHandException, InvalidCoordinatesException {
         // Create a Player instance
         Player player = new Player("TestPlayer", new Token(ColorToken.RED));
 
@@ -125,8 +133,11 @@ public class TestPlayer {
         player.initStarter(starterCard);
 
         // Play the starter card front side
-        player.playStarter(Side.SIDEFRONT);
-
+        try {
+            player.playStarter(Side.SIDEFRONT);
+        }catch (InvalidChoiceException e){
+            System.out.println("The passed side does not belong to the starter card assigned to the given player");
+        }
         // Create a card side for the player's hand
         CardSidePlayable sideToPlay = new CardSidePlayable(
                 norequirements,
