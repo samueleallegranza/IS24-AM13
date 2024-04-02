@@ -262,17 +262,6 @@ public class CardFactory {
         return corners;
     }
 
-//    /**
-//     *
-//     * @param c Letter describing the type of the corner
-//     * @return corresponding {@link Corner}
-//     */
-//    private Corner cornerConverter(char c){
-//        if(c == 'n')
-//            return new Corner();
-//        return new Corner(resourceConverter(c));
-//    }
-
     /**
      *
      * @param s String whose first letter represents a color for a card
@@ -315,8 +304,7 @@ public class CardFactory {
     private List<Corner> emptyCorners(){
         List<Corner> emptyCorners = new ArrayList<>();
         for (int j = 0; j < 4; j++) {
-            emptyCorners.add(new Corner());
-//            emptyCorners.add(cornerConverter('e'));
+            emptyCorners.add(new Corner(Resource.NO_RESOURCE));
         }
         return emptyCorners;
     }
