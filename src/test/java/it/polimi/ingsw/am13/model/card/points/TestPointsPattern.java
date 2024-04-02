@@ -20,7 +20,6 @@ public class TestPointsPattern {
             new PointsInstant(0),
             Color.NO_COLOR
     );  // nothing
-    final CardStarter starter_card = new CardStarter("starter001", starter, starter);
 
     public TestPointsPattern() throws InvalidCardCreationException {
     }
@@ -51,18 +50,18 @@ public class TestPointsPattern {
 
     @Test
     public void testPointsPatternValidParam() {
-        assertThrows(InvalidPointsPatternException.class, () -> new PointsPattern(null, null, null,
+        assertThrows(InvalidCardCreationException.class, () -> new PointsPattern(null, null, null,
                 -2,-1, 2));
-        assertThrows(InvalidPointsPatternException.class, () -> new PointsPattern(null, null, null,
+        assertThrows(InvalidCardCreationException.class, () -> new PointsPattern(null, null, null,
                 0,2, 2));
-        assertThrows(InvalidPointsPatternException.class, () -> new PointsPattern(null, null, null,
+        assertThrows(InvalidCardCreationException.class, () -> new PointsPattern(null, null, null,
                 -2,2, 2));
         assertDoesNotThrow(() -> new PointsPattern(null, null, null,
                 0,1, 2));
     }
 
     @Test
-    public void testCalcPoints() throws InvalidPointsPatternException, VariableAlreadySetException {
+    public void testCalcPoints() throws InvalidCardCreationException {
         PointsPattern points = new PointsPattern(Color.FUNGUS, Color.ANIMAL, Color.ANIMAL,
                 -1,0, 1);
         // 2 points for pattern F - left - A - under - A

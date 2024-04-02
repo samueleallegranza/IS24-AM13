@@ -11,57 +11,60 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMatch {
     private Player player0;
     private Player player1;
-
     private Match match;
     @Test
     public void testGameSetup(){
         List<Player> players;
         player0=new Player("Al",new Token(ColorToken.RED));
-        player1=new Player("John",new Token(ColorToken.BLACK));
+        player1=new Player("John",new Token(ColorToken.RED));
+        assertThrows(InvalidPlayersNumberException.class, ()->new Match(Arrays.asList(player0, player1)));
+        player1=new Player("John",new Token(ColorToken.BLUE));
         players=new ArrayList<>(Arrays.asList(player0,player1));
-        match=null;
+
         try{
             match=new Match(players);
         } catch (InvalidPlayersNumberException e){
             System.out.println("Invalid number of players");
         }
-        assertEquals(match.getGameStatus(),GameStatus.INIT);
+//        assertEquals(match.getGameStatus(),GameStatus.INIT);
+        assertNull(match.getGameStatus());
         try{
-        match.startGame();
+            match.startGame();
         } catch (GameStatusException e){
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
+        assertEquals(match.getGameStatus(),GameStatus.INIT);
         for(Player player : players){
             //CardStarter cardStarter=match.fetchStarter(player);
             try {
                 match.playStarter(player, Side.SIDEFRONT);
             } catch (GameStatusException | InvalidPlayerException e){
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
-            List<CardObjective> cardObjectives=null;
+            List<CardObjective> cardObjectives;
             try {
                 cardObjectives=match.fetchPersonalObjectives(player);
             } catch (InvalidPlayerException e){
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
             try{
-                match.choosePersonalObjective(player,cardObjectives.get(0));
-            } catch (GameStatusException | InvalidPlayerException e){
-                System.out.println(e);
+                match.choosePersonalObjective(player,cardObjectives.getFirst());
+            } catch (GameStatusException | InvalidPlayerException | InvalidChoiceException |
+                     VariableAlreadySetException e){
+                throw new RuntimeException(e);
             }
-            CardObjective objectiveInHand=null;
+            CardObjective objectiveInHand;
             try{
                 objectiveInHand=match.fetchHandObjective(player);
             } catch (InvalidPlayerException e){
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
-            assertEquals(objectiveInHand,cardObjectives.get(0));
+            assertEquals(objectiveInHand,cardObjectives.getFirst());
         }
         assertEquals(match.getGameStatus(),GameStatus.IN_GAME);
 
@@ -80,19 +83,19 @@ public class TestMatch {
             System.out.println("Invalid Coordinates");
         }
         try {
-            match.playCard(currentPlayer,handCards.get(0),Side.SIDEFRONT,coordinates);
+            match.playCard(currentPlayer,handCards.getFirst(),Side.SIDEFRONT,coordinates);
         } catch (GameStatusException | InvalidPlayerException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
         assertEquals(currentPlayer.getHandCards().size(),2);
         List<CardPlayable> pickableCards=match.fetchPickables();
         try {
-            match.pickCard(pickableCards.get(0));
+            match.pickCard(pickableCards.getFirst());
         } catch (GameStatusException | InvalidDrawCardException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
         assertEquals(currentPlayer.getHandCards().size(),3);
-        assertTrue(currentPlayer.getHandCards().contains(pickableCards.get(0)));
+        assertTrue(currentPlayer.getHandCards().contains(pickableCards.getFirst()));
     }
 
     @Test
@@ -101,7 +104,7 @@ public class TestMatch {
         try {
             match.nextTurn();
         } catch (GameStatusException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
         Player currentPlayer=match.getCurrentPlayer();
         assertEquals(currentPlayer,player1);
@@ -110,7 +113,7 @@ public class TestMatch {
     @Test
     public void testCompleteGame() throws RequirementsNotMetException{
         testGameSetup();
-        boolean hasNextTurn=true;
+        boolean hasNextTurn;    // Set to true by default
         int i=1;
         do{
             Player currentPlayer=match.getCurrentPlayer();
@@ -123,24 +126,24 @@ public class TestMatch {
             }
 
             /*System.out.println(i);
-            for(Resource resource : handCards.get(0).getBack().getRequirements().keySet())
+            for(Resource resource : handCards.getFirst().getBack().getRequirements().keySet())
                 System.out.println(resource);
-            for(Resource resource : handCards.get(0).getFront().getRequirements().keySet())
+            for(Resource resource : handCards.getFirst().getFront().getRequirements().keySet())
                 System.out.println(resource);
              */
             try {
-                if(handCards.get(0).getFront().getCorners().get(1).isPlaceable()){
+                if(handCards.getFirst().getFront().getCorners().get(1).isPlaceable()){
                     try {
-                        match.playCard(currentPlayer, handCards.get(0), Side.SIDEFRONT, coordinates);
+                        match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEFRONT, coordinates);
                     } catch (RequirementsNotMetException e){
-                        match.playCard(currentPlayer, handCards.get(0), Side.SIDEBACK, coordinates);
+                        match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEBACK, coordinates);
                     }
                 }
                 else {
-                    match.playCard(currentPlayer, handCards.get(0), Side.SIDEBACK, coordinates);
+                    match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEBACK, coordinates);
                 }
             } catch (GameStatusException | InvalidPlayerException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
             assertEquals(currentPlayer.getHandCards().size(),2);
             List<CardPlayable> pickableCards=match.fetchPickables();
@@ -154,7 +157,7 @@ public class TestMatch {
                     }
                 }
             } catch (GameStatusException | InvalidDrawCardException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
             //System.out.println(currentPlayer.getPoints());
             assertEquals(currentPlayer.getHandCards().size(),3);
@@ -163,18 +166,20 @@ public class TestMatch {
             try {
                 hasNextTurn=match.nextTurn();
             } catch (GameStatusException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
         } while (hasNextTurn);
         try {
             match.addObjectivePoints();
         } catch(GameStatusException e){
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
         try{
             System.out.println(match.calcWinner().getNickname());
+//            assertEquals(match.calcWinner(), player0);
         } catch(GameStatusException e){
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
     }
+
 }

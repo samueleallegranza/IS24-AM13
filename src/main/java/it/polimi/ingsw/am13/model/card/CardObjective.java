@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am13.model.card;
 
-import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
@@ -43,7 +43,7 @@ public class CardObjective extends Card {
      * @throws InvalidParameterException If pos12 or pos23 are not among their possible values
      */
     public CardObjective(String id, int points, Color color1, Color color2, Color color3, int pos12, int pos23)
-            throws InvalidPointsPatternException {
+            throws InvalidCardCreationException {
         super(id);
         front = new CardSideObjectiveActive(points, color1, color2, color3, pos12, pos23);
     }

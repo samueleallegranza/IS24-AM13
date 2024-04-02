@@ -169,7 +169,7 @@ public class Field {
     public void playCardSide(CardSidePlayable card, Coordinates coords) throws InvalidPlayCardException, RequirementsNotMetException {
         // A move can be done only after startCard has been set, and the first move can be only to play a side of startCard in (0,0)
         if(field.isEmpty() && !coords.hasCoords(0,0))
-            throw new InvalidPlayCardException("Starter card not yet set, or trying to play without playing starter card before");
+            throw new InvalidPlayCardException("Trying to play without playing starter card before");
 
         // check if card is placeable at given coord, if not throw Exception
         if(!cardIsPlaceableAtCoord(coords)) {

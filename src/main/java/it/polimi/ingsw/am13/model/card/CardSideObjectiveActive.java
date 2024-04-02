@@ -3,7 +3,7 @@ package it.polimi.ingsw.am13.model.card;
 import it.polimi.ingsw.am13.model.card.points.PointsObjective;
 import it.polimi.ingsw.am13.model.card.points.PointsPattern;
 import it.polimi.ingsw.am13.model.card.points.PointsSet;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
@@ -42,7 +42,7 @@ public class CardSideObjectiveActive {
      * @throws InvalidParameterException If pos12 or pos23 are not among their possible values
      */
     public CardSideObjectiveActive(int points, Color color1, Color color2, Color color3, int pos12, int pos23)
-            throws InvalidPointsPatternException {
+            throws InvalidCardCreationException {
         this.points = new PointsPattern(color1, color2, color3, pos12, pos23, points);
     }
 

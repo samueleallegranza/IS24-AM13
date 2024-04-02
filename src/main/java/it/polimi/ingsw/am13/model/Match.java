@@ -2,14 +2,30 @@ package it.polimi.ingsw.am13.model;
 
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
+import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Player;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 /**
  * This class manages a match
+ * The flow of the match is handled by game phase. The methods to controll the flow of the game are
+ * <ul>
+ *     <li>Constructor: sets the game phase to null (match created, decks instantiated, but game not yet started)</li>
+ *     <li>startGame: starts initialization phase (mainly draws first cards for each player), setting game phase to INIT.</li>
+ *     <li><code>playStarter(...)</code> and <code>choosePersonalObjective(...)</code>: every time a player plays
+ *     their starter card and chooses one of the 2 personal objective cards, these methods check if initialization
+ *     has been completed, and eventually sets game phase to IN_GAME</li>
+ *     <li><code>nextTurn()</code>: makes necessary checks for passing to FINAL_PHASE and ultimately to CALC_POINTS
+ *     During this game phase, the only method which can change the internal state are <code>pickCard(...)</code> and <code>playCard(...)</code></li>
+ *     <li><code>calcObjectivePoints()</code>: Calculates extra points given by objective cards for each player,
+ *     and moves the game on to phase ENDED</li>
+ *     <li><code>calcWinner()</code>: Only in this ultimate phase this method can be called, calculating which player has won</li>
+ * </ul>
+ * After game phase becomes ENDED, the internal state of Match and the model in general cannot change any longer.
  */
 //TODO: currently it isn't possible to retrieve the field through Match (we are missing getters).
 //TODO In principle we have enough information (we know all the actions of the player) in the client to build it there,
@@ -53,25 +69,32 @@ public class Match {
     private int countSetup;
 
     /**
-     * This method sets the game status to INIT (initialization), chooses the first player at random from the list of players,
+     * This method sets the game status to null (game not already really started), chooses the first player at random from the list of players,
      * initialises the four decks and sets the players list to the list it receives as a parameter.
      * @param players the players of the match
      */
     //TODO wrong phase exceptions
+    //TODO: cambia eccezione InvalidPlayersNumberException se 2 giocatori hanno lo stesso colore
     public Match(List<Player> players) throws InvalidPlayersNumberException{
         if(players.size()<2 || players.size()>4)
             throw new InvalidPlayersNumberException();
-        gameStatus=GameStatus.INIT;
+        List<ColorToken> distinctColors = players.stream().map(p -> p.getToken().getColor()).distinct().toList();
+        if(distinctColors.contains(ColorToken.BLACK) || distinctColors.size()!=players.size())
+            // Checks if two or more players have same color of black color
+            throw new InvalidPlayersNumberException();
+
+//        gameStatus = GameStatus.INIT;
+        gameStatus = null;
         this.players = players;
         Random rnd=new Random(1000000009);
         firstPlayerIndex=rnd.nextInt(players.size()-1);
         firstPlayer=players.get(firstPlayerIndex);
         currentPlayer=null;
 
-        LinkedList<CardResource> cardsResource=null;
-        LinkedList<CardGold> cardsGold=null;
-        LinkedList<CardObjective> cardsObjective=null;
-        LinkedList<CardStarter> cardsStarter=null;
+        LinkedList<CardResource> cardsResource;
+        LinkedList<CardGold> cardsGold;
+        LinkedList<CardObjective> cardsObjective;
+        LinkedList<CardStarter> cardsStarter;
         CardFactory cardFactory=new CardFactory();
         try {
             cardsResource = cardFactory.createCardsResource();
@@ -81,6 +104,7 @@ public class Match {
         }
         catch (InvalidCardCreationException e){
             System.out.println("Error in the creation of a card");
+            throw new RuntimeException(e);
         }
         deckResources = new DeckHandler<>(cardsResource);
         deckGold = new DeckHandler<>(cardsGold);
@@ -91,26 +115,26 @@ public class Match {
     }
 
     /**
-     *
      * @return a list containing the 6 cards on the table that can be picked by players
      */
     public List<CardPlayable> fetchPickables(){
-        List<CardPlayable> pickableCards=new LinkedList<>();
+        List<CardPlayable> pickableCards;
         try {
-            pickableCards.addAll(deckResources.getPickables());
+            pickableCards = new LinkedList<>(deckResources.getPickables());
         } catch (InvalidDrawCardException e) {
             System.out.println("There are no cards left in the resource cards deck");
+            throw new RuntimeException(e);
         }
         try {
             pickableCards.addAll(deckGold.getPickables());
         } catch (InvalidDrawCardException e) {
             System.out.println("There are no cards left in the gold cards deck");
+            throw new RuntimeException(e);
         }
         return pickableCards;
     }
 
     /**
-     *
      * @return the two common objectives
      */
     public List<CardObjective> fetchCommonObjectives(){
@@ -122,30 +146,35 @@ public class Match {
      * @param player to which the starter card is assigned
      */
     private void setStarter(Player player){
-      CardStarter cardStarter=null;
+      CardStarter cardStarter;
         try {
             cardStarter=deckStarter.draw();
         } catch (InvalidDrawCardException e) {
             System.out.println("The starter deck has no card left in it");
+            throw new RuntimeException(e);
         }
         try {
             player.initStarter(cardStarter);
         } catch (VariableAlreadySetException e) {
             System.out.println("The starter card had already been set for this player");
+            throw new RuntimeException(e);
         }
     }
+
     /**
-     *
-     * @param player one of the players of the match
-     * @return the starter card assigned to player
+     * @param player One of the players of the match
+     * @return The starter card assigned to player
      */
     public CardStarter fetchStarter(Player player){
         return player.getStarter();
     }
+
     /**
      * This method plays the starting of the given player on the passed side
-     * @param player who has chosen which side of the starting card he wants to play
-     * @param side the side of the starting card
+     * @param player Who has chosen which side of the starting card he wants to play
+     * @param side The side of the starting card
+     * @throws InvalidPlayerException If the player is not among the playing players in the match
+     * @throws GameStatusException If game phase is not INIT
      */
     public void playStarter(Player player, Side side) throws GameStatusException, InvalidPlayerException{
         if(gameStatus!=GameStatus.INIT)
@@ -157,9 +186,10 @@ public class Match {
             countSetup++;
             checkInGamePhase();
         } catch (InvalidPlayCardException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         } catch (InvalidChoiceException e){
             System.out.println("The passed side does not belong to the starter card assigned to the given player");
+            throw new RuntimeException(e);
         }
 
     }
@@ -168,22 +198,24 @@ public class Match {
      * Assign to the given player the two objectives he can choose from
      * @param player one of the players of the match
      */
-    private void setPossiblePersonalObjectives(Player player){
-        CardObjective cardObjective0=null,cardObjective1=null;
+    private void setPossiblePersonalObjectives(Player player) {
+        CardObjective cardObjective0, cardObjective1;
         try{
             cardObjective0=deckObjective.drawFromDeck();
         } catch (InvalidDrawCardException e){
             System.out.println("The objective deck has no card left in it");
+            throw new RuntimeException(e);
         }
         try{
             cardObjective1=deckObjective.drawFromDeck();
         } catch (InvalidDrawCardException e){
             System.out.println("The objective deck has no card left in it");
+            throw new RuntimeException(e);
         }
         try {
             player.initPossiblePersonalObjectives(cardObjective0,cardObjective1);
         } catch (VariableAlreadySetException e) {
-            System.out.println("The possible objective cards had already been set for this player");
+            throw new RuntimeException(e);
         }
     }
 
@@ -227,24 +259,25 @@ public class Match {
      * @param cardObjective the objective chosen by the player
      * @throws GameStatusException if this method isn't called in the INIT phase
      * @throws InvalidPlayerException if the player is not one of the players of this match
+     * @throws InvalidChoiceException if the objective card does not belong to the list of the possible objective cards for the player
+     * @throws VariableAlreadySetException if this method has been called before for the player
      */
-    public void choosePersonalObjective(Player player, CardObjective cardObjective) throws GameStatusException, InvalidPlayerException{
+    public void choosePersonalObjective(Player player, CardObjective cardObjective)
+            throws GameStatusException, InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException {
         if(gameStatus!=GameStatus.INIT)
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!players.contains(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        try {
-            player.initObjective(cardObjective);
-            countSetup++;
-            checkInGamePhase();
-        } catch (VariableAlreadySetException e) {
-            System.out.println("This player's objective has already been set");
-        } catch (InvalidChoiceException e){
-            System.out.println("The passed objective card is not one of the two objective cards assigned to the given player");
-        }
+//        try {
+        player.initObjective(cardObjective);
+        countSetup++;
+        checkInGamePhase();
+//        } catch (VariableAlreadySetException e) {
+//            System.out.println("This player's objective has already been set");
+//        } catch (InvalidChoiceException e){
+//            System.out.println("The passed objective card is not one of the two objective cards assigned to the given player");
+//        }
     }
-
-
 
     /**
      * Plays a given card side on the field of a given player, at the given coordinates
@@ -257,14 +290,14 @@ public class Match {
      */
     public void playCard(Player player, CardPlayable card, Side side, Coordinates coordinates) throws GameStatusException,InvalidPlayerException,RequirementsNotMetException{
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
-            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME.toString()+" or "+GameStatus.FINAL_PHASE+" phases");
+            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
         if(player!=currentPlayer)
             throw new InvalidPlayerException("Its not the turn of the passed player");
         if(side==Side.SIDEFRONT) {
             try {
                 player.playCard(card.getFront(),coordinates);
             } catch (InvalidPlayCardException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             } /*catch (RequirementsNotMetException e) {
                 System.out.println("The requirements to play this card aren't satisfied");
             }*/
@@ -273,9 +306,10 @@ public class Match {
             try {
                 player.playCard(card.getBack(),coordinates);
             } catch (InvalidPlayCardException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             } catch (RequirementsNotMetException e) {
                 System.out.println("The requirements to play this card aren't satisfied");
+                throw new RuntimeException(e);
             }
         }
     }
@@ -298,19 +332,23 @@ public class Match {
         try {
             currentPlayer.addCardToHand(cardPlayable);
         } catch (PlayerHandException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * Sets the starter Card, sets the possible objective cards, gives the initial cards
-     * to the players
-     * @throws GameStatusException if this method is called in a phase which is not the INIT phase
+     * Sets the starter Card, sets the possible objective cards, gives the initial cards to the players.
+     * Can be called only if the match has not started yer (<code>gamePhase==null</code>) and sets game phase to INIT.
+     * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
     //TODO should we change the name of this method? something like start setup or something like that, idk
-    public void startGame() throws GameStatusException{
-        if(gameStatus!=GameStatus.INIT)
-            throw new GameStatusException(gameStatus,GameStatus.INIT);
+    public void startGame() throws GameStatusException {
+//        if(gameStatus!=GameStatus.INIT)
+//            throw new GameStatusException(gameStatus,GameStatus.INIT);
+        if(gameStatus!=null)
+            throw new GameStatusException("Match has already started");
+        gameStatus = GameStatus.INIT;
+
         for(int i=0;i<players.size();i++) {
             Player player=players.get((firstPlayerIndex + i) % players.size());
             setStarter(player);
@@ -320,58 +358,61 @@ public class Match {
                     player.addCardToHand(deckResources.drawFromDeck());
                 } catch (InvalidDrawCardException e) {
                     System.out.println("There are no cards left in the resources deck");
+                    throw new RuntimeException(e);
                 } catch (PlayerHandException e) {
-                    System.out.println(e);
+                    throw new RuntimeException(e);
                 }
             }
             try {
                 player.addCardToHand(deckGold.drawFromDeck());
             } catch (InvalidDrawCardException e){
                 System.out.println("There are no cards left in the gold deck");
+                throw new RuntimeException(e);
             } catch (PlayerHandException e){
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
         }
     }
 
     /**
-     * This method adds the points given by Objective cards to each player
+     * This method adds the points given by Objective cards to each player.
+     * Make the game phase go on to ENDED
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
      */
-    //TODO currently we don't check in any class that this is only called once
     public void addObjectivePoints() throws GameStatusException{
         if(gameStatus!=GameStatus.CALC_POINTS)
             throw new GameStatusException(gameStatus,GameStatus.CALC_POINTS);
         for(Player player : players)
-            player.addObjectivePoints(deckObjective.showFromTable(0),deckObjective.showFromTable(1));
+            player.addObjectivePoints(deckObjective.showFromTable(0), deckObjective.showFromTable(1));
+        gameStatus = GameStatus.ENDED;
     }
     /**
      * This method finds the winner, ie the player with the most points
      * @return the winner of the match
-     * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
+     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
      */
     public Player calcWinner() throws GameStatusException{
-        if(gameStatus!=GameStatus.CALC_POINTS)
-            throw new GameStatusException(gameStatus,GameStatus.CALC_POINTS);
-        Player winner=players.get(0);
-        for(Player player : players) {
-            if(player.getPoints()>winner.getPoints())
-                winner=player;
-        }
-        return winner;
+        if(gameStatus!=GameStatus.ENDED)
+            throw new GameStatusException(gameStatus,GameStatus.ENDED);
+//        Player winner = players.getFirst();
+//        for(Player player : players) {
+//            if(player.getPoints()>winner.getPoints())
+//                winner=player;
+//        }
+        return players.stream().max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
     }
 
     /**
      * This method makes the match proceed from the turn that has just been played to the next one,
      * by changing the currentPlayer and, if necessary, changing the GameStatus
-     * @return false if there is no other turn to play after the one that has just been played, true otherwise
-     * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
+     * @return False if there is no other turn to play after the one that has just been played, true otherwise
+     * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
      */
     public boolean nextTurn() throws GameStatusException{
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
             throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
         if(gameStatus==GameStatus.IN_GAME && checkFinalPhase()){
-            gameStatus=GameStatus.FINAL_PHASE;
+            gameStatus = GameStatus.FINAL_PHASE;
             int currentPlayerIndex=0;
             for (int i = 0; i < players.size(); i++) {
                 if (players.get(i) == currentPlayer)
@@ -382,7 +423,7 @@ public class Match {
         else {
             if (gameStatus == GameStatus.FINAL_PHASE) {
                 if (turnsToEnd == 0) {
-                    gameStatus=GameStatus.CALC_POINTS;
+                    gameStatus = GameStatus.CALC_POINTS;
                     return false;
                 }
                 turnsToEnd--;
@@ -396,7 +437,6 @@ public class Match {
     }
 
     /**
-     *
      * @return true if the conditions triggering the end of the game (a player has reached 20 points
      * or both the Resources and Gold decks are finished) are satisfied, false otherwise
      */
@@ -430,7 +470,6 @@ public class Match {
     }
 
     /**
-     *
      * @return the List of coordinates in which new cards can be played
      */
     public List<Coordinates> fetchAvailableCoord(Player player){

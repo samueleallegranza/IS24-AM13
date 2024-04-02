@@ -2,8 +2,8 @@ package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.Color;
 import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
@@ -58,11 +58,11 @@ public class PointsPattern implements PointsObjective {
      * @param points How many points the card gives for each complete non-intersecting pattern is present in field
      * @throws InvalidParameterException If pos12 or pos23 are not among their possible values
      */
-    public PointsPattern(Color color1, Color color2, Color color3, int pos12, int pos23, int points) throws InvalidPointsPatternException {
+    public PointsPattern(Color color1, Color color2, Color color3, int pos12, int pos23, int points) throws InvalidCardCreationException {
         if(pos12!=-1 && pos12!=0 && pos12!=1)
-            throw new InvalidPointsPatternException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
+            throw new InvalidCardCreationException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
         if(pos23!=-1 && pos23!=0 && pos23!=1)
-            throw new InvalidPointsPatternException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
+            throw new InvalidCardCreationException("Invalid parameter pos12 (" + pos12 + ") for object points " + this);
 
         this.color1 = color1;
         this.color2 = color2;

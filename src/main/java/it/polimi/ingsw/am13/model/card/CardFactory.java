@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am13.model.card.points.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,15 +92,13 @@ public class CardFactory {
                 List<Corner> cornersFront = getCorners(cardFront);
 
                 List<Resource> centerFront = new ArrayList<>();
-                PointsPlayable pointsFront;
-                switch (cardFront.get("preq").asText().charAt(0)){
-                    case 'c' : pointsFront = new PointsCorner(cardFront.get("points").asInt()); break;
-                    case 'n' : pointsFront = new PointsInstant(cardFront.get("points").asInt()); break;
-                    case 'w' :
-                    case 'q' :
-                    case 'm' : pointsFront = new PointsResource(cardFront.get("points").asInt(), resourceConverter(cardFront.get("preq").asText().charAt(0))); break;
-                    default: pointsFront = new PointsInstant(0); break;
-                }
+                PointsPlayable pointsFront = switch (cardFront.get("preq").asText().charAt(0)) {
+                    case 'c' -> new PointsCorner(cardFront.get("points").asInt());
+                    case 'n' -> new PointsInstant(cardFront.get("points").asInt());
+                    case 'w', 'q', 'm' ->
+                            new PointsResource(cardFront.get("points").asInt(), resourceConverter(cardFront.get("preq").asText().charAt(0)));
+                    default -> new PointsInstant(0);
+                };
                 CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color);
 
                 // -- SideBack construction
@@ -204,7 +201,7 @@ public class CardFactory {
                 }
             }
 
-        } catch (IOException | InvalidPointsPatternException e) {
+        } catch (IOException | InvalidCardCreationException e) {
             throw new InvalidCardCreationException(e.getMessage());
         }
         return deck;
@@ -265,20 +262,20 @@ public class CardFactory {
         return corners;
     }
 
-    /**
-     *
-     * @param c
-     * @return corresponding {@link Corner}
-     */
-    private Corner cornerConverter(char c){
-        if(c == 'n')
-            return new Corner();
-        return new Corner(resourceConverter(c));
-    }
+//    /**
+//     *
+//     * @param c Letter describing the type of the corner
+//     * @return corresponding {@link Corner}
+//     */
+//    private Corner cornerConverter(char c){
+//        if(c == 'n')
+//            return new Corner();
+//        return new Corner(resourceConverter(c));
+//    }
 
     /**
      *
-     * @param s
+     * @param s String whose first letter represents a color for a card
      * @return corresponding {@link Color}
      */
     private Color colorConverter(String s){
@@ -294,7 +291,7 @@ public class CardFactory {
 
     /**
      *
-     * @param c
+     * @param c Character indicating a resource
      * @return corresponding {@link Resource}
      */
     private Resource resourceConverter(char c){
@@ -318,7 +315,8 @@ public class CardFactory {
     private List<Corner> emptyCorners(){
         List<Corner> emptyCorners = new ArrayList<>();
         for (int j = 0; j < 4; j++) {
-            emptyCorners.add(cornerConverter('e'));
+            emptyCorners.add(new Corner());
+//            emptyCorners.add(cornerConverter('e'));
         }
         return emptyCorners;
     }

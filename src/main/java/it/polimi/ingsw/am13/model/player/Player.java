@@ -32,7 +32,8 @@ public class Player {
      */
     private CardObjective personalObjective;
     /**
-     * The two objective cards among which the player can choose his personal objective
+     * The two objective cards among which the player can choose his personal objective.
+     * They can't change once they have been set.
      */
     private final List<CardObjective> possiblePersonalObjectives;
     /**
