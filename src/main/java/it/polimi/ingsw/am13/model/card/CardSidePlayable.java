@@ -6,6 +6,7 @@ import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class represents one of the two sides of a playable card
@@ -93,4 +94,16 @@ public class CardSidePlayable {
         return points.calcPoints(this,field);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardSidePlayable that = (CardSidePlayable) o;
+        return Objects.equals(requirements, that.requirements) && Objects.equals(corners, that.corners) && Objects.equals(centerResources, that.centerResources) && Objects.equals(points, that.points) && color == that.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(requirements, corners, centerResources, points, color);
+    }
 }

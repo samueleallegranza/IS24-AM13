@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents an objective card.
@@ -56,4 +57,17 @@ public class CardObjective extends Card {
         return front.calcPoints(field);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        CardObjective that = (CardObjective) o;
+        return Objects.equals(front, that.front);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), front);
+    }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
+import java.util.Objects;
+
 /**
  * Represents a generic card of the game.
  * It is identified by a unique id (immutable attribute), and stores other information about the card during the game.
@@ -60,5 +62,18 @@ public abstract class Card {
      */
     public void removeCardFromField() {
         visibleSide = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return Objects.equals(id, card.id) && visibleSide == card.visibleSide;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, visibleSide);
     }
 }

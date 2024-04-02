@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.card.Corner;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Representation of points of a playable card side of the type "x points for each corner covered by this card when you play it"
@@ -37,5 +38,18 @@ public class PointsCorner implements PointsPlayable {
             if(corner.getLink()!=null)
                 cont++;
         return cont*points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PointsCorner that = (PointsCorner) o;
+        return points == that.points;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(points);
     }
 }

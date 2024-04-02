@@ -5,6 +5,8 @@ import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.Map;
+import java.util.Objects;
+
 /**
  * Representation of points of a playable card side of the type
  * "x points for each resource of type y present on the field immediately after you play it"
@@ -40,5 +42,18 @@ public class PointsResource implements PointsPlayable {
     public int calcPoints(CardSidePlayable cardSidePlayable, Field field) {
         Map<Resource,Integer> freqs=field.getResourcesInField();
         return freqs.get(resource)*points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PointsResource that = (PointsResource) o;
+        return points == that.points && resource == that.resource;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(points, resource);
     }
 }

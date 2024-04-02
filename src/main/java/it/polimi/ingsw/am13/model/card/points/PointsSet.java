@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.player.Field;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Representation of points of an objective card of type "x points for each set of resources/objects"
@@ -56,5 +57,18 @@ public class PointsSet implements PointsObjective {
         } while(ok);
 
         return count*points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PointsSet pointsSet = (PointsSet) o;
+        return points == pointsSet.points && Objects.equals(set, pointsSet.set);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(set, points);
     }
 }

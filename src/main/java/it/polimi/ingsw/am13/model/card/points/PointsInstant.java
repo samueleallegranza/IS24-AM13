@@ -3,6 +3,8 @@ package it.polimi.ingsw.am13.model.card.points;
 import it.polimi.ingsw.am13.model.card.CardSidePlayable;
 import it.polimi.ingsw.am13.model.player.Field;
 
+import java.util.Objects;
+
 /**
  * Representation of points of a playable card side of the type "x points when you play this card on this side"
  */
@@ -29,5 +31,18 @@ public class PointsInstant implements PointsPlayable {
     @Override
     public int calcPoints(CardSidePlayable cardSide, Field field) {
         return points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PointsInstant that = (PointsInstant) o;
+        return points == that.points;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(points);
     }
 }

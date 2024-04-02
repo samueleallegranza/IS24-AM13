@@ -8,6 +8,7 @@ import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents the active side (front) of an objective card.
@@ -52,5 +53,18 @@ public class CardSideObjectiveActive {
      */
     public int calcPoints(Field field) {
         return points.calcPoints(field);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardSideObjectiveActive that = (CardSideObjectiveActive) o;
+        return Objects.equals(points, that.points);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(points);
     }
 }

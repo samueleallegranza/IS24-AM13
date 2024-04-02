@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This is a class that represents one of the four corners of the side of a card
@@ -104,4 +105,16 @@ public class Corner {
                 new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Corner corner = (Corner) o;
+        return visibility == corner.visibility && covered == corner.covered && resource == corner.resource && Objects.equals(link, corner.link);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(visibility, covered, resource, link);
+    }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
+import java.util.Objects;
+
 /**
  * Represents a card that can be played in player's field sometime during the game.
  * Hence, it could be a resource card, a gold card or a starter card.
@@ -55,5 +57,18 @@ public abstract class CardPlayable extends Card {
      */
     public CardSidePlayable getBack() {
         return back;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardPlayable that = (CardPlayable) o;
+        return Objects.equals(front, that.front) && Objects.equals(back, that.back);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(front, back);
     }
 }

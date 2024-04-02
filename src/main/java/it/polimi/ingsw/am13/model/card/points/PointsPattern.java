@@ -7,10 +7,7 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidPointsPatternException;
 import it.polimi.ingsw.am13.model.player.Field;
 
 import java.security.InvalidParameterException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Representation of an objective card of type "x points for each pattern with 3 card in a certain position and with certain colors"
@@ -119,5 +116,18 @@ public class PointsPattern implements PointsObjective {
         }
 
         return count * points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PointsPattern that = (PointsPattern) o;
+        return points == that.points && color1 == that.color1 && color3 == that.color3 && color2 == that.color2 && Objects.equals(vec12, that.vec12) && Objects.equals(vec13, that.vec13);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color1, color3, color2, vec12, vec13, points);
     }
 }
