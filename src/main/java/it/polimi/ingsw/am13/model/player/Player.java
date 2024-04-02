@@ -6,7 +6,7 @@ import it.polimi.ingsw.am13.model.exceptions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements PlayerIF {
     /**
      * Player's nickname.
      */
@@ -111,10 +111,6 @@ public class Player {
 
     }
 
-    public CardStarter getStarter() {
-        return startCard;
-    }
-
     /**
      * Play the corresponding given side of the starter card on the player's field.
      * @param side Starter card's side chosen by the player
@@ -214,22 +210,46 @@ public class Player {
         this.addPoints(common2.calcPoints(this.field));
     }
 
+    // GETTERS
+
+    /**
+     * @return Player's nickname.
+     */
     public String getNickname() {
         return nickname;
     }
 
+    /**
+     * @return Player's token (indicates their color).
+     */
     public Token getToken() {
         return token;
     }
 
+    /**
+     * @return Starter card of the player. Null if player has not been assigned a starter card yet
+     */
+    public CardStarter getStarter() {
+        return startCard;
+    }
+
+    /**
+     * @return Player's points counter.
+     */
     public int getPoints() {
         return points;
     }
 
+    /**
+     * @return Player's hand of cards, which could be Gold cards or Resource cards.
+     */
     public List<CardPlayable> getHandCards() {
         return handCards;
     }
 
+    /**
+     * @return Player's personal objective. It affects only player's points when the game ends.
+     */
     public CardObjective getPersonalObjective() {
         return personalObjective;
     }
@@ -241,4 +261,5 @@ public class Player {
     public List<Coordinates> getAvailableCoord(){
         return field.getAvailableCoord();
     }
+
 }

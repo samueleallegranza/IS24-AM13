@@ -12,7 +12,7 @@ import java.util.Objects;
  * It stores only the active/front side (the back side has no information). It's then the side that store information
  * about the points guaranted by the card itself.
  */
-public class CardObjective extends Card {
+public class CardObjective extends Card implements CardObjectiveIF {
 
     /**
      * Active/front side of the card, where information about the points is stored.

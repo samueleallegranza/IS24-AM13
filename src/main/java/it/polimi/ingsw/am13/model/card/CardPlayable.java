@@ -8,7 +8,7 @@ import java.util.Objects;
  * It stores the information about the 2 sides belonging to the card.
  * Other information about the card played during the game are inherited from <code>Card</code>
  */
-public abstract class CardPlayable extends Card {
+public abstract class CardPlayable extends Card implements CardPlayableIF {
 
     /**
      * Front (playable) side of this playable card

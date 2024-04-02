@@ -51,7 +51,8 @@ public class Match {
      */
     private final int firstPlayerIndex;
     /**
-     * The player who is playing in the current turn
+     * The player who is playing in the current turn.
+     * Null if the gameStatus is different from IN_GAME or FINAL_PHASE (the 2 phases divided in turns)
      */
     private Player currentPlayer;
     /**
@@ -424,6 +425,7 @@ public class Match {
             if (gameStatus == GameStatus.FINAL_PHASE) {
                 if (turnsToEnd == 0) {
                     gameStatus = GameStatus.CALC_POINTS;
+                    currentPlayer = null;
                     return false;
                 }
                 turnsToEnd--;
@@ -453,8 +455,8 @@ public class Match {
             currentPlayer = firstPlayer;
         }
     }
+
     /**
-     *
      * @return the status of the game
      */
     public GameStatus getGameStatus() {
@@ -462,8 +464,8 @@ public class Match {
     }
 
     /**
-     *
-     * @return the player who is playing in the current turn
+     * @return the player who is playing in the current turn.
+     * Null if the gameStatus is different from IN_GAME or FINAL_PHASE (the 2 phases divided in turns)
      */
     public Player getCurrentPlayer() {
         return currentPlayer;

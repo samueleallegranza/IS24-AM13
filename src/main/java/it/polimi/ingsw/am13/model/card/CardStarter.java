@@ -11,7 +11,7 @@ import java.util.List;
  * Represents a starter car, that can be played in player's field sometime during the game.
  * All information about the card and how it is being played are inherited by <code>CardPlayable</code>
  */
-public class CardStarter extends CardPlayable {
+public class CardStarter extends CardPlayable implements CardStarterIF {
 
     /**
      * Creates a new card setting all immutable attributes of card itself. Sides already exists
