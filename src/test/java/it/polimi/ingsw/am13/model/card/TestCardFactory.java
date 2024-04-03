@@ -9,46 +9,34 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CardFactoryTest {
+public class TestCardFactory {
 
     @Test
-    void testReadingCardsResource() {
+    public void testReadingCardsResource() {
         CardFactory factory = new CardFactory();
-        assertDoesNotThrow(
-                () -> {
-                    LinkedList<CardResource> deck = factory.createCardsResource();
-                });
+        assertDoesNotThrow(factory::createCardsResource);
     }
 
     @Test
-    void testReadingCardsGold() {
+    public void testReadingCardsGold() {
         CardFactory factory = new CardFactory();
-        assertDoesNotThrow(
-                () -> {
-                    LinkedList<CardGold> deck = factory.createCardsGold();
-                });
+        assertDoesNotThrow(factory::createCardsGold);
     }
 
     @Test
-    void testReadingCardsStarter() {
+    public void testReadingCardsStarter() {
         CardFactory factory = new CardFactory();
-        assertDoesNotThrow(
-                () -> {
-                    LinkedList<CardStarter> deck = factory.createCardsStarter();
-                });
+        assertDoesNotThrow(factory::createCardsStarter);
     }
 
     @Test
-    void testReadingCardsObjective() {
+    public void testReadingCardsObjective() {
         CardFactory factory = new CardFactory();
-        assertDoesNotThrow(
-                () -> {
-                    LinkedList<CardObjective> deck = factory.createCardsObjective();
-                });
+        assertDoesNotThrow(factory::createCardsObjective);
     }
 
     @Test
-    void testFirstCardResource() throws InvalidCardCreationException {
+    public void testFirstCardResource() throws InvalidCardCreationException {
         CardFactory factory = new CardFactory();
         LinkedList<CardResource> deck = factory.createCardsResource();
 
@@ -64,7 +52,7 @@ class CardFactoryTest {
         assertEquals(firstCard, actualFirstCard);
     }
     @Test
-    void testFirstCardGold() throws InvalidCardCreationException {
+    public void testFirstCardGold() throws InvalidCardCreationException {
         CardFactory factory = new CardFactory();
         LinkedList<CardGold> deck = factory.createCardsGold();
 
@@ -85,7 +73,7 @@ class CardFactoryTest {
     }
 
     @Test
-    void testFirstCardStarter() throws InvalidCardCreationException {
+    public void testFirstCardStarter() throws InvalidCardCreationException {
         CardFactory factory = new CardFactory();
         LinkedList<CardStarter> deck = factory.createCardsStarter();
 
@@ -110,7 +98,7 @@ class CardFactoryTest {
     }
 
     @Test
-    void testFirstCardObjective() throws InvalidCardCreationException {
+    public void testFirstCardObjective() throws InvalidCardCreationException {
         CardFactory factory = new CardFactory();
         LinkedList<CardObjective> deck = factory.createCardsObjective();
         Map<Resource, Integer> set = new HashMap<>();

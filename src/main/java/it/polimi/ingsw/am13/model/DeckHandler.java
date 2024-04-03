@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.model.card.Card;
 import it.polimi.ingsw.am13.model.card.CardPlayable;
+import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 
 import java.util.ArrayList;
@@ -27,12 +28,18 @@ public class DeckHandler<T extends Card>{
      * @param deck LinkedList of the deck's cards
      */
     public DeckHandler(LinkedList<T> deck){
-        this.deck = new Deck<T>(deck);
+        this.deck = new Deck<>(deck);
         this.deck.shuffle();
-        visibleCards=new ArrayList<>();
+        visibleCards = new ArrayList<>();
+        T visibleCard;
         try {
-            visibleCards.add(drawFromDeck());
-            visibleCards.add(drawFromDeck());
+            visibleCard = drawFromDeck();
+            visibleCard.placeCardInField(Side.SIDEFRONT);
+            visibleCards.add(visibleCard);
+            visibleCard = drawFromDeck();
+            visibleCard.placeCardInField(Side.SIDEFRONT);
+            visibleCards.add(visibleCard);
+            this.deck.getTop().placeCardInField(Side.SIDEBACK);
         }
         catch (InvalidDrawCardException e){
             System.out.println("The passed list in not sufficiently big to initialize the deck");
@@ -40,12 +47,12 @@ public class DeckHandler<T extends Card>{
     }
 
     /**
-     * Draws the Card at the top of this deck
+     * Draws the Card at the top of this deck. Manages visibility of card drawn and new possible card visible
      * @return a subclass of {@link Card}
      * @throws InvalidDrawCardException if the deck is empty
      */
     public T drawFromDeck() throws InvalidDrawCardException {
-        //System.out.println("deckk");
+        //System.out.println("deck");
         return deck.draw();
     }
 
@@ -57,11 +64,18 @@ public class DeckHandler<T extends Card>{
      * @throws IndexOutOfBoundsException if <code>visibleIndex</code> is an invalid index.
      * @throws InvalidDrawCardException if the deck is empty after taking a visible card from the field.
      */
-    public T drawFromTable(int visibleIndex) throws InvalidDrawCardException{
+    public T drawFromTable(int visibleIndex) throws IndexOutOfBoundsException, InvalidDrawCardException{
+        if(visibleIndex!=0 && visibleIndex!=1)
+            throw new IndexOutOfBoundsException();
         T card = visibleCards.get(visibleIndex);
+        card.removeCardFromField();
         visibleCards.remove(visibleIndex);
-        if(!deck.isEmpty())
-            visibleCards.add(visibleIndex, deck.draw());
+
+        if(!deck.isEmpty()) {
+            T cardDrawn = deck.draw();
+            cardDrawn.placeCardInField(Side.SIDEFRONT);
+            visibleCards.add(visibleIndex, cardDrawn);
+        }
         return card;
     }
 
@@ -98,6 +112,13 @@ public class DeckHandler<T extends Card>{
     public List<T> getVisibleCards(){
         return visibleCards;
     }
+
+    /**
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 3, with order: top of deck, 2 visible cards
+     * @return
+     * @throws InvalidDrawCardException
+     */
     public List<T> getPickables() throws InvalidDrawCardException{
         List<T> pickableCards=new ArrayList<>();
         if(!deck.isEmpty())
@@ -107,17 +128,16 @@ public class DeckHandler<T extends Card>{
     }
 
     public boolean pickCard(CardPlayable cardPlayable) throws InvalidDrawCardException{
-        boolean found=false;
         if(!deck.isEmpty() && getDeckTop()==cardPlayable){
             drawFromDeck();
-            found=true;
+            return true;
         }
-        for (int i = 0; i < visibleCards.size() && !found; i++) {
+        for (int i = 0; i < visibleCards.size(); i++) {
             if(showFromTable(i)==cardPlayable){
                 drawFromTable(i);
-                found=true;
+                return true;
             }
         }
-        return found;
+        return false;
     }
 }

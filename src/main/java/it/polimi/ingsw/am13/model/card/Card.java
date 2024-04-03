@@ -8,7 +8,7 @@ import java.util.Objects;
  * The card is present in field if all players can see it. Hence, it could be in one player's field or if it is in one of the 9 spots of the commond field.
  * If the card is in field, <code>visibleSide</code> specifies what side is visible (front or back)
  */
-public abstract class Card {
+public abstract class Card implements CardIF {
 
     //TODO: specifica meglio che intendiamo con id di una carta (idem su costruttore)
     /**

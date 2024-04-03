@@ -38,8 +38,10 @@ public class Match {
     private final DeckHandler<CardGold> deckGold;
     private final DeckHandler<CardObjective> deckObjective;
     private final Deck<CardStarter> deckStarter;
+
     /**
      * The players of the match
+     * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
      */
     private final List<Player> players;
     /**
@@ -117,6 +119,7 @@ public class Match {
 
     /**
      * @return a list containing the 6 cards on the table that can be picked by players
+     * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
      */
     public List<CardPlayable> fetchPickables(){
         List<CardPlayable> pickableCards;
@@ -136,7 +139,10 @@ public class Match {
     }
 
     /**
-     * @return the two common objectives
+     * Returns the visible cards for the common objectives.
+     * Note that the deck of objective cards is always visible, with top card visible from its back side.
+     * Hence this information is not included in the list
+     * @return the list of the 2 common objectives.
      */
     public List<CardObjective> fetchCommonObjectives(){
         return deckObjective.getVisibleCards();

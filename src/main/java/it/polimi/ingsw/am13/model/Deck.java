@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.model.card.Card;
+import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 
 import java.util.Collections;
@@ -24,29 +25,27 @@ public class Deck<T extends Card>{
     }
 
     /**
-     * Shuffles this deck randomly
+     * Shuffles this deck randomly, and sets visibility of the new top card
      */
     public void shuffle(){
         Collections.shuffle(deck);
+        deck.getFirst().placeCardInField(Side.SIDEBACK);
     }
 
     /**
-     * Draws the Card at the top of this deck
+     * Draws the Card at the top of this deck. Manages visibility of card drawn and new possible card visible
      * @return a subclass of {@link Card}
      * @throws InvalidDrawCardException if the deck is empty
      */
     public T draw() throws InvalidDrawCardException {
-        if (isEmpty())
+        T card = deck.pollFirst();
+        if (card == null) {
             throw new InvalidDrawCardException("Draw failed. The deck is empty.");
-        return deck.pollFirst();
-    }
-
-    /**
-     * Checks if this deck is empty.
-     * @return <code>true</code> if this deck is empty.
-     */
-    public boolean isEmpty(){
-        return deck.isEmpty();
+        }
+        card.removeCardFromField();
+        if(!deck.isEmpty())
+            deck.getFirst().placeCardInField(Side.SIDEBACK);
+        return card;
     }
 
     /**
@@ -59,6 +58,14 @@ public class Deck<T extends Card>{
         if (isEmpty())
             throw new InvalidDrawCardException("The deck is empty.");
         return deck.getFirst();
+    }
+
+    /**
+     * Checks if this deck is empty.
+     * @return <code>true</code> if this deck is empty.
+     */
+    public boolean isEmpty(){
+        return deck.isEmpty();
     }
 
 

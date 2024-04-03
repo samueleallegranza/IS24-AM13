@@ -123,6 +123,7 @@ public class Player implements PlayerIF {
             throw new InvalidPlayCardException("Starter card has not been drawn yet");
         
         // get the proper side of the starter card
+        startCard.placeCardInField(side);
         CardSidePlayable starterSide;
         if(side.equals(Side.SIDEBACK))
             starterSide = this.startCard.getBack();
@@ -160,9 +161,14 @@ public class Player implements PlayerIF {
         for(CardPlayable currCard: this.handCards) {
             if(currCard.getFront().equals(sideToPlay) || currCard.getBack().equals(sideToPlay)) {
                 cardToPlay = currCard;
+                if(currCard.getFront().equals(sideToPlay))
+                    cardToPlay.placeCardInField(Side.SIDEFRONT);
+                else
+                    cardToPlay.placeCardInField(Side.SIDEBACK);
                 break;
             }
         }
+
         if(cardToPlay == null) throw new InvalidPlayCardException("card not in the player's hand");
 
         // play the card on the field (exceptions will be thrown if action is not valid)
@@ -249,6 +255,7 @@ public class Player implements PlayerIF {
 
     /**
      * @return Player's personal objective. It affects only player's points when the game ends.
+     * Null if the personal objective hasn't been initialized yet
      */
     public CardObjective getPersonalObjective() {
         return personalObjective;

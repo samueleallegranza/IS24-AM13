@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.player;
 
+import java.util.Objects;
+
 /**
  * Represents token present in game.
  * It could be a token representing the color chosen by the player, the token of that color in the scoreboard,
@@ -26,4 +28,16 @@ public class Token {
         return color;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return color == token.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color);
+    }
 }
