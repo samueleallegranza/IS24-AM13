@@ -2,13 +2,9 @@ package it.polimi.ingsw.am13.model;
 
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
-import it.polimi.ingsw.am13.model.player.ColorToken;
-import it.polimi.ingsw.am13.model.player.Player;
+import it.polimi.ingsw.am13.model.player.*;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * This class manages a match
@@ -44,6 +40,12 @@ public class Match {
      * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
      */
     private final List<Player> players;
+
+    /**
+     * Map associating player decontextualized from game to the actual playing player
+     */
+    private final Map<PlayerLobby, Player> playersMap;
+
     /**
      * The first player of the match
      */
@@ -81,14 +83,18 @@ public class Match {
     public Match(List<Player> players) throws InvalidPlayersNumberException{
         if(players.size()<2 || players.size()>4)
             throw new InvalidPlayersNumberException();
-        List<ColorToken> distinctColors = players.stream().map(p -> p.getToken().getColor()).distinct().toList();
+        List<ColorToken> distinctColors = players.stream().map(p -> p.getPlayerLobby().getToken().getColor()).distinct().toList();
         if(distinctColors.contains(ColorToken.BLACK) || distinctColors.size()!=players.size())
             // Checks if two or more players have same color of black color
             throw new InvalidPlayersNumberException();
+        this.players = players;
+        playersMap = new HashMap<>();
+        for(Player p : players) {
+            playersMap.put(p.getPlayerLobby(), p);
+        }
 
 //        gameStatus = GameStatus.INIT;
         gameStatus = null;
-        this.players = players;
         Random rnd=new Random(1000000009);
         firstPlayerIndex=rnd.nextInt(players.size()-1);
         firstPlayer=players.get(firstPlayerIndex);
@@ -171,25 +177,28 @@ public class Match {
     /**
      * @param player One of the players of the match
      * @return The starter card assigned to player
+     * @throws InvalidPlayerException If the player is not among the playing players in the match
      */
-    public CardStarter fetchStarter(Player player){
-        return player.getStarter();
+    public CardStarter fetchStarter(PlayerLobby player) throws InvalidPlayerException {
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        return playersMap.get(player).getStarter();
     }
 
     /**
      * This method plays the starting of the given player on the passed side
-     * @param player Who has chosen which side of the starting card he wants to play
+     * @param playerLobby Player who has chosen which side of the starting card he wants to play
      * @param side The side of the starting card
      * @throws InvalidPlayerException If the player is not among the playing players in the match
      * @throws GameStatusException If game phase is not INIT
      */
-    public void playStarter(Player player, Side side) throws GameStatusException, InvalidPlayerException{
+    public void playStarter(PlayerLobby playerLobby, Side side) throws GameStatusException, InvalidPlayerException{
         if(gameStatus!=GameStatus.INIT)
             throw new GameStatusException(gameStatus,GameStatus.INIT);
-        if(!players.contains(player))
+        if(!playersMap.containsKey(playerLobby))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
         try {
-            player.playStarter(side);
+            playersMap.get(playerLobby).playStarter(side);
             countSetup++;
             checkInGamePhase();
         } catch (InvalidPlayCardException e) {
@@ -227,37 +236,35 @@ public class Match {
     }
 
     /**
-     *
      * @param player one of the players of the match
      * @return the cards in the hand of the player
      * @throws InvalidPlayerException if the player is not one of the players of the match
      */
-    public List<CardPlayable> fetchHandPlayable(Player player) throws InvalidPlayerException{
-        if(!players.contains(player))
+    public List<CardPlayable> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        return player.getHandCards();
+        return playersMap.get(player).getHandCards();
     }
 
     /**
-     *
      * @param player one of the players of the match
-     * @return the personal objective of the player
+     * @return the personal objective of the player (null if it hasn't been initialized yet)
      * @throws InvalidPlayerException if the passed player is not one of the players of the match
      */
-    public CardObjective fetchHandObjective(Player player) throws InvalidPlayerException{
-        if(!players.contains(player))
+    public CardObjective fetchHandObjective(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        return player.getPersonalObjective();
+        return playersMap.get(player).getPersonalObjective();
     }
     /**
-     *
      * @param player who should be contained in players
      * @return a list containing the two objective cards the player can choose from
+     * @throws InvalidPlayerException if the player is not one of the players of this match
      */
-    public List<CardObjective> fetchPersonalObjectives(Player player) throws InvalidPlayerException{
-        if(!players.contains(player))
+    public List<CardObjective> fetchPersonalObjectives(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        return player.getPossiblePersonalObjectives();
+        return playersMap.get(player).getPossiblePersonalObjectives();
     }
 
     /**
@@ -269,14 +276,14 @@ public class Match {
      * @throws InvalidChoiceException if the objective card does not belong to the list of the possible objective cards for the player
      * @throws VariableAlreadySetException if this method has been called before for the player
      */
-    public void choosePersonalObjective(Player player, CardObjective cardObjective)
+    public void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObjective)
             throws GameStatusException, InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException {
         if(gameStatus!=GameStatus.INIT)
             throw new GameStatusException(gameStatus,GameStatus.INIT);
-        if(!players.contains(player))
+        if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
 //        try {
-        player.initObjective(cardObjective);
+        playersMap.get(player).initObjective(cardObjective);
         countSetup++;
         checkInGamePhase();
 //        } catch (VariableAlreadySetException e) {
@@ -475,6 +482,10 @@ public class Match {
      */
     public Player getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public Set<PlayerLobby> getPlayersLobby() {
+        return playersMap.keySet();
     }
 
     /**

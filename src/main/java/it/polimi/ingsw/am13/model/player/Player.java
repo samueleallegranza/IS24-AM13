@@ -6,16 +6,12 @@ import it.polimi.ingsw.am13.model.exceptions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player implements PlayerIF {
-    /**
-     * Player's nickname.
-     */
-    private final String nickname;
+public class Player {
 
     /**
-     * Player's token color.
+     * Player decontextualized from game. It stores nickname and token chosen by the player
      */
-    private final Token token;
+    private final PlayerLobby playerLobby;
 
     /**
      * Player's field which represents the positioning of his played cards.
@@ -54,9 +50,18 @@ public class Player implements PlayerIF {
      * @param token Token color chosen for the player.
      */
     public Player(String nick, Token token) {
+        this(new PlayerLobby(nick, token));
+    }
+
+    /**
+     * Constructor for the Player class. It initializes nickname, token, points and starter card (it has to be drawn
+     * before creating a Player object). It also initializes an empty field for the player and the space to store the
+     * player's hand.
+     * @param playerLobby Player decontextualized from game. It has nickname and token already set.
+     */
+    public Player(PlayerLobby playerLobby) {
         this.startCard = null;
-        this.nickname = nick;
-        this.token = token;
+        this.playerLobby = playerLobby;
         this.points = 0;
         field = new Field();
         handCards = new ArrayList<>();
@@ -102,13 +107,18 @@ public class Player implements PlayerIF {
      * @throws VariableAlreadySetException Exception is thrown if this method has been called before.
      * @throws InvalidChoiceException if the objective card does not belong to the list of the possible objective cards
      */
-    public void initObjective(CardObjective cardObj) throws VariableAlreadySetException, InvalidChoiceException{
+    public void initObjective(CardObjectiveIF cardObj) throws VariableAlreadySetException, InvalidChoiceException{
         if(this.personalObjective != null)
             throw new VariableAlreadySetException();
-        if(!possiblePersonalObjectives.contains(cardObj))
+        CardObjective objChosen = null;
+        for(CardObjective obj : possiblePersonalObjectives)
+            if(obj == cardObj) {
+                objChosen = obj;
+                break;
+            }
+        if(objChosen==null)
             throw new InvalidChoiceException();
-        this.personalObjective = cardObj;
-
+        this.personalObjective = objChosen;
     }
 
     /**
@@ -170,7 +180,6 @@ public class Player implements PlayerIF {
         }
 
         if(cardToPlay == null) throw new InvalidPlayCardException("card not in the player's hand");
-
         // play the card on the field (exceptions will be thrown if action is not valid)
         this.field.playCardSide(sideToPlay, coordToPlay);
 
@@ -219,17 +228,10 @@ public class Player implements PlayerIF {
     // GETTERS
 
     /**
-     * @return Player's nickname.
+     * @return Player decontextualized from game. It stores nickname and token chosen by the player
      */
-    public String getNickname() {
-        return nickname;
-    }
-
-    /**
-     * @return Player's token (indicates their color).
-     */
-    public Token getToken() {
-        return token;
+    public PlayerLobby getPlayerLobby() {
+        return playerLobby;
     }
 
     /**

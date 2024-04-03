@@ -42,25 +42,25 @@ public class TestMatch {
         for(Player player : players){
             //CardStarter cardStarter=match.fetchStarter(player);
             try {
-                match.playStarter(player, Side.SIDEFRONT);
+                match.playStarter(player.getPlayerLobby(), Side.SIDEFRONT);
             } catch (GameStatusException | InvalidPlayerException e){
                 throw new RuntimeException(e);
             }
             List<CardObjective> cardObjectives;
             try {
-                cardObjectives=match.fetchPersonalObjectives(player);
+                cardObjectives=match.fetchPersonalObjectives(player.getPlayerLobby());
             } catch (InvalidPlayerException e){
                 throw new RuntimeException(e);
             }
             try{
-                match.choosePersonalObjective(player,cardObjectives.getFirst());
+                match.choosePersonalObjective(player.getPlayerLobby(),cardObjectives.getFirst());
             } catch (GameStatusException | InvalidPlayerException | InvalidChoiceException |
                      VariableAlreadySetException e){
                 throw new RuntimeException(e);
             }
             CardObjective objectiveInHand;
             try{
-                objectiveInHand=match.fetchHandObjective(player);
+                objectiveInHand=match.fetchHandObjective(player.getPlayerLobby());
             } catch (InvalidPlayerException e){
                 throw new RuntimeException(e);
             }
@@ -149,7 +149,6 @@ public class TestMatch {
             List<CardPlayable> pickableCards=match.fetchPickables();
             try {
                 for (int j = 1; j < pickableCards.size(); j++) {
-
                     if(pickableCards.get(j)!=null) {
                         //System.out.println(pickableCards.get(j));
                         match.pickCard(pickableCards.get(j));
@@ -175,7 +174,7 @@ public class TestMatch {
             throw new RuntimeException(e);
         }
         try{
-            System.out.println(match.calcWinner().getNickname());
+            System.out.println(match.calcWinner().getPlayerLobby().getNickname());
 //            assertEquals(match.calcWinner(), player0);
         } catch(GameStatusException e){
             throw new RuntimeException(e);
