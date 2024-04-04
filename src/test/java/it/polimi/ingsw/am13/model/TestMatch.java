@@ -83,8 +83,8 @@ public class TestMatch {
             System.out.println("Invalid Coordinates");
         }
         try {
-            match.playCard(currentPlayer,handCards.getFirst(),Side.SIDEFRONT,coordinates);
-        } catch (GameStatusException | InvalidPlayerException | InvalidPlayCardException e) {
+            match.playCard(handCards.getFirst(),Side.SIDEFRONT,coordinates);
+        } catch (GameStatusException | InvalidPlayCardException e) {
             throw new RuntimeException(e);
         }
         assertEquals(currentPlayer.getHandCards().size(),2);
@@ -134,15 +134,15 @@ public class TestMatch {
             try {
                 if(handCards.getFirst().getFront().getCorners().get(1).isPlaceable()){
                     try {
-                        match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEFRONT, coordinates);
+                        match.playCard(handCards.getFirst(), Side.SIDEFRONT, coordinates);
                     } catch (RequirementsNotMetException e){
-                        match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEBACK, coordinates);
+                        match.playCard(handCards.getFirst(), Side.SIDEBACK, coordinates);
                     }
                 }
                 else {
-                    match.playCard(currentPlayer, handCards.getFirst(), Side.SIDEBACK, coordinates);
+                    match.playCard(handCards.getFirst(), Side.SIDEBACK, coordinates);
                 }
-            } catch (GameStatusException | InvalidPlayerException e) {
+            } catch (GameStatusException e) {
                 throw new RuntimeException(e);
             }
             assertEquals(currentPlayer.getHandCards().size(),2);

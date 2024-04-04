@@ -10,25 +10,26 @@ import java.util.*;
  * This class manages a match
  * The flow of the match is handled by game phase. The methods to controll the flow of the game are
  * <ul>
- *     <li>Constructor: sets the game phase to null (match created, decks instantiated, but game not yet started)</li>
- *     <li>startGame: starts initialization phase (mainly draws first cards for each player), setting game phase to INIT.</li>
- *     <li><code>playStarter(...)</code> and <code>choosePersonalObjective(...)</code>: every time a player plays
- *     their starter card and chooses one of the 2 personal objective cards, these methods check if initialization
+ *     <li>{@link #Match(List)}: sets the game phase to null (match created, decks instantiated, but game not yet started)</li>
+ *     <li>{@link #startGame()}: starts initialization phase (mainly draws first cards for each player), setting game phase to INIT.</li>
+ *     <li>{@link #playStarter(PlayerLobby, Side)} and {@link #choosePersonalObjective(PlayerLobby, CardObjectiveIF)}:
+ *     every time a player plays their starter card and chooses one of the 2 personal objective cards, these methods check if initialization
  *     has been completed, and eventually sets game phase to IN_GAME</li>
- *     <li><code>nextTurn()</code>: makes necessary checks for passing to FINAL_PHASE and ultimately to CALC_POINTS
+ *     <li>{@link #nextTurn()}: makes necessary checks for passing to FINAL_PHASE and ultimately to CALC_POINTS
  *     During this game phase, the only method which can change the internal state are <code>pickCard(...)</code> and <code>playCard(...)</code></li>
- *     <li><code>calcObjectivePoints()</code>: Calculates extra points given by objective cards for each player,
+ *     <li>{@link #addObjectivePoints()}: Calculates extra points given by objective cards for each player,
  *     and moves the game on to phase ENDED</li>
- *     <li><code>calcWinner()</code>: Only in this ultimate phase this method can be called, calculating which player has won</li>
+ *     <li>{@link #calcWinner()}: Only in this ultimate phase this method can be called, calculating which player has won</li>
  * </ul>
  * After game phase becomes ENDED, the internal state of Match and the model in general cannot change any longer.
  */
 //TODO: currently it isn't possible to retrieve the field through Match (we are missing getters).
-//TODO In principle we have enough information (we know all the actions of the player) in the client to build it there,
-//TODO so that's not strictly necessary, it depends on how we want to implement this
-//TODO: player currently does not expose available coordinates
+    //In principle we have enough information (we know all the actions of the player) in the client to build it there,
+    //so that's not strictly necessary, it depends on how we want to implement this
 
 //TODO: we currently don't manage at all the possibility of a player being disconnected
+
+//TODO: Pensa se gestire il caso in cui availableCoord è emptu (giocatore non piò fare più niente)
 public class Match {
     private final DeckHandler<CardResource> deckResources;
     private final DeckHandler<CardGold> deckGold;
@@ -74,11 +75,21 @@ public class Match {
     private int countSetup;
 
     /**
+     * Count of the actions done by a player during their turn. It has a relevant value only during phase IN_GAME, FINAL_PHASE
+     * The possible values are referred to current player and are:
+     * <ul>
+     *     <li>0: Turn has started, player did nothing yet</li>
+     *     <li>1: Player has played a card on their field, but did not picked any card</li>
+     *     <li>2: Player picked a card after playing, now turn is ended and game can move on to another player</li>
+     * </ul>
+     */
+    private int turnActionsCounter;
+
+    /**
      * This method sets the game status to null (game not already really started), chooses the first player at random from the list of players,
      * initialises the four decks and sets the players list to the list it receives as a parameter.
      * @param players the players of the match
      */
-    //TODO wrong phase exceptions
     //TODO: cambia eccezione InvalidPlayersNumberException se 2 giocatori hanno lo stesso colore
     public Match(List<Player> players) throws InvalidPlayersNumberException{
         if(players.size()<2 || players.size()>4)
@@ -127,7 +138,7 @@ public class Match {
      * @return a list containing the 6 cards on the table that can be picked by players
      * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
      */
-    public List<CardPlayable> fetchPickables(){
+    public List<CardPlayable> fetchPickables() {
         List<CardPlayable> pickableCards;
         try {
             pickableCards = new LinkedList<>(deckResources.getPickables());
@@ -152,6 +163,17 @@ public class Match {
      */
     public List<CardObjective> fetchCommonObjectives(){
         return deckObjective.getVisibleCards();
+    }
+
+    /**
+     * @return the List of coordinates in which new cards can be played
+     * If game has not started yet, the list is empty
+     * @throws InvalidPlayerException If player is not among this match's players
+     */
+    public List<Coordinates> fetchAvailableCoord(PlayerLobby player) throws InvalidPlayerException {
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        return playersMap.get(player).getAvailableCoord();
     }
 
     /**
@@ -207,7 +229,6 @@ public class Match {
             System.out.println("The passed side does not belong to the starter card assigned to the given player");
             throw new RuntimeException(e);
         }
-
     }
 
     /**
@@ -218,18 +239,10 @@ public class Match {
         CardObjective cardObjective0, cardObjective1;
         try{
             cardObjective0=deckObjective.drawFromDeck();
-        } catch (InvalidDrawCardException e){
-            System.out.println("The objective deck has no card left in it");
-            throw new RuntimeException(e);
-        }
-        try{
             cardObjective1=deckObjective.drawFromDeck();
-        } catch (InvalidDrawCardException e){
-            System.out.println("The objective deck has no card left in it");
-            throw new RuntimeException(e);
-        }
-        try {
             player.initPossiblePersonalObjectives(cardObjective0,cardObjective1);
+        } catch (InvalidDrawCardException e){
+            throw new RuntimeException("The objective deck has no card left in it", e);
         } catch (VariableAlreadySetException e) {
             throw new RuntimeException(e);
         }
@@ -256,6 +269,7 @@ public class Match {
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
         return playersMap.get(player).getPersonalObjective();
     }
+
     /**
      * @param player who should be contained in players
      * @return a list containing the two objective cards the player can choose from
@@ -294,88 +308,11 @@ public class Match {
     }
 
     /**
-     * Plays a given card side on the field of a given player, at the given coordinates
-     * @param player who is playing the card
-     * @param cardIF Card which is being played. It must be in player's hand
-     * @param side indicates whether the card is going to be played on the front or on the back
-     * @param coordinates in the field of the player where the card is going to be positioned
-     * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
-     * @throws InvalidPlayerException if it's not the turn of the passed player
-     * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
-     * @throws InvalidPlayCardException If the player doesn't have the specified card
-     */
-    //TODO: non ha senso passare il player su match in playcard se faccio controllo che sia current player
-        //o non facciamo controllo qui e lo facciamo fare a gamemodel, rendendo più generica gestione di playcard
-        //o eliminiamo parametro player e non facciamo controlli, usando direttamente currentPlayer (come in pickCard a stato attuale)
-    public void playCard(Player player, CardPlayableIF cardIF, Side side, Coordinates coordinates)
-            throws GameStatusException, InvalidPlayerException, RequirementsNotMetException, InvalidPlayCardException {
-        if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
-            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
-        if(player!=currentPlayer)
-            throw new InvalidPlayerException("Its not the turn of the passed player");
-        // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
-        CardPlayable card = null;
-        for(CardPlayable c : player.getHandCards())
-            if(c == cardIF)
-                card = c;
-        if(card == null)
-            throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
-
-        if(side==Side.SIDEFRONT) {
-            try {
-                player.playCard(card.getFront(),coordinates);
-            } catch (InvalidPlayCardException e) {
-                throw new RuntimeException(e);
-            } /*catch (RequirementsNotMetException e) {
-                System.out.println("The requirements to play this card aren't satisfied");
-            }*/
-        }
-        else{
-            try {
-                player.playCard(card.getBack(),coordinates);
-            } catch (InvalidPlayCardException e) {
-                throw new RuntimeException(e);
-            } catch (RequirementsNotMetException e) {
-                System.out.println("The requirements to play this card aren't satisfied");
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    /**
-     * Picks one of the 6 cards on the table
-     * @param cardIF A playable card that should be in the field
-     * @throws InvalidDrawCardException if the passed card is not on the table
-     * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
-     */
-    //TODO: ha senso conformarlo con playcard, quindi o lasciamo così, o aggiungiamo parametro player e facciamo fare azione a quel player, senza controllare che sia il currentplayer
-    public void pickCard(CardPlayableIF cardIF) throws GameStatusException, InvalidDrawCardException{
-        if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
-            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
-        CardPlayable card;
-        card = deckResources.pickCard(cardIF);
-        if(card == null) {
-            card = deckGold.pickCard(cardIF);
-        }
-        if(card == null) {
-            throw new InvalidDrawCardException("The given card is not on the table");
-        }
-        try {
-            currentPlayer.addCardToHand(card);
-        } catch (PlayerHandException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
      * Sets the starter Card, sets the possible objective cards, gives the initial cards to the players.
      * Can be called only if the match has not started yer (<code>gamePhase==null</code>) and sets game phase to INIT.
      * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
-    //TODO should we change the name of this method? something like start setup or something like that, idk
     public void startGame() throws GameStatusException {
-//        if(gameStatus!=GameStatus.INIT)
-//            throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(gameStatus!=null)
             throw new GameStatusException("Match has already started");
         gameStatus = GameStatus.INIT;
@@ -406,42 +343,102 @@ public class Match {
     }
 
     /**
-     * This method adds the points given by Objective cards to each player.
-     * Make the game phase go on to ENDED
-     * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
+     * Plays a given card side on the field of a given player, at the given coordinates
+     * @param cardIF Card which is being played. It must be in player's hand
+     * @param side indicates whether the card is going to be played on the front or on the back
+     * @param coordinates in the field of the player where the card is going to be positioned
+     * @throws GameStatusException if the actual phase is different from IN_GAME or FINAL_PHASE,
+     * or it's not the moment in turn for playing the card on field
+     * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
+     * @throws InvalidPlayCardException If the player doesn't have the specified card
      */
-    public void addObjectivePoints() throws GameStatusException{
-        if(gameStatus!=GameStatus.CALC_POINTS)
-            throw new GameStatusException(gameStatus,GameStatus.CALC_POINTS);
-        for(Player player : players)
-            player.addObjectivePoints(deckObjective.showFromTable(0), deckObjective.showFromTable(1));
-        gameStatus = GameStatus.ENDED;
+    public void playCard(CardPlayableIF cardIF, Side side, Coordinates coordinates)
+            throws GameStatusException, RequirementsNotMetException, InvalidPlayCardException {
+        // Right game phase
+        if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
+            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
+        // Right moment in turn-based phases for playing the card
+        if(turnActionsCounter!=0)
+            throw new GameStatusException("It's not the moment for playing the card on field");
+
+        // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
+        CardPlayable card = null;
+        for(CardPlayable c : currentPlayer.getHandCards())
+            if(c == cardIF) {
+                card = c;
+            }
+        if(card == null) {
+            throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
+        }
+
+        if(side==Side.SIDEFRONT) {
+            try {
+                currentPlayer.playCard(card.getFront(),coordinates);
+            } catch (InvalidPlayCardException e) {
+                throw new RuntimeException(e);
+            } /*catch (RequirementsNotMetException e) {
+                System.out.println("The requirements to play this card aren't satisfied");
+            }*/
+        }
+        else{
+            try {
+                currentPlayer.playCard(card.getBack(),coordinates);
+            } catch (InvalidPlayCardException e) {
+                throw new RuntimeException(e);
+            } catch (RequirementsNotMetException e) {
+                System.out.println("The requirements to play this card aren't satisfied");
+                throw new RuntimeException(e);
+            }
+        }
+        turnActionsCounter++;
     }
+
     /**
-     * This method finds the winner, ie the player with the most points
-     * @return the winner of the match
-     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
+     * Picks one of the 6 cards on the table
+     * @param cardIF A playable card that should be in the field
+     * @throws InvalidDrawCardException if the passed card is not on the table
+     * @throws GameStatusException if this method is called not in game phase IN_GAME or FINAL_PHASE, or
+     * if it's not the right moment for picking the card from common field
      */
-    public Player calcWinner() throws GameStatusException{
-        if(gameStatus!=GameStatus.ENDED)
-            throw new GameStatusException(gameStatus,GameStatus.ENDED);
-//        Player winner = players.getFirst();
-//        for(Player player : players) {
-//            if(player.getPoints()>winner.getPoints())
-//                winner=player;
-//        }
-        return players.stream().max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
+    public void pickCard(CardPlayableIF cardIF) throws GameStatusException, InvalidDrawCardException{
+        //Right game phase
+        if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
+            throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
+        if(turnActionsCounter!=1)
+            throw new GameStatusException("It's not the moment for picking the card from the common field");
+
+        CardPlayable card;
+        card = deckResources.pickCard(cardIF);
+        if(card == null) {
+            card = deckGold.pickCard(cardIF);
+        }
+        if(card == null) {
+            throw new InvalidDrawCardException("The given card is not on the table");
+        }
+        try {
+            currentPlayer.addCardToHand(card);
+        } catch (PlayerHandException e) {
+            throw new RuntimeException(e);
+        }
+        turnActionsCounter++;
     }
 
     /**
      * This method makes the match proceed from the turn that has just been played to the next one,
      * by changing the currentPlayer and, if necessary, changing the GameStatus
      * @return False if there is no other turn to play after the one that has just been played, true otherwise
-     * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
+     * @throws GameStatusException if this method is called not in game phase IN_GAME or FINAL_PHASE, or
+     *      * if it's not the right moment for changing turn (player still has to play and/or pick)
      */
     public boolean nextTurn() throws GameStatusException{
+        // Right game phase
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
             throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
+        // Right moment to move to next possible turn
+        if(turnActionsCounter!=2)
+            throw new GameStatusException("It's not the moment to change turn, player still has to play and/or pick");
+        turnActionsCounter = 0;
+
         if(gameStatus==GameStatus.IN_GAME && checkFinalPhase()){
             gameStatus = GameStatus.FINAL_PHASE;
             int currentPlayerIndex=0;
@@ -469,6 +466,35 @@ public class Match {
     }
 
     /**
+     * This method adds the points given by Objective cards to each player.
+     * Make the game phase go on to ENDED
+     * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
+     */
+    public void addObjectivePoints() throws GameStatusException{
+        if(gameStatus!=GameStatus.CALC_POINTS)
+            throw new GameStatusException(gameStatus,GameStatus.CALC_POINTS);
+        for(Player player : players)
+            player.addObjectivePoints(deckObjective.showFromTable(0), deckObjective.showFromTable(1));
+        gameStatus = GameStatus.ENDED;
+    }
+
+    /**
+     * This method finds the winner, ie the player with the most points
+     * @return the winner of the match
+     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
+     */
+    public Player calcWinner() throws GameStatusException{
+        if(gameStatus!=GameStatus.ENDED)
+            throw new GameStatusException(gameStatus,GameStatus.ENDED);
+//        Player winner = players.getFirst();
+//        for(Player player : players) {
+//            if(player.getPoints()>winner.getPoints())
+//                winner=player;
+//        }
+        return players.stream().max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
+    }
+
+    /**
      * @return true if the conditions triggering the end of the game (a player has reached 20 points
      * or both the Resources and Gold decks are finished) are satisfied, false otherwise
      */
@@ -483,6 +509,7 @@ public class Match {
         if(countSetup==2*players.size()) {
             gameStatus = GameStatus.IN_GAME;
             currentPlayer = firstPlayer;
+            turnActionsCounter = 0;
         }
     }
 
@@ -505,14 +532,4 @@ public class Match {
         return playersMap.keySet();
     }
 
-    /**
-     * @return the List of coordinates in which new cards can be played
-     * If game has not started yet, the list is empty
-     * @throws InvalidPlayerException If player is not among this match's players
-     */
-    public List<Coordinates> fetchAvailableCoord(PlayerLobby player) throws InvalidPlayerException {
-        if(!playersMap.containsKey(player))
-            throw new InvalidPlayerException();
-        return playersMap.get(player).getAvailableCoord();
-    }
 }

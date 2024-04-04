@@ -19,9 +19,6 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
      */
     private final CardSidePlayable back;
 
-//    private Coordinates coords;
-    //TODO: secondo Matteo coords è inutile, pensare se lasciare o togliere
-
     /**
      * Sets all immutable parameters of a playable card while creating a new one.
      * The card is created not visible in field

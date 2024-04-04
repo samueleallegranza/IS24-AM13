@@ -204,7 +204,7 @@ public class GameModel {
 
 
     // METHODS CALLABLE IN PHASE IN_GAME, FINAL_PHASE
-    //TODO: sistema fasi di gioco per chiamare solo in giusto momento i 3 metodi qua sotto (gestire divisione di turni in 'gioca' e 'pesca')
+
 
     /**
      * Makes the match proceed from the turn that has just been played to the next one,
@@ -227,12 +227,7 @@ public class GameModel {
      */
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
-        try {
-            match.playCard(match.getCurrentPlayer(), card, side, coord);
-        } catch (InvalidPlayerException e) {
-            // Should never happen
-            throw new RuntimeException(e);
-        }
+        match.playCard(card, side, coord);
     }
 
     /**

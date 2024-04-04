@@ -170,9 +170,8 @@ public class TestGameModel {
         testStartGame();
         // Now I'm in the beginning of IN_GAME
         assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
-        //TODO: sistemando le fasi di gioco in match dovrebbero funzionare anche i due assert qua sotto
-//        assertThrows(GameStatusException.class, ()->game.nextTurn());
-//        assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
+        assertThrows(GameStatusException.class, ()->game.nextTurn());
+        assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
         PlayerLobby currPlayer = game.fetchCurrentPlayer();
         CardObjectiveIF personalObjective = game.fetchHandObjective(currPlayer);
 
@@ -203,10 +202,9 @@ public class TestGameModel {
         assertTrue(game.fetchAvailableCoord(currPlayer).contains(new Coordinates(2,2)));
         assertTrue(game.fetchAvailableCoord(currPlayer).contains(new Coordinates(2,0)));       // I assume the other ones are not changed
 
-        //TODO: sistemando le fasi di gioco in match dovrebbero funzionare anche i due assert qua sotto
-//        Coordinates coord2 = game.fetchAvailableCoord(currPlayer).getFirst();
-//        assertThrows(GameStatusException.class, ()->game.playCard(c1, Side.SIDEBACK, coord2));
-//        assertThrows(GameStatusException.class, ()->game.nextTurn());
+        Coordinates coord2 = game.fetchAvailableCoord(currPlayer).getFirst();
+        assertThrows(GameStatusException.class, ()->game.playCard(c1, Side.SIDEBACK, coord2));
+        assertThrows(GameStatusException.class, ()->game.nextTurn());
 
         assertThrows(InvalidDrawCardException.class, ()->game.pickCard(c3));
         CardPlayableIF c4 = game.fetchPickables().get(4);
@@ -234,10 +232,8 @@ public class TestGameModel {
         assertEquals(3, game.fetchHandPlayable(currPlayer).size());
         assertTrue(game.fetchHandPlayable(currPlayer).contains(c4));
 
-        //TODO: sistemando le fasi di gioco in match dovrebbero funzionare anche i due assert qua sotto
-//        Coordinates coord2 = game.fetchAvailableCoord(currPlayer).getFirst();
-//        assertThrows(GameStatusException.class, ()->game.playCard(c4, Side.SIDEBACK, new Coordinates(2,2)));
-//        assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
+        assertThrows(GameStatusException.class, ()->game.playCard(c4, Side.SIDEBACK, new Coordinates(2,2)));
+        assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
 
         game.nextTurn();
         for(PlayerLobby p : players)

@@ -13,6 +13,9 @@ import java.util.List;
  * @param <T> A subclass of {@link Card}
  */
 public class DeckHandler<T extends Card>{
+
+    //TODO: sistema ritorno di pickables con optional (lista di lunghezza fissa a 6)
+
     /**
      * This attributes contains the deck of cards.
      */
@@ -55,6 +58,8 @@ public class DeckHandler<T extends Card>{
         //System.out.println("deck");
         return deck.draw();
     }
+
+    //TODO: controlla InvalidDrawCardException
 
     /**
      * Draws a card from the visible ones anc unveils its replacement by drawing it from the

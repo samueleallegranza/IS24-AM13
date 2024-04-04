@@ -12,6 +12,7 @@ import java.util.Objects;
  * This class represents one of the two sides of a playable card
  */
 public class CardSidePlayable {
+
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
      */
@@ -22,14 +23,17 @@ public class CardSidePlayable {
      * In order, they are: upper left, upper right, lower right, lower left
      */
     final private List<Corner> corners;
+
     /**
      * This possibly empty list contains the resources at the center of the card side
      */
     final private List<Resource> centerResources;
+
     /**
      * It stores the information needed to calculate the points the player gets when playing this card side
      */
     final private PointsPlayable points;
+
     /**
      * It stores the color of this card
      */
