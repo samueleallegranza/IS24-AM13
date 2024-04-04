@@ -18,7 +18,7 @@ public class TestMatch {
     private Player player1;
     private Match match;
     @Test
-    public void testGameSetup(){
+    public void testGameSetup() throws InvalidPlayCardException {
         List<Player> players;
         player0=new Player("Al",new Token(ColorToken.RED));
         player1=new Player("John",new Token(ColorToken.RED));
@@ -71,7 +71,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testPickAndPlay() throws RequirementsNotMetException{
+    public void testPickAndPlay() throws RequirementsNotMetException, InvalidPlayCardException {
         testGameSetup();
         Player currentPlayer=match.getCurrentPlayer();
         assertEquals(currentPlayer,player0);
@@ -84,7 +84,7 @@ public class TestMatch {
         }
         try {
             match.playCard(currentPlayer,handCards.getFirst(),Side.SIDEFRONT,coordinates);
-        } catch (GameStatusException | InvalidPlayerException e) {
+        } catch (GameStatusException | InvalidPlayerException | InvalidPlayCardException e) {
             throw new RuntimeException(e);
         }
         assertEquals(currentPlayer.getHandCards().size(),2);
@@ -99,7 +99,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testSecondTurn() throws RequirementsNotMetException{
+    public void testSecondTurn() throws RequirementsNotMetException, InvalidPlayCardException {
         testPickAndPlay();
         try {
             match.nextTurn();
@@ -111,7 +111,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testCompleteGame() throws RequirementsNotMetException{
+    public void testCompleteGame() throws RequirementsNotMetException, InvalidPlayCardException {
         testGameSetup();
         boolean hasNextTurn;    // Set to true by default
         int i=1;

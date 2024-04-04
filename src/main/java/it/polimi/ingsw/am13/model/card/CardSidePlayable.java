@@ -106,4 +106,15 @@ public class CardSidePlayable {
     public int hashCode() {
         return Objects.hash(requirements, corners, centerResources, points, color);
     }
+
+    @Override
+    public String toString() {
+        return "CardSidePlayable{" +
+                "requirements=" + requirements +
+                ", corners=" + corners +
+                ", centerResources=" + centerResources +
+                ", points=" + points +
+                ", color=" + color +
+                '}';
+    }
 }

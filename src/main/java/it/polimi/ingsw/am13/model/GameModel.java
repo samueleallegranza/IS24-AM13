@@ -1,9 +1,6 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
 
@@ -104,7 +101,9 @@ public class GameModel {
         return match.fetchCommonObjectives();
     }
 
+
     // TURN-ASYNC METHODS RELATED TO SPECIFIC PLAYER
+
 
     /**
      * @param player One of the players of the match
@@ -133,7 +132,18 @@ public class GameModel {
         return match.fetchHandObjective(player);
     }
 
+    /**
+     * @return the List of coordinates in which new cards can be played
+     * If game has not started yet, the list is empty
+     * @throws InvalidPlayerException If player is not among this match's players
+     */
+    public List<Coordinates> fetchAvailableCoord(PlayerLobby player) throws InvalidPlayerException {
+        return match.fetchAvailableCoord(player);
+    }
+
+
     // METHODS CALLABLE IN PHASE <null>
+
 
     /**
      * Sets the starter Card, sets the possible objective cards, gives the initial cards to the players.
@@ -144,17 +154,21 @@ public class GameModel {
         match.startGame();
     }
 
+
     // METHODS CALLABLE IN PHASE INIT
+
 
     /**
      * Method callable only one per player during INIT phase.
      * It plays the starter card of the given player on the passed side
      * @param player Player who has chosen which side of the starting card he wants to play
      * @param side The side of the starting card
-     * @throws InvalidPlayerException If the player's token is not among the playing players in the match
+     * @throws InvalidPlayerException If the player is not among the playing players in the match
      * @throws GameStatusException If game phase is not INIT
+     * @throws InvalidPlayCardException Positioning error of the card at coordinates (0,0).
      */
-    public void playStarter(PlayerLobby player, Side side) throws InvalidPlayerException, GameStatusException {
+    public void playStarter(PlayerLobby player, Side side)
+            throws InvalidPlayerException, GameStatusException, InvalidPlayCardException {
         match.playStarter(player, side);
     }
 
@@ -189,19 +203,60 @@ public class GameModel {
     }
 
 
-
-    //TODO: rivedi da qua in giù
-
-
+    // METHODS CALLABLE IN PHASE IN_GAME, FINAL_PHASE
+    //TODO: sistema fasi di gioco per chiamare solo in giusto momento i 3 metodi qua sotto (gestire divisione di turni in 'gioca' e 'pesca')
 
     /**
-     * This method makes the match proceed from the turn that has just been played to the next one,
+     * Makes the match proceed from the turn that has just been played to the next one,
      * by changing the currentPlayer and, if necessary, changing the GameStatus
      * @return False if there is no other turn to play after the one that has just been played, true otherwise
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
      */
     public boolean nextTurn() throws GameStatusException {
         return match.nextTurn();
+    }
+
+    /**
+     * Plays a given card side on the field, at the given coordinates
+     * @param card Card which is being played. It must be in player's hand
+     * @param side Indicates whether the card is going to be played on the front or on the back
+     * @param coord Coordinates in the field of the player where the card is going to be positioned
+     * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
+     * @throws InvalidPlayCardException If the player doesn't have the specified card
+     * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
+     */
+    public void playCard(CardPlayableIF card, Side side, Coordinates coord)
+            throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
+        try {
+            match.playCard(match.getCurrentPlayer(), card, side, coord);
+        } catch (InvalidPlayerException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Picks one of the 6 cards on the table
+     * @param card A playable card that should be in the field
+     * @throws InvalidDrawCardException if the passed card is not on the table
+     * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
+     */
+    public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
+        match.pickCard(card);
+    }
+
+
+    // METHODS CALLABLE IN PHASE CALC_POINTS
+    //TODO: continua a vedere da qui in già
+
+    /**
+     * Method callable once reached pahse CALC_POINTS.
+     * This method adds the points given by Objective cards to each player.
+     * Make the game phase go on to ENDED
+     * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
+     */
+    public void addoObjectivePoints() throws GameStatusException {
+        match.addObjectivePoints();
     }
 
 }

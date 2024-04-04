@@ -191,8 +191,10 @@ public class Match {
      * @param side The side of the starting card
      * @throws InvalidPlayerException If the player is not among the playing players in the match
      * @throws GameStatusException If game phase is not INIT
+     * @throws InvalidPlayCardException Positioning error of the card at coordinates (0,0).
      */
-    public void playStarter(PlayerLobby playerLobby, Side side) throws GameStatusException, InvalidPlayerException{
+    public void playStarter(PlayerLobby playerLobby, Side side)
+            throws GameStatusException, InvalidPlayerException, InvalidPlayCardException {
         if(gameStatus!=GameStatus.INIT)
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(playerLobby))
@@ -201,8 +203,6 @@ public class Match {
             playersMap.get(playerLobby).playStarter(side);
             countSetup++;
             checkInGamePhase();
-        } catch (InvalidPlayCardException e) {
-            throw new RuntimeException(e);
         } catch (InvalidChoiceException e){
             System.out.println("The passed side does not belong to the starter card assigned to the given player");
             throw new RuntimeException(e);
@@ -296,17 +296,31 @@ public class Match {
     /**
      * Plays a given card side on the field of a given player, at the given coordinates
      * @param player who is playing the card
-     * @param card which is being played
+     * @param cardIF Card which is being played. It must be in player's hand
      * @param side indicates whether the card is going to be played on the front or on the back
      * @param coordinates in the field of the player where the card is going to be positioned
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
      * @throws InvalidPlayerException if it's not the turn of the passed player
+     * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
+     * @throws InvalidPlayCardException If the player doesn't have the specified card
      */
-    public void playCard(Player player, CardPlayable card, Side side, Coordinates coordinates) throws GameStatusException,InvalidPlayerException,RequirementsNotMetException{
+    //TODO: non ha senso passare il player su match in playcard se faccio controllo che sia current player
+        //o non facciamo controllo qui e lo facciamo fare a gamemodel, rendendo più generica gestione di playcard
+        //o eliminiamo parametro player e non facciamo controlli, usando direttamente currentPlayer (come in pickCard a stato attuale)
+    public void playCard(Player player, CardPlayableIF cardIF, Side side, Coordinates coordinates)
+            throws GameStatusException, InvalidPlayerException, RequirementsNotMetException, InvalidPlayCardException {
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
             throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
         if(player!=currentPlayer)
             throw new InvalidPlayerException("Its not the turn of the passed player");
+        // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
+        CardPlayable card = null;
+        for(CardPlayable c : player.getHandCards())
+            if(c == cardIF)
+                card = c;
+        if(card == null)
+            throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
+
         if(side==Side.SIDEFRONT) {
             try {
                 player.playCard(card.getFront(),coordinates);
@@ -330,21 +344,24 @@ public class Match {
 
     /**
      * Picks one of the 6 cards on the table
-     * @param cardPlayable a playable card that should be in the field
+     * @param cardIF A playable card that should be in the field
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
      */
-    public void pickCard(CardPlayable cardPlayable) throws GameStatusException, InvalidDrawCardException{
+    //TODO: ha senso conformarlo con playcard, quindi o lasciamo così, o aggiungiamo parametro player e facciamo fare azione a quel player, senza controllare che sia il currentplayer
+    public void pickCard(CardPlayableIF cardIF) throws GameStatusException, InvalidDrawCardException{
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
             throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
-        boolean found;
-        found=deckResources.pickCard(cardPlayable);
-        if(!found)
-            found=deckGold.pickCard(cardPlayable);
-        if(!found)
+        CardPlayable card;
+        card = deckResources.pickCard(cardIF);
+        if(card == null) {
+            card = deckGold.pickCard(cardIF);
+        }
+        if(card == null) {
             throw new InvalidDrawCardException("The given card is not on the table");
+        }
         try {
-            currentPlayer.addCardToHand(cardPlayable);
+            currentPlayer.addCardToHand(card);
         } catch (PlayerHandException e) {
             throw new RuntimeException(e);
         }
@@ -490,8 +507,12 @@ public class Match {
 
     /**
      * @return the List of coordinates in which new cards can be played
+     * If game has not started yet, the list is empty
+     * @throws InvalidPlayerException If player is not among this match's players
      */
-    public List<Coordinates> fetchAvailableCoord(Player player){
-        return player.getAvailableCoord();
+    public List<Coordinates> fetchAvailableCoord(PlayerLobby player) throws InvalidPlayerException {
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        return playersMap.get(player).getAvailableCoord();
     }
 }

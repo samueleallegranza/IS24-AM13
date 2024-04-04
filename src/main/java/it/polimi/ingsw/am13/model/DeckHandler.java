@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.model.card.Card;
-import it.polimi.ingsw.am13.model.card.CardPlayable;
+import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 
@@ -113,11 +113,13 @@ public class DeckHandler<T extends Card>{
         return visibleCards;
     }
 
+    //TODO: e se non ci sono alcune di queste carte??
     /**
      * List of all visible cards (that are pickable during turn phases).
-     * The list is of size 3, with order: top of deck, 2 visible cards
-     * @return
-     * @throws InvalidDrawCardException
+     * The list is of size 3, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>)
+     * @return List of visible cards (top of deck, 2 visible cards)
+     * @throws InvalidDrawCardException ??
      */
     public List<T> getPickables() throws InvalidDrawCardException{
         List<T> pickableCards=new ArrayList<>();
@@ -127,17 +129,24 @@ public class DeckHandler<T extends Card>{
         return pickableCards;
     }
 
-    public boolean pickCard(CardPlayable cardPlayable) throws InvalidDrawCardException{
+    //TODO: gestire meglio i casi limite di pescaggio quando non ci sono più carte...
+
+    /**
+     * If the specified card is found among the 3 "visible" (top of the deck and the 2 actually visibile), it is picked and returned.
+     * The method is thought for cards that can be picked and played in a later moment, hence the specified card must be playable.
+     * @param cardPlayable Card to be picked (if present)
+     * @return The card picked if present, null otherwise
+     * @throws InvalidDrawCardException ???
+     */
+    public T pickCard(CardPlayableIF cardPlayable) throws InvalidDrawCardException{
         if(!deck.isEmpty() && getDeckTop()==cardPlayable){
-            drawFromDeck();
-            return true;
+            return drawFromDeck();
         }
         for (int i = 0; i < visibleCards.size(); i++) {
             if(showFromTable(i)==cardPlayable){
-                drawFromTable(i);
-                return true;
+                return drawFromTable(i);
             }
         }
-        return false;
+        return null;
     }
 }

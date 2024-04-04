@@ -143,15 +143,10 @@ public class Player {
             else
                 throw new InvalidChoiceException();
         }
-        // coordinates for the starter card
-        Coordinates starterCoord = null;
-        try {
-            starterCoord = new Coordinates(0,0);
-        } catch (InvalidCoordinatesException ignored) {}
 
         // play the starter card on the field at coords (0,0)
         try {
-            this.field.playCardSide(starterSide, starterCoord);
+            this.field.playCardSide(starterSide, Coordinates.createOrigin());
         } catch (RequirementsNotMetException ignored) {} // No requirements for starter card.
 
     }
@@ -264,8 +259,8 @@ public class Player {
     }
 
     /**
-     *
-     * @return the List of coordinates in which new cards can be played
+     * @return The list of coordinates in which new cards can be played.
+     * If game has not started yet, the list is empty
      */
     public List<Coordinates> getAvailableCoord(){
         return field.getAvailableCoord();

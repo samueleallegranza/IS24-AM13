@@ -34,6 +34,19 @@ public class Coordinates {
     }
 
     /**
+     * Create new coordinates for origin, without throwing exceptions
+     * @return Coordinates for (0,0)
+     */
+    static public Coordinates createOrigin() {
+        try {
+            return new Coordinates(0,0);
+        } catch (InvalidCoordinatesException e) {
+            // Cant ever happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * @return Coordinate x of point/vector (horizontal axis)
      */
     public int getPosX() {
