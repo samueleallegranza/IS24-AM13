@@ -76,4 +76,12 @@ public abstract class Card implements CardIF {
     public int hashCode() {
         return Objects.hash(id, visibleSide);
     }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "id='" + id + '\'' +
+                ", visibleSide=" + visibleSide +
+                '}';
+    }
 }

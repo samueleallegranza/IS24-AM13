@@ -5,9 +5,7 @@ import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GameModel {
 
@@ -49,7 +47,7 @@ public class GameModel {
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
-    public GameModel(int gameId, Set<PlayerLobby> playersLobby) throws InvalidPlayersNumberException {
+    public GameModel(int gameId, List<PlayerLobby> playersLobby) throws InvalidPlayersNumberException {
         this.gameId = gameId;
         List<Player> players = playersLobby.stream().map(Player::new).toList();
         this.match = new Match(players);
@@ -64,8 +62,19 @@ public class GameModel {
         return gameId;
     }
 
-    public Set<? extends PlayerLobby> fetchPlayers() {
-        return match.getPlayersLobby();
+    /**
+     * @return List of players, decontextualized from game (their nicknames/tokens, nothing else)
+     */
+    public List<PlayerLobby> fetchPlayers() {
+        return match.getPlayers().stream().map(Player::getPlayerLobby).toList();
+    }
+
+    /**
+     * The first player of the match is the one that will do the first play of the card in phase IN_GAME
+     * @return The first player of the match
+     */
+    public PlayerLobby fetchFirstPlayer() {
+        return match.getFirstPlayer().getPlayerLobby();
     }
 
     /**
@@ -77,6 +86,16 @@ public class GameModel {
     }
 
     /**
+     * @return A map of points accumalated till this point for each player.
+     * If the turn-bases phases haven't started yet, the points will be 0
+     */
+    public Map<PlayerLobby, Integer> fetchPoints() {
+        Map<PlayerLobby, Integer> points = new HashMap<>();
+        match.getPlayers().forEach(p -> points.put(p.getPlayerLobby(), p.getPoints()));
+        return points;
+    }
+
+    /**
      * @return the status of the game. See class <code>GameStatus</code> for more details
      */
     public GameStatus fetchGameStatus() {
@@ -84,11 +103,34 @@ public class GameModel {
     }
 
     /**
-     * @return a list containing the 6 cards on the table that can be picked by players
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
+     * Elements can be null. If a deck is empty but both its cards are present, only the first element of the set of 3 will be null.
+     * Besides this first element of the set, also one or both of the other ones can be null (if it remains only one or no cards
+     * of this type to be picked)
+     * @return a new list containing the 6 cards on the table that can be picked by players
      * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
      */
     public List<? extends CardPlayableIF> fetchPickables() {
         return match.fetchPickables();
+    }
+
+    /**
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
+     * If a deck is empty but both its cards are present, only the first optional of the set of 3 will be empty.
+     * Besides this first element of the set, also one or both of the other ones can be empty optionals
+     * @return a list containing the 6 cards on the table that can be picked by players
+     * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
+     */
+    public List<Optional<? extends CardPlayableIF>> fetchPickablesOptional() {
+        return new ArrayList<>(match.fetchPickablesOptional().stream()
+                .map(c -> (Optional<? extends CardPlayableIF>)c).toList());
+//        return match.fetchPickablesOptional().stream()
+//                .map(cardOptional -> (Optional<? extends CardObjectiveIF>)cardOptional).toList();
+//        return null;
     }
 
     /**

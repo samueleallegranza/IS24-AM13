@@ -7,6 +7,8 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+
 /**
  * This class represents a deck and two visible cards
  * which sit on the Field at all times.
@@ -23,6 +25,9 @@ public class DeckHandler<T extends Card>{
 
     /**
      * It stores the deck's two cards which are visible at all times on the field.
+     * The size is always 2. If deck is not empty, both cards are not-null.
+     * If the deck is empty, one or both of the cards can be null.
+     * The list is order-preserving (if a card is placed in pos 1, it will remain in pos 1 till it's removed)
      */
     private final List<T> visibleCards;
 
@@ -72,6 +77,8 @@ public class DeckHandler<T extends Card>{
         if(visibleIndex!=0 && visibleIndex!=1)
             throw new IndexOutOfBoundsException();
         T card = visibleCards.get(visibleIndex);
+        if(card==null)
+            throw new InvalidDrawCardException("");
         card.removeCardFromField();
         visibleCards.remove(visibleIndex);
 
@@ -79,7 +86,8 @@ public class DeckHandler<T extends Card>{
             T cardDrawn = deck.draw();
             cardDrawn.placeCardInField(Side.SIDEFRONT);
             visibleCards.add(visibleIndex, cardDrawn);
-        }
+        } else
+            visibleCards.add(visibleIndex, null);
         return card;
     }
 
@@ -121,15 +129,45 @@ public class DeckHandler<T extends Card>{
     /**
      * List of all visible cards (that are pickable during turn phases).
      * The list is of size 3, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
-     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>)
-     * @return List of visible cards (top of deck, 2 visible cards)
-     * @throws InvalidDrawCardException ??
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>).
+     * Elements can be null. If the deck is empty but both cards are present, only the first element will be null.
+     * Besides first element, also one or both of the other ones can be null (if it remains only one or no cards
+     * of this type to be picked)
+     * @return A new list of visible cards (top of deck, 2 visible cards)
      */
-    public List<T> getPickables() throws InvalidDrawCardException{
+    public List<T> getPickables() {
         List<T> pickableCards=new ArrayList<>();
-        if(!deck.isEmpty())
+        try {
             pickableCards.add(deck.getTop());
+        } catch (InvalidDrawCardException e) {
+            pickableCards.add(null);
+        }
+//        if(!deck.isEmpty())
+//            pickableCards.add(deck.getTop());
+//        else
+//            pickableCards.add(null);
         pickableCards.addAll(visibleCards);
+        return pickableCards;
+    }
+
+    /**
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 3, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>).
+     * If the deck is empty but both cards are present, only the first optional will be empty.
+     * Besides first element, also one or both of the other ones can be empty optionals
+     * (if it remains only one or no cards of this type to be picked)
+     * @return List of visible cards (top of deck, 2 visible cards)
+     */
+    public List<Optional<T>> getPickablesOptional() {
+        List<Optional<T>> pickableCards=new ArrayList<>();
+        try {
+            pickableCards.add(Optional.of(deck.getTop()));
+        } catch (InvalidDrawCardException e) {
+            pickableCards.add(Optional.empty());
+        }
+        for(T c : visibleCards)
+            pickableCards.add(Optional.ofNullable(c));
         return pickableCards;
     }
 

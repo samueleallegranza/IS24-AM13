@@ -135,25 +135,44 @@ public class Match {
     }
 
     /**
-     * @return a list containing the 6 cards on the table that can be picked by players
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
+     * Elements can be null. If a deck is empty but both its cards are present, only the first element of the set of 3 will be null.
+     * Besides this first element of the set, also one or both of the other ones can be null (if it remains only one or no cards
+     * of this type to be picked)
+     * @return a new list containing the 6 cards on the table that can be picked by players
      * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
      */
     public List<CardPlayable> fetchPickables() {
-        List<CardPlayable> pickableCards;
-        try {
-            pickableCards = new LinkedList<>(deckResources.getPickables());
-        } catch (InvalidDrawCardException e) {
-            System.out.println("There are no cards left in the resource cards deck");
-            throw new RuntimeException(e);
-        }
-        try {
-            pickableCards.addAll(deckGold.getPickables());
-        } catch (InvalidDrawCardException e) {
-            System.out.println("There are no cards left in the gold cards deck");
-            throw new RuntimeException(e);
-        }
+        List<CardPlayable> pickableCards = new LinkedList<>(deckResources.getPickables());
+        pickableCards.addAll(deckGold.getPickables());
         return pickableCards;
     }
+
+    /**
+     * List of all visible cards (that are pickable during turn phases).
+     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
+     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
+     * If a deck is empty but both its cards are present, only the first optional of the set of 3 will be empty.
+     * Besides this first element of the set, also one or both of the other ones can be empty optionals
+     * @return a new list containing the 6 cards on the table that can be picked by players
+     * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
+     */
+    public List<Optional<? extends CardPlayable>> fetchPickablesOptional() {
+        List<Optional<? extends CardPlayable>> pickableCards;
+        pickableCards = new LinkedList<>(deckResources.getPickablesOptional());
+        pickableCards.addAll(deckGold.getPickablesOptional());
+        return pickableCards;
+    }
+//    public List<Optional<CardPlayable>> fetchPickablesOptional() {
+//        List<Optional<CardPlayable>> pickableCards;
+//        pickableCards = new LinkedList<>(deckResources.getPickablesOptional().stream()
+//                .map(cardOptional -> cardOptional.map(card -> (CardPlayable)card)).toList());
+//        pickableCards.addAll(deckResources.getPickablesOptional().stream()
+//                .map(cardOptional -> cardOptional.map(card -> (CardPlayable)card)).toList());
+//        return pickableCards;
+//    }
 
     /**
      * Returns the visible cards for the common objectives.
@@ -441,21 +460,17 @@ public class Match {
 
         if(gameStatus==GameStatus.IN_GAME && checkFinalPhase()){
             gameStatus = GameStatus.FINAL_PHASE;
-            int currentPlayerIndex=0;
-            for (int i = 0; i < players.size(); i++) {
-                if (players.get(i) == currentPlayer)
-                    currentPlayerIndex = i;
-            }
+            int currentPlayerIndex = players.indexOf(currentPlayer);
             turnsToEnd=players.size()+(firstPlayerIndex-currentPlayerIndex-1+players.size())%players.size();
         }
         else {
             if (gameStatus == GameStatus.FINAL_PHASE) {
+                turnsToEnd--;
                 if (turnsToEnd == 0) {
                     gameStatus = GameStatus.CALC_POINTS;
                     currentPlayer = null;
                     return false;
                 }
-                turnsToEnd--;
             }
         }
         int i=0;
@@ -528,8 +543,18 @@ public class Match {
         return currentPlayer;
     }
 
-    public Set<PlayerLobby> getPlayersLobby() {
-        return playersMap.keySet();
+    /**
+     * @return The first player of the match
+     */
+    public Player getFirstPlayer() {
+        return firstPlayer;
     }
 
+    /**
+     * @return The players of the match
+     * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
+     */
+    public List<Player> getPlayers() {
+        return players;
+    }
 }

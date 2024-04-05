@@ -32,6 +32,10 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
         this.back = back;
     }
 
+    private CardSidePlayable getCorrespondingSide(Side side) {
+        return side==Side.SIDEFRONT ? front : back;
+    }
+
     /**
      * If the card is visible in field, retrieves the side that is visible
      * @return Visible card side of the card. Null if the card is not visible.
@@ -39,7 +43,7 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
     public CardSidePlayable getPlayedCardSide() {
         if(getVisibleSide()==null)
             return null;
-        return getVisibleSide()==Side.SIDEFRONT ? front : back;
+        return getCorrespondingSide(getVisibleSide());
     }
 
     /**

@@ -38,7 +38,7 @@ public class Player {
     private CardStarter startCard;
 
     /**
-     * Player's points counter.
+     * Player's points counter. Initialized with 0
      */
     private int points;
 
