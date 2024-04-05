@@ -29,7 +29,6 @@ public class Deck<T extends Card>{
      */
     public void shuffle(){
         Collections.shuffle(deck);
-        deck.getFirst().placeCardInField(Side.SIDEBACK);
     }
 
     /**
@@ -66,6 +65,14 @@ public class Deck<T extends Card>{
      */
     public boolean isEmpty(){
         return deck.isEmpty();
+    }
+
+    /**
+     * Returns the number of remaining cards in this deck.
+     * @return the number of remaining cards in this deck.
+     */
+    public int getSize(){
+        return deck.size();
     }
 
 

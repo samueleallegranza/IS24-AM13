@@ -32,10 +32,10 @@ public class DeckHandler<T extends Card>{
      */
     public DeckHandler(LinkedList<T> deck){
         this.deck = new Deck<>(deck);
-        this.deck.shuffle();
         visibleCards = new ArrayList<>();
         T visibleCard;
         try {
+            this.deck.shuffle();
             visibleCard = drawFromDeck();
             visibleCard.placeCardInField(Side.SIDEFRONT);
             visibleCards.add(visibleCard);
@@ -55,7 +55,6 @@ public class DeckHandler<T extends Card>{
      * @throws InvalidDrawCardException if the deck is empty
      */
     public T drawFromDeck() throws InvalidDrawCardException {
-        //System.out.println("deck");
         return deck.draw();
     }
 
