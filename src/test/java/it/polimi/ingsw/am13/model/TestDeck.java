@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class TestDeck {
     private final CardFactory factory = new CardFactory();
     @Test

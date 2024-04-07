@@ -13,6 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameModel {
 
+    private enum Strategy {
+        TRY_GOLD, PLAY_BACK
+    }
+
     private List<PlayerLobby> players;
     private GameModel game;
 
@@ -266,20 +270,25 @@ public class TestGameModel {
         int turnsToEnd = 0;
 
         do {
+            assertNotEquals(player, game.fetchCurrentPlayer());
+            player = game.fetchCurrentPlayer();
+            if(player == first)
+                nTurns++;
+            assertNotNull(player);
+            coord = game.fetchAvailableCoord(player).getFirst();
+
             if(!finalPhase)
                 assertEquals(GameStatus.IN_GAME, game.fetchGameStatus(), String.valueOf(nTurns));
             else if (turnsToEnd > 0)
                 assertEquals(GameStatus.FINAL_PHASE, game.fetchGameStatus(), String.valueOf(nTurns));
             else
                 fail();
-            assertNotEquals(player, game.fetchCurrentPlayer());
             assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
-
-            player = game.fetchCurrentPlayer();
-            if(player == first)
-                nTurns++;
-            assertNotNull(player);
-            coord = game.fetchAvailableCoord(player).getFirst();
+            assertThrows(GameStatusException.class, ()->game.startGame());
+            PlayerLobby finalPlayer = player;
+            assertThrows(GameStatusException.class, ()->game.playStarter(finalPlayer, Side.SIDEFRONT));
+            assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
+            assertThrows(GameStatusException.class, ()->game.nextTurn());
 
             // Test for player not having specified card
             CardPlayableIF c1 = game.fetchPickables().getFirst();
@@ -379,6 +388,216 @@ public class TestGameModel {
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 //        System.out.println(nTurns);
+//        for(CardPlayableIF c : game.fetchPickables()) {
+//            System.out.println(c);
+//        }
+    }
+
+    private void playerPlay(PlayerLobby prevPlayer, GameStatus gameStatus, int nTurns, Strategy strategy) throws InvalidPlayerException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+        assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
+        PlayerLobby player = game.fetchCurrentPlayer();
+        assertNotNull(player);
+        int nCards = game.fetchHandPlayable(player).size();
+        assertTrue(nCards <= 3);
+
+        // Test for player not having specified card
+        CardPlayableIF c1 = game.fetchPickables().getFirst();
+        Coordinates finalCoord = game.fetchAvailableCoord(player).getFirst();
+        assertThrows(InvalidPlayCardException.class, ()->game.playCard(c1, Side.SIDEFRONT, finalCoord));
+
+        CardPlayableIF playedCard = null;
+        if(strategy == Strategy.TRY_GOLD) {
+            // If a gold card can be played, I play that
+            // This way I should avoid, with only 2 players, to reach the end of the decks
+            Coordinates coord = game.fetchAvailableCoord(player).getFirst();
+            List<CardPlayableIF> golds = game.fetchHandPlayable(player).stream()
+                    .filter(c -> c instanceof CardGold).map(c -> (CardPlayableIF) c).toList();
+            for (CardPlayableIF c : golds) {
+                try {
+                    game.playCard(c, Side.SIDEFRONT, coord);
+                    assertEquals(Side.SIDEFRONT, c.getVisibleSide());
+                } catch (RequirementsNotMetException e) {
+                    continue;
+                }
+                // I managed to play that gold card
+                playedCard = c;
+                break;
+            }
+            if (playedCard == null) {
+                List<CardPlayableIF> resources = game.fetchHandPlayable(player).stream()
+                        .filter(c -> c instanceof CardResource).map(c -> (CardPlayableIF) c).toList();
+                if (!resources.isEmpty()) {
+                    playedCard = resources.getFirst();
+                    game.playCard(playedCard, Side.SIDEFRONT, coord);
+                    assertEquals(Side.SIDEFRONT, playedCard.getVisibleSide());
+                } else {
+                    playedCard = game.fetchHandPlayable(player).getFirst();
+                    game.playCard(playedCard, Side.SIDEBACK, coord);
+                    assertEquals(Side.SIDEBACK, playedCard.getVisibleSide());
+                }
+            }
+        } else if (strategy == Strategy.PLAY_BACK) {
+            playedCard = game.fetchHandPlayable(player).getFirst();
+            Coordinates coord = game.fetchAvailableCoord(player).getFirst();
+            // I play always back side, never adding points!
+            game.playCard(playedCard, Side.SIDEBACK, coord);
+            assertEquals(Side.SIDEBACK, playedCard.getVisibleSide());
+        }
+
+        // Test
+        assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
+        assertEquals(player, game.fetchCurrentPlayer());
+        assertEquals(nCards-1, game.fetchHandPlayable(player).size());
+        assertFalse(game.fetchHandPlayable(player).contains(playedCard));   // I assume the other 2 are not changed
+
+        Coordinates finalCoord1 = game.fetchAvailableCoord(player).getFirst();
+        assertThrows(GameStatusException.class, ()->game.playCard(c1, Side.SIDEBACK, finalCoord1));
+        assertThrows(GameStatusException.class, ()->game.nextTurn());
+
+        playerPick(player, gameStatus, nTurns);
+    }
+
+    private void playerPick(PlayerLobby player, GameStatus gameStatus, int nTurns) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException {
+        int nCards = game.fetchHandPlayable(player).size();
+        assertTrue(nCards <= 2);
+        assertThrows(InvalidDrawCardException.class, () -> game.pickCard(game.fetchHandPlayable(player).getFirst()));
+        List<Integer> pickSeq = new ArrayList<>();
+        for (int i = 0; i < 6; i++)
+            pickSeq.add(i);
+        Collections.shuffle(pickSeq);
+        CardPlayableIF pickedCard = null;
+        for (Integer i : pickSeq) {
+            pickedCard = game.fetchPickables().get(i);
+            if (pickedCard != null)
+                break;
+        }
+        assertNotNull(pickedCard);
+        game.pickCard(pickedCard);
+
+        // Now I also picked a card.
+        List<? extends CardPlayableIF> pickables = game.fetchPickables();
+        assertEquals(pickables.size(), 6);
+        if(pickables.get(1)==null || pickables.get(2)==null)
+            assertNull(pickables.get(0));
+        if(pickables.get(4)==null || pickables.get(5)==null)
+            assertNull(pickables.get(3));
+
+        assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
+        assertEquals(player, game.fetchCurrentPlayer());
+        assertNull(pickedCard.getVisibleSide());
+        assertEquals(nCards+1, game.fetchHandPlayable(player).size());
+        assertTrue(game.fetchHandPlayable(player).contains(pickedCard));    // I assume the other 2 didnt change
+
+        Coordinates finalCoord2 = game.fetchAvailableCoord(player).getFirst();
+        CardPlayableIF finalPickedCard = pickedCard;
+        assertThrows(GameStatusException.class, () -> game.playCard(finalPickedCard, Side.SIDEBACK, finalCoord2));
+        assertThrows(GameStatusException.class, () -> game.pickCard(game.fetchPickables().getFirst()));
+    }
+
+    @Test
+    public void testTurnPhasesReach20_2() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+        testStartGame();
+
+        PlayerLobby prevPlayer = game.fetchFirstPlayer();
+        prevPlayer = (players.get(0)==prevPlayer) ? players.get(1) : players.get(0);    // I initialize the player with the second one
+        int nTurns = 0;
+        boolean ended = false;
+        boolean nextFinal = false;
+        GameStatus gameStatus = GameStatus.IN_GAME;
+
+        do {
+            if(ended)
+                fail(); // I should have ended turn-based phases, so i shouldn't be here
+            else
+                assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
+            assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
+            assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+
+            nTurns++;
+            if(nextFinal) {
+                ended = true;
+            }
+
+            // First player tries to win
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.TRY_GOLD);
+            prevPlayer = game.fetchCurrentPlayer();
+            if(gameStatus==GameStatus.IN_GAME && game.fetchPoints().get(game.fetchCurrentPlayer())>=20) {
+                nextFinal = true;
+            }
+
+            // Now it's the turn of the second player, so there must be another turn at least
+            assertTrue(game.nextTurn());
+            if(nextFinal) {
+                gameStatus = GameStatus.FINAL_PHASE;
+            }
+
+            // Second player plays always back sides
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
+            prevPlayer = game.fetchCurrentPlayer();
+            assertEquals(0, game.fetchPoints().get(prevPlayer));
+        } while(game.nextTurn());
+
+        assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
+        assertNull(game.fetchCurrentPlayer());
+//        System.out.println(nTurns);
+//        System.out.println(game.fetchPoints().values());
+//        for(CardPlayableIF c : game.fetchPickables()) {
+//            System.out.println(c);
+//        }
+    }
+
+    @Test
+    public void testTurnPhasesEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+        testStartGame();
+
+        PlayerLobby prevPlayer = game.fetchFirstPlayer();
+        prevPlayer = (players.get(0)==prevPlayer) ? players.get(1) : players.get(0);    // I initialize the player with the second one
+        int nTurns = 0;
+        boolean ended = false;
+        boolean nextFinal = false;
+        GameStatus gameStatus = GameStatus.IN_GAME;
+
+        do {
+            if(nextFinal)
+                gameStatus = GameStatus.FINAL_PHASE;
+            if(ended)
+                fail(); // I should have ended turn-based phases, so i shouldn't be here
+            else
+                assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
+            assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
+            assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+
+            nTurns++;
+            if(nextFinal) {
+                ended = true;
+            }
+
+            // First player plays always back sides
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
+            prevPlayer = game.fetchCurrentPlayer();
+            assertEquals(0, game.fetchPoints().get(prevPlayer));
+            if(gameStatus==GameStatus.IN_GAME && game.fetchPickables().get(0)==null && game.fetchPickables().get(3)==null)
+                nextFinal = true;
+
+            // Now it's the turn of the second player, so there must be another turn at least
+            assertTrue(game.nextTurn());
+            if(nextFinal)
+                gameStatus = GameStatus.FINAL_PHASE;
+
+            // Second player plays always back sides
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
+            prevPlayer = game.fetchCurrentPlayer();
+            assertEquals(0, game.fetchPoints().get(prevPlayer));
+            if(gameStatus==GameStatus.IN_GAME && game.fetchPickables().get(0)==null && game.fetchPickables().get(3)==null)
+                nextFinal = true;
+        } while(game.nextTurn());
+
+        assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
+        assertNull(game.fetchCurrentPlayer());
+        int nVisibleCards = game.fetchPickables().stream().filter(Objects::nonNull).toList().size();
+        assertEquals(2*nTurns, 74-nVisibleCards);
+//        System.out.println(nTurns);
+//        System.out.println(game.fetchPoints().values());
 //        for(CardPlayableIF c : game.fetchPickables()) {
 //            System.out.println(c);
 //        }
