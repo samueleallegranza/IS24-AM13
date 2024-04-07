@@ -7,7 +7,6 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,16 +22,12 @@ public class TestDeckHandler {
         assert(top.getVisibleSide() == Side.SIDEBACK);
         assert(visibleCards.get(0).getVisibleSide() == Side.SIDEFRONT);
         assert(visibleCards.get(1).getVisibleSide() == Side.SIDEFRONT);
-        assertThrows(IndexOutOfBoundsException.class, ()-> {
-            handler.showFromTable(3);
-        });
+        assertThrows(IndexOutOfBoundsException.class, ()-> handler.showFromTable(3));
         assertSame(handler.showFromTable(0), visibleCards.get(0));
         assertSame(handler.showFromTable(1), visibleCards.get(1));
 
         assertEquals(top, handler.getDeckTop());
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-           handler.drawFromTable(3);
-        });
+        assertThrows(IndexOutOfBoundsException.class, () -> handler.drawFromTable(3));
         assertEquals(top, handler.getDeckTop());
         assertFalse(handler.isDeckEmpty());
 
@@ -57,17 +52,18 @@ public class TestDeckHandler {
     public void testDeckEmpty() throws InvalidCardCreationException, InvalidDrawCardException {
         DeckHandler<CardResource> handler = new DeckHandler<>(factory.createCardsResource());
         for (int i = 0; i < 19; i++) {
-            CardResource topCard = handler.drawFromDeck();
-            CardResource tableCard = handler.drawFromTable(i%2);
+            handler.drawFromDeck();
+            handler.drawFromTable(i%2);
         }
 
         assertTrue(handler.isDeckEmpty());
         CardResource expected = handler.getPickables().get(1);
-        CardResource cardResource = handler.drawFromTable(1);
+        CardResource cardResource = handler.drawFromTable(0);
         assertSame(expected.getFront(), cardResource.getFront());
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            CardResource card = handler.drawFromTable(1);
-        });
+//        assertThrows(IndexOutOfBoundsException.class, () -> handler.drawFromTable(1));
+        assertThrows(IndexOutOfBoundsException.class, () -> handler.drawFromTable(2));
+        assertThrows(InvalidDrawCardException.class, () -> handler.drawFromTable(0));
+        assertThrows(InvalidDrawCardException.class, handler::drawFromDeck);
     }
 
     @Test
