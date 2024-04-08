@@ -8,7 +8,7 @@ import java.util.*;
 
 /**
  * This class manages a match
- * The flow of the match is handled by game phase. The methods to controll the flow of the game are
+ * The flow of the match is handled by game phase. The methods to control the flow of the game are
  * <ul>
  *     <li>{@link #Match(List)}: sets the game phase to null (match created, decks instantiated, but game not yet started)</li>
  *     <li>{@link #startGame()}: starts initialization phase (mainly draws first cards for each player), setting game phase to INIT.</li>
