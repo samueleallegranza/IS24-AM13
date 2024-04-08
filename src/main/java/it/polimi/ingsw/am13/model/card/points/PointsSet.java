@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.Resource;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class PointsSet implements PointsObjective {
      * @return Number of points guaranteed by the card objective
      */
     @Override
-    public int calcPoints(Field field) {
+    public int calcPoints(FieldIF field) {
         Map<Resource, Integer> freqs = new HashMap<>(field.getResourcesInField());
         int count = 0;
         boolean ok = true;

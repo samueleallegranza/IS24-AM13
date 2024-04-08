@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-import it.polimi.ingsw.am13.model.card.CardSidePlayable;
-import it.polimi.ingsw.am13.model.card.Corner;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,13 +29,8 @@ public class PointsCorner implements PointsPlayable {
      * @return the number of points the player receives after playing this card
      */
     @Override
-    public int calcPoints(CardSidePlayable cardSidePlayable,Field field) {
-        int cont=0;
-        List<Corner> corners=cardSidePlayable.getCorners();
-        for(Corner corner : corners)
-            if(corner.getLink()!=null)
-                cont++;
-        return cont*points;
+    public int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field) {
+        return cardSidePlayable.calcCornersCovered()*points;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-import it.polimi.ingsw.am13.model.card.CardSidePlayable;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.util.Objects;
 
@@ -29,7 +29,7 @@ public class PointsInstant implements PointsPlayable {
      * @return how many points the card gives
      */
     @Override
-    public int calcPoints(CardSidePlayable cardSide, Field field) {
+    public int calcPoints(CardSidePlayableIF cardSide, FieldIF field) {
         return points;
     }
 

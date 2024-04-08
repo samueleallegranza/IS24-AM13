@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 /**
  * Representation of points of an objective card.
@@ -14,5 +14,5 @@ public interface PointsObjective {
      * @param field Field of the player for whom  you want to calculate the points given by the card objective.
      * @return Number of points guaranteed by the card objective
      */
-    int calcPoints(Field field);
+    int calcPoints(FieldIF field);
 }

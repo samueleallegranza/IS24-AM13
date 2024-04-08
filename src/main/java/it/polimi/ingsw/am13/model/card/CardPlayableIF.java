@@ -6,4 +6,11 @@ package it.polimi.ingsw.am13.model.card;
  * It can return the card's id and its visible side (if it's visible in someone's field of in the commond field)
  */
 public interface CardPlayableIF extends CardIF {
+
+    /**
+     * @return The card side which is visible in the field (player's field or common field)
+     * Null if the card is not visible in the field
+     */
+    CardSidePlayableIF getPlayedCardSide();
+
 }

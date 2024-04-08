@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-import it.polimi.ingsw.am13.model.card.CardSidePlayable;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.player.FieldIF;
+
 /**
  * Representation of the points of a playable card.
  * It contains information about how to calculate the points, and allows to actually calculate them given a field and a card side playable.
@@ -14,5 +15,5 @@ public interface PointsPlayable{
      * @param field Field of the player for whom  you want to calculate the points given by the card objective.
      * @return number of points the player gets after playing the card side
      */
-    int calcPoints(CardSidePlayable cardSidePlayable, Field field);
+    int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field);
 }

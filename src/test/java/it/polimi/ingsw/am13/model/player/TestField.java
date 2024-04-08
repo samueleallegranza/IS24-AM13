@@ -24,7 +24,6 @@ public class TestField {
                     new PointsInstant(0),
                     Color.NO_COLOR
             );
-            CardStarter starter_card = new CardStarter("starter001", starter, starter);
             CardSidePlayable resource1 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
@@ -45,10 +44,10 @@ public class TestField {
             f.playCardSide(resource1, new Coordinates(1, 1));
             f.playCardSide(resource2, new Coordinates(1, -1));
 
-            assert(f.getCardAtCoord(new Coordinates(0,0)) == starter);
-            assert(f.getCardAtCoord(new Coordinates(1,1)) == resource1);
-            assert(f.getCardAtCoord(new Coordinates(1,-1)) == resource2);
-            assert(f.getCardAtCoord(new Coordinates(-99,-99)) == null);
+            assert(f.getCardSideAtCoord(new Coordinates(0,0)) == starter);
+            assert(f.getCardSideAtCoord(new Coordinates(1,1)) == resource1);
+            assert(f.getCardSideAtCoord(new Coordinates(1,-1)) == resource2);
+            assert(f.getCardSideAtCoord(new Coordinates(-99,-99)) == null);
         } catch (InvalidPlayCardException | InvalidCoordinatesException |
                  RequirementsNotMetException e) {
             throw new RuntimeException(e);
@@ -65,7 +64,6 @@ public class TestField {
                     new PointsInstant(0),
                     Color.NO_COLOR
             );
-            CardStarter starter_card = new CardStarter("starter001", starter, starter);
             CardSidePlayable resource1 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
@@ -94,7 +92,7 @@ public class TestField {
     }
 
     @Test
-    void testGetAvailableCoord() throws InvalidCoordinatesException, RequirementsNotMetException, InvalidPlayCardException, VariableAlreadySetException, InvalidCardCreationException {
+    void testGetAvailableCoord() throws InvalidCoordinatesException, RequirementsNotMetException, InvalidPlayCardException, InvalidCardCreationException {
         CardSidePlayable starter = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
@@ -102,7 +100,6 @@ public class TestField {
                 new PointsInstant(0),
                 Color.NO_COLOR
         );
-        CardStarter starter_card = new CardStarter("starter001", starter, starter);
         CardSidePlayable resource1 = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
@@ -146,7 +143,6 @@ public class TestField {
                 new PointsInstant(0),
                 Color.NO_COLOR
         );
-        CardStarter starter_clear_card = new CardStarter("starter001", starter_clear, starter_clear);
         CardSidePlayable resource1 = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),

@@ -266,4 +266,8 @@ public class Player {
         return field.getAvailableCoord();
     }
 
+    public FieldIF getField() {
+        return field;
+    }
+
 }

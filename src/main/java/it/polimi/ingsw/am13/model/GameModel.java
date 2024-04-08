@@ -183,6 +183,15 @@ public class GameModel {
         return match.fetchAvailableCoord(player);
     }
 
+    /**
+     * @param player Player whose field is returned
+     * @return Field (interface) of the given player
+     * @throws InvalidPlayerException If the player is not among the playing players in the match
+     */
+    public FieldIF fetchPlayerField(PlayerLobby player) throws InvalidPlayerException {
+        return match.getFieldByPlayer(player);
+    }
+
 
     // METHODS CALLABLE IN PHASE <null>
 
@@ -284,7 +293,7 @@ public class GameModel {
 
 
     // METHODS CALLABLE IN PHASE CALC_POINTS
-    //TODO: continua a vedere da qui in già
+
 
     /**
      * Method callable once reached pahse CALC_POINTS.
@@ -294,6 +303,20 @@ public class GameModel {
      */
     public void addoObjectivePoints() throws GameStatusException {
         match.addObjectivePoints();
+    }
+
+
+    // METHODS CALLABLE IN PHASE ENDED
+
+
+    /**
+     * Method callable only once reached phase ENDED
+     * It finds the winner, ie the player with the most points
+     * @return the winner of the match
+     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
+     */
+    public PlayerLobby calcWinner() throws GameStatusException {
+        return match.calcWinner().getPlayerLobby();
     }
 
 }

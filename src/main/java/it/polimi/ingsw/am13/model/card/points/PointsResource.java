@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am13.model.card.points;
 
-import it.polimi.ingsw.am13.model.card.CardSidePlayable;
+import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Resource;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.util.Map;
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class PointsResource implements PointsPlayable {
      * @return the number of points the player receives after playing this card
      */
     @Override
-    public int calcPoints(CardSidePlayable cardSidePlayable, Field field) {
+    public int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field) {
         Map<Resource,Integer> freqs=field.getResourcesInField();
         return freqs.get(resource)*points;
     }

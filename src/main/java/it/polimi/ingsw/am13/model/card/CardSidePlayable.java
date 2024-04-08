@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * This class represents one of the two sides of a playable card
  */
-public class CardSidePlayable {
+public class CardSidePlayable implements CardSidePlayableIF {
 
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
@@ -87,6 +87,14 @@ public class CardSidePlayable {
      */
     public Color getColor() {
         return color;
+    }
+
+    /**
+     * @return Number of corners covered by this card of that other card cover on this one.
+     */
+    @Override
+    public int calcCornersCovered() {
+        return corners.stream().filter(c -> c.getLink()!=null).toList().size();
     }
 
     /**

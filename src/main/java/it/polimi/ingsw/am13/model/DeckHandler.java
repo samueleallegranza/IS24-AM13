@@ -16,8 +16,6 @@ import java.util.Optional;
  */
 public class DeckHandler<T extends Card>{
 
-    //TODO: sistema ritorno di pickables con optional (lista di lunghezza fissa a 6)
-
     /**
      * This attributes contains the deck of cards.
      */
@@ -63,15 +61,13 @@ public class DeckHandler<T extends Card>{
         return deck.draw();
     }
 
-    //TODO: controlla InvalidDrawCardException
-
     /**
      * Draws a card from the visible ones anc unveils its replacement by drawing it from the
      * @param visibleIndex It's the spot from which the card is taken
      *                     It can only be either 0 or 1
      * @return the chosen card
      * @throws IndexOutOfBoundsException if <code>visibleIndex</code> is an invalid index.
-     * @throws InvalidDrawCardException if the deck is empty after taking a visible card from the field.
+     * @throws InvalidDrawCardException If the visible card is not present (is null)
      */
     public T drawFromTable(int visibleIndex) throws IndexOutOfBoundsException, InvalidDrawCardException{
         if(visibleIndex!=0 && visibleIndex!=1)
@@ -125,7 +121,6 @@ public class DeckHandler<T extends Card>{
         return visibleCards;
     }
 
-    //TODO: e se non ci sono alcune di queste carte??
     /**
      * List of all visible cards (that are pickable during turn phases).
      * The list is of size 3, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
@@ -133,7 +128,7 @@ public class DeckHandler<T extends Card>{
      * Elements can be null. If the deck is empty but both cards are present, only the first element will be null.
      * Besides first element, also one or both of the other ones can be null (if it remains only one or no cards
      * of this type to be picked)
-     * @return A new list of visible cards (top of deck, 2 visible cards)
+     * @return A new list of visible cards (top of deck, 2 visible cards). The size is 3
      */
     public List<T> getPickables() {
         List<T> pickableCards=new ArrayList<>();
@@ -170,8 +165,6 @@ public class DeckHandler<T extends Card>{
             pickableCards.add(Optional.ofNullable(c));
         return pickableCards;
     }
-
-    //TODO: gestire meglio i casi limite di pescaggio quando non ci sono più carte...
 
     /**
      * If the specified card is found among the 3 "visible" (top of the deck and the 2 actually visibile), it is picked and returned.

@@ -4,7 +4,7 @@ import it.polimi.ingsw.am13.model.card.Color;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
-import it.polimi.ingsw.am13.model.player.Field;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.security.InvalidParameterException;
 import java.util.*;
@@ -84,21 +84,20 @@ public class PointsPattern implements PointsObjective {
      * @return Number of points guaranteed by the card objective
      */
     @Override
-    public int calcPoints(Field field) {
+    public int calcPoints(FieldIF field) {
         int count = 0;
 
         // I search through all coordinates the ones of first card of a patter of this type
         // I then sort these coordinates by largest x, and collect them as a list
-        List<Coordinates> firstPossiblePos = field.getField().entrySet().stream()
-                .filter(x -> x.getValue().getColor()==color1)
+        List<Coordinates> firstPossiblePos = field.getCoordinatesPlaced().stream()
+                .filter(x -> field.getCardSideAtCoord(x).getColor()==color1)
                 .filter(x -> {
-                    Coordinates coord2 = x.getKey().add(vec12);
-                    return field.getField().containsKey(coord2) && field.getField().get(coord2).getColor()==color2;
+                    Coordinates coord2 = x.add(vec12);
+                    return field.isCoordPlaced(coord2) && field.getCardSideAtCoord(coord2).getColor()==color2;
                 }).filter(x -> {
-                    Coordinates coord3 = x.getKey().add(vec13);
-                    return field.getField().containsKey(coord3) && field.getField().get(coord3).getColor()==color3;
-                }).map(Map.Entry::getKey)
-                .sorted( (c1, c2) -> Integer.compare(c2.getPosY(), c1.getPosY())).toList();
+                    Coordinates coord3 = x.add(vec13);
+                    return field.isCoordPlaced(coord3) && field.getCardSideAtCoord(coord3).getColor()==color3;
+                }).sorted( (c1, c2) -> Integer.compare(c2.getPosY(), c1.getPosY())).toList();
 
         //Now I have all possible patterns, but they can still intersect
         //I start from the pattern in the highest part of field, and validate a pattern only if its 3 cards don't intersect a patter above it

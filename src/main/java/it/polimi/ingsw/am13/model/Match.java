@@ -328,7 +328,7 @@ public class Match {
 
     /**
      * Sets the starter Card, sets the possible objective cards, gives the initial cards to the players.
-     * Can be called only if the match has not started yer (<code>gamePhase==null</code>) and sets game phase to INIT.
+     * Can be called only if the match has not started yet (<code>gamePhase==null</code>) and sets game phase to INIT.
      * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
     public void startGame() throws GameStatusException {
@@ -556,5 +556,16 @@ public class Match {
      */
     public List<Player> getPlayers() {
         return players;
+    }
+
+    /**
+     * @param playerLobby Player whose field is returned
+     * @return Field (interface) of the given player
+     * @throws InvalidPlayerException If the player is not among the playing players in the match
+     */
+    public FieldIF getFieldByPlayer(PlayerLobby playerLobby) throws InvalidPlayerException {
+        if(!playersMap.containsKey(playerLobby))
+            throw new InvalidPlayerException();
+        return playersMap.get(playerLobby).getField();
     }
 }

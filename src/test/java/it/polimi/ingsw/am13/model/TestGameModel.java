@@ -136,6 +136,7 @@ public class TestGameModel {
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             assertEquals(Side.SIDEBACK, game.fetchStarter(p).getVisibleSide());
+            assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.createOrigin()));
             assertThrows(GameStatusException.class, ()->game.nextTurn());
             assertThrows(InvalidPlayCardException.class, ()->game.playStarter(p, Side.SIDEFRONT));
             List<Coordinates> coords = game.fetchAvailableCoord(p);
@@ -340,8 +341,6 @@ public class TestGameModel {
             assertEquals(2, game.fetchHandPlayable(player).size());
             assertFalse(game.fetchHandPlayable(player).contains(playedCard));   // I assume the other 2 are not changed
             assertEquals(playedSide, playedCard.getVisibleSide());
-            //TODO: c'è un modo per accertarci del giusto posizionamento della carta?
-            //TODO: c'è un modo per accertarci della giusta aggiunta dei punti della carta?
 
             Coordinates finalCoord1 = game.fetchAvailableCoord(player).getFirst();
             assertThrows(GameStatusException.class, ()->game.playCard(c1, Side.SIDEBACK, finalCoord1));
@@ -397,8 +396,9 @@ public class TestGameModel {
         assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
         PlayerLobby player = game.fetchCurrentPlayer();
         assertNotNull(player);
-        int nCards = game.fetchHandPlayable(player).size();
-        assertTrue(nCards <= 3);
+        int nCardsHand = game.fetchHandPlayable(player).size();
+        int nCardsField = game.fetchPlayerField(player).getCoordinatesPlaced().size();
+        assertTrue(nCardsHand <= 3);
 
         // Test for player not having specified card
         CardPlayableIF c1 = game.fetchPickables().getFirst();
@@ -406,10 +406,11 @@ public class TestGameModel {
         assertThrows(InvalidPlayCardException.class, ()->game.playCard(c1, Side.SIDEFRONT, finalCoord));
 
         CardPlayableIF playedCard = null;
+        Coordinates coord = game.fetchAvailableCoord(player).getFirst();
+        assertFalse(game.fetchPlayerField(player).isCoordPlaced(coord));
         if(strategy == Strategy.TRY_GOLD) {
             // If a gold card can be played, I play that
             // This way I should avoid, with only 2 players, to reach the end of the decks
-            Coordinates coord = game.fetchAvailableCoord(player).getFirst();
             List<CardPlayableIF> golds = game.fetchHandPlayable(player).stream()
                     .filter(c -> c instanceof CardGold).map(c -> (CardPlayableIF) c).toList();
             for (CardPlayableIF c : golds) {
@@ -438,16 +439,18 @@ public class TestGameModel {
             }
         } else if (strategy == Strategy.PLAY_BACK) {
             playedCard = game.fetchHandPlayable(player).getFirst();
-            Coordinates coord = game.fetchAvailableCoord(player).getFirst();
             // I play always back side, never adding points!
             game.playCard(playedCard, Side.SIDEBACK, coord);
             assertEquals(Side.SIDEBACK, playedCard.getVisibleSide());
         }
 
         // Test
+        assertTrue(game.fetchPlayerField(player).isCoordPlaced(coord));
+        assertEquals(nCardsField+1, game.fetchPlayerField(player).getCoordinatesPlaced().size());
+
         assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
         assertEquals(player, game.fetchCurrentPlayer());
-        assertEquals(nCards-1, game.fetchHandPlayable(player).size());
+        assertEquals(nCardsHand-1, game.fetchHandPlayable(player).size());
         assertFalse(game.fetchHandPlayable(player).contains(playedCard));   // I assume the other 2 are not changed
 
         Coordinates finalCoord1 = game.fetchAvailableCoord(player).getFirst();
@@ -492,6 +495,19 @@ public class TestGameModel {
         CardPlayableIF finalPickedCard = pickedCard;
         assertThrows(GameStatusException.class, () -> game.playCard(finalPickedCard, Side.SIDEBACK, finalCoord2));
         assertThrows(GameStatusException.class, () -> game.pickCard(game.fetchPickables().getFirst()));
+    }
+
+    private void findWinner() throws GameStatusException {
+        // I assume to start from being in CALC_POINT
+        assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
+        assertThrows(GameStatusException.class, ()->game.calcWinner());
+        game.addoObjectivePoints();
+        assertEquals(GameStatus.ENDED, game.fetchGameStatus());
+        assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+        PlayerLobby expected = players.stream().
+                max((a,b) -> Integer.compare(game.fetchPoints().get(a), game.fetchPoints().get(b))).orElseThrow();
+        assertEquals(expected, game.calcWinner());
+        assertDoesNotThrow(()->game.calcWinner());
     }
 
     @Test
@@ -544,6 +560,8 @@ public class TestGameModel {
 //        for(CardPlayableIF c : game.fetchPickables()) {
 //            System.out.println(c);
 //        }
+        findWinner();
+//        System.out.println(game.calcWinner().getNickname());
     }
 
     @Test
@@ -601,6 +619,6 @@ public class TestGameModel {
 //        for(CardPlayableIF c : game.fetchPickables()) {
 //            System.out.println(c);
 //        }
+        findWinner();
     }
-
 }

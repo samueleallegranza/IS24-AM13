@@ -11,7 +11,7 @@ import java.util.*;
  * -> Card positions are referenced with Coordinates (see Coordinates class for a detailed description of the system)
  * -> Resource counters are stored in a Map in the form of (Resource, count) key-value pair
  */
-public class Field {
+public class Field implements FieldIF {
     /**
      * Description of the player's card positions using a sparse matrix representation.
      * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.
@@ -37,11 +37,32 @@ public class Field {
     }
 
     /**
+     * @return A list of all coordinated where a card has been already positioned.
+     * The list is empty if no cards has been placed yet. For how the game works, the coordinate (0,0), is the list
+     * is not empty, must be present
+     */
+    @Override
+    public List<Coordinates> getCoordinatesPlaced() {
+        return new ArrayList<>(field.keySet());
+    }
+
+    /**
+     * Checks if the coordinated passed as parameters has a card placed on it
+     * @param coord Coordinates to be checked if a card is on it
+     * @return True if a card is on the indicated coordinated, false otherwise
+     */
+    @Override
+    public boolean isCoordPlaced(Coordinates coord) {
+        return field.containsKey(coord);
+    }
+
+    /**
      * Retrieves the placed card in the Field at given coordinates.
      * @param coords Coordinates of the card.
      * @return If present, the card side at given coordinates. If not present, null.
      */
-    public CardSidePlayable getCardAtCoord(Coordinates coords){
+    @Override
+    public CardSidePlayable getCardSideAtCoord(Coordinates coords){
         return field.getOrDefault(coords, null);
     }
 
@@ -52,7 +73,7 @@ public class Field {
      */
     public CardSidePlayable getRoot() throws InvalidCoordinatesException {
         Coordinates origin = new Coordinates(0,0);
-        return this.getCardAtCoord(origin);
+        return this.getCardSideAtCoord(origin);
     }
 
     /**
@@ -111,7 +132,7 @@ public class Field {
         CardSidePlayable currCard;
         // perform checks in clockwise order starting from upper left spot
         for(int i=0; i<4; i++) {
-            currCard = getCardAtCoord(surroundingCoords.get(i));
+            currCard = getCardSideAtCoord(surroundingCoords.get(i));
             // check if the card exists
             if (currCard != null) {
                 hasAdjacent = true;
@@ -194,9 +215,9 @@ public class Field {
         CardSidePlayable coveredCard;
         for(int i=0; i<4; i++) {
             // decrement by 1 the corner resource from the visible resources set, if there's one
-            if(getCardAtCoord(surroundingCoords.get(i)) != null) {
-                coveredCard = getCardAtCoord(surroundingCoords.get(i));
-                coveredCorner = getCardAtCoord(surroundingCoords.get(i)).getCorners().get(surroundingCornerIdx[i]);
+            if(getCardSideAtCoord(surroundingCoords.get(i)) != null) {
+                coveredCard = getCardSideAtCoord(surroundingCoords.get(i));
+                coveredCorner = getCardSideAtCoord(surroundingCoords.get(i)).getCorners().get(surroundingCornerIdx[i]);
 
                 // decrement covered resource of corner
                 coveredResource = coveredCorner.getResource();
@@ -235,17 +256,8 @@ public class Field {
      * The resource counters are stored in a Map in the form of (Resource, count) key-value pair.
      * @return Map containing the counters of visible resources
      */
+    @Override
     public Map<Resource, Integer> getResourcesInField() {
         return this.resources;
     }
-
-    /**
-     * Getter for the data structure which describes the player's card positioned on the Field
-     * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.
-     * @return Data structure which describes the player's card positions
-     */
-    public Map<Coordinates, CardSidePlayable> getField() {
-        return field;
-    }
-
 }
