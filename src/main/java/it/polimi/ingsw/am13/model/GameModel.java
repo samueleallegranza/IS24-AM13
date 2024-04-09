@@ -7,7 +7,7 @@ import it.polimi.ingsw.am13.model.player.*;
 import java.security.InvalidParameterException;
 import java.util.*;
 
-public class GameModel {
+public class GameModel implements GameModelIF {
 
     /**
      * Unique number indicating the actual game model (hence the game/match to its all entirety)
