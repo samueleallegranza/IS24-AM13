@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.controller.GameListener;
+import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
@@ -18,6 +20,10 @@ public class GameModel implements GameModelIF {
      */
     private final Match match;
 
+    /**
+     * This is used to notify the view when a change occurs in the GameModel after a game event happens.
+     */
+    ListenerHandler listenerHandler;
     /**
      * Creates a new instance of <code>GameModel</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
@@ -43,16 +49,45 @@ public class GameModel implements GameModelIF {
      * Creates a new instance of <code>GameModel</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
      * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param playersLobby List of players (decontextualized from game) who will take part to the game
+     * @param gameListeners List of GameListener corresponding to the players who will take part in the game
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
-    public GameModel(int gameId, List<PlayerLobby> playersLobby) throws InvalidPlayersNumberException {
+    public GameModel(int gameId, List<GameListener> gameListeners) throws InvalidPlayersNumberException {
         this.gameId = gameId;
-        List<Player> players = playersLobby.stream().map(Player::new).toList();
+        List<Player> players = gameListeners.stream().map(GameListener::getPlayer).map(Player::new).toList();
         this.match = new Match(players);
+        listenerHandler=new ListenerHandler(gameListeners);
     }
 
+    // METHODS USED TO MANAGE THE DISCONNECTION AND RECONNECTION OF A PLAYER
+    public List<GameListener> getListeners(){
+        return listenerHandler.getListeners();
+    }
+    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+        match.disconnectPlayer(gameListener.getPlayer());
+        listenerHandler.removeListener(gameListener);
+    }
+
+    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+        match.reconnectPlayer(gameListener.getPlayer());
+        listenerHandler.addListener(gameListener);
+    }
+
+    public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException {
+        return match.fetchIsConnected(player);
+    }
+
+    public int countConnected(){
+        return match.countConnected();
+    }
+
+    public void addListener(GameListener gameListener){
+        listenerHandler.addListener(gameListener);
+    }
+    public void removeListener(GameListener gameListener){
+        listenerHandler.removeListener(gameListener);
+    }
     // TURN-ASYNC METHODS RELATED TO COMMON INFORMATION
 
     /**
@@ -210,7 +245,7 @@ public class GameModel implements GameModelIF {
 
 
     /**
-     * Method callable only one per player during INIT phase.
+     * Method callable only once per player during INIT phase.
      * It plays the starter card of the given player on the passed side
      * @param player Player who has chosen which side of the starting card he wants to play
      * @param side The side of the starting card
@@ -296,12 +331,12 @@ public class GameModel implements GameModelIF {
 
 
     /**
-     * Method callable once reached pahse CALC_POINTS.
+     * Method callable once reached phase CALC_POINTS.
      * This method adds the points given by Objective cards to each player.
      * Make the game phase go on to ENDED
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
      */
-    public void addoObjectivePoints() throws GameStatusException {
+    public void addObjectivePoints() throws GameStatusException {
         match.addObjectivePoints();
     }
 
