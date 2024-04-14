@@ -66,11 +66,13 @@ public class GameModel implements GameModelIF {
     }
     public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         match.disconnectPlayer(gameListener.getPlayer());
+        listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer();
         listenerHandler.removeListener(gameListener);
     }
 
     public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         match.reconnectPlayer(gameListener.getPlayer());
+        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer());
         listenerHandler.addListener(gameListener);
     }
 
@@ -238,6 +240,7 @@ public class GameModel implements GameModelIF {
      */
     public void startGame() throws GameStatusException {
         match.startGame();
+        listenerHandler.notifyStartGame(this);
     }
 
 
@@ -256,6 +259,7 @@ public class GameModel implements GameModelIF {
     public void playStarter(PlayerLobby player, Side side)
             throws InvalidPlayerException, GameStatusException, InvalidPlayCardException {
         match.playStarter(player, side);
+        listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player));
     }
 
     /**
@@ -286,6 +290,7 @@ public class GameModel implements GameModelIF {
     public void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         match.choosePersonalObjective(player, cardObj);
+        listenerHandler.notifyChosenPersonalObjective(player);
     }
 
 
@@ -299,6 +304,7 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
      */
     public boolean nextTurn() throws GameStatusException {
+        listenerHandler.notifyNextTurn(fetchCurrentPlayer());
         return match.nextTurn();
     }
 
@@ -314,6 +320,7 @@ public class GameModel implements GameModelIF {
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
         match.playCard(card, side, coord);
+        listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, side, coord);
     }
 
     /**
@@ -324,6 +331,7 @@ public class GameModel implements GameModelIF {
      */
     public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
         match.pickCard(card);
+        listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables());
     }
 
 
@@ -337,6 +345,7 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
      */
     public void addObjectivePoints() throws GameStatusException {
+        listenerHandler.notifyPointsCalculated(fetchPoints());
         match.addObjectivePoints();
     }
 
@@ -351,7 +360,9 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
      */
     public PlayerLobby calcWinner() throws GameStatusException {
-        return match.calcWinner().getPlayerLobby();
+        PlayerLobby winner = match.calcWinner().getPlayerLobby();
+        listenerHandler.notifyWinner(winner);
+        return winner;
     }
 
 }

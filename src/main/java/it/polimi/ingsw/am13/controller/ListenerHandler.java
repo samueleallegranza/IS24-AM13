@@ -4,13 +4,12 @@ import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
+import java.util.Map;
 
 /**
  * This class is responsible for handling a List of {@link GameListener} <br>
@@ -20,11 +19,12 @@ import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 public class ListenerHandler {
     private final List<GameListener> listeners;
 
-    // TODO: da capire dove mettere questa mappa
-    // private Map<GameListener, PlayerLobby> clients;
-
     public ListenerHandler() {
         listeners = new ArrayList<>();
+    }
+
+    public ListenerHandler(List<GameListener> listeners) {
+        this.listeners = listeners;
     }
 
     /**
@@ -99,11 +99,12 @@ public class ListenerHandler {
      * Notifies the view that a card has been played by a player. <br>
      * @param player The player that played the card.
      * @param cardPlayable The card played by the player.
+     * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Coordinates coord) {
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
         for (GameListener listener : listeners) {
-            listener.updatePlayedCard(player, cardPlayable, coord);
+            listener.updatePlayedCard(player, cardPlayable, side, coord);
         }
     }
 
@@ -112,17 +113,17 @@ public class ListenerHandler {
      * @param player The player that picked the card.
      * @param updatedVisibleCards The updated list of visible cards in the common field.
      */
-    public void notifyPickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards){
+    public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
         for (GameListener listener : listeners) {
             listener.updatePickedCard(player, updatedVisibleCards);
         }
     }
 
     /**
-     * Notifies the view that the points have been calculated. <br>
-     * @param pointsMap A map containing the points of each player.
+     * Notifies the view that the points given by Objective cards have been calculated. <br>
+     * @param pointsMap A map containing the updated points of each player.
      */
-    public void notifyPointsCalculated(HashMap<PlayerLobby, Integer> pointsMap){
+    public void notifyPointsCalculated(Map<PlayerLobby, Integer> pointsMap){
         for (GameListener listener : listeners){
             listener.updatePoints(pointsMap);
         }
