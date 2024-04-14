@@ -15,14 +15,17 @@ public class GameController {
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
      * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param playersLobby List of players (decontextualized from game) who will take part to the game
+     * @param gameListeners List of listeners associated to player who are going to take part in the game
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
-     * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
-    public GameController(int gameId, List<PlayerLobby> playersLobby) throws InvalidPlayersNumberException, GameStatusException {
-        gameModel=new GameModel(gameId,playersLobby);
-        gameModel.startGame();
+    public GameController(int gameId, List<GameListener> gameListeners) throws InvalidPlayersNumberException {
+        gameModel=new GameModel(gameId,gameListeners);
+        try {
+            gameModel.startGame();
+        } catch (GameStatusException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -32,6 +35,10 @@ public class GameController {
         return gameModel.getGameId();
     }
 
+
+    public List<PlayerLobby> getPlayers() {
+        return gameModel.fetchPlayers();
+    }
 
     /**
      * Method callable only once per player during INIT phase.

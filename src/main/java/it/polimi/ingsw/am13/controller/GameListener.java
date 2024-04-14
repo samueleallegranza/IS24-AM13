@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface GameListener {
+
+    PlayerLobby getPlayer();
+
     void updateStartGame(GameModelIF model);
     void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter);
     void updateChosenPersonalObjective(PlayerLobby player);
