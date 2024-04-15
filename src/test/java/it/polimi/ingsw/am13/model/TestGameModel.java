@@ -1,45 +1,94 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.ConnectionException;
+import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import it.polimi.ingsw.am13.model.player.Token;
 import org.junit.jupiter.api.Test;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameModel {
 
+    private class LisForTest implements GameListener {
+
+        private PlayerLobby player;
+
+        public LisForTest(PlayerLobby player) {
+            this.player = player;
+        }
+        public LisForTest(String nick, ColorToken color) {
+            this.player = new PlayerLobby(nick, new Token(color));
+        }
+
+        @Override
+        public PlayerLobby getPlayer() {
+            return player;
+        }
+        @Override
+        public void updateStartGame(GameModelIF model) {
+        }
+        @Override
+        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+        }
+        @Override
+        public void updateChosenPersonalObjective(PlayerLobby player) {
+        }
+        @Override
+        public void updateNextTurn(PlayerLobby player) {
+        }
+        @Override
+        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
+        }
+        @Override
+        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+        }
+        @Override
+        public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
+        }
+        @Override
+        public void updateWinner(PlayerLobby winner) {
+        }
+        @Override
+        public void updatePlayerDisconnected(PlayerLobby player) {
+        }
+        @Override
+        public void updatePlayerReconnected(PlayerLobby player) {
+        }
+    }
+
     private enum Strategy {
         TRY_GOLD, PLAY_BACK
     }
 
     private List<PlayerLobby> players;
+    private List<GameListener> playerListeners;
     private GameModel game;
 
     @Test
     public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException {
-        assertThrows(InvalidParameterException.class, ()->new GameModel(1,
-                Arrays.asList("1", "2"),
-                List.of(ColorToken.RED)));
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                List.of("1"),
-                List.of(ColorToken.RED)));
+                List.of(new LisForTest("1", ColorToken.RED)) ));
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                Arrays.asList("1", "2", "3"),
-                Arrays.asList(ColorToken.RED, ColorToken.BLUE, ColorToken.RED)));
+                List.of(new LisForTest("1", ColorToken.RED),
+                        new LisForTest("2", ColorToken.BLUE),
+                        new LisForTest("3", ColorToken.RED)) ));
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                Arrays.asList("1", "2"),
-                Arrays.asList(ColorToken.RED, ColorToken.BLACK)));
+                List.of(new LisForTest("1", ColorToken.RED),
+                        new LisForTest("2", ColorToken.BLACK)) ));
 
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE)
         );
-        game = new GameModel(0, players);
+        playerListeners = new ArrayList<>();
+        players.forEach(p -> playerListeners.add(new LisForTest(p)));
+        game = new GameModel(0, playerListeners);
 
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
@@ -172,7 +221,7 @@ public class TestGameModel {
     public void testTurnOne() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidPlayCardException, InvalidDrawCardException, InvalidCoordinatesException {
         testStartGame();
         // Now I'm in the beginning of IN_GAME
-        assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+        assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
         assertThrows(GameStatusException.class, ()->game.nextTurn());
         assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
         PlayerLobby currPlayer = game.fetchCurrentPlayer();
@@ -244,7 +293,7 @@ public class TestGameModel {
                 currPlayer = p;
         assertEquals(currPlayer, game.fetchCurrentPlayer());
         assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
-        assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+        assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
         // Other checks should not need...
     }
 
@@ -284,7 +333,7 @@ public class TestGameModel {
                 assertEquals(GameStatus.FINAL_PHASE, game.fetchGameStatus(), String.valueOf(nTurns));
             else
                 fail();
-            assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+            assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
             assertThrows(GameStatusException.class, ()->game.startGame());
             PlayerLobby finalPlayer = player;
             assertThrows(GameStatusException.class, ()->game.playStarter(finalPlayer, Side.SIDEFRONT));
@@ -501,10 +550,16 @@ public class TestGameModel {
         // I assume to start from being in CALC_POINT
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
         assertThrows(GameStatusException.class, ()->game.calcWinner());
-        game.addoObjectivePoints();
+        game.addObjectivePoints();
         assertEquals(GameStatus.ENDED, game.fetchGameStatus());
-        assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
-        PlayerLobby expected = players.stream().
+        assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
+        PlayerLobby expected = players.stream().filter(player -> {
+                    try {
+                        return game.fetchIsConnected(player);
+                    } catch (InvalidPlayerException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).
                 max((a,b) -> Integer.compare(game.fetchPoints().get(a), game.fetchPoints().get(b))).orElseThrow();
         assertEquals(expected, game.calcWinner());
         assertDoesNotThrow(()->game.calcWinner());
@@ -527,7 +582,7 @@ public class TestGameModel {
             else
                 assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
             assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
-            assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+            assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
 
             nTurns++;
             if(nextFinal) {
@@ -583,7 +638,7 @@ public class TestGameModel {
             else
                 assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
             assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
-            assertThrows(GameStatusException.class, ()->game.addoObjectivePoints());
+            assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
 
             nTurns++;
             if(nextFinal) {
@@ -621,4 +676,240 @@ public class TestGameModel {
 //        }
         findWinner();
     }
+
+    //TODO: la scelta randomica della starter e del personal objective nella fase INIT per un player disconnected
+    // è fatta dal model o demandata a chi chiama quei metodi?
+    @Test
+    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException {
+        players = List.of(
+                new PlayerLobby("1", ColorToken.RED),
+                new PlayerLobby("2", ColorToken.BLUE),
+                new PlayerLobby("3", ColorToken.GREEN)
+        );
+        players.forEach(p -> playerListeners.add(new LisForTest(p)));
+        game = new GameModel(0, playerListeners);
+
+        for(PlayerLobby player : players) {
+            assertNull(game.fetchStarter(player));
+            assertTrue(game.fetchHandPlayable(player).isEmpty());
+            assertNull(game.fetchHandObjective(player));
+            assertTrue(game.fetchAvailableCoord(player).isEmpty());
+        }
+        assertNull(game.fetchGameStatus());
+        game.startGame();
+
+        /*
+        One player disconnects. The INIT phase must go on with no problem, choosing the starter card and the personal
+        objective card for them.
+         */
+        GameListener disPlayer = playerListeners.getFirst();
+        game.disconnectPlayer(disPlayer);
+        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
+        assertEquals(GameStatus.INIT, game.fetchGameStatus());
+        assertNull(game.fetchCurrentPlayer());
+
+        //Test of 4 turn-async player-specific methods
+        for(PlayerLobby player : players) {
+            assertInstanceOf(CardStarter.class, game.fetchStarter(player));
+            assertNull(game.fetchStarter(player).getVisibleSide()); // Card starter has not been player yet
+
+            assertEquals(3, game.fetchHandPlayable(player).size());
+            assertEquals(2, game.fetchHandPlayable(player).stream().
+                    filter(c -> c instanceof CardResource).toList().size());
+            assertEquals(1, game.fetchHandPlayable(player).stream().
+                    filter(c -> c instanceof CardGold).toList().size());
+            for(CardPlayableIF card : game.fetchHandPlayable(player))
+                assertNull(card.getVisibleSide());
+
+            assertNull(game.fetchHandObjective(player));
+
+            List<Coordinates> coords = game.fetchAvailableCoord(player);
+            assertEquals(0, coords.size());
+        }
+
+        // Now we cannot call again startGame
+        assertThrows(GameStatusException.class, game::startGame);
+        // I assume that internal state has not changed...
+
+        // Test of 3 methods callable in INIT phase
+        boolean first = true;
+        for(PlayerLobby p : players) {
+            game.playStarter(p, Side.SIDEBACK);
+            assertEquals(Side.SIDEBACK, game.fetchStarter(p).getVisibleSide());
+            assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.createOrigin()));
+            assertThrows(GameStatusException.class, ()->game.nextTurn());
+            assertThrows(InvalidPlayCardException.class, ()->game.playStarter(p, Side.SIDEFRONT));
+            List<Coordinates> coords = game.fetchAvailableCoord(p);
+            assertEquals(4, coords.size());
+            assertTrue(coords.containsAll(Coordinates.createOrigin().fetchNearCoordinates()));
+
+            List<? extends CardObjectiveIF> possibleObj = game.fetchPersonalObjectives(p);
+            assertEquals(2, possibleObj.size());
+            assertInstanceOf(CardObjective.class, possibleObj.get(0));
+            assertInstanceOf(CardObjective.class, possibleObj.get(1));
+            assertNull(possibleObj.get(0).getVisibleSide());
+            assertNull(possibleObj.get(1).getVisibleSide());
+            assertNull(game.fetchHandObjective(p));
+
+            assertThrows(InvalidChoiceException.class,
+                    ()->game.choosePersonalObjective(p, game.fetchCommonObjectives().getFirst()));
+            game.choosePersonalObjective(p, possibleObj.getFirst());
+            if (first) {
+                assertThrows(VariableAlreadySetException.class,         // I assume that after throwing exception, state doesn't change
+                        ()->game.choosePersonalObjective(p, possibleObj.getFirst()));
+                assertThrows(VariableAlreadySetException.class, ()->game.choosePersonalObjective(p, possibleObj.get(1)));
+            }
+            assertInstanceOf(CardObjective.class, game.fetchHandObjective(p));
+            first = false;
+        }
+
+        // Now every player played their starter and chose their objective card, hence I shoud be in IN_GAME
+        assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
+        assertThrows(GameStatusException.class, ()->game.fetchPersonalObjectives(players.getFirst()));
+    }
+
+    @Test
+    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
+        players = List.of(
+                new PlayerLobby("1", ColorToken.RED),
+                new PlayerLobby("2", ColorToken.BLUE),
+                new PlayerLobby("3", ColorToken.GREEN)
+        );
+        players.forEach(p -> playerListeners.add(new LisForTest(p)));
+        game = new GameModel(0, playerListeners);
+        game.startGame();
+        for(PlayerLobby p : players) {
+            game.playStarter(p, Side.SIDEBACK);
+            game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());
+            assertInstanceOf(CardObjective.class, game.fetchHandObjective(p));
+        }
+
+        assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
+        for(int i=0 ; i<players.size() ; i++) {
+            PlayerLobby p = game.fetchCurrentPlayer();
+            game.playCard(game.fetchHandPlayable(p).getFirst(), Side.SIDEBACK,
+                    game.fetchAvailableCoord(p).getFirst());
+            game.pickCard(game.fetchPickables().getFirst());
+            assertTrue(game.nextTurn());
+        }
+
+        // Now 1 round (1 turn per each player) is done
+        // A player disconnects
+        GameListener disPlayer = playerListeners.getFirst();
+        game.disconnectPlayer(disPlayer);
+        for(int i=0 ; i<players.size() ; i++) {
+            PlayerLobby p = game.fetchCurrentPlayer();
+            int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
+            List<? extends CardPlayableIF> handCards = game.fetchHandPlayable(p);
+            game.playCard(game.fetchHandPlayable(p).getFirst(), Side.SIDEBACK,
+                    game.fetchAvailableCoord(p).getFirst());
+            if(!game.fetchIsConnected(p)) {
+                assertEquals(nPlayedCards, game.fetchPlayerField(p).getCoordinatesPlaced().size()); //I assume nothing is changed in field
+                assertEquals(3, game.fetchHandPlayable(p).size());
+            } else {
+                assertEquals(nPlayedCards+1, game.fetchPlayerField(p).getCoordinatesPlaced().size()); //I assume nothing is changed in field
+                assertEquals(2, game.fetchHandPlayable(p).size());
+            }
+            game.pickCard(game.fetchPickables().getFirst());
+            assertEquals(3, game.fetchHandPlayable(p).size());
+            if(!game.fetchIsConnected(p)) {
+                assertTrue(game.fetchHandPlayable(p).containsAll(handCards));
+            }
+            assertTrue(game.nextTurn());
+        }
+
+        //Now player reconnects, and will disconnect after playing a card but before drawing
+        game.reconnectPlayer(disPlayer);
+        for(int i=0 ; i<players.size() ; i++) {
+            PlayerLobby p = game.fetchCurrentPlayer();
+            int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
+            game.playCard(game.fetchHandPlayable(p).getFirst(), Side.SIDEBACK,
+                    game.fetchAvailableCoord(p).getFirst());
+            assertEquals(nPlayedCards+1, game.fetchPlayerField(p).getCoordinatesPlaced().size()); //I assume nothing is changed in field
+            assertEquals(2, game.fetchHandPlayable(p).size());
+            if(p == disPlayer.getPlayer())
+                game.disconnectPlayer(disPlayer);
+            CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
+            game.pickCard(cardDrawn);        //TODO: pesca veramente questa????
+            assertEquals(3, game.fetchHandPlayable(p).size());
+            assertTrue(game.fetchHandPlayable(p).contains(cardDrawn));
+            assertTrue(game.nextTurn());
+        }
+    }
+
+    @Test
+    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException {
+        players = List.of(
+                new PlayerLobby("1", ColorToken.RED),
+                new PlayerLobby("2", ColorToken.BLUE),
+                new PlayerLobby("3", ColorToken.GREEN)
+        );
+        players.forEach(p -> playerListeners.add(new LisForTest(p)));
+        game = new GameModel(0, playerListeners);
+        game.startGame();
+        for(PlayerLobby p : players) {
+            game.playStarter(p, Side.SIDEBACK);
+            game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());
+            assertInstanceOf(CardObjective.class, game.fetchHandObjective(p));
+        }
+        assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
+
+        PlayerLobby prevPlayer = game.fetchFirstPlayer();
+        prevPlayer = (players.get(0)==prevPlayer) ? players.get(1) : players.get(0);    // I initialize the player with the second one
+        int nTurns = 0;
+        boolean ended = false;
+        boolean nextFinal = false;
+        GameStatus gameStatus = GameStatus.IN_GAME;
+
+        do {
+            if(ended)
+                fail(); // I should have ended turn-based phases, so i shouldn't be here
+            else
+                assertEquals(gameStatus, game.fetchGameStatus(), String.valueOf(nTurns));
+            assertNotEquals(prevPlayer, game.fetchCurrentPlayer());
+            assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
+
+            nTurns++;
+            if(nextFinal) {
+                ended = true;
+            }
+
+            // First player tries to win
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.TRY_GOLD);
+            prevPlayer = game.fetchCurrentPlayer();
+            if(gameStatus==GameStatus.IN_GAME && game.fetchPoints().get(game.fetchCurrentPlayer())>=20) {
+                nextFinal = true;
+            }
+
+            // Now it's the turn of the second player, so there must be another turn at least
+            assertTrue(game.nextTurn());
+            if(nextFinal) {
+                gameStatus = GameStatus.FINAL_PHASE;
+            }
+
+            // Second player plays always back sides
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
+            prevPlayer = game.fetchCurrentPlayer();
+            assertEquals(0, game.fetchPoints().get(prevPlayer));
+
+            // Third player plays always back sides
+            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
+            prevPlayer = game.fetchCurrentPlayer();
+            assertEquals(0, game.fetchPoints().get(prevPlayer));
+        } while(game.nextTurn());
+
+        assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
+        //Now player 1 should win, but he/she disconnects
+        GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer()==game.fetchFirstPlayer()).toList().getFirst();
+        game.disconnectPlayer(disPlayer);
+//        System.out.println(nTurns);
+//        System.out.println(game.fetchPoints().values());
+//        for(CardPlayableIF c : game.fetchPickables()) {
+//            System.out.println(c);
+//        }
+        findWinner();
+        assertNotEquals(game.fetchFirstPlayer(), game.calcWinner());
+//        System.out.println(game.calcWinner().getNickname());
+    }
+
 }

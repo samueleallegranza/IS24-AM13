@@ -1,12 +1,12 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.ConnectionException;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 
 public class GameModel implements GameModelIF {
@@ -24,26 +24,6 @@ public class GameModel implements GameModelIF {
      * This is used to notify the view when a change occurs in the GameModel after a game event happens.
      */
     ListenerHandler listenerHandler;
-    /**
-     * Creates a new instance of <code>GameModel</code> with the specified players.
-     * The players used here to create the model are the definitive players, and nobody can be added in a second time.
-     * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param nicks List of nicknames for the players
-     * @param colors List of colors chosen for the players, with same order as the players
-     * @throws InvalidParameterException If the lists nicks, colors don't have the same size
-     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
-     * or there are duplicate chosen colors
-     */
-    public GameModel(int gameId, List<String> nicks, List<ColorToken> colors)
-            throws InvalidParameterException, InvalidPlayersNumberException {
-        this.gameId = gameId;
-        if(nicks.size()!=colors.size())
-            throw new InvalidParameterException("Parameters nicks, colors must have the same size");
-        List<Player> players = new ArrayList<>();
-        for(int i=0 ; i<nicks.size() ; i++)
-            players.add(new Player(nicks.get(i), new Token(colors.get(i))));
-        this.match = new Match(players);
-    }
 
     /**
      * Creates a new instance of <code>GameModel</code> with the specified players.
@@ -66,7 +46,7 @@ public class GameModel implements GameModelIF {
     }
     public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         match.disconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer();
+        listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer());
         listenerHandler.removeListener(gameListener);
     }
 
