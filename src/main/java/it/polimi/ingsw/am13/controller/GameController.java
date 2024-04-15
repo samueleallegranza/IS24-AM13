@@ -6,16 +6,40 @@ import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
+import java.util.Objects;
 
-public class GameController {
+//TODO it might be necessary to add some synchronized
+/**
+ * This is a controller for a single game/match
+ */
+public class GameController implements Runnable{
+    /**
+     * The model of the game
+     */
     private final GameModel gameModel;
+    /**
+     * Constant storing the timeout used to detect the disconnection of a client (in ms)
+     */
+    private static final Long timeout=4000L;
+    /**
+     * Constant storing the sleep time in ms of the threads managing connections (i.e. how often they repeat the checks)
+     */
+    private static final Long sleepTime=500L;
+    /**
+     * How much time (in ms) the controller waits for a client to reconnect when only 1 player or fewer are connected
+     */
+    private static final Long timeToWaitReconnection=10000L;
 
+    /**
+     * Thread used to manage the reconnection timer which is started when there only 1 player left
+     */
+    private Thread reconnectionThread;
     /**
      * Creates a new instance of <code>GameController</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
      * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param gameListeners List of listeners associated to player who are going to take part in the game
+     * @param gameListeners List of GameListener corresponding to the players who will take part in the game
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
@@ -29,15 +53,137 @@ public class GameController {
     }
 
     /**
+     * Updates the ping of the given game listener by setting it to the current time
+     * @param gameListener one of the game listeners contained in ListenerHandler
+     */
+    //TODO should I go through GameModel to update the ping so that I can check that the game listener is valid?
+    public synchronized void updatePing(GameListener gameListener){
+        gameListener.updatePing(System.currentTimeMillis());
+    }
+
+    /**
+     * This method checks the pings of each game listener every <code>sleepTime</code> ms
+     * and disconnects players whose game listener ping is too old
+     */
+    public void run(){
+        while(!Thread.interrupted()) {
+            List<GameListener> listeners = gameModel.getListeners();
+            for (GameListener gameListener : listeners) {
+                if (System.currentTimeMillis() - gameListener.getPing() > timeout) {
+                    try {
+                        disconnectPlayer(gameListener);
+                        if(gameModel.countConnected()==0){
+                            stopReconnectionTimer();
+                            Lobby.getInstance().endGame(getGameId());
+                            return;
+                        }
+                    } catch (InvalidPlayerException | ConnectionException | LobbyException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
+     * @param gameListener one of the listeners of ListenerHandler
+     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
+     * @throws ConnectionException if the player had already been disconnected
+     */
+    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+        gameModel.disconnectPlayer(gameListener);
+        if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
+            startReconnectionTimer();
+    }
+
+    /**
+     * Reconnects the player corresponding to the game listener.
+     * If more than one player is connected, it stops the reconnection timer
+     * If two players are connected, it advances to the next turn
+     * @param gameListener one of the listeners of ListenerHandler
+     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
+     * @throws ConnectionException if the player was already connected when this method was called
+     * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
+     */
+    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
+        gameModel.reconnectPlayer(gameListener);
+        int numberConnectedPlayers=gameModel.countConnected();
+        if(numberConnectedPlayers>1) {
+            stopReconnectionTimer();
+            if (numberConnectedPlayers == 2)
+                nextTurn();
+        }
+    }
+
+    /**
+     * Starts the reconnection timer.
+     * When it expires, it checks the number of connected players.
+     * If there are none, it deletes the game.
+     * If there is only one, it calculates the winner (who will be the only connected player) and then deletes the game.
+     * Otherwise, it resets the timer by setting the reconnectionThread to null.
+     */
+    private void startReconnectionTimer(){
+        reconnectionThread=new Thread(
+                ()-> {
+                    long startingtimer = System.currentTimeMillis();
+
+                    while (reconnectionThread != null && !reconnectionThread.isInterrupted() && System.currentTimeMillis() - startingtimer < timeToWaitReconnection) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            //We can stop waiting since someone interrupted this thread
+                        }
+                    }
+                    int numberConnectedPlayers=gameModel.countConnected();
+                    if(numberConnectedPlayers==0){
+                        try {
+                            Lobby.getInstance().endGame(getGameId());
+                        } catch (LobbyException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else
+                    {
+                        if (numberConnectedPlayers==1) {
+                            try {
+                                gameModel.calcWinner();
+                            } catch (GameStatusException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        else {
+                            reconnectionThread=null;
+                        }
+                        try {
+                            Lobby.getInstance().endGame(getGameId());
+                        } catch (LobbyException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+    }
+
+    /**
+     * Stops the reconnection timer by setting the reconnection timer by interrupting the reconnection thread and then
+     * setting it to null
+     */
+    private void stopReconnectionTimer(){
+        if(reconnectionThread!=null){
+            reconnectionThread.interrupt();
+            reconnectionThread=null;
+        }
+    }
+    /**
      * @return Unique number indicating the actual game model (hence the game/match to its all entirety)
      */
     int getGameId(){
         return gameModel.getGameId();
-    }
-
-
-    public List<PlayerLobby> getPlayers() {
-        return gameModel.fetchPlayers();
     }
 
     /**
@@ -79,8 +225,10 @@ public class GameController {
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
      */
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
-            throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
+            throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException, InvalidPlayerException, InvalidDrawCardException {
         gameModel.playCard(card, side, coord);
+        if(gameModel.fetchPickables().stream().noneMatch(Objects::nonNull))
+            pickCard(null);
     }
 
     /**
@@ -90,13 +238,50 @@ public class GameController {
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
      */
-    public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
+    public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException, RequirementsNotMetException, InvalidPlayCardException {
         gameModel.pickCard(card);
-        if(!gameModel.nextTurn()){
+        if(gameModel.countConnected()>1)
+            nextTurn();
+    }
+
+    /**
+     * Advances to the next turn.
+     * If the game is finished, it also adds the objective points and calculates the winner.
+     * If, after advancing to the next turn, the current player is not collected, it calls playCard and pickCard
+     * with null parameters so that the game can proceed correctly
+     * @throws GameStatusException if any of the methods it calls is called in the wrong game phase
+     */
+    private void nextTurn() throws GameStatusException {
+        boolean hasNextTurn=gameModel.nextTurn();
+        if(!hasNextTurn){
             gameModel.addObjectivePoints();
             gameModel.calcWinner();
         }
+        try {
+            if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
+                //playCard and pickCard should not throw any exception since the player is not connected
+                //(so the methods are only called to make the game proceed, they won't actually change the state of the player or the table)
+                try {
+                    playCard(null,null,null);
+                } catch (RequirementsNotMetException | InvalidPlayCardException | InvalidDrawCardException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    pickCard(null);
+                } catch (InvalidDrawCardException | RequirementsNotMetException | InvalidPlayCardException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-
+    /**
+     *
+     * @return the players of the match
+     */
+    public List<PlayerLobby> getPlayers(){
+        return gameModel.fetchPlayers();
+    }
 }

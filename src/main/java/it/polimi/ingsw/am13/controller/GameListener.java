@@ -30,5 +30,7 @@ public interface GameListener {
     void updateWinner(PlayerLobby winner);
     void updatePlayerDisconnected(PlayerLobby player);
     void updatePlayerReconnected(PlayerLobby player);
-    
+
+    Long getPing();
+    void updatePing(Long ping);
 }

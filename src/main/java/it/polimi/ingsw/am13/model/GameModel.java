@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.ConnectionException;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.model.card.*;

@@ -79,7 +79,7 @@ public class Match {
      * The possible values are referred to current player and are:
      * <ul>
      *     <li>0: Turn has started, player did nothing yet</li>
-     *     <li>1: Player has played a card on their field, but did not picked any card</li>
+     *     <li>1: Player has played a card on their field, but has not picked any card</li>
      *     <li>2: Player picked a card after playing, now turn is ended and game can move on to another player</li>
      * </ul>
      */
@@ -134,6 +134,85 @@ public class Match {
         countSetup=0;
     }
 
+    /**
+     * Disconnects the given player.
+     * If this method is called before the player chooses the side in which he should play his starter card, or his secret objective,
+     * it assigns them to him.
+     * If this method is called when a player has played his card but not picked one yet, it assigns the first non-null
+     * pickable card to the player.
+     * This method cannot be called while the gameStatus is null, since startGame is called in the same method
+     * that initializes gameModel (and thus the match).
+     * Then it calls the corresponding method in the Player class.
+     * @throws ConnectionException if the player was already not connected when this method was called
+     * @throws InvalidPlayerException if player is not among this match's players
+     */
+    public void disconnectPlayer(PlayerLobby player) throws ConnectionException, InvalidPlayerException {
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        if(gameStatus==GameStatus.INIT){
+            try {
+                if(playersMap.get(player).getField().getCardSideAtCoord(new Coordinates(0,0))==null)
+                    playStarter(player,Side.SIDEFRONT);
+            } catch (GameStatusException | InvalidPlayCardException e) { //the exceptions should never be thrown inside this if
+                throw new RuntimeException(e);
+            } catch (InvalidCoordinatesException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                if(playersMap.get(player).getPersonalObjective()==null)
+                    choosePersonalObjective(player,playersMap.get(player).getPossiblePersonalObjectives().getFirst());
+            } catch (GameStatusException | InvalidChoiceException | VariableAlreadySetException e) {//the exceptions should never be thrown inside this if
+                throw new RuntimeException(e);
+            }
+        }
+        if((gameStatus==GameStatus.IN_GAME || gameStatus==GameStatus.FINAL_PHASE) && turnActionsCounter==1) {
+            List<CardPlayable> pickableCards=fetchPickables();
+            int i=0;
+            while(pickableCards.get(i)==null)
+                i++;
+            try {
+                pickCard(pickableCards.get(i));
+            } catch (GameStatusException | InvalidDrawCardException e) { //pickCard should never throw this exception because of the checks that are done above
+                throw new RuntimeException(e);
+            }
+        }
+        playersMap.get(player).disconnectPlayer();
+    }
+
+    /**
+     * Reconnects the given player by calling the corresponding method in the Player class
+     * @throws ConnectionException if the player was already connected when this method was called
+     * @throws InvalidPlayerException if player is not among this match's players
+     */
+    public void reconnectPlayer(PlayerLobby player) throws ConnectionException,InvalidPlayerException{
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        playersMap.get(player).reconnectPlayer();
+    }
+
+    /**
+     *
+     * @param player one of the players of the match
+     * @return whether a player is currently connected or not
+     * @throws InvalidPlayerException if player is not among this match's players
+     */
+    public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException();
+        return playersMap.get(player).isConnected();
+    }
+
+    /**
+     *
+     * @return the number of players that are currently connected
+     */
+    public int countConnected(){
+        int count=0;
+        for(Player player : players)
+            if(player.isConnected())
+                count++;
+        return count;
+    }
     /**
      * List of all visible cards (that are pickable during turn phases).
      * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
@@ -240,14 +319,16 @@ public class Match {
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(playerLobby))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        try {
-            playersMap.get(playerLobby).playStarter(side);
-            countSetup++;
-            checkInGamePhase();
-        } catch (InvalidChoiceException e){
-            System.out.println("The passed side does not belong to the starter card assigned to the given player");
-            throw new RuntimeException(e);
+        if(playersMap.get(playerLobby).isConnected()) {
+            try {
+                playersMap.get(playerLobby).playStarter(side);
+            } catch (InvalidChoiceException e) {
+                System.out.println("The passed side does not belong to the starter card assigned to the given player");
+                throw new RuntimeException(e);
+            }
         }
+        countSetup++;
+        checkInGamePhase();
     }
 
     /**
@@ -316,7 +397,8 @@ public class Match {
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
 //        try {
-        playersMap.get(player).initObjective(cardObjective);
+        if(playersMap.get(player).isConnected())
+            playersMap.get(player).initObjective(cardObjective);
         countSetup++;
         checkInGamePhase();
 //        } catch (VariableAlreadySetException e) {
@@ -363,6 +445,7 @@ public class Match {
 
     /**
      * Plays a given card side on the field of a given player, at the given coordinates
+     * It only increases the turnActionsCounter if the player is not connected
      * @param cardIF Card which is being played. It must be in player's hand
      * @param side indicates whether the card is going to be played on the front or on the back
      * @param coordinates in the field of the player where the card is going to be positioned
@@ -380,33 +463,34 @@ public class Match {
         if(turnActionsCounter!=0)
             throw new GameStatusException("It's not the moment for playing the card on field");
 
-        // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
-        CardPlayable card = null;
-        for(CardPlayable c : currentPlayer.getHandCards())
-            if(c == cardIF) {
-                card = c;
+        if(currentPlayer.isConnected()) {
+            // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
+            CardPlayable card = null;
+            for (CardPlayable c : currentPlayer.getHandCards())
+                if (c == cardIF) {
+                    card = c;
+                }
+            if (card == null) {
+                throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
             }
-        if(card == null) {
-            throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
-        }
 
-        if(side==Side.SIDEFRONT) {
-            try {
-                currentPlayer.playCard(card.getFront(),coordinates);
-            } catch (InvalidPlayCardException e) {
-                throw new RuntimeException(e);
-            } /*catch (RequirementsNotMetException e) {
+            if (side == Side.SIDEFRONT) {
+                try {
+                    currentPlayer.playCard(card.getFront(), coordinates);
+                } catch (InvalidPlayCardException e) {
+                    throw new RuntimeException(e);
+                } /*catch (RequirementsNotMetException e) {
                 System.out.println("The requirements to play this card aren't satisfied");
             }*/
-        }
-        else{
-            try {
-                currentPlayer.playCard(card.getBack(),coordinates);
-            } catch (InvalidPlayCardException e) {
-                throw new RuntimeException(e);
-            } catch (RequirementsNotMetException e) {
-                System.out.println("The requirements to play this card aren't satisfied");
-                throw new RuntimeException(e);
+            } else {
+                try {
+                    currentPlayer.playCard(card.getBack(), coordinates);
+                } catch (InvalidPlayCardException e) {
+                    throw new RuntimeException(e);
+                } catch (RequirementsNotMetException e) {
+                    System.out.println("The requirements to play this card aren't satisfied");
+                    throw new RuntimeException(e);
+                }
             }
         }
         turnActionsCounter++;
@@ -414,6 +498,7 @@ public class Match {
 
     /**
      * Picks one of the 6 cards on the table
+     * If the player isn't connected or there is no card to pick, it only increases the turnActionsCounter
      * @param cardIF A playable card that should be in the field
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called not in game phase IN_GAME or FINAL_PHASE, or
@@ -426,18 +511,20 @@ public class Match {
         if(turnActionsCounter!=1)
             throw new GameStatusException("It's not the moment for picking the card from the common field");
 
-        CardPlayable card;
-        card = deckResources.pickCard(cardIF);
-        if(card == null) {
-            card = deckGold.pickCard(cardIF);
-        }
-        if(card == null) {
-            throw new InvalidDrawCardException("The given card is not on the table");
-        }
-        try {
-            currentPlayer.addCardToHand(card);
-        } catch (PlayerHandException e) {
-            throw new RuntimeException(e);
+        if(currentPlayer.isConnected() && fetchPickables().stream().anyMatch(Objects::nonNull)) {
+            CardPlayable card;
+            card = deckResources.pickCard(cardIF);
+            if (card == null) {
+                card = deckGold.pickCard(cardIF);
+            }
+            if (card == null) {
+                throw new InvalidDrawCardException("The given card is not on the table");
+            }
+            try {
+                currentPlayer.addCardToHand(card);
+            } catch (PlayerHandException e) {
+                throw new RuntimeException(e);
+            }
         }
         turnActionsCounter++;
     }
@@ -494,24 +581,19 @@ public class Match {
     }
 
     /**
-     * This method finds the winner, ie the player with the most points
+     * This method finds the winner among the connected players, ie the one with the most points
      * @return the winner of the match
-     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
+     * @throws GameStatusException if this method is called in a phase which is not the ENDED phase, unless there is only one player left
      */
     public Player calcWinner() throws GameStatusException{
-        if(gameStatus!=GameStatus.ENDED)
+        if(gameStatus!=GameStatus.ENDED || countConnected()==1)
             throw new GameStatusException(gameStatus,GameStatus.ENDED);
-//        Player winner = players.getFirst();
-//        for(Player player : players) {
-//            if(player.getPoints()>winner.getPoints())
-//                winner=player;
-//        }
-        return players.stream().max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
+        return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
     }
 
     /**
      * @return true if the conditions triggering the end of the game (a player has reached 20 points
-     * or both the Resources and Gold decks are finished) are satisfied, false otherwise
+     * or both the Resources and Gold decks are empty) are satisfied, false otherwise
      */
     private boolean checkFinalPhase(){
         return currentPlayer.getPoints() >= 20 || (deckResources.isDeckEmpty() && deckGold.isDeckEmpty());

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestMatch {
     private Player player0;
     private Player player1;
+    private Player player2;
     private Match match;
     @Test
     public void testGameSetup() throws InvalidPlayCardException {
@@ -175,6 +176,178 @@ public class TestMatch {
         }
         try{
             System.out.println(match.calcWinner().getPlayerLobby().getNickname());
+//            assertEquals(match.calcWinner(), player0);
+        } catch(GameStatusException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testGameSetupWithDisconnection() throws InvalidPlayCardException, InvalidPlayerException {
+        List<Player> players;
+        player0=new Player("Al",new Token(ColorToken.RED));
+        player1=new Player("John",new Token(ColorToken.RED));
+        assertThrows(InvalidPlayersNumberException.class, ()->new Match(Arrays.asList(player0, player1)));
+        player1=new Player("John",new Token(ColorToken.BLUE));
+        player2=new Player("Jack",new Token(ColorToken.GREEN));
+        players=new ArrayList<>(Arrays.asList(player0,player1,player2));
+
+        try{
+            match=new Match(players);
+        } catch (InvalidPlayersNumberException e){
+            System.out.println("Invalid number of players");
+        }
+
+        assertNull(match.getGameStatus());
+        try{
+            match.startGame();
+        } catch (GameStatusException e){
+            throw new RuntimeException(e);
+        }
+        assertEquals(match.getGameStatus(),GameStatus.INIT);
+        try {
+            match.disconnectPlayer(player2.getPlayerLobby());
+        } catch (ConnectionException | InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            assertFalse(match.fetchIsConnected(player2.getPlayerLobby()));
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(match.countConnected(),2);
+        for(Player player : players){
+            if(match.fetchIsConnected(player.getPlayerLobby())) {
+                try {
+                    match.playStarter(player.getPlayerLobby(), Side.SIDEFRONT);
+                } catch (GameStatusException | InvalidPlayerException e) {
+                    throw new RuntimeException(e);
+                }
+                List<CardObjective> cardObjectives;
+                try {
+                    cardObjectives = match.fetchPersonalObjectives(player.getPlayerLobby());
+                } catch (InvalidPlayerException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    match.choosePersonalObjective(player.getPlayerLobby(), cardObjectives.getFirst());
+                } catch (GameStatusException | InvalidPlayerException | InvalidChoiceException |
+                         VariableAlreadySetException e) {
+                    throw new RuntimeException(e);
+                }
+                CardObjective objectiveInHand;
+                try {
+                    objectiveInHand = match.fetchHandObjective(player.getPlayerLobby());
+                } catch (InvalidPlayerException e) {
+                    throw new RuntimeException(e);
+                }
+                assertEquals(objectiveInHand, cardObjectives.getFirst());
+            }
+        }
+        assertEquals(match.getGameStatus(),GameStatus.IN_GAME);
+
+    }
+
+    @Test
+    public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException {
+        testGameSetupWithDisconnection();
+        match.reconnectPlayer(player2.getPlayerLobby());
+        Player currentPlayer=match.getCurrentPlayer();
+        assertEquals(currentPlayer,player0);
+        List<CardPlayable> handCards=currentPlayer.getHandCards();
+        Coordinates coordinates=null;
+        try{
+            coordinates=new Coordinates(1,1);
+        } catch (InvalidCoordinatesException e){
+            System.out.println("Invalid Coordinates");
+        }
+        try {
+            match.playCard(handCards.getFirst(),Side.SIDEFRONT,coordinates);
+        } catch (GameStatusException | InvalidPlayCardException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(currentPlayer.getHandCards().size(),2);
+        match.disconnectPlayer(player0.getPlayerLobby());
+        assertEquals(currentPlayer.getHandCards().size(),3);
+        match.nextTurn();
+        assertEquals(match.getCurrentPlayer(),player1);
+    }
+
+    //TODO se un giocatore non può pescare, non pesca
+    @Test
+    public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException {
+        testGameSetupWithDisconnection();
+        match.reconnectPlayer(player2.getPlayerLobby());
+        boolean hasNextTurn;    // Set to true by default
+        int i=1;
+        do{
+            Player currentPlayer=match.getCurrentPlayer();
+            List<CardPlayable> handCards=currentPlayer.getHandCards();
+            Coordinates coordinates=null;
+            try{
+                coordinates=new Coordinates(i,i);
+            } catch (InvalidCoordinatesException e){
+                System.out.println("Invalid Coordinates");
+            }
+
+            try {
+                if(handCards.getFirst().getFront().getCorners().get(1).isPlaceable()){
+                    try {
+                        match.playCard(handCards.getFirst(), Side.SIDEFRONT, coordinates);
+                    } catch (RequirementsNotMetException e){
+                        match.playCard(handCards.getFirst(), Side.SIDEBACK, coordinates);
+                    }
+                }
+                else {
+                    match.playCard(handCards.getFirst(), Side.SIDEBACK, coordinates);
+                }
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+            assertEquals(currentPlayer.getHandCards().size(),2);
+            List<CardPlayable> pickableCards=match.fetchPickables();
+            try {
+                for (int j = 0; j < pickableCards.size(); j++) {
+                    if(pickableCards.get(j)!=null) {
+                        System.out.println(pickableCards.get(j));
+                        match.pickCard(pickableCards.get(j));
+                        break;
+                    } else if(j==pickableCards.size()-1) {
+                        System.out.println("No pickable card");
+                        match.pickCard(null);
+                    }
+                }
+            } catch (GameStatusException | InvalidDrawCardException e) {
+                throw new RuntimeException(e);
+            }
+            //System.out.println(currentPlayer.getPoints());
+            if(match.getGameStatus()==GameStatus.IN_GAME)
+                assertEquals(currentPlayer.getHandCards().size(),3);
+            if(currentPlayer==player2)
+                i++;
+            try {
+                hasNextTurn=match.nextTurn();
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+            if(match.getGameStatus()==GameStatus.FINAL_PHASE)
+                System.out.println(match.getGameStatus());
+        } while (hasNextTurn);
+        try {
+            match.addObjectivePoints();
+        } catch(GameStatusException e){
+            throw new RuntimeException(e);
+        }
+        //in GameController calcWinner is called immediately after addObjectivePoints, so this scenario isn't possible
+        //I just used it because it's easier to test than a player who has more points but disconnects before the CALC POINTS phase
+        Player wouldWin=match.getPlayers().getFirst();
+        for(Player player : match.getPlayers())
+            if(player.getPoints()>wouldWin.getPoints())
+                wouldWin=player;
+        match.disconnectPlayer(wouldWin.getPlayerLobby());
+        System.out.println(wouldWin.getPlayerLobby().getNickname()+" would have won");
+        try{
+            System.out.println("But he disconnected right before the end so "+match.calcWinner().getPlayerLobby().getNickname()+" won");
 //            assertEquals(match.calcWinner(), player0);
         } catch(GameStatusException e){
             throw new RuntimeException(e);

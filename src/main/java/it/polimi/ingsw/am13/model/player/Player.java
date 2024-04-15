@@ -43,6 +43,11 @@ public class Player {
     private int points;
 
     /**
+     * Whether a player is currently connected or not (for the corresponding Advanced Function)
+     */
+    private boolean isConnected;
+
+    /**
      * Constructor for the Player class. It initializes nickname, token, points and starter card (it has to be drawn
      * before creating a Player object). It also initializes an empty field for the player and the space to store the
      * player's hand.
@@ -51,6 +56,7 @@ public class Player {
      */
     public Player(String nick, Token token) {
         this(new PlayerLobby(nick, token));
+        isConnected=true;
     }
 
     /**
@@ -67,6 +73,35 @@ public class Player {
         handCards = new ArrayList<>();
         possiblePersonalObjectives = new ArrayList<>();
         personalObjective=null;
+        isConnected=true;
+    }
+
+    /**
+     * Sets the isConnected variable to false
+     * @throws ConnectionException if the isConnected variable was already false (repeated disconnection)
+     */
+    public void disconnectPlayer() throws ConnectionException{
+        if(!isConnected)
+            throw new ConnectionException("The player was already not connected");
+        isConnected=false;
+    }
+
+    /**
+     * Sets the isConnected variable to true
+     * @throws ConnectionException if the isConnected variable was already true (repeated reconnection)
+     */
+    public void reconnectPlayer() throws ConnectionException{
+        if(isConnected)
+            throw new ConnectionException("The player was already connected");
+        isConnected=true;
+    }
+
+    /**
+     *
+     * @return whether a player is currently connected or not
+     */
+    public boolean isConnected() {
+        return isConnected;
     }
 
     /**
