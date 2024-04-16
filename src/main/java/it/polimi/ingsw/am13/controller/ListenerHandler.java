@@ -18,8 +18,7 @@ import java.util.Map;
  */
 public class ListenerHandler {
     private final List<GameListener> listeners;
-    // TODO: updateView() targettizzate usando GameListener.getPlayer()
-    // TODO: fare la notifyPlayerReconnected in modo che al player che si riconette venga passata la GameModelIF della partita aggiornata.
+
     public ListenerHandler() {
         listeners = new ArrayList<>();
     }
@@ -56,8 +55,6 @@ public class ListenerHandler {
 
     /**
      * Notifies the view that the game has started: starter cards and initial cards have been given to the players. <br>
-     * It also notifies to the view that the possible personal objectives have been set and
-     * are retrievable using {@link it.polimi.ingsw.am13.model.GameModelIF#fetchPersonalObjectives(PlayerLobby)}.
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
      * @param model The {@link GameModelIF} containing the immutable version of a GameModel.
      */
@@ -74,7 +71,8 @@ public class ListenerHandler {
      */
     public synchronized void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter){
         for (GameListener listener : listeners) {
-            listener.updatePlayedStarter(player, cardStarter);
+            if (!listener.getPlayer().equals(player))
+                listener.updatePlayedStarter(player, cardStarter);
         }
     }
 
@@ -84,7 +82,8 @@ public class ListenerHandler {
      */
     public synchronized void notifyChosenPersonalObjective(PlayerLobby player){
         for (GameListener listener : listeners) {
-            listener.updateChosenPersonalObjective(player);
+            if (!listener.getPlayer().equals(player))
+                listener.updateChosenPersonalObjective(player);
         }
     }
 
@@ -107,7 +106,8 @@ public class ListenerHandler {
      */
     public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
         for (GameListener listener : listeners) {
-            listener.updatePlayedCard(player, cardPlayable, side, coord);
+            if (!listener.getPlayer().equals(player))
+                listener.updatePlayedCard(player, cardPlayable, side, coord);
         }
     }
 
@@ -118,12 +118,13 @@ public class ListenerHandler {
      */
     public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
         for (GameListener listener : listeners) {
-            listener.updatePickedCard(player, updatedVisibleCards);
+            if (!listener.getPlayer().equals(player))
+                listener.updatePickedCard(player, updatedVisibleCards);
         }
     }
 
     /**
-     * Notifies the view that the points given by Objective cards have been calculated. <br>
+     * Notifies the view that the points given by Objective cards (common and personal) have been calculated. <br>
      * @param pointsMap A map containing the updated points of each player.
      */
     public void notifyPointsCalculated(Map<PlayerLobby, Integer> pointsMap){
@@ -148,17 +149,22 @@ public class ListenerHandler {
      */
     public void notifyPlayerDisconnected(PlayerLobby player){
         for (GameListener listener : listeners){
-            listener.updatePlayerDisconnected(player);
+            if (!listener.getPlayer().equals(player))
+                listener.updatePlayerDisconnected(player);
         }
     }
 
     /**
      * Notifies the view that a player has reconnected to the game. <br>
      * @param player The player that has reconnected to the game.
+     * @param model The {@link GameModelIF} containing the updated version of the game.
      */
-    public void notifyPlayerReconnected(PlayerLobby player){
+    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
         for (GameListener listener : listeners){
-            listener.updatePlayerReconnected(player);
+            if(listener.getPlayer().equals(player))
+                listener.updateGameModel(model);
+            else
+                listener.updatePlayerReconnected(player);
         }
     }
 }

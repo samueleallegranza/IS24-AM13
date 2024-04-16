@@ -80,6 +80,11 @@ public class TestGameController {
         }
 
         @Override
+        public void updateGameModel(GameModelIF model) {
+
+        }
+
+        @Override
         public PlayerLobby getPlayer() {
             return player;
         }

@@ -69,6 +69,11 @@ public class TestGameModel {
         @Override
         public void updatePlayerReconnected(PlayerLobby player) {
         }
+
+        @Override
+        public void updateGameModel(GameModelIF model) {
+        }
+
         @Override
         public Long getPing() {
             return null;

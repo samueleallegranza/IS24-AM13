@@ -73,7 +73,7 @@ public class GameModel implements GameModelIF {
     public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         listenerHandler.addListener(gameListener);
         match.reconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer());
+        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this);
     }
 
     public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException {
