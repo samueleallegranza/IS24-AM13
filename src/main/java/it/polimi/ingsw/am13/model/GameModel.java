@@ -22,7 +22,7 @@ public class GameModel implements GameModelIF {
     /**
      * This is used to notify the view when a change occurs in the GameModel after a game event happens.
      */
-    ListenerHandler listenerHandler;
+    private final ListenerHandler listenerHandler;
 
     /**
      * Creates a new instance of <code>GameModel</code> with the specified players.
@@ -36,17 +36,22 @@ public class GameModel implements GameModelIF {
         this.gameId = gameId;
         List<Player> players = gameListeners.stream().map(GameListener::getPlayer).map(Player::new).toList();
         this.match = new Match(players);
-        listenerHandler=new ListenerHandler(gameListeners);
+        listenerHandler = new ListenerHandler(gameListeners);
     }
 
-    // METHODS USED TO MANAGE THE DISCONNECTION AND RECONNECTION OF A PLAYER
     public List<GameListener> getListeners(){
         return listenerHandler.getListeners();
     }
+
+
+    // METHODS USED TO MANAGE THE DISCONNECTION AND RECONNECTION OF A PLAYER
+
+
+    //TODO: aggiungi documentazione per questi metodi
     public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+        listenerHandler.removeListener(gameListener);
         match.disconnectPlayer(gameListener.getPlayer());
         listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer());
-        listenerHandler.removeListener(gameListener);
     }
 
     public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
@@ -63,12 +68,7 @@ public class GameModel implements GameModelIF {
         return match.countConnected();
     }
 
-    public void addListener(GameListener gameListener){
-        listenerHandler.addListener(gameListener);
-    }
-    public void removeListener(GameListener gameListener){
-        listenerHandler.removeListener(gameListener);
-    }
+
     // TURN-ASYNC METHODS RELATED TO COMMON INFORMATION
 
     /**
@@ -128,8 +128,8 @@ public class GameModel implements GameModelIF {
      * @return a new list containing the 6 cards on the table that can be picked by players
      * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
      */
-    public List<? extends CardPlayableIF> fetchPickables() {
-        return match.fetchPickables();
+    public List<CardPlayableIF> fetchPickables() {
+        return new ArrayList<>(match.fetchPickables());
     }
 
     /**
@@ -155,8 +155,8 @@ public class GameModel implements GameModelIF {
      * Hence, this information is not included in the list
      * @return the list of the 2 common objectives.
      */
-    public List<? extends CardObjectiveIF> fetchCommonObjectives() {
-        return match.fetchCommonObjectives();
+    public List<CardObjectiveIF> fetchCommonObjectives() {
+        return new ArrayList<>(match.fetchCommonObjectives());
     }
 
 
@@ -177,8 +177,8 @@ public class GameModel implements GameModelIF {
      * @return the cards in the hand of the player. The list if empty if player has no cards yet
      * @throws InvalidPlayerException if the player is not one of the players of the match
      */
-    public List<? extends CardPlayableIF> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException {
-        return match.fetchHandPlayable(player);
+    public List<CardPlayableIF> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException {
+        return new ArrayList<>(match.fetchHandPlayable(player));
     }
 
     /**
@@ -248,11 +248,11 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException if this method isn't called in the INIT phase
      * @throws InvalidPlayerException if the player is not one of the players of this match
      */
-    public List<? extends CardObjectiveIF> fetchPersonalObjectives(PlayerLobby player)
+    public List<CardObjectiveIF> fetchPersonalObjectives(PlayerLobby player)
             throws InvalidPlayerException, GameStatusException {
         if(match.getGameStatus()!=GameStatus.INIT)
             throw new GameStatusException("Initialization has finished, the player has already chosen their objective card");
-        return match.fetchPersonalObjectives(player);
+        return new ArrayList<>(match.fetchPersonalObjectives(player));
     }
 
     /**

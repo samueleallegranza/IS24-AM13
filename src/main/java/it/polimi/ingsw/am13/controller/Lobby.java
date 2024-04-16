@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am13.controller;
 
+import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
+import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayersNumberException;
-import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,9 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller used to manage different games, that is to handle the lobby of players who are playing or are willing to start a game.
+ * Controller used to manage multiple games, that is to handle the lobby of players who are playing or are willing to start a game.
  * It stores the game listeners of players who want to start a game. Until game is not actually started, the players can be added and removed.
- * When the game has been started, the associated <code>gameController</code> is created. Subsequently, the players are fixed for that game and they cannot change
+ * When the game has been started, the associated <code>gameController</code> is created. The players participating in that
+ * moment to the game are so the definite ones for that game and they cannot change.
  * All the created or yet-to-be-created games are associated to a unique gameId.
  */
 public class Lobby {
@@ -46,7 +49,7 @@ public class Lobby {
         return instance;
     }
 
-    //TODO: rivedi meglio i synchronized, dovrebbero servire ovunque
+    //TODO: rivedi meglio i synchronized, dovrebbero servire ovunque ma bho
     //TODO: i nickname devono essere univoci, anche tra diverse partite??
 
     /**
@@ -55,18 +58,17 @@ public class Lobby {
      * @return True if player is among players of a started game or among players waiting to start a game. False otherwise
      */
     private boolean isPlayerPresent(GameListener playerListener) {
-        PlayerLobby playerLobby = playerListener.getPlayer();
         return creatingGames.values().stream().flatMap(ls -> ls.stream().map(GameListener::getPlayer)).toList().contains(playerListener.getPlayer())
                 || startedGames.values().stream().flatMap(c -> c.getPlayers().stream()).toList().contains(playerListener.getPlayer());
     }
 
     /**
      * Creates a new game with the specified player as a "yet-to-be-started" game.
-     * More specifically, it finds the next suitable gameId, and associates that gameId to a list of possible player to start
+     * More specifically, it finds the next suitable gameId, and associates this new gameId to a list of possible player to start
      * that game, for now only populated by the given player
      * @param player First player who creates the game which will start in the future
      * @return The gameId of the newly created game
-     * @throws LobbyException If the players has a nickName already chosen by another player in the lobby
+     * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
     public synchronized int createGame(GameListener player) throws LobbyException {
         if(isPlayerPresent(player))
@@ -114,24 +116,11 @@ public class Lobby {
     }
 
     /**
-     * Reconnect a disconnected player for the already started game they take part in
-     * @param player Listener of the player to reconnect
-     * @throws LobbyException If the given player is not among players of any started game
-     */
-    public synchronized void reconnectPlayer(GameListener player) throws LobbyException {
-        List<GameController> games = startedGames.values().stream()
-                .filter(c -> c.getPlayers().contains(player.getPlayer())).toList();
-        if(games.size() != 1)
-            throw new LobbyException("The player " + player.getPlayer() + " is not associated to a started game");
-        GameController game = games.getFirst();
-        //TODO chiama qualcosa su questo gamecontroller per dirgli di riconnettere il player con quel gamelistenr
-    }
-
-    /**
-     * Set the specified yet-to-be-started game to started. It creates the associated <code>GameController</code>
+     * Sets the specified yet-to-be-started game to started.
+     * It creates the associated <code>GameController</code>, actually starting that game
      * @param gameId Game to start
      * @return <code>GameController</code> created for that game
-     * @throws LobbyException If the specified game is not created (is not among the yet-to-be-started games)
+     * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
      * @throws InvalidPlayersNumberException If the game contains only 1 player
      */
     public synchronized GameController startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
@@ -153,6 +142,27 @@ public class Lobby {
         if(!startedGames.containsKey(gameId))
             throw new LobbyException("This game (" + gameId + ") is not running.");
         startedGames.remove(gameId);
-        //TODO: devo chiamare qualcosa anche in GameController??
+    }
+
+    //TODO: scrivi quando gamestatusexception viene triggerata
+    /**
+     * Reconnects a disconnected player for the already started game they took part in
+     * @param player Listener of the player to reconnect
+     * @throws LobbyException If the given player is not among players of any started game
+     * @throws ConnectionException If the player was already connected
+     * @throws GameStatusException ??
+     */
+    public synchronized void reconnectPlayer(GameListener player) throws LobbyException, ConnectionException, GameStatusException {
+        List<GameController> games = startedGames.values().stream()
+                .filter(c -> c.getPlayers().contains(player.getPlayer())).toList();
+        if(games.size() != 1)
+            throw new LobbyException("The player " + player.getPlayer() + " is not associated to a started game");
+        GameController game = games.getFirst();
+        try {
+            game.reconnectPlayer(player);
+        } catch (InvalidPlayerException e) {    // shouldn't happen, as I check before this point for the game associated
+            throw new RuntimeException(e);
+        }
+        //TODO chiama qualcosa su questo gamecontroller per dirgli di riconnettere il player con quel gamelistenr
     }
 }

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.ConnectionException;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
@@ -15,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameModel {
 
-    private class LisForTest implements GameListener {
+    private static class LisForTest implements GameListener {
 
-        private PlayerLobby player;
+        private final PlayerLobby player;
 
         public LisForTest(PlayerLobby player) {
             this.player = player;
@@ -60,6 +59,13 @@ public class TestGameModel {
         @Override
         public void updatePlayerReconnected(PlayerLobby player) {
         }
+        @Override
+        public Long getPing() {
+            return null;
+        }
+        @Override
+        public void updatePing(Long ping) {
+        }
     }
 
     private enum Strategy {
@@ -95,7 +101,7 @@ public class TestGameModel {
         assertNull(game.fetchCurrentPlayer());
         assertEquals(players, game.fetchPlayers());
 
-        List<? extends CardPlayableIF> pickables = game.fetchPickables();
+        List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
         assertEquals(pickables.get(0).getVisibleSide(), Side.SIDEBACK);
         assertEquals(pickables.get(1).getVisibleSide(), Side.SIDEFRONT);
@@ -110,7 +116,7 @@ public class TestGameModel {
         assertInstanceOf(CardGold.class, pickables.get(4));
         assertInstanceOf(CardGold.class, pickables.get(5));
 
-        List<? extends CardObjectiveIF> commongObj = game.fetchCommonObjectives();
+        List<CardObjectiveIF> commongObj = game.fetchCommonObjectives();
         assertEquals(commongObj.size(), 2);
         assertEquals(commongObj.get(0).getVisibleSide(), Side.SIDEFRONT);
         assertEquals(commongObj.get(1).getVisibleSide(), Side.SIDEFRONT);
@@ -142,7 +148,7 @@ public class TestGameModel {
         assertEquals(GameStatus.INIT, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 
-        List<? extends CardPlayableIF> pickables = game.fetchPickables();
+        List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
         assertEquals(Side.SIDEBACK, pickables.get(0).getVisibleSide());
         assertEquals(Side.SIDEFRONT, pickables.get(1).getVisibleSide());
@@ -185,14 +191,14 @@ public class TestGameModel {
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             assertEquals(Side.SIDEBACK, game.fetchStarter(p).getVisibleSide());
-            assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.createOrigin()));
+            assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.origin()));
             assertThrows(GameStatusException.class, ()->game.nextTurn());
             assertThrows(InvalidPlayCardException.class, ()->game.playStarter(p, Side.SIDEFRONT));
             List<Coordinates> coords = game.fetchAvailableCoord(p);
             assertEquals(4, coords.size());
-            assertTrue(coords.containsAll(Coordinates.createOrigin().fetchNearCoordinates()));
+            assertTrue(coords.containsAll(Coordinates.origin().fetchNearCoordinates()));
 
-            List<? extends CardObjectiveIF> possibleObj = game.fetchPersonalObjectives(p);
+            List<CardObjectiveIF> possibleObj = game.fetchPersonalObjectives(p);
             assertEquals(2, possibleObj.size());
             assertInstanceOf(CardObjective.class, possibleObj.get(0));
             assertInstanceOf(CardObjective.class, possibleObj.get(1));
@@ -263,7 +269,7 @@ public class TestGameModel {
         game.pickCard(c4);
 
         // Now i picked the first gold card of the 2 visible ones
-        List<? extends CardPlayableIF> pickables = game.fetchPickables();
+        List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
         assertEquals(Side.SIDEBACK, pickables.get(0).getVisibleSide());
         assertEquals(Side.SIDEFRONT, pickables.get(1).getVisibleSide());
@@ -350,7 +356,7 @@ public class TestGameModel {
             CardPlayableIF playedCard = null;
             Side playedSide = Side.SIDEFRONT;
             List<CardPlayableIF> golds = game.fetchHandPlayable(player).stream()
-                    .filter(c -> c instanceof CardGold).map(c -> (CardPlayableIF)c).toList();
+                    .filter(c -> c instanceof CardGold).toList();
             for(CardPlayableIF c : golds) {
                 try {
                     game.playCard(c, Side.SIDEFRONT, coord);
@@ -363,7 +369,7 @@ public class TestGameModel {
             }
             if(playedCard == null) {
                 List<CardPlayableIF> resources = game.fetchHandPlayable(player).stream()
-                        .filter(c -> c instanceof CardResource).map(c -> (CardPlayableIF)c).toList();
+                        .filter(c -> c instanceof CardResource).toList();
                 if(!resources.isEmpty()) {
                     playedCard = resources.getFirst();
                     game.playCard(playedCard, Side.SIDEFRONT, coord);
@@ -401,7 +407,7 @@ public class TestGameModel {
             game.pickCard(pickedCard);
 
             // Now I also picked a card. For the strategy in playing the cards, the decks should not end
-            List<? extends CardPlayableIF> pickables = game.fetchPickables();
+            List<CardPlayableIF> pickables = game.fetchPickables();
             assertEquals(pickables.size(), 6);
             assertEquals(Side.SIDEBACK, pickables.get(0).getVisibleSide());
             assertEquals(Side.SIDEFRONT, pickables.get(1).getVisibleSide());
@@ -461,7 +467,7 @@ public class TestGameModel {
             // If a gold card can be played, I play that
             // This way I should avoid, with only 2 players, to reach the end of the decks
             List<CardPlayableIF> golds = game.fetchHandPlayable(player).stream()
-                    .filter(c -> c instanceof CardGold).map(c -> (CardPlayableIF) c).toList();
+                    .filter(c -> c instanceof CardGold).toList();
             for (CardPlayableIF c : golds) {
                 try {
                     game.playCard(c, Side.SIDEFRONT, coord);
@@ -475,7 +481,7 @@ public class TestGameModel {
             }
             if (playedCard == null) {
                 List<CardPlayableIF> resources = game.fetchHandPlayable(player).stream()
-                        .filter(c -> c instanceof CardResource).map(c -> (CardPlayableIF) c).toList();
+                        .filter(c -> c instanceof CardResource).toList();
                 if (!resources.isEmpty()) {
                     playedCard = resources.getFirst();
                     game.playCard(playedCard, Side.SIDEFRONT, coord);
@@ -527,7 +533,7 @@ public class TestGameModel {
         game.pickCard(pickedCard);
 
         // Now I also picked a card.
-        List<? extends CardPlayableIF> pickables = game.fetchPickables();
+        List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
         if(pickables.get(1)==null || pickables.get(2)==null)
             assertNull(pickables.get(0));
@@ -686,6 +692,7 @@ public class TestGameModel {
                 new PlayerLobby("2", ColorToken.BLUE),
                 new PlayerLobby("3", ColorToken.GREEN)
         );
+        playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
         game = new GameModel(0, playerListeners);
 
@@ -697,16 +704,6 @@ public class TestGameModel {
         }
         assertNull(game.fetchGameStatus());
         game.startGame();
-
-        /*
-        One player disconnects. The INIT phase must go on with no problem, choosing the starter card and the personal
-        objective card for them.
-         */
-        GameListener disPlayer = playerListeners.getFirst();
-        game.disconnectPlayer(disPlayer);
-        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
-        assertEquals(GameStatus.INIT, game.fetchGameStatus());
-        assertNull(game.fetchCurrentPlayer());
 
         //Test of 4 turn-async player-specific methods
         for(PlayerLobby player : players) {
@@ -727,40 +724,52 @@ public class TestGameModel {
             assertEquals(0, coords.size());
         }
 
-        // Now we cannot call again startGame
-        assertThrows(GameStatusException.class, game::startGame);
-        // I assume that internal state has not changed...
+        /*
+        One player disconnects. The INIT phase must go on with no problem, choosing the starter card and the personal
+        objective card for them.
+         */
+        GameListener disPlayer = playerListeners.getFirst();
+        game.disconnectPlayer(disPlayer);
+        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
+        assertEquals(GameStatus.INIT, game.fetchGameStatus());
+        assertNull(game.fetchCurrentPlayer());
 
         // Test of 3 methods callable in INIT phase
-        boolean first = true;
         for(PlayerLobby p : players) {
-            game.playStarter(p, Side.SIDEBACK);
-            assertEquals(Side.SIDEBACK, game.fetchStarter(p).getVisibleSide());
-            assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.createOrigin()));
-            assertThrows(GameStatusException.class, ()->game.nextTurn());
-            assertThrows(InvalidPlayCardException.class, ()->game.playStarter(p, Side.SIDEFRONT));
-            List<Coordinates> coords = game.fetchAvailableCoord(p);
-            assertEquals(4, coords.size());
-            assertTrue(coords.containsAll(Coordinates.createOrigin().fetchNearCoordinates()));
+            if(p == disPlayer.getPlayer()) {
+                assertNotNull(game.fetchStarter(p).getVisibleSide());
+                assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.origin()));
+                assertThrows(GameStatusException.class, ()->game.nextTurn());
+                List<Coordinates> coords = game.fetchAvailableCoord(p);
+                assertEquals(4, coords.size());
+                assertTrue(coords.containsAll(Coordinates.origin().fetchNearCoordinates()));
 
-            List<? extends CardObjectiveIF> possibleObj = game.fetchPersonalObjectives(p);
-            assertEquals(2, possibleObj.size());
-            assertInstanceOf(CardObjective.class, possibleObj.get(0));
-            assertInstanceOf(CardObjective.class, possibleObj.get(1));
-            assertNull(possibleObj.get(0).getVisibleSide());
-            assertNull(possibleObj.get(1).getVisibleSide());
-            assertNull(game.fetchHandObjective(p));
+                assertNotNull(game.fetchHandObjective(p));
+                assertTrue(game.fetchHandObjective(p)==game.fetchPersonalObjectives(p).get(0) ||
+                        game.fetchHandObjective(p)==game.fetchPersonalObjectives(p).get(1) );
+            } else {
+                game.playStarter(p, Side.SIDEBACK);
+                assertEquals(Side.SIDEBACK, game.fetchStarter(p).getVisibleSide());
+                assertTrue(game.fetchPlayerField(p).isCoordPlaced(Coordinates.origin()));
+                assertThrows(GameStatusException.class, ()->game.nextTurn());
+                assertThrows(InvalidPlayCardException.class, ()->game.playStarter(p, Side.SIDEFRONT));
+                List<Coordinates> coords = game.fetchAvailableCoord(p);
+                assertEquals(4, coords.size());
+                assertTrue(coords.containsAll(Coordinates.origin().fetchNearCoordinates()));
 
-            assertThrows(InvalidChoiceException.class,
-                    ()->game.choosePersonalObjective(p, game.fetchCommonObjectives().getFirst()));
-            game.choosePersonalObjective(p, possibleObj.getFirst());
-            if (first) {
-                assertThrows(VariableAlreadySetException.class,         // I assume that after throwing exception, state doesn't change
-                        ()->game.choosePersonalObjective(p, possibleObj.getFirst()));
-                assertThrows(VariableAlreadySetException.class, ()->game.choosePersonalObjective(p, possibleObj.get(1)));
+                List<CardObjectiveIF> possibleObj = game.fetchPersonalObjectives(p);
+                assertEquals(2, possibleObj.size());
+                assertInstanceOf(CardObjective.class, possibleObj.get(0));
+                assertInstanceOf(CardObjective.class, possibleObj.get(1));
+                assertNull(possibleObj.get(0).getVisibleSide());
+                assertNull(possibleObj.get(1).getVisibleSide());
+                assertNull(game.fetchHandObjective(p));
+
+                assertThrows(InvalidChoiceException.class,
+                        ()->game.choosePersonalObjective(p, game.fetchCommonObjectives().getFirst()));
+                game.choosePersonalObjective(p, possibleObj.getFirst());
+                assertInstanceOf(CardObjective.class, game.fetchHandObjective(p));
             }
-            assertInstanceOf(CardObjective.class, game.fetchHandObjective(p));
-            first = false;
         }
 
         // Now every player played their starter and chose their objective card, hence I shoud be in IN_GAME
@@ -775,6 +784,7 @@ public class TestGameModel {
                 new PlayerLobby("2", ColorToken.BLUE),
                 new PlayerLobby("3", ColorToken.GREEN)
         );
+        playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
         game = new GameModel(0, playerListeners);
         game.startGame();
@@ -800,7 +810,7 @@ public class TestGameModel {
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
-            List<? extends CardPlayableIF> handCards = game.fetchHandPlayable(p);
+            List<CardPlayableIF> handCards = game.fetchHandPlayable(p);
             game.playCard(game.fetchHandPlayable(p).getFirst(), Side.SIDEBACK,
                     game.fetchAvailableCoord(p).getFirst());
             if(!game.fetchIsConnected(p)) {
@@ -812,9 +822,8 @@ public class TestGameModel {
             }
             game.pickCard(game.fetchPickables().getFirst());
             assertEquals(3, game.fetchHandPlayable(p).size());
-            if(!game.fetchIsConnected(p)) {
+            if(!game.fetchIsConnected(p))
                 assertTrue(game.fetchHandPlayable(p).containsAll(handCards));
-            }
             assertTrue(game.nextTurn());
         }
 
@@ -829,10 +838,12 @@ public class TestGameModel {
             assertEquals(2, game.fetchHandPlayable(p).size());
             if(p == disPlayer.getPlayer())
                 game.disconnectPlayer(disPlayer);
-            CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
-            game.pickCard(cardDrawn);        //TODO: pesca veramente questa????
+            else {
+                CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
+                game.pickCard(cardDrawn);        //TODO: pesca veramente questa????
+                assertTrue(game.fetchHandPlayable(p).contains(cardDrawn));
+            }
             assertEquals(3, game.fetchHandPlayable(p).size());
-            assertTrue(game.fetchHandPlayable(p).contains(cardDrawn));
             assertTrue(game.nextTurn());
         }
     }
@@ -844,6 +855,7 @@ public class TestGameModel {
                 new PlayerLobby("2", ColorToken.BLUE),
                 new PlayerLobby("3", ColorToken.GREEN)
         );
+        playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
         game = new GameModel(0, playerListeners);
         game.startGame();
@@ -891,6 +903,7 @@ public class TestGameModel {
             playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
             prevPlayer = game.fetchCurrentPlayer();
             assertEquals(0, game.fetchPoints().get(prevPlayer));
+            assertTrue(game.nextTurn());
 
             // Third player plays always back sides
             playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);

@@ -29,7 +29,7 @@ public class TestPointsSet {
                     new PointsInstant(0),
                     Color.NO_COLOR
             );
-            field.playCardSide(startSide, Coordinates.createOrigin());
+            field.playCardSide(startSide, Coordinates.origin());
             // nothing
             assertEquals(0, points.calcPoints(field));
             assertEquals(0, field. getResourcesInField().get(Resource.PLANT));

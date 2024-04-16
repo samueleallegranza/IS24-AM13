@@ -56,7 +56,6 @@ public class Player {
      */
     public Player(String nick, Token token) {
         this(new PlayerLobby(nick, token));
-        isConnected=true;
     }
 
     /**
@@ -72,28 +71,28 @@ public class Player {
         field = new Field();
         handCards = new ArrayList<>();
         possiblePersonalObjectives = new ArrayList<>();
-        personalObjective=null;
-        isConnected=true;
+        personalObjective = null;
+        isConnected = true;
     }
 
     /**
      * Sets the isConnected variable to false
      * @throws ConnectionException if the isConnected variable was already false (repeated disconnection)
      */
-    public void disconnectPlayer() throws ConnectionException{
+    public void disconnectPlayer() throws ConnectionException {
         if(!isConnected)
             throw new ConnectionException("The player was already not connected");
-        isConnected=false;
+        isConnected = false;
     }
 
     /**
      * Sets the isConnected variable to true
      * @throws ConnectionException if the isConnected variable was already true (repeated reconnection)
      */
-    public void reconnectPlayer() throws ConnectionException{
+    public void reconnectPlayer() throws ConnectionException {
         if(isConnected)
             throw new ConnectionException("The player was already connected");
-        isConnected=true;
+        isConnected = true;
     }
 
     /**
@@ -181,7 +180,7 @@ public class Player {
 
         // play the starter card on the field at coords (0,0)
         try {
-            this.field.playCardSide(starterSide, Coordinates.createOrigin());
+            this.field.playCardSide(starterSide, Coordinates.origin());
         } catch (RequirementsNotMetException ignored) {} // No requirements for starter card.
 
     }

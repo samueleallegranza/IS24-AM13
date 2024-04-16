@@ -29,16 +29,16 @@ public interface GameModelIF {
 
     Map<PlayerLobby, Integer> fetchPoints();
 
-    List<? extends CardPlayableIF> fetchPickables();
+    List<CardPlayableIF> fetchPickables();
     List<Optional<? extends CardPlayableIF>> fetchPickablesOptional();
 
-    List<? extends CardObjectiveIF> fetchCommonObjectives();
+    List<CardObjectiveIF> fetchCommonObjectives();
 
-    List<? extends CardObjectiveIF> fetchPersonalObjectives(PlayerLobby player) throws InvalidPlayerException, GameStatusException;
+    List<CardObjectiveIF> fetchPersonalObjectives(PlayerLobby player) throws InvalidPlayerException, GameStatusException;
 
     CardStarterIF fetchStarter(PlayerLobby player) throws InvalidPlayerException;
 
-    List<? extends CardPlayableIF> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException;
+    List<CardPlayableIF> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException;
 
     CardObjectiveIF fetchHandObjective(PlayerLobby player) throws InvalidPlayerException;
 

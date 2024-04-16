@@ -39,6 +39,7 @@ public class Match {
     /**
      * The players of the match
      * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
+     * It includes all the players, even if they are disconnected
      */
     private final List<Player> players;
 
@@ -86,8 +87,8 @@ public class Match {
     private int turnActionsCounter;
 
     /**
-     * This method sets the game status to null (game not already really started), chooses the first player at random from the list of players,
-     * initialises the four decks and sets the players list to the list it receives as a parameter.
+     * Initializes the match. It sets the game status to null (game not already really started), chooses the first player
+     * at random from the list of players, instantiates the four decks and sets the players list to the list it receives as a parameter.
      * @param players the players of the match
      */
     //TODO: cambia eccezione InvalidPlayersNumberException se 2 giocatori hanno lo stesso colore
@@ -104,7 +105,6 @@ public class Match {
             playersMap.put(p.getPlayerLobby(), p);
         }
 
-//        gameStatus = GameStatus.INIT;
         gameStatus = null;
         Random rnd=new Random(1000000009);
         firstPlayerIndex=rnd.nextInt(players.size()-1);
@@ -134,44 +134,43 @@ public class Match {
         countSetup=0;
     }
 
+
+    // DISCONNECTIONS
+
+
     /**
      * Disconnects the given player.
      * If this method is called before the player chooses the side in which he should play his starter card, or his secret objective,
      * it assigns them to him.
      * If this method is called when a player has played his card but not picked one yet, it assigns the first non-null
      * pickable card to the player.
-     * This method cannot be called while the gameStatus is null, since startGame is called in the same method
-     * that initializes gameModel (and thus the match).
+     * This method should not be called before game has actually starter
      * Then it calls the corresponding method in the Player class.
+     * Note that the method only sets the player as "disconnected", but it does not remove the player themself from the game
+     * (that is the list of players for this match still includes the disconnected players).
      * @throws ConnectionException if the player was already not connected when this method was called
      * @throws InvalidPlayerException if player is not among this match's players
      */
     public void disconnectPlayer(PlayerLobby player) throws ConnectionException, InvalidPlayerException {
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException();
+        if(!playersMap.get(player).isConnected())
+            throw new ConnectionException("Player " + player + " was already disconnected");
         if(gameStatus==GameStatus.INIT){
             try {
-                if(playersMap.get(player).getField().getCardSideAtCoord(new Coordinates(0,0))==null)
+                if(playersMap.get(player).getField().getCardSideAtCoord(Coordinates.origin())==null)
                     playStarter(player,Side.SIDEFRONT);
-            } catch (GameStatusException | InvalidPlayCardException e) { //the exceptions should never be thrown inside this if
-                throw new RuntimeException(e);
-            } catch (InvalidCoordinatesException e) {
-                throw new RuntimeException(e);
-            }
-            try {
                 if(playersMap.get(player).getPersonalObjective()==null)
                     choosePersonalObjective(player,playersMap.get(player).getPossiblePersonalObjectives().getFirst());
-            } catch (GameStatusException | InvalidChoiceException | VariableAlreadySetException e) {//the exceptions should never be thrown inside this if
+            } catch (GameStatusException | InvalidChoiceException | VariableAlreadySetException |
+                     InvalidPlayCardException e) {//the exceptions should never be thrown inside this if
                 throw new RuntimeException(e);
             }
         }
         if((gameStatus==GameStatus.IN_GAME || gameStatus==GameStatus.FINAL_PHASE) && turnActionsCounter==1) {
-            List<CardPlayable> pickableCards=fetchPickables();
-            int i=0;
-            while(pickableCards.get(i)==null)
-                i++;
+            CardPlayable cardToPick = fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
             try {
-                pickCard(pickableCards.get(i));
+                pickCard(cardToPick);
             } catch (GameStatusException | InvalidDrawCardException e) { //pickCard should never throw this exception because of the checks that are done above
                 throw new RuntimeException(e);
             }
@@ -213,6 +212,11 @@ public class Match {
                 count++;
         return count;
     }
+
+
+    // GENERAL FETCHERS
+
+
     /**
      * List of all visible cards (that are pickable during turn phases).
      * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
@@ -244,14 +248,6 @@ public class Match {
         pickableCards.addAll(deckGold.getPickablesOptional());
         return pickableCards;
     }
-//    public List<Optional<CardPlayable>> fetchPickablesOptional() {
-//        List<Optional<CardPlayable>> pickableCards;
-//        pickableCards = new LinkedList<>(deckResources.getPickablesOptional().stream()
-//                .map(cardOptional -> cardOptional.map(card -> (CardPlayable)card)).toList());
-//        pickableCards.addAll(deckResources.getPickablesOptional().stream()
-//                .map(cardOptional -> cardOptional.map(card -> (CardPlayable)card)).toList());
-//        return pickableCards;
-//    }
 
     /**
      * Returns the visible cards for the common objectives.
@@ -273,6 +269,32 @@ public class Match {
             throw new InvalidPlayerException();
         return playersMap.get(player).getAvailableCoord();
     }
+
+    /**
+     * @param player one of the players of the match
+     * @return the cards in the hand of the player
+     * @throws InvalidPlayerException if the player is not one of the players of the match
+     */
+    public List<CardPlayable> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException("The passed player is not one of the players of the match");
+        return playersMap.get(player).getHandCards();
+    }
+
+    /**
+     * @param player one of the players of the match
+     * @return the personal objective of the player (null if it hasn't been initialized yet)
+     * @throws InvalidPlayerException if the passed player is not one of the players of the match
+     */
+    public CardObjective fetchHandObjective(PlayerLobby player) throws InvalidPlayerException{
+        if(!playersMap.containsKey(player))
+            throw new InvalidPlayerException("The passed player is not one of the players of the match");
+        return playersMap.get(player).getPersonalObjective();
+    }
+
+
+    // INIT PHASE
+
 
     /**
      * Assigns the starter card to the player
@@ -348,27 +370,6 @@ public class Match {
         }
     }
 
-    /**
-     * @param player one of the players of the match
-     * @return the cards in the hand of the player
-     * @throws InvalidPlayerException if the player is not one of the players of the match
-     */
-    public List<CardPlayable> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException{
-        if(!playersMap.containsKey(player))
-            throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        return playersMap.get(player).getHandCards();
-    }
-
-    /**
-     * @param player one of the players of the match
-     * @return the personal objective of the player (null if it hasn't been initialized yet)
-     * @throws InvalidPlayerException if the passed player is not one of the players of the match
-     */
-    public CardObjective fetchHandObjective(PlayerLobby player) throws InvalidPlayerException{
-        if(!playersMap.containsKey(player))
-            throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        return playersMap.get(player).getPersonalObjective();
-    }
 
     /**
      * @param player who should be contained in players
@@ -407,6 +408,21 @@ public class Match {
 //            System.out.println("The passed objective card is not one of the two objective cards assigned to the given player");
 //        }
     }
+
+    /**
+     * This method checks if the initial phase (game setup) has been completed, and if so, sets the game status to IN_GAME
+     */
+    private void checkInGamePhase(){
+        if(countSetup==2*players.size()) {
+            gameStatus = GameStatus.IN_GAME;
+            currentPlayer = firstPlayer;
+            turnActionsCounter = 0;
+        }
+    }
+
+
+    // TURN-BASED PHASES
+
 
     /**
      * Sets the starter Card, sets the possible objective cards, gives the initial cards to the players.
@@ -568,6 +584,18 @@ public class Match {
     }
 
     /**
+     * @return true if the conditions triggering the end of the game (a player has reached 20 points
+     * or both the Resources and Gold decks are empty) are satisfied, false otherwise
+     */
+    private boolean checkFinalPhase(){
+        return currentPlayer.getPoints() >= 20 || (deckResources.isDeckEmpty() && deckGold.isDeckEmpty());
+    }
+
+
+    // LAST PHASES
+
+
+    /**
      * This method adds the points given by Objective cards to each player.
      * Make the game phase go on to ENDED
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
@@ -591,24 +619,11 @@ public class Match {
         return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
     }
 
-    /**
-     * @return true if the conditions triggering the end of the game (a player has reached 20 points
-     * or both the Resources and Gold decks are empty) are satisfied, false otherwise
-     */
-    private boolean checkFinalPhase(){
-        return currentPlayer.getPoints() >= 20 || (deckResources.isDeckEmpty() && deckGold.isDeckEmpty());
-    }
 
-    /**
-     * This method checks if the initial phase (game setup) has been completed, and if so, sets the game status to IN_GAME
-     */
-    private void checkInGamePhase(){
-        if(countSetup==2*players.size()) {
-            gameStatus = GameStatus.IN_GAME;
-            currentPlayer = firstPlayer;
-            turnActionsCounter = 0;
-        }
-    }
+    // GETTERS
+
+    //TODO: forse è meglio ritornare per tutti i metodi PlayerLobby invece che Player
+    // Player intero dovrebbe servire solo a Match, non anche all'esterno
 
     /**
      * @return the status of the game
@@ -650,4 +665,5 @@ public class Match {
             throw new InvalidPlayerException();
         return playersMap.get(playerLobby).getField();
     }
+
 }

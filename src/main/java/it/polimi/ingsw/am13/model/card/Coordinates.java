@@ -37,7 +37,7 @@ public class Coordinates {
      * Create new coordinates for origin, without throwing exceptions
      * @return Coordinates for (0,0)
      */
-    static public Coordinates createOrigin() {
+    static public Coordinates origin() {
         try {
             return new Coordinates(0,0);
         } catch (InvalidCoordinatesException e) {
