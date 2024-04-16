@@ -85,6 +85,21 @@ public class TestGameController {
         }
 
         @Override
+        public void updateGameBegins(int gameId) {
+
+        }
+
+        @Override
+        public void updatePlayerJoinedLobby(PlayerLobby player) {
+
+        }
+
+        @Override
+        public void updatePlayerLeftLobby(PlayerLobby player) {
+
+        }
+
+        @Override
         public Long getPing() {
             return null;
         }

@@ -31,6 +31,15 @@ public class TestGameModel {
             return player;
         }
         @Override
+        public void updateGameBegins(int gameId) {
+        }
+        @Override
+        public void updatePlayerJoinedLobby(PlayerLobby player) {
+        }
+        @Override
+        public void updatePlayerLeftLobby(PlayerLobby player) {
+        }
+        @Override
         public void updateStartGame(GameModelIF model) {
         }
         @Override

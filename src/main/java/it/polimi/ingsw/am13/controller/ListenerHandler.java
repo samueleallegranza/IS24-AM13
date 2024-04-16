@@ -18,7 +18,8 @@ import java.util.Map;
  */
 public class ListenerHandler {
     private final List<GameListener> listeners;
-
+    // TODO: updateView() targettizzate usando GameListener.getPlayer()
+    // TODO: fare la notifyPlayerReconnected in modo che al player che si riconette venga passata la GameModelIF della partita aggiornata.
     public ListenerHandler() {
         listeners = new ArrayList<>();
     }
