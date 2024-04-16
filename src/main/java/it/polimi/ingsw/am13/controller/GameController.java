@@ -13,33 +13,28 @@ import java.util.Objects;
 /**
  * This is a controller for a single game/match
  */
-public class GameController implements Runnable {
-
+public class GameController implements Runnable{
+    /**
+     * The model of the game
+     */
+    private final GameModel gameModel;
     /**
      * Constant storing the timeout used to detect the disconnection of a client (in ms)
      */
-    private static final Long timeout = 4000L;
-
+    private static final Long timeout=4000L;
     /**
      * Constant storing the sleep time in ms of the threads managing connections (i.e. how often they repeat the checks)
      */
-    private static final Long sleepTime = 500L;
-
+    private static final Long sleepTime=500L;
     /**
      * How much time (in ms) the controller waits for a client to reconnect when only 1 player or fewer are connected
      */
     private static final Long timeToWaitReconnection=10000L;
 
     /**
-     * The model of the game
-     */
-    private final GameModel gameModel;
-
-    /**
      * Thread used to manage the reconnection timer which is started when there only 1 player left
      */
     private Thread reconnectionThread;
-
     /**
      * Creates a new instance of <code>GameController</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
@@ -50,7 +45,7 @@ public class GameController implements Runnable {
      * or there are duplicate chosen colors
      */
     public GameController(int gameId, List<GameListener> gameListeners) throws InvalidPlayersNumberException {
-        gameModel = new GameModel(gameId,gameListeners);
+        gameModel=new GameModel(gameId,gameListeners);
         try {
             gameModel.startGame();
         } catch (GameStatusException e) {
@@ -60,11 +55,14 @@ public class GameController implements Runnable {
 
     /**
      * Updates the ping of the given game listener by setting it to the current time
-     * @param gameListener one of the game listeners contained in ListenerHandler
+     * @param playerLobby one of players of the match
      */
-    //TODO should I go through GameModel to update the ping so that I can check that the game listener is valid?
-    public synchronized void updatePing(GameListener gameListener){
-        gameListener.updatePing(System.currentTimeMillis());
+    public synchronized void updatePing(PlayerLobby playerLobby){
+        for(GameListener gameListener : gameModel.getListeners())
+            if(gameListener.getPlayer()==playerLobby) {
+                gameListener.updatePing(System.currentTimeMillis());
+                break;
+            }
     }
 
     /**
@@ -102,13 +100,12 @@ public class GameController implements Runnable {
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player had already been disconnected
      */
-    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException,LobbyException {
         gameModel.disconnectPlayer(gameListener);
         if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
             startReconnectionTimer();
     }
 
-    //TODO: scrivi quando gamestatusexception viene triggerata
     /**
      * Reconnects the player corresponding to the game listener.
      * If more than one player is connected, it stops the reconnection timer
@@ -120,14 +117,11 @@ public class GameController implements Runnable {
      */
     public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
         gameModel.reconnectPlayer(gameListener);
-        int numberConnectedPlayers = gameModel.countConnected();
+        int numberConnectedPlayers=gameModel.countConnected();
         if(numberConnectedPlayers>1) {
             stopReconnectionTimer();
-            if (numberConnectedPlayers == 2 &&
-                    (gameModel.fetchGameStatus()== GameStatus.IN_GAME || gameModel.fetchGameStatus()== GameStatus.FINAL_PHASE))
+            if (numberConnectedPlayers == 2 && (gameModel.fetchGameStatus()== GameStatus.IN_GAME && gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
                 nextTurn();
-            //TODO: rivedi meglio riconnessioni fatte fuori dalle 2 fase turn-based
-            //non devo chiamare nextTurn() se il player si riconnette non in quelle fasi direi
         }
     }
 
@@ -139,7 +133,7 @@ public class GameController implements Runnable {
      * Otherwise, it resets the timer by setting the reconnectionThread to null.
      */
     private void startReconnectionTimer(){
-        reconnectionThread = new Thread(
+        reconnectionThread=new Thread(
                 ()-> {
                     long startingtimer = System.currentTimeMillis();
 
@@ -257,12 +251,12 @@ public class GameController implements Runnable {
     /**
      * Advances to the next turn.
      * If the game is finished, it also adds the objective points and calculates the winner.
-     * If, after advancing to the next turn, the current player is not connected, it forces the advance of game
-     * skipping their turn so that the game can proceed correctly
+     * If, after advancing to the next turn, the current player is not collected, it calls playCard and pickCard
+     * with null parameters so that the game can proceed correctly
      * @throws GameStatusException if any of the methods it calls is called in the wrong game phase
      */
     private void nextTurn() throws GameStatusException {
-        boolean hasNextTurn = gameModel.nextTurn();
+        boolean hasNextTurn=gameModel.nextTurn();
         if(!hasNextTurn){
             gameModel.addObjectivePoints();
             gameModel.calcWinner();
@@ -271,11 +265,18 @@ public class GameController implements Runnable {
             if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
                 //playCard and pickCard should not throw any exception since the player is not connected
                 //(so the methods are only called to make the game proceed, they won't actually change the state of the player or the table)
+                try {
                     playCard(null,null,null);
+                } catch (RequirementsNotMetException | InvalidPlayCardException | InvalidDrawCardException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
                     pickCard(null);
+                } catch (InvalidDrawCardException | RequirementsNotMetException | InvalidPlayCardException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        } catch (InvalidPlayerException | RequirementsNotMetException | InvalidDrawCardException |
-                 InvalidPlayCardException e) {
+        } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
     }

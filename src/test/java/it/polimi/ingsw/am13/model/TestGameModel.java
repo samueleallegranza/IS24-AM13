@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model;
 
 import it.polimi.ingsw.am13.controller.GameListener;
+import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
@@ -686,7 +687,7 @@ public class TestGameModel {
     //TODO: la scelta randomica della starter e del personal objective nella fase INIT per un player disconnected
     // è fatta dal model o demandata a chi chiama quei metodi?
     @Test
-    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException {
+    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -778,7 +779,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -849,7 +850,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException {
+    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),

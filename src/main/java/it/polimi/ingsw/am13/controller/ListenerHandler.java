@@ -37,10 +37,12 @@ public class ListenerHandler {
 
     /**
      * Removes a {@link GameListener} from the list of GameListener.
-     * @param listener The listener to be removed.
+     * @param listener The listener to be removed
+     * @throws LobbyException if the GameListener was not part of the listeners list.
      */
-    public synchronized void removeListener(GameListener listener) {
-        listeners.remove(listener);
+    public synchronized void removeListener(GameListener listener) throws LobbyException{
+        if(!listeners.remove(listener))
+            throw new LobbyException();
     }
 
     /**

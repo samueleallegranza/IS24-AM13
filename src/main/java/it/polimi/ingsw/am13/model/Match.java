@@ -614,7 +614,7 @@ public class Match {
      * @throws GameStatusException if this method is called in a phase which is not the ENDED phase, unless there is only one player left
      */
     public Player calcWinner() throws GameStatusException{
-        if(gameStatus!=GameStatus.ENDED || countConnected()==1)
+        if(gameStatus!=GameStatus.ENDED && countConnected()!=1)
             throw new GameStatusException(gameStatus,GameStatus.ENDED);
         return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
     }
