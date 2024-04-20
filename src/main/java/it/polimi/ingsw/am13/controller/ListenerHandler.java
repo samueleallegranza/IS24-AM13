@@ -103,11 +103,12 @@ public class ListenerHandler {
      * @param cardPlayable The card played by the player.
      * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
+     * @param points The points given by the card.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points) {
         for (GameListener listener : listeners) {
             if (!listener.getPlayer().equals(player))
-                listener.updatePlayedCard(player, cardPlayable, side, coord);
+                listener.updatePlayedCard(player, cardPlayable, side, coord, points);
         }
     }
 

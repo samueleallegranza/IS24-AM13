@@ -65,8 +65,9 @@ public interface GameListener {
      * @param cardPlayable The card played.
      * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
+     * @param points The points given by the card.
      */
-    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord);
+    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points);
 
     /**
      * Updates the view when a player picks a card from the common visible cards.

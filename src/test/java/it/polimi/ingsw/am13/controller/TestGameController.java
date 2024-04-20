@@ -50,7 +50,7 @@ public class TestGameController {
         }
 
         @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
+        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points) {
 
         }
 

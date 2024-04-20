@@ -52,7 +52,7 @@ public class TestGameModel {
         public void updateNextTurn(PlayerLobby player) {
         }
         @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord) {
+        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points) {
         }
         @Override
         public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
