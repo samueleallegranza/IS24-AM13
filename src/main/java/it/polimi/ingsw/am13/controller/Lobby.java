@@ -4,18 +4,22 @@ import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayersNumberException;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Controller used to manage multiple games, that is to handle the lobby of players who are playing or are willing to start a game.
- * It stores the game listeners of players who want to start a game. Until game is not actually started, the players can be added and removed.
- * When the game has been started, the associated <code>gameController</code> is created. The players participating in that
- * moment to the game are so the definite ones for that game and they cannot change.
- * All the created or yet-to-be-created games are associated to a unique gameId.
+ * Controller used to manage multiple games, that is to handle the lobby of players who are playing or are in a room willing to start a game.<br>
+ *
+ * It stores the game listeners of players in a room which has not starter the game yet.
+ * A player joining the lobby can create a new room, setting the number of player for the future game to start, or can join an existing room.
+ * (In the moment they join/create a room, they decide their nickname and their token)
+ * Until game is not actually started, the players can be added and removed. If the room remains empty, it is automatically deleted. <br>
+ *
+ * When the right number of players is reached, the game automatically starts, adn the associated <code>gameController</code> is created.
+ * The players who were in the room in that moment are so the definite ones for that game and they cannot change.
+ * All the rooms and the already started games are associated to a unique gameId.
  */
 public class Lobby {
 
@@ -24,19 +28,21 @@ public class Lobby {
      */
     private static Lobby instance = null;
 
+    //TODO: rivedi meglio i synchronized, dovrebbero servire ovunque ma bho
+
     /**
      * Games that are already started (mapped via their gameId)
      */
-    private final Map<Integer, GameController> startedGames;
+    private final Map<Integer, Room> startedGames;
 
     /**
-     * gameId of games yet to be started, associated to a list of can-be players for that game.
+     * Rooms that are not playing yet (mapped via their gameId)
      */
-    private final Map<Integer, List<GameListener>> creatingGames;
+    private final Map<Integer, Room> rooms;
 
     private Lobby() {
         startedGames = new HashMap<>();
-        creatingGames = new HashMap<>();
+        rooms = new HashMap<>();
     }
 
     /**
@@ -49,88 +55,103 @@ public class Lobby {
         return instance;
     }
 
-    //TODO: rivedi meglio i synchronized, dovrebbero servire ovunque ma bho
-    //TODO: i nickname devono essere univoci, anche tra diverse partite??
-
     /**
-     * Checks if given player is playing in a started game or is present in one of the yet-to-be-started games
-     * @param playerListener <code>GameListener</code> of the players to check if they are present
-     * @return True if player is among players of a started game or among players waiting to start a game. False otherwise
+     * Checks if specified nickname is valid, that is if it's not already chosen by someone else in the lobby
+     * @param nick Nickname to check if it is valid
+     * @return True if player is valid (has not been already chosen), false otherwise
      */
-    private boolean isPlayerPresent(GameListener playerListener) {
-        return creatingGames.values().stream().flatMap(ls -> ls.stream().map(GameListener::getPlayer)).toList().contains(playerListener.getPlayer())
-                || startedGames.values().stream().flatMap(c -> c.getPlayers().stream()).toList().contains(playerListener.getPlayer());
+    private boolean isNickValid(String nick) {
+        return rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick)
+                || startedGames.values().stream().flatMap(c -> c.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
     }
 
     /**
-     * Creates a new game with the specified player as a "yet-to-be-started" game.
-     * More specifically, it finds the next suitable gameId, and associates this new gameId to a list of possible player to start
-     * that game, for now only populated by the given player
+     * Checks if specified nickname is valid, that is if it's not already chosen by someone else in the lobby
+     * @param player Listener of the player whose nickname is to be checked if it is valid
+     * @return True if player is valid (has not been already chosen), false otherwise
+     */
+    private boolean isNickInvalid(GameListener player) {
+        return !isNickValid(player.getPlayer().getNickname());
+    }
+
+    /**
+     * Creates a new Room, for now populated only with the specified player.
+     * The gameId is automatically found as the next suitable gameId, hence it is different from the other ones created before by the lobby
      * @param player First player who creates the game which will start in the future
+     * @param nPlayers The number of players to start the game, chosen by the player who creates the room
      * @return The gameId of the newly created game
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
-    public synchronized int createGame(GameListener player) throws LobbyException {
-        if(isPlayerPresent(player))
+    public synchronized int createRoom(GameListener player, int nPlayers) throws LobbyException {
+        if(isNickInvalid(player))
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
-        int gameId = creatingGames.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1) + 1;
-        List<GameListener> players = new ArrayList<>();
-        players.add(player);
-        creatingGames.put(gameId, players);
+        int gameId = rooms.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1) + 1;
+        rooms.put(gameId, new Room(player, nPlayers));
         return gameId;
     }
 
     /**
-     * Adds a players to a existing "yet-to-be-started" game, specified by the given gameId
-     * @param gameId Id of the game the players wants to be added to
-     * @param player Player to add to that game
+     * Adds a players to an existing room, specified by the given gameId.
+     * If the room with the newly joined players if full, it makes the game start
+     * @param gameId Id of the room the player wants to join
+     * @param player Listener of the player to add to that room
+     * @return The gameController for the newly started game if the room gets full, null otherwise
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
-     * or if the game with the given gameId does not exist,
-     * or if it exists but it contains already 4 players (the maximum number of players allowed for a game)
+     * or if the room with the given gameId does not exist,
+     * or if it exists but the room is already full
      */
-    public synchronized void addPlayerToLobby(int gameId, GameListener player) throws LobbyException {
-        if(!creatingGames.containsKey(gameId))
+    public synchronized Room joinRoom(int gameId, GameListener player) throws LobbyException {
+        if(!rooms.containsKey(gameId))
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
-        if(isPlayerPresent(player))
+        if(isNickInvalid(player))
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
-        List<GameListener> players = creatingGames.get(gameId);
-        if(players.size() == 4)
-            throw new LobbyException("This lobby contains already the maximum number of players");
-        players.add(player);
+        Room room= rooms.get(gameId);
+        room.joinRoom(player);
+        GameController gameController = null;
+        try {
+            if(room.isFull())
+                startGame(gameId);
+        } catch (InvalidPlayersNumberException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
+        return room;
     }
 
     /**
-     * Removes a players from a existing "yet-to-be-started" game, specified by the given gameId
-     * @param gameId Id of the game the players wants to be added to
-     * @param player Player to remove from that game
-     * @throws LobbyException If the game with the given gameId does not exist,
-     * or if it exists but it does not contain the specified player to be removed
+     * Removes a players from the existing room (specified by the given gameId) they joined.
+     * If the room becomes empty, it is automatically removes, as if it has never been created.
+     * @param player Player to remove from that room
+     * @throws LobbyException If the specified player is not in any existing rooms
      */
-    public synchronized void removePlayerFromLobby(int gameId, GameListener player) throws LobbyException {
-        if(!creatingGames.containsKey(gameId))
-            throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
-        List<GameListener> players = creatingGames.get(gameId);
-        if(!players.contains(player))
-            throw new LobbyException("The specified game (" + gameId + ") does not contains the specified player to be removed");
-        players.remove(player);
+    public synchronized void leaveRoom(GameListener player) throws LobbyException {
+        int gameId = rooms.entrySet().stream().filter(entry -> entry.getValue().getPlayers().contains(player.getPlayer())).map(Map.Entry::getKey)
+                .findFirst().orElseThrow(() -> new LobbyException("The specified player (" + player.getPlayer() + " is not in any existing room"));
+        if(rooms.get(gameId).leaveRoom(player.getPlayer()))
+            rooms.remove(gameId);
     }
 
     /**
-     * Sets the specified yet-to-be-started game to started.
+     * Starts the game for the room specified by gameId.
      * It creates the associated <code>GameController</code>, actually starting that game
+     *
      * @param gameId Game to start
-     * @return <code>GameController</code> created for that game
-     * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
+     * @throws LobbyException                If the specified game has not been created (is not among the yet-to-be-started games)
      * @throws InvalidPlayersNumberException If the game contains only 1 player
      */
-    public synchronized GameController startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
-        if(!creatingGames.containsKey(gameId))
+    private synchronized void startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
+        if(!rooms.containsKey(gameId))
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
 
-        GameController controller = new GameController(gameId, creatingGames.get(gameId));
-        startedGames.put(gameId, controller);
-        creatingGames.remove(gameId);
-        return controller;
+        /* Oss: If a player crashed while being in a room, and the game for that room starts, they will be considered still
+            connected, and will be disconnected by ping system of gameController
+        */
+
+        Room room = rooms.get(gameId);
+        GameController controller = new GameController(gameId, room.getListeners());
+        room.setGameController(controller);
+        startedGames.put(gameId, room);
+        rooms.remove(gameId);
     }
 
     /**
@@ -144,25 +165,32 @@ public class Lobby {
         startedGames.remove(gameId);
     }
 
-    //TODO: scrivi quando gamestatusexception viene triggerata
     /**
      * Reconnects a disconnected player for the already started game they took part in
      * @param player Listener of the player to reconnect
      * @throws LobbyException If the given player is not among players of any started game
      * @throws ConnectionException If the player was already connected
-     * @throws GameStatusException ??
+     * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
+     * (generic error, should not happen)
      */
     public synchronized void reconnectPlayer(GameListener player) throws LobbyException, ConnectionException, GameStatusException {
-        List<GameController> games = startedGames.values().stream()
-                .filter(c -> c.getPlayers().contains(player.getPlayer())).toList();
-        if(games.size() != 1)
-            throw new LobbyException("The player " + player.getPlayer() + " is not associated to a started game");
-        GameController game = games.getFirst();
+        Room room = startedGames.values().stream().filter(r -> r.getPlayers().contains(player.getPlayer()))
+                .findFirst().orElseThrow(() -> new LobbyException("The player " + player.getPlayer() + " is not associated to a started game"));
         try {
-            game.reconnectPlayer(player);
+            room.getGameController().reconnectPlayer(player);
         } catch (InvalidPlayerException e) {    // shouldn't happen, as I check before this point for the game associated
             throw new RuntimeException(e);
         }
-        //TODO chiama qualcosa su questo gamecontroller per dirgli di riconnettere il player con quel gamelistenr
+    }
+
+    /**
+     * Checks if the specified room has already started playing, and fetches the room itself in this case.
+     * @param gameId GameId of the room/game to fetch
+     * @return Room of the game if it has already started, or null if the room has not started plying or the gameId does not exist at all
+     */
+    public synchronized Room getRoomStartedGame(int gameId) {
+        if(rooms.containsKey(gameId))
+            return null;
+        return startedGames.get(gameId);
     }
 }

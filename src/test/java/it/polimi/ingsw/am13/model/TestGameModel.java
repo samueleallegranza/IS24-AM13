@@ -698,8 +698,6 @@ public class TestGameModel {
         findWinner();
     }
 
-    //TODO: la scelta randomica della starter e del personal objective nella fase INIT per un player disconnected
-    // è fatta dal model o demandata a chi chiama quei metodi?
     @Test
     public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, LobbyException {
         players = List.of(
@@ -855,7 +853,7 @@ public class TestGameModel {
                 game.disconnectPlayer(disPlayer);
             else {
                 CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
-                game.pickCard(cardDrawn);        //TODO: pesca veramente questa????
+                game.pickCard(cardDrawn);
                 assertTrue(game.fetchHandPlayable(p).contains(cardDrawn));
             }
             assertEquals(3, game.fetchHandPlayable(p).size());

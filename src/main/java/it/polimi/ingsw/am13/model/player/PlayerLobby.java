@@ -55,7 +55,8 @@ public final class PlayerLobby {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayerLobby that = (PlayerLobby) o;
-        return Objects.equals(nickname, that.nickname) && Objects.equals(token, that.token);
+        return Objects.equals(nickname, that.nickname);
+//        return Objects.equals(nickname, that.nickname) && Objects.equals(token, that.token);
     }
 
     @Override

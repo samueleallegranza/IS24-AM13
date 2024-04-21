@@ -23,11 +23,6 @@ import java.util.*;
  * </ul>
  * After game phase becomes ENDED, the internal state of Match and the model in general cannot change any longer.
  */
-//TODO: currently it isn't possible to retrieve the field through Match (we are missing getters).
-    //In principle we have enough information (we know all the actions of the player) in the client to build it there,
-    //so that's not strictly necessary, it depends on how we want to implement this
-
-//TODO: we currently don't manage at all the possibility of a player being disconnected
 
 //TODO: Pensa se gestire il caso in cui availableCoord è emptu (giocatore non piò fare più niente)
 public class Match {
@@ -397,16 +392,10 @@ public class Match {
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-//        try {
         if(playersMap.get(player).isConnected())
             playersMap.get(player).initObjective(cardObjective);
         countSetup++;
         checkInGamePhase();
-//        } catch (VariableAlreadySetException e) {
-//            System.out.println("This player's objective has already been set");
-//        } catch (InvalidChoiceException e){
-//            System.out.println("The passed objective card is not one of the two objective cards assigned to the given player");
-//        }
     }
 
     /**
@@ -468,7 +457,7 @@ public class Match {
      * @throws GameStatusException if the actual phase is different from IN_GAME or FINAL_PHASE,
      * or it's not the moment in turn for playing the card on field
      * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
-     * @throws InvalidPlayCardException If the player doesn't have the specified card
+     * @throws InvalidPlayCardException If the player doesn't have the specified card, or generic positioning error
      */
     public void playCard(CardPlayableIF cardIF, Side side, Coordinates coordinates)
             throws GameStatusException, RequirementsNotMetException, InvalidPlayCardException {
@@ -491,22 +480,9 @@ public class Match {
             }
 
             if (side == Side.SIDEFRONT) {
-                try {
-                    currentPlayer.playCard(card.getFront(), coordinates);
-                } catch (InvalidPlayCardException e) {
-                    throw new RuntimeException(e);
-                } /*catch (RequirementsNotMetException e) {
-                System.out.println("The requirements to play this card aren't satisfied");
-            }*/
+                currentPlayer.playCard(card.getFront(), coordinates);
             } else {
-                try {
-                    currentPlayer.playCard(card.getBack(), coordinates);
-                } catch (InvalidPlayCardException e) {
-                    throw new RuntimeException(e);
-                } catch (RequirementsNotMetException e) {
-                    System.out.println("The requirements to play this card aren't satisfied");
-                    throw new RuntimeException(e);
-                }
+                currentPlayer.playCard(card.getBack(), coordinates);
             }
         }
         turnActionsCounter++;
@@ -613,17 +589,15 @@ public class Match {
      * @return the winner of the match
      * @throws GameStatusException if this method is called in a phase which is not the ENDED phase, unless there is only one player left
      */
-    public Player calcWinner() throws GameStatusException{
+    public PlayerLobby calcWinner() throws GameStatusException{
         if(gameStatus!=GameStatus.ENDED && countConnected()!=1)
             throw new GameStatusException(gameStatus,GameStatus.ENDED);
-        return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints)).orElseThrow();
+        return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints))
+                .map(Player::getPlayerLobby).orElseThrow();
     }
 
 
     // GETTERS
-
-    //TODO: forse è meglio ritornare per tutti i metodi PlayerLobby invece che Player
-    // Player intero dovrebbe servire solo a Match, non anche all'esterno
 
     /**
      * @return the status of the game

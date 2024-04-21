@@ -121,7 +121,7 @@ public class GameController implements Runnable{
         int numberConnectedPlayers=gameModel.countConnected();
         if(numberConnectedPlayers>1) {
             stopReconnectionTimer();
-            if (numberConnectedPlayers == 2 && (gameModel.fetchGameStatus()== GameStatus.IN_GAME && gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
+            if (numberConnectedPlayers==2 && (gameModel.fetchGameStatus()==GameStatus.IN_GAME && gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
                 nextTurn();
         }
     }

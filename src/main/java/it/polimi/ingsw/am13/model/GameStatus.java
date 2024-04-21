@@ -21,7 +21,6 @@ package it.polimi.ingsw.am13.model;
  *     the maximum accumulated points </li>
  * </ul>>
  */
-//TODO: descrivi meglio le singole fasi
 public enum GameStatus {
     INIT,IN_GAME,FINAL_PHASE,CALC_POINTS,ENDED
 }

@@ -27,6 +27,8 @@ public class ListenerHandler {
         this.listeners = listeners;
     }
 
+    //TODO: servono veramente le synchronized?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?    Federico ha criticato il mio uso di ? e ! :-(
+
     /**
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
@@ -96,6 +98,8 @@ public class ListenerHandler {
             listener.updateNextTurn(player);
         }
     }
+
+    //TODO: aggiungi la lista delle nuove coordinate giocabili
 
     /**
      * Notifies the view that a card has been played by a player. <br>

@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public abstract class Card implements CardIF {
 
-    //TODO: specifica meglio che intendiamo con id di una carta (idem su costruttore)
+    //TODO: specifica struttura che usiamo per id della carta (idem su costruttore)
     /**
-     * Unique id of the card
+     * Unique id of the card.
      */
     private final String id;
 
