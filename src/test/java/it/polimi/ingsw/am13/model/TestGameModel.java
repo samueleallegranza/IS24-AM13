@@ -745,7 +745,7 @@ public class TestGameModel {
          */
         GameListener disPlayer = playerListeners.getFirst();
         game.disconnectPlayer(disPlayer);
-        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
+        assertThrows(LobbyException.class, () -> game.disconnectPlayer(disPlayer));
         assertEquals(GameStatus.INIT, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 

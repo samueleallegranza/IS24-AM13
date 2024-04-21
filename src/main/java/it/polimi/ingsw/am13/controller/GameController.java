@@ -9,7 +9,8 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.util.List;
 import java.util.Objects;
 
-//TODO it might be necessary to add some synchronized
+//TODO it might be necessary to add some synchronized (should be correct now, but I am still not sure)
+//TODO a method to retrieve notifications from the buffer (when the buffer will have been implemented)
 /**
  * This is a controller for a single game/match
  */
@@ -199,7 +200,7 @@ public class GameController implements Runnable{
      * @throws GameStatusException If game phase is not INIT
      * @throws InvalidPlayCardException Positioning error of the card at coordinates (0,0).
      */
-    public void playStarter(PlayerLobby player, Side side) throws InvalidPlayerException, InvalidPlayCardException, GameStatusException {
+    public synchronized void playStarter(PlayerLobby player, Side side) throws InvalidPlayerException, InvalidPlayCardException, GameStatusException {
         gameModel.playStarter(player,side);
     }
 
@@ -214,7 +215,7 @@ public class GameController implements Runnable{
      * @throws InvalidChoiceException if the objective card does not belong to the list of the possible objective cards for the player
      * @throws VariableAlreadySetException if this method has been called before for the player
      */
-    public void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
+    public synchronized void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         gameModel.choosePersonalObjective(player, cardObj);
     }
@@ -227,12 +228,19 @@ public class GameController implements Runnable{
      * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
      * @throws InvalidPlayCardException If the player doesn't have the specified card
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
+     * @throws InvalidPlayerException If the passed player is not the current player
      */
-    public void playCard(CardPlayableIF card, Side side, Coordinates coord)
-            throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException, InvalidPlayerException, InvalidDrawCardException {
+    public void playCard(PlayerLobby playerLobby, CardPlayableIF card, Side side, Coordinates coord)
+            throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException, InvalidPlayerException {
+        if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
+            throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.playCard(card, side, coord);
         if(gameModel.fetchPickables().stream().noneMatch(Objects::nonNull))
-            pickCard(null);
+            try {
+                pickCard(gameModel.fetchCurrentPlayer(), null);
+            } catch (InvalidDrawCardException e){
+                throw new RuntimeException();
+            }
     }
 
     /**
@@ -241,8 +249,11 @@ public class GameController implements Runnable{
      * @param card A playable card that should be in the field
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
+     * @throws InvalidPlayerException If the passed player is not the current player
      */
-    public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException, RequirementsNotMetException, InvalidPlayCardException {
+    public void pickCard(PlayerLobby playerLobby, CardPlayableIF card) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException {
+        if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
+            throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.pickCard(card);
         if(gameModel.countConnected()>1)
             nextTurn();
@@ -265,18 +276,10 @@ public class GameController implements Runnable{
             if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
                 //playCard and pickCard should not throw any exception since the player is not connected
                 //(so the methods are only called to make the game proceed, they won't actually change the state of the player or the table)
-                try {
-                    playCard(null,null,null);
-                } catch (RequirementsNotMetException | InvalidPlayCardException | InvalidDrawCardException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    pickCard(null);
-                } catch (InvalidDrawCardException | RequirementsNotMetException | InvalidPlayCardException e) {
-                    throw new RuntimeException(e);
-                }
+                playCard(gameModel.fetchCurrentPlayer(),null,null,null);
+                pickCard(gameModel.fetchCurrentPlayer(),null);
             }
-        } catch (InvalidPlayerException e) {
+        } catch (InvalidPlayerException | RequirementsNotMetException | InvalidPlayCardException | InvalidDrawCardException e) {
             throw new RuntimeException(e);
         }
     }
