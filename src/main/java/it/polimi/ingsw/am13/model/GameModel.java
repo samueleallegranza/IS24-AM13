@@ -240,7 +240,6 @@ public class GameModel implements GameModelIF {
 
 
     // METHODS CALLABLE IN PHASE INIT
-    //TODO: Decommenta notify per InGame e FinalPhase dopo che sono implementati i metodi di listenerHandler
 
     /**
      * Method callable only once per player during INIT phase.
@@ -255,8 +254,8 @@ public class GameModel implements GameModelIF {
             throws InvalidPlayerException, GameStatusException, InvalidPlayCardException {
         match.playStarter(player, side);
         listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player));
-//        if(match.getGameStatus() == GameStatus.IN_GAME)
-//            listenerHandler.notifyInGame();
+        if(match.getGameStatus() == GameStatus.IN_GAME)
+            listenerHandler.notifyInGame();
     }
 
     /**
@@ -288,8 +287,8 @@ public class GameModel implements GameModelIF {
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         match.choosePersonalObjective(player, cardObj);
         listenerHandler.notifyChosenPersonalObjective(player);
-//        if(match.getGameStatus() == GameStatus.IN_GAME)
-//            listenerHandler.notifyInGame();
+        if(match.getGameStatus() == GameStatus.IN_GAME)
+            listenerHandler.notifyInGame();
     }
 
 
@@ -303,12 +302,12 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
      */
     public boolean nextTurn() throws GameStatusException {
-//        boolean beforeInGame = match.getGameStatus() == GameStatus.IN_GAME;
+        boolean beforeInGame = match.getGameStatus() == GameStatus.IN_GAME;
         boolean res = match.nextTurn();
         if(res) {
             listenerHandler.notifyNextTurn(fetchCurrentPlayer());
-//            if(beforeInGame && match.getGameStatus()==GameStatus.FINAL_PHASE)
-//                listenerHandler.notifyFinalPhase();
+            if(beforeInGame && match.getGameStatus()==GameStatus.FINAL_PHASE)
+                listenerHandler.notifyFinalPhase();
         }
         return res;
     }
@@ -325,7 +324,11 @@ public class GameModel implements GameModelIF {
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
         match.playCard(card, side, coord);
-        listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, side, coord, match.getCurrentPlayer().getPoints());
+        try {
+            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, side, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

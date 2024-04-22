@@ -66,8 +66,9 @@ public interface GameListener {
      * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      * @param points The points given by the card.
+     * @param availableCoords The list of coordinates that are available to play a card.
      */
-    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points);
+    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords);
 
     /**
      * Updates the view when a player picks a card from the common visible cards.
@@ -106,6 +107,16 @@ public interface GameListener {
      * @param model The updated game model.
      */
     void updateGameModel(GameModelIF model);
+
+    /**
+     * Updates the view that the game is in the final phase.
+     */
+    void updateFinalPhase();
+
+    /**
+     * Updates the view that the game has begun its playing phase.
+     */
+    void updateInGame();
 
     Long getPing();
     void updatePing(Long ping);

@@ -99,20 +99,20 @@ public class ListenerHandler {
         }
     }
 
-    //TODO: aggiungi la lista delle nuove coordinate giocabili
-
     /**
      * Notifies the view that a card has been played by a player. <br>
+     * Also notifies the updated list of coordinates where the player can play a card.
      * @param player The player that played the card.
      * @param cardPlayable The card played by the player.
      * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      * @param points The points given by the card.
+     * @param availableCoords The list of updated coordinates where the player can play a card.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points) {
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
             if (!listener.getPlayer().equals(player))
-                listener.updatePlayedCard(player, cardPlayable, side, coord, points);
+                listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
         }
     }
 
@@ -170,6 +170,24 @@ public class ListenerHandler {
                 listener.updateGameModel(model);
             else
                 listener.updatePlayerReconnected(player);
+        }
+    }
+
+    /**
+     * Notifies the view that the game is in the playing phase. <br>
+     */
+    public void notifyInGame(){
+        for (GameListener listener : listeners){
+            listener.updateInGame();
+        }
+    }
+
+    /**
+     * Notifies the view that the game is in the final phase. <br>
+     */
+    public void notifyFinalPhase(){
+        for (GameListener listener : listeners){
+            listener.updateFinalPhase();
         }
     }
 }
