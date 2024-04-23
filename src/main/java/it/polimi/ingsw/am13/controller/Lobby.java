@@ -22,7 +22,7 @@ import java.util.Map;
  * All the rooms and the already started games are associated to a unique gameId.
  */
 public class Lobby {
-
+    // TODO: da implementare GetRooms() che ritorna le partite non ancora iniziate (forse sarebbe bello anche avere la lista di partite iniziate ?)
     /**
      * Unique instance of this class (implementing Singleton pattern)
      */

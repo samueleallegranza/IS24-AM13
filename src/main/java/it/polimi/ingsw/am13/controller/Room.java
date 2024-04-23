@@ -13,7 +13,7 @@ import java.util.List;
  * The gameController can be set only once the target number of players is reached.
  */
 public class Room {
-
+    // TODO: perché usi una lista di GameListener e non ListenerHandler ()
     /**
      * GameListeners for the players in the room.
      * The size is >0 and <=nPlayersTarget and cannot change once the maximum size is reached

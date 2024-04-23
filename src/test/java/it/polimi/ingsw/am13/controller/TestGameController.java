@@ -105,12 +105,12 @@ public class TestGameController {
         }
 
         @Override
-        public void updatePlayerJoinedLobby(PlayerLobby player) {
+        public void updatePlayerJoinedRoom(PlayerLobby player) {
 
         }
 
         @Override
-        public void updatePlayerLeftLobby(PlayerLobby player) {
+        public void updatePlayerLeftRoom(PlayerLobby player) {
 
         }
 

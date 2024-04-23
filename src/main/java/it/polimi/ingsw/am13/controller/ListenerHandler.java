@@ -27,7 +27,8 @@ public class ListenerHandler {
         this.listeners = listeners;
     }
 
-    //TODO: servono veramente le synchronized?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?    Federico ha criticato il mio uso di ? e ! :-(
+    //TODO: servono veramente le synchronized?
+    //?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?    Federico ha criticato il mio uso di ? e ! :-(
 
     /**
      * Adds a {@link GameListener} to the list of GameListener.
@@ -55,6 +56,11 @@ public class ListenerHandler {
         return listeners;
     }
 
+    // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
+    //TODO: notifyGameBegins, notifyJoinedRoom, notifyLeftRoom
+
+
+    // METHODS TO BE CALLED BY GAMEMODEL
     /**
      * Notifies the view that the game has started: starter cards and initial cards have been given to the players. <br>
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
@@ -190,4 +196,5 @@ public class ListenerHandler {
             listener.updateFinalPhase();
         }
     }
+
 }

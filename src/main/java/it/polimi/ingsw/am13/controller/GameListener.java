@@ -13,7 +13,7 @@ import java.util.Map;
 public interface GameListener {
     PlayerLobby getPlayer();
 
-    // METHODS TO BE CALLED BY Lobby
+    // METHODS TO BE CALLED BY ListenerHandler in Lobby TO MANAGE ROOMS
     /**
      * Updates the view that the game has begun (from Lobby to actual game)
      * @param gameId gameId of the {@link it.polimi.ingsw.am13.model.GameModel} which is starting
@@ -24,13 +24,13 @@ public interface GameListener {
      * Updates the view that a player has joined a lobby (waiting for a game)
      * @param player player who joined
      */
-    void updatePlayerJoinedLobby(PlayerLobby player);
+    void updatePlayerJoinedRoom(PlayerLobby player);
 
     /**
      * Updates the view that a player has left a lobby (waiting for a game)
      * @param player player who left
      */
-    void updatePlayerLeftLobby(PlayerLobby player);
+    void updatePlayerLeftRoom(PlayerLobby player);
 
     // METHODS CALLED BY ListenerHandler
     /**

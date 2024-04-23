@@ -34,10 +34,10 @@ public class TestGameModel {
         public void updateGameBegins(int gameId) {
         }
         @Override
-        public void updatePlayerJoinedLobby(PlayerLobby player) {
+        public void updatePlayerJoinedRoom(PlayerLobby player) {
         }
         @Override
-        public void updatePlayerLeftLobby(PlayerLobby player) {
+        public void updatePlayerLeftRoom(PlayerLobby player) {
         }
         @Override
         public void updateStartGame(GameModelIF model) {
