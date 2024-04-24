@@ -57,8 +57,41 @@ public class ListenerHandler {
     }
 
     // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
-    //TODO: notifyGameBegins, notifyJoinedRoom, notifyLeftRoom
+    //TODO: implement notifyGameBegins, notifyJoinedRoom, notifyLeftRoom in Lobby
 
+    /**
+     * Notifies the view that the game is beginning and that the Room has been moved to startedGames
+     * @param gameId The Id of the game which is beginning.
+     */
+    public void notifyGameBegins(int gameId){
+        for (GameListener listener : listeners) {
+            listener.updateGameBegins(gameId);
+        }
+    }
+
+    /**
+     * Notify the view that a Player has entered a Room.
+     * This method is to be used only when the game hasn't started yet.
+     * @param player The player that entered the room
+     */
+    public void notifyPlayerJoinedRoom(PlayerLobby player){
+        for (GameListener listener : listeners) {
+            if (!listener.getPlayer().equals(player))
+                listener.updatePlayerJoinedRoom(player);
+        }
+    }
+
+    /**
+     * Notify the view that a Player has left a Room.
+     * This method is to be used only when the game hasn't started yet.
+     * @param player The player that left the room
+     */
+    public void notifyPlayerLeftRoom(PlayerLobby player){
+        for (GameListener listener : listeners) {
+            if (!listener.getPlayer().equals(player))
+                listener.updatePlayerLeftRoom(player);
+        }
+    }
 
     // METHODS TO BE CALLED BY GAMEMODEL
     /**
