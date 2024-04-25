@@ -30,6 +30,7 @@ public class ListenerHandler {
     //TODO: servono veramente le synchronized?
     //?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?    Federico ha criticato il mio uso di ? e ! :-(
 
+    //TODO: fare le update non targettizzate, cioè che notificano a tutti i listener
     /**
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
@@ -193,8 +194,7 @@ public class ListenerHandler {
      */
     public void notifyPlayerDisconnected(PlayerLobby player){
         for (GameListener listener : listeners){
-            if (!listener.getPlayer().equals(player))
-                listener.updatePlayerDisconnected(player);
+            listener.updatePlayerDisconnected(player);
         }
     }
 

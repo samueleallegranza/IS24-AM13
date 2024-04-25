@@ -59,9 +59,9 @@ public class GameModel implements GameModelIF {
      * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
     public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, LobbyException {
-        listenerHandler.removeListener(gameListener);
         match.disconnectPlayer(gameListener.getPlayer());
         listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer());
+        listenerHandler.removeListener(gameListener);
     }
 
     /**
