@@ -16,9 +16,8 @@ public interface GameListener {
     // METHODS TO BE CALLED BY ListenerHandler in Lobby TO MANAGE ROOMS
     /**
      * Updates the view that the game has begun (from Lobby to actual game)
-     * @param gameId gameId of the {@link it.polimi.ingsw.am13.model.GameModel} which is starting
      */
-    void updateGameBegins(int gameId);
+    void updateGameBegins();
 
     /**
      * Updates the view that a player has joined a lobby (waiting for a game)
@@ -84,10 +83,16 @@ public interface GameListener {
     void updatePoints(Map<PlayerLobby, Integer> pointsMap);
 
     /**
-     * Updates the view with the
+     * Updates the view with the winner
      * @param winner The player that has won the game.
      */
     void updateWinner(PlayerLobby winner);
+
+    /**
+     * Updates the view about ending of game.
+     * After this update, the server should not respond to any other request from the clients
+     */
+    void updateEndGame();
 
     /**
      * Updates the view with the player that has disconnected from the game.
@@ -119,5 +124,6 @@ public interface GameListener {
     void updateInGame();
 
     Long getPing();
+
     void updatePing(Long ping);
 }

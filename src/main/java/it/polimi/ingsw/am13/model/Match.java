@@ -24,7 +24,7 @@ import java.util.*;
  * After game phase becomes ENDED, the internal state of Match and the model in general cannot change any longer.
  */
 
-//TODO: Pensa se gestire il caso in cui availableCoord è emptu (giocatore non piò fare più niente)
+//TODO: Pensa se gestire il caso in cui availableCoord è empty (giocatore non piò fare più niente)
 public class Match {
     private final DeckHandler<CardResource> deckResources;
     private final DeckHandler<CardGold> deckGold;
@@ -86,7 +86,6 @@ public class Match {
      * at random from the list of players, instantiates the four decks and sets the players list to the list it receives as a parameter.
      * @param players the players of the match
      */
-    //TODO: cambia eccezione InvalidPlayersNumberException se 2 giocatori hanno lo stesso colore
     public Match(List<Player> players) throws InvalidPlayersNumberException{
         if(players.size()<2 || players.size()>4)
             throw new InvalidPlayersNumberException();

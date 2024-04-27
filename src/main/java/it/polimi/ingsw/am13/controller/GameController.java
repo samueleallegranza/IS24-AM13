@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Objects;
 
 //TODO it might be necessary to add some synchronized (should be correct now, but I am still not sure)
-//TODO a method to retrieve notifications from the buffer (when the buffer will have been implemented)
 /**
  * This is a controller for a single game/match
  */
-public class GameController implements Runnable{
+public class GameController implements Runnable {
     /**
      * The model of the game
      */
@@ -41,12 +40,12 @@ public class GameController implements Runnable{
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
      * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param gameListeners List of GameListener corresponding to the players who will take part in the game
+     * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
-    public GameController(int gameId, List<GameListener> gameListeners) throws InvalidPlayersNumberException {
-        gameModel=new GameModel(gameId,gameListeners);
+    public GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
+        gameModel=new GameModel(gameId, listenerHandler);
         try {
             gameModel.startGame();
         } catch (GameStatusException e) {
@@ -108,7 +107,7 @@ public class GameController implements Runnable{
     }
 
     /**
-     * Reconnects the player corresponding to the game listener.
+     * Reconnects the player corresponding to the game listener and triggers the notification of this.
      * If more than one player is connected, it stops the reconnection timer
      * If two players are connected, it advances to the next turn
      * @param gameListener one of the listeners of ListenerHandler

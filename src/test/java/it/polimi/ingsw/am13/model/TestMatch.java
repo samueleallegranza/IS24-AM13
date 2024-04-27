@@ -273,7 +273,6 @@ public class TestMatch {
         assertEquals(match.getCurrentPlayer(),player1);
     }
 
-    //TODO se un giocatore non può pescare, non pesca
     @Test
     public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException {
         testGameSetupWithDisconnection();

@@ -11,12 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+//OSS: currently, the only classes managing notifications via ListenerHandler are Room for per-GameBegins and
+// GameModel for post-GameBegins
+
 /**
  * This class is responsible for handling a List of {@link GameListener} <br>
  * and notifying the view when a change occurs in the {@link GameModel} after a game event happens.
  * Depending on the event, the view is notified passing the appropriate parameters.
  */
 public class ListenerHandler {
+
+    //TODO: Non dovrebbe, ma potrebbero servire delle synchronized...
+
+    /**
+     * Listeners handled by the class
+     */
     private final List<GameListener> listeners;
 
     public ListenerHandler() {
@@ -27,15 +36,12 @@ public class ListenerHandler {
         this.listeners = listeners;
     }
 
-    //TODO: servono veramente le synchronized?
-    //?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?    Federico ha criticato il mio uso di ? e ! :-(
 
-    //TODO: fare le update non targettizzate, cioè che notificano a tutti i listener
     /**
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
      */
-    public synchronized void addListener(GameListener listener) {
+    public void addListener(GameListener listener) {
         listeners.add(listener);
     }
 
@@ -44,7 +50,7 @@ public class ListenerHandler {
      * @param listener The listener to be removed
      * @throws LobbyException if the GameListener was not part of the listeners list.
      */
-    public synchronized void removeListener(GameListener listener) throws LobbyException{
+    public void removeListener(GameListener listener) throws LobbyException{
         if(!listeners.remove(listener))
             throw new LobbyException();
     }
@@ -53,20 +59,17 @@ public class ListenerHandler {
      * Returns the list of {@link GameListener} handled by this class.
      * @return the list of GameListener.
      */
-    public synchronized List<GameListener> getListeners() {
+    public List<GameListener> getListeners() {
         return listeners;
     }
 
     // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
-    //TODO: implement notifyGameBegins, notifyJoinedRoom, notifyLeftRoom in Lobby
-
     /**
      * Notifies the view that the game is beginning and that the Room has been moved to startedGames
-     * @param gameId The Id of the game which is beginning.
      */
-    public void notifyGameBegins(int gameId){
+    public void notifyGameBegins(){
         for (GameListener listener : listeners) {
-            listener.updateGameBegins(gameId);
+            listener.updateGameBegins();
         }
     }
 
@@ -77,8 +80,7 @@ public class ListenerHandler {
      */
     public void notifyPlayerJoinedRoom(PlayerLobby player){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updatePlayerJoinedRoom(player);
+            listener.updatePlayerJoinedRoom(player);
         }
     }
 
@@ -89,8 +91,7 @@ public class ListenerHandler {
      */
     public void notifyPlayerLeftRoom(PlayerLobby player){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updatePlayerLeftRoom(player);
+            listener.updatePlayerLeftRoom(player);
         }
     }
 
@@ -100,7 +101,7 @@ public class ListenerHandler {
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
      * @param model The {@link GameModelIF} containing the immutable version of a GameModel.
      */
-    public synchronized void notifyStartGame(GameModelIF model){
+    public void notifyStartGame(GameModelIF model){
         for (GameListener listener : listeners) {
             listener.updateStartGame(model);
         }
@@ -111,10 +112,9 @@ public class ListenerHandler {
      * @param player The player that played the starter card.
      * @param cardStarter The starter card played by the player.
      */
-    public synchronized void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter){
+    public void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updatePlayedStarter(player, cardStarter);
+            listener.updatePlayedStarter(player, cardStarter);
         }
     }
 
@@ -122,10 +122,9 @@ public class ListenerHandler {
      * Notifies the view that a player has chosen a personal objective card. <br>
      * @param player The player that has chosen a personal objective card.
      */
-    public synchronized void notifyChosenPersonalObjective(PlayerLobby player){
+    public void notifyChosenPersonalObjective(PlayerLobby player){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updateChosenPersonalObjective(player);
+            listener.updateChosenPersonalObjective(player);
         }
     }
 
@@ -151,8 +150,7 @@ public class ListenerHandler {
      */
     public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
+            listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
         }
     }
 
@@ -163,8 +161,7 @@ public class ListenerHandler {
      */
     public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
         for (GameListener listener : listeners) {
-            if (!listener.getPlayer().equals(player))
-                listener.updatePickedCard(player, updatedVisibleCards);
+            listener.updatePickedCard(player, updatedVisibleCards);
         }
     }
 
@@ -185,6 +182,16 @@ public class ListenerHandler {
     public void notifyWinner(PlayerLobby player){
         for (GameListener listener : listeners){
             listener.updateWinner(player);
+        }
+    }
+
+    /**
+     * Notifies the listeners about ending of game.
+     * After this notify, the server should not respond to any other request from the clients
+     */
+    public void notifyEndGame() {
+        for (GameListener listener : listeners){
+            listener.updateEndGame();
         }
     }
 

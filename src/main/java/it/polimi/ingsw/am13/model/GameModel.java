@@ -29,15 +29,15 @@ public class GameModel implements GameModelIF {
      * Creates a new instance of <code>GameModel</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
      * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param gameListeners List of GameListener corresponding to the players who will take part in the game
+     * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
-    public GameModel(int gameId, List<GameListener> gameListeners) throws InvalidPlayersNumberException {
+    public GameModel(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
         this.gameId = gameId;
-        List<Player> players = gameListeners.stream().map(GameListener::getPlayer).map(Player::new).toList();
+        List<Player> players = listenerHandler.getListeners().stream().map(GameListener::getPlayer).map(Player::new).toList();
         this.match = new Match(players);
-        listenerHandler = new ListenerHandler(gameListeners);
+        this.listenerHandler = listenerHandler;
     }
 
     // METHODS USED TO MANAGE THE DISCONNECTION AND RECONNECTION OF A PLAYER
@@ -65,7 +65,7 @@ public class GameModel implements GameModelIF {
     }
 
     /**
-     * Reconnects the given player
+     * Reconnects the given player. It also notifies the players of this
      * @param gameListener one of the listeners in ListenerHandler
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already connected when this method was called

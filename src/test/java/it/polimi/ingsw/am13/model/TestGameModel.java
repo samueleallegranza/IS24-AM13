@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model;
 
 import it.polimi.ingsw.am13.controller.GameListener;
+import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
@@ -16,9 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestGameModel {
 
     private static class LisForTest implements GameListener {
-
         private final PlayerLobby player;
-
         public LisForTest(PlayerLobby player) {
             this.player = player;
         }
@@ -31,7 +30,7 @@ public class TestGameModel {
             return player;
         }
         @Override
-        public void updateGameBegins(int gameId) {
+        public void updateGameBegins() {
         }
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
@@ -62,6 +61,10 @@ public class TestGameModel {
         }
         @Override
         public void updateWinner(PlayerLobby winner) {
+        }
+        @Override
+        public void updateEndGame() {
+
         }
         @Override
         public void updatePlayerDisconnected(PlayerLobby player) {
@@ -104,14 +107,14 @@ public class TestGameModel {
     @Test
     public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException {
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                List.of(new LisForTest("1", ColorToken.RED)) ));
+                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED))) ));
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                List.of(new LisForTest("1", ColorToken.RED),
+                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
                         new LisForTest("2", ColorToken.BLUE),
-                        new LisForTest("3", ColorToken.RED)) ));
+                        new LisForTest("3", ColorToken.RED))) ));
         assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                List.of(new LisForTest("1", ColorToken.RED),
-                        new LisForTest("2", ColorToken.BLACK)) ));
+                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
+                        new LisForTest("2", ColorToken.BLACK))) ));
 
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
@@ -119,7 +122,7 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, playerListeners);
+        game = new GameModel(0, new ListenerHandler(playerListeners));
 
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
@@ -717,7 +720,7 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, playerListeners);
+        game = new GameModel(0, new ListenerHandler(playerListeners));
 
         for(PlayerLobby player : players) {
             assertNull(game.fetchStarter(player));
@@ -753,7 +756,7 @@ public class TestGameModel {
          */
         GameListener disPlayer = playerListeners.getFirst();
         game.disconnectPlayer(disPlayer);
-        assertThrows(LobbyException.class, () -> game.disconnectPlayer(disPlayer));
+        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
         assertEquals(GameStatus.INIT, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 
@@ -809,7 +812,7 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, playerListeners);
+        game = new GameModel(0, new ListenerHandler(playerListeners));
         game.startGame();
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
@@ -880,7 +883,7 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, playerListeners);
+        game = new GameModel(0, new ListenerHandler(playerListeners));
         game.startGame();
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
