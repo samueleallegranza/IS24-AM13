@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, total={17.5cm,24.7cm}]{geometry}
+\title{Peer-Review 1: UML}
+\author{Samuele Allegranza, Matteo Arrigo, Lorenzo Battini, Federico Bulloni\\Gruppo AM13}
+
+\begin{document}
+
+\maketitle
+
+Valutazione del diagramma UML delle classi del gruppo AM22.
+
+\section{Lati positivi}
+Riteniamo che i metodi esposti verso il controller tramite l'interfaccia del Model specificata da \texttt{Model\_Controller} risultano chiari e ben definiti, delimitando in modo netto il distacco tra Model e Controller.\\
+Inoltre, i metodi di maggior interesse per le dinamiche di gioco sono presenti nel diagramma UML. Provando a simulare una partita abbiamo trovato tutti i metodi necessari per avanzare nelle varie fasi di gioco. \\
+Abbiamo apprezzato la chiarezza riguardo alla divisione delle classi che compongono il modello e il tentativo di non renderlo troppo articolato.
+
+\section{Lati negativi}
+
+Elenchiamo gli aspetti che riteniamo possano essere migliorati riguardo al design UML del Model di gioco:
+
+\begin{itemize}
+
+    \item La classe \texttt{Player} non presenta un attributo che rappresenti il nickname del giocatore, contrariamente a come richiesto dalle specifiche di gioco, le quali impongono che venga scelto lato client.\\
+    Un appunto analogo, e più puntiglioso, riguarda il colore che, per quanto siamo riusciti ad intuire, non viene scelto dal giocatore, bensì in modo automatico dal server. Le regole specificano diversamente.
+
+    \item Nella classe \texttt{Player} gli attributi \texttt{rows} e \texttt{columns} possono essere rimossi e le informazioni riguardo alle dimensioni sono ricavabili direttamente chiamando il metodo \texttt{size()} di \texttt{ArrayList}. Il problema può essere risolto alla radice usando la soluzione proposta al punto successivo.
+
+    \item A nostro avviso utilizzare una matrice dinamica per memorizzare le carte piazzate dal giocatore ne complica la gestione, dato che richiede di aggiungere colonne o righe sia all'inizio che alla fine, con eventuale shift degli indici. Per esempio, questo richiede di dover accettare anche coordinate negative in \texttt{PlayTheCard()}, che poi dovranno essere rese positive in seguito all'aggiunta di una riga e/o una colonna. Inoltre è inefficiente a livello di memoria e spazio utilizzati.\\
+    A tal proposito si vedano, ad esempio, rappresentazione di matrici sparse mediante hashmap o rappresentazione di grafi mediante liste di adiacenza \cite{cormen_adjlist}.
+
+    \item In generale, il valore di ritorno di un metodo non dovrebbe avere a che fare con la gestione di eventuali errori durante l'esecuzione. Per situazioni di questo tipo può essere più consono usare le \texttt{Exceptions} di Java. Abbiamo identificato più metodi che ritornano dei valori interi per indicare il successo/insuccesso degli stessi (a titolo di esempio riportiamo i metodi \texttt{Game.PlayTheCard()} e \texttt{Player.placeCard()}).
+
+    \item Abbiamo identificato metodi che usano valori di ritorno interi ma che potrebbero essere rimpiazzati con dei booleani (a titolo di esempio riportiamo il metodo \texttt{Player.haveCard()}).
+
+    \item A nostro avviso, la classe \texttt{ShownCards} dovrebbe essere un attributo di \texttt{DeckToChoose} e non una sua sotto-classe, perché altrimenti erediterebbe l'attributo \texttt{ArrayList<> deck} da \texttt{Deck}, ed in ogni caso rappresentano due concetti distinti.
+    Questa soluzione permette inoltre di spostare in \texttt{Deck} il metodo \texttt{shuffle()}, sfruttando al meglio la gerarchia.
+
+    \item Gli attributi di \texttt{GoalCard} non sono, secondo noi, sufficienti a rappresentare la complessità e diversità delle carte obiettivo. Un discorso analogo può essere fatto per l'attributo \texttt{details} della classe \texttt{FGold}.
+
+    \item A nostro avviso, \texttt{GoldCard.returnTypeCond()} dovrebbe ritornare un array di \texttt{Resource} come nel relativo metodo di \texttt{FGold}.
+
+    \item Mantenere in due \texttt{Enumeration} separate \texttt{Obj} e \texttt{Resource} costringe a fare un casting a \texttt{Object} (si veda \texttt{MCard.getElementCorner()}), oltre a dover tenere separate le informazioni relative alle due (per esempio in \texttt{Angle}). Potrebbero piuttosto essere unite in un'unica \texttt{Enumeration}.
+
+    \item \texttt{setCornersCovered} e \texttt{getCornersCovered} e il relativo attributo \texttt{cornersCovered} in \texttt{MCard} possono essere spostati in \texttt{GoldCard} dato che tale informazione può essere utile solamente nel caso in cui bisogna contare i punti istantanei delle carte gold che danno punti per ogni angolo coperto.\\
+    Inoltre, a nostro avviso, questo attributo non serve dal momento che il calcolo può avvenire senza l'uso di questa "variabile temporanea".
+
+    \item Riteniamo che ci sia un abuso di attributi booleani per distinguere la tipologia di carte, e che vengano sfruttati poco il polimorfismo e l'ereditarietà, in stile più \textit{Object Oriented}. A conferma di ciò citiamo l'esistenza di \texttt{StartingDeck} senza una corrispondente \texttt{StartingCard}.
+
+\end{itemize}
+\smallskip
+
+\begin{flushleft}
+Riportiamo, inoltre, una serie di dubbi che abbiamo riscontrato nel provare a simulare una partita di gioco:
+\end{flushleft}
+
+\begin{itemize}
+    \item I metodi \texttt{Game.StartGame()} e \texttt{Game.EndGame()} ritornano \texttt{void}, quindi come fanno a comunicare l'esito del controllo che effettuano? Forse dovrebbero ritornare un valore booleano, oppure gestiscono l'esito con una \texttt{Exception}?
+
+    \item Come fa \texttt{EndGame()} a sapere che è l'ultimo turno? Quale metodo o attributo indica che un giocatore ha superato i 20 punti?
+
+\end{itemize}
+
+\section{Confronto tra le architetture}
+
+Analizzando questo UML, ci siamo accorti di alcune dimenticanze sulla nostra implementazione, come ad esempio un metodo per verificare che le carte dei mazzi siano finite, con conseguente conclusione del gioco.\\
+Un altro punto di forza di questo schema è la compattezza delle gerarchie, che comunque mantengono un livello di dettaglio sufficiente. Prendendo ispirazione da questo approccio abbiamo deciso di eliminare delle classi inutili sul nostro UML.\\
+Tra le maggiori differenze di gestione dei dati, abbiamo notato che noi teniamo tra gli attributi delle carte tutte le informazioni di utilità nel gioco, mentre l'architettura analizzata ricava alcune informazioni indirettamente (per esempio l'eventuale risorsa nel retro delle carte, se questa è una carta oro o risorsa). Questo permetterebbe di risparmiare spazio in memoria, anche se renderebbe più complessa la gestione.
+
+\begin{thebibliography}{9}
+\bibitem{cormen_adjlist}
+Cormen, T. H., Stein, C., Rivest, R. L. \& Leiserson, C. E. Introduction to
+Algorithms (3rd ed.), Chapter VI - Graph Algorithms
+\end{thebibliography}
+
+\end{document}
