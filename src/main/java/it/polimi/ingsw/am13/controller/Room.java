@@ -9,9 +9,8 @@ import java.util.List;
  * When the room is created, the number of players to reach in order to start the game is set and cannot be modified.
  * The players listed by this class can be added/removed until the target number is reached. After that moment, the
  * players present in the room are the definitive ones.
- * The gameController can be set only once the target number of players is reached.
  * Note that the room starts managing the listeners for the players, notifying them for other player joinig/leaving
- * the room, and for the game start
+ * the room, and for the game to start.
  */
 public class Room {
 
@@ -26,15 +25,16 @@ public class Room {
     private final int nPlayersTarget;
 
     /**
-     * Game controller for the started game. If the game has not started yet, it is null
-     */
-    private GameController gameController;
-
-    /**
      * Handler of the gameListeners for the players in the room.
      * The number of listeners is >=0 and <=nPlayersTarget
      */
     private final ListenerHandler listenerHandler;
+
+    /**
+     * Flag indicating if the game for this is started or not.
+     * It can change only once, when the room gets full for the first time
+     */
+    private boolean gameStarted;
 
     /**
      * Creates a nuw room with only the specified player, and sets the target number of players.
@@ -51,7 +51,7 @@ public class Room {
             throw new LobbyException("The target number of players must be between 2 and 4");
         this.listenerHandler = new ListenerHandler();
         this.nPlayersTarget = nPlayersTarget;
-        gameController = null;
+        gameStarted = false;
         joinRoom(player);
     }
 
@@ -85,10 +85,11 @@ public class Room {
     }
 
     /**
-     * @return Game controller for the started game. If the game has not started yet, it is null
+     * @return Flag indicating if the game for this is started or not.
+     * It can change only once, when the room gets full for the first time
      */
-    public GameController getGameController() {
-        return gameController;
+    public boolean isGameStarted() {
+        return gameStarted;
     }
 
     /**
@@ -106,7 +107,7 @@ public class Room {
      * @throws LobbyException If the room is already full, or the game has already started
      */
     public void joinRoom(GameListener player) throws LobbyException {
-        if(gameController != null)
+        if(gameStarted)
             throw new LobbyException("The game has already started");
         if(listenerHandler.getListeners().size() == nPlayersTarget)
             throw new LobbyException("This room is already full");
@@ -124,7 +125,7 @@ public class Room {
      * or the given players is not in the room
      */
     public boolean leaveRoom(GameListener player) throws LobbyException {
-        if(gameController != null)
+        if(gameStarted)
             throw new LobbyException("The game has already started");
         if(listenerHandler.getListeners().size()==nPlayersTarget)
             throw new LobbyException("The target number of players has been reached, no one can leave");
@@ -134,15 +135,20 @@ public class Room {
     }
 
     /**
-     * Starts the game for this room. This implies setting the gameController for the started game,
-     * and it can be done only if it has not been set yet and if the target number of players is reached.
-     * @param gameController Game controller for the started game of the room
-     * @throws LobbyException If the gameController has been already set or if the target number of players is not reached.
+     * Starts the game for this room. This can be done only if it has not been set yet and if the target number of players is reached.
+     * @throws LobbyException If the game has already started or if the target number of players is not reached.
      */
-    public void startGameForRoom(GameController gameController) throws LobbyException {
-        if(!(listenerHandler.getListeners().size()==nPlayersTarget && gameController==null))
-            throw new LobbyException("Cannot set the gameController, the target number of players is not reached or the controller was already set");
-        this.gameController = gameController;
+    public void startGameForRoom() throws LobbyException {
+        if(listenerHandler.getListeners().size()!=nPlayersTarget || gameStarted)
+            throw new LobbyException("Cannot start the game, the target number of players is not reached or the game has already started");
+        gameStarted = true;
         listenerHandler.notifyGameBegins();
+    }
+
+    /**
+     * Ends the game for this room. The room should not be used anymore after this method
+     */
+    public void endGameForRoom() {
+        listenerHandler.notifyEndGame();
     }
 }

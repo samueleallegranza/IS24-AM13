@@ -33,18 +33,18 @@ public class Lobby {
     private static Lobby instance = null;
 
     /**
-     * Games that are already started (mapped via their gameId)
+     * Controllers of the games alreaddy started (mapped via their gameId)
      */
-    private final Map<Integer, Room> startedGames;
+    private final Map<Integer, GameController> controllers;
 
     /**
-     * Rooms that are not playing yet (mapped via their gameId)
+     * All rooms created, with both games started or not (mapped via their gameId)
      */
     private final Map<Integer, Room> rooms;
 
     private Lobby() {
-        startedGames = new HashMap<>();
         rooms = new HashMap<>();
+        controllers = new HashMap<>();
     }
 
     /**
@@ -61,9 +61,7 @@ public class Lobby {
      * @return List of all rooms in the lobby, both the ones with game starter and not already started
      */
     public synchronized List<Room> getRooms() {
-        List<Room> allRooms = new ArrayList<>(rooms.values());
-        allRooms.addAll(startedGames.values());
-        return allRooms;
+        return new ArrayList<>(rooms.values());
     }
 
     /**
@@ -73,8 +71,7 @@ public class Lobby {
      */
     private boolean isNickInvalid(GameListener player) {
         String nick = player.getPlayer().getNickname();
-        return !rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick)
-                && !startedGames.values().stream().flatMap(c -> c.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
+        return !rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
     }
 
     /**
@@ -83,15 +80,14 @@ public class Lobby {
      * In case of success, the player who created the room is notified.
      * @param player First player who creates the game which will start in the future
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
-     * @return The gameId of the newly created game
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
-    public synchronized int createRoom(GameListener player, int nPlayers) throws LobbyException {
+    public synchronized void createRoom(GameListener player, int nPlayers) throws LobbyException {
         if(isNickInvalid(player))
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
         int gameId = rooms.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1) + 1;
-        rooms.put(gameId, new Room(gameId, player, nPlayers));
-        return gameId;
+        Room room = new Room(gameId, player, nPlayers);
+        rooms.put(gameId, room);
     }
 
     /**
@@ -100,17 +96,16 @@ public class Lobby {
      * If the room with the newly joined players if full, it makes the game start (and notify the players of this).
      * @param gameId Id of the room the player wants to join
      * @param player Listener of the player to add to that room
-     * @return The gameController for the newly started game if the room gets full, null otherwise
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
      * or if the room with the given gameId does not exist,
      * or if it exists but the room is already full
      */
-    public synchronized Room joinRoom(int gameId, GameListener player) throws LobbyException {
-        if(!rooms.containsKey(gameId))
+    public synchronized void joinRoom(int gameId, GameListener player) throws LobbyException {
+        Room room = rooms.get(gameId);
+        if(room == null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
         if(isNickInvalid(player))
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
-        Room room = rooms.get(gameId);
         room.joinRoom(player);
         try {
             if(room.isFull())
@@ -119,7 +114,6 @@ public class Lobby {
             // Should never happen
             throw new RuntimeException(e);
         }
-        return room;
     }
 
     /**
@@ -149,12 +143,11 @@ public class Lobby {
             connected, and will be disconnected by ping system of gameController
         */
         Room room = rooms.get(gameId);
-        if(room==null)
+        if(room==null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
+        room.startGameForRoom();
         GameController controller = new GameController(gameId, room.getListenerHandler());
-        room.startGameForRoom(controller);
-        startedGames.put(gameId, room);
-        rooms.remove(gameId);
+        controllers.put(gameId, controller);
     }
 
     /**
@@ -163,29 +156,32 @@ public class Lobby {
      * @throws LobbyException If the specified game does not exist
      */
     public synchronized void endGame(int gameId) throws LobbyException {
-        Room room = startedGames.get(gameId);
-        if(room==null)
-            throw new LobbyException("This game (" + gameId + ") is not running.");
-        room.getListenerHandler().notifyEndGame();
-        startedGames.remove(gameId);
+        Room room = rooms.get(gameId);
+        if(room==null || !room.isGameStarted())
+            throw new LobbyException("This game (" + gameId + ") does not exist or is not running.");
+        room.endGameForRoom();
+        rooms.remove(gameId);
+        controllers.remove(gameId);
     }
 
     /**
      * Reconnects a disconnected player for the already started game they took part in.
      * Triggers the notification for other players
      * @param player Listener of the player to reconnect
+     * @return GameController for the game the player reconnected to
      * @throws LobbyException If the given player is not among players of any started game
      * @throws ConnectionException If the player was already connected
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      * (generic error, should not happen)
      */
-    public synchronized void reconnectPlayer(GameListener player) throws LobbyException, ConnectionException, GameStatusException {
-        Room room = startedGames.values().stream().filter(r -> r.getPlayers().contains(player.getPlayer()))
+    public synchronized GameController reconnectPlayer(GameListener player) throws LobbyException, ConnectionException, GameStatusException {
+        GameController controller = controllers.values().stream().filter(c -> c.getPlayers().contains(player.getPlayer()))
                 .findFirst().orElseThrow(() -> new LobbyException("The player " + player.getPlayer() + " is not associated to a started game"));
         try {
-            room.getGameController().reconnectPlayer(player);
+            controller.reconnectPlayer(player);
         } catch (InvalidPlayerException e) {    // shouldn't happen, as I check before this point for the game associated
             throw new RuntimeException(e);
         }
+        return controller;
     }
 }

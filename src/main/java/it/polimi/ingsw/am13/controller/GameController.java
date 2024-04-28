@@ -183,10 +183,11 @@ public class GameController implements Runnable {
             reconnectionThread=null;
         }
     }
+
     /**
      * @return Unique number indicating the actual game model (hence the game/match to its all entirety)
      */
-    int getGameId(){
+    public int getGameId(){
         return gameModel.getGameId();
     }
 
