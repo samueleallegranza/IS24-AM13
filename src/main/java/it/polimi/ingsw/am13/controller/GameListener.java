@@ -10,7 +10,10 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.util.List;
 import java.util.Map;
 
-//TODO: aggiungi documentazione
+/**
+ * Interface to be implemented by the classes that handle the communication between the server and the clients.
+ * It contains methods to update the view of the clients with the game status.
+ */
 public interface GameListener {
 
     /**
