@@ -92,7 +92,7 @@ public class TestGameModel {
             return null;
         }
         @Override
-        public void updatePing(Long ping) {
+        public void updatePing() {
         }
     }
 

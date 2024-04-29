@@ -10,14 +10,22 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.util.List;
 import java.util.Map;
 
+//TODO: aggiungi documentazione
 public interface GameListener {
+
+    /**
+     * @return Player corresponding to this listener
+     */
     PlayerLobby getPlayer();
 
-    // METHODS TO BE CALLED BY ListenerHandler in Lobby TO MANAGE ROOMS
     /**
-     * Updates the view that the game has begun (from Lobby to actual game)
+     * @return Last stored ping
      */
-    void updateGameBegins();
+    Long getPing();
+
+
+    // METHODS TO BE CALLED BY ListenerHandler in Lobby TO MANAGE ROOMS
+
 
     /**
      * Updates the view that a player has joined a lobby (waiting for a game)
@@ -31,7 +39,15 @@ public interface GameListener {
      */
     void updatePlayerLeftRoom(PlayerLobby player);
 
-    // METHODS CALLED BY ListenerHandler
+    /**
+     * Updates the view that the game has begun (from Lobby to actual game)
+     */
+    void updateGameBegins();
+
+
+    // METHODS CALLED BY ListenerHandler in GameModel TO MANAGE THE GAME FLOW
+
+
     /**
      * Updates the view that the game has started: starter cards and initial cards have been given to the players.
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
@@ -107,13 +123,6 @@ public interface GameListener {
     void updatePlayerReconnected(PlayerLobby player);
 
     /**
-     * This method should be called ONLY when a player reconnects to the game.
-     * Updates the view of the reconnected player with the updated game model.
-     * @param model The updated game model.
-     */
-    void updateGameModel(GameModelIF model);
-
-    /**
      * Updates the view that the game is in the final phase.
      */
     void updateFinalPhase();
@@ -123,7 +132,15 @@ public interface GameListener {
      */
     void updateInGame();
 
-    Long getPing();
+    /**
+     * This method should be called ONLY when a player reconnects to the game.
+     * Updates the view of the reconnected player with the updated game model.
+     * @param model The updated game model.
+     */
+    void updateGameModel(GameModelIF model);
 
-    void updatePing(Long ping);
+    /**
+     * Updates last ping received
+     */
+    void updatePing();
 }

@@ -12,7 +12,7 @@ import java.util.List;
  * Note that the room starts managing the listeners for the players, notifying them for other player joinig/leaving
  * the room, and for the game to start.
  */
-public class Room {
+public class Room implements RoomIF {
 
     /**
      * GameId for the room, denoting a game yet not started or already started
@@ -28,7 +28,10 @@ public class Room {
      * Handler of the gameListeners for the players in the room.
      * The number of listeners is >=0 and <=nPlayersTarget
      */
-    private final ListenerHandler listenerHandler;
+    private transient final ListenerHandler listenerHandler;
+    //Transient as I don't want it to go to the network
+
+    //TODO: Così dovrei evitare di inviare sulla rete ListenerHandler, ma controlla questo aspetto
 
     /**
      * Flag indicating if the game for this is started or not.

@@ -2,6 +2,8 @@ package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 
+import java.io.Serializable;
+
 /**
  * Represents color of a card side.
  * The color is named as the corresponding resource.
@@ -14,7 +16,7 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
  * </ul>
  * NO_COLOR represent a side with no color (as for starter cards).
  */
-public enum Color {
+public enum Color implements Serializable {
     PLANT, ANIMAL, FUNGUS, INSECT, NO_COLOR;
 
     /**

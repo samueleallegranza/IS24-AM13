@@ -13,6 +13,8 @@ import java.util.Objects;
  */
 public class CardSidePlayable implements CardSidePlayableIF {
 
+    //TODO: transient in corners dovrebbe andare bene, ma potrebbe dare problemi per calcCornersCovered...
+
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
      */
@@ -22,7 +24,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
      * It stores the 4 corners of the card side
      * In order, they are: upper left, upper right, lower right, lower left
      */
-    final private List<Corner> corners;
+    final transient private List<Corner> corners;
 
     /**
      * This possibly empty list contains the resources at the center of the card side
@@ -32,7 +34,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
     /**
      * It stores the information needed to calculate the points the player gets when playing this card side
      */
-    final private PointsPlayable points;
+    final transient private PointsPlayable points;
 
     /**
      * It stores the color of this card

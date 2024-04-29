@@ -17,7 +17,7 @@ public class CardObjective extends Card implements CardObjectiveIF {
     /**
      * Active/front side of the card, where information about the points is stored.
      */
-    private final CardSideObjectiveActive front;
+    private transient final CardSideObjectiveActive front;
 
     /**
      * Creates a new immutable objective card, with points of type "x points for each set of resources/objects"

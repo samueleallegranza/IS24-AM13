@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model.player;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Objects;
  * It could be a token representing the color chosen by the player, the token of that color in the scoreboard,
  * or the black token indicating the first player
  */
-public class Token {
+public class Token implements Serializable {
 
     /**
      * Color of the token

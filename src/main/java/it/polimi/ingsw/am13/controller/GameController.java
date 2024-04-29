@@ -44,7 +44,7 @@ public class GameController implements Runnable {
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
      * or there are duplicate chosen colors
      */
-    public GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
+    GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
         gameModel=new GameModel(gameId, listenerHandler);
         try {
             gameModel.startGame();
@@ -60,7 +60,7 @@ public class GameController implements Runnable {
     public synchronized void updatePing(PlayerLobby playerLobby){
         for(GameListener gameListener : gameModel.getListeners())
             if(gameListener.getPlayer()==playerLobby) {
-                gameListener.updatePing(System.currentTimeMillis());
+                gameListener.updatePing();
                 break;
             }
     }
@@ -109,7 +109,8 @@ public class GameController implements Runnable {
     /**
      * Reconnects the player corresponding to the game listener and triggers the notification of this.
      * If more than one player is connected, it stops the reconnection timer
-     * If two players are connected, it advances to the next turn
+     * If two players are connected, it advances to the next turn.
+     * Note that for a client to reconnect, they should invoke {@link Lobby}'s reconnection method
      * @param gameListener one of the listeners of ListenerHandler
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player was already connected when this method was called

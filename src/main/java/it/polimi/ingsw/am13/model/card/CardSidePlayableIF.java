@@ -1,9 +1,10 @@
 package it.polimi.ingsw.am13.model.card;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface CardSidePlayableIF {
+public interface CardSidePlayableIF extends Serializable {
 
     /**
      * @return the resources at the center of the card side

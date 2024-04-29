@@ -1,12 +1,13 @@
 package it.polimi.ingsw.am13.model.player;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Immutable class representing a player not yet in game.
  * It stores only the information about nickname and token chosen.
  */
-public final class PlayerLobby {
+public final class PlayerLobby implements Serializable {
 
     /**
      * Player's nickname.

@@ -90,7 +90,7 @@ public class TestGameController {
             return null;
         }
         @Override
-        public void updatePing(Long ping) {
+        public void updatePing() {
             this.ping=ping;
         }
     }

@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am13.model.card;
 
-public interface CardIF {
+import java.io.Serializable;
+
+public interface CardIF extends Serializable {
 
     /**
      * @return Id of the card
