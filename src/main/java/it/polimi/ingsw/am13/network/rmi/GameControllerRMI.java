@@ -9,17 +9,18 @@ import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 /**
  * Version of class representing gameController for the RMI connection. Hence this class is exposed to the network as RMI remote object.
+ * The controller is the controller given to a particular players using RMI for connection. This implies the methods called
+ * via this gameController are implicitly referred to the players it belongs to.
  * <br>
  * This is a controller for a single game/match
  */
-public class GameControllerRMI extends UnicastRemoteObject implements Remote {
+public class GameControllerRMI extends UnicastRemoteObject implements GameControllerRMIIF {
 
     // TODO: non dovrebbe servire transient sugli attributi, ma ragionaci meglio
 
@@ -27,89 +28,75 @@ public class GameControllerRMI extends UnicastRemoteObject implements Remote {
      * Wrapped gameController
      */
     private final GameController gameController;
+    private final PlayerLobby player;
 
     /**
-     * Map associating players to their listeners. The map can change if players disconnect/reconnect to started game
-     */
-    private final Map<PlayerLobby, GameListenerServerRMI> mapLis;
-
-    /**
-     * Wraps the given gameController to be exposed to the network
+     * Wraps the given gameController to be exposed to the network, and associates this specific controller to the given player
      * @param gameController gameController to wrap in order to be exposed to the network
+     * @param player Player (client RMI) who will use this gameController
+     * @throws InvalidPlayerException If the listener is of a player not present in the game
      */
-    GameControllerRMI(GameController gameController, Collection<GameListenerServerRMI> mapLis) throws RemoteException {
+    GameControllerRMI(GameController gameController, PlayerLobby player) throws RemoteException, InvalidPlayerException {
         super();
         this.gameController = gameController;
-        this.mapLis = new HashMap<>();
-        for(GameListenerServerRMI lis : mapLis)
-            this.mapLis.put(lis.getPlayer(), lis);
+        if(!gameController.getPlayers().contains(player))
+            throw new InvalidPlayerException("The given listener is of a player not present in the game");
+        this.player = player;
     }
-
+    // In this way all methods cannot throw InvalidException (I'm sure this controller is associated to a player present in the game)
+    
     /**
-     * Reconnects the player corresponding to the game listener and triggers the notification of this.
-     * If more than one player is connected, it stops the reconnection timer
-     * If two players are connected, it advances to the next turn
-     * @param gameListener one of the listeners of ListenerHandler
-     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
-     * @throws ConnectionException if the player was already connected when this method was called
-     * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
-     */
-    void reconnectPlayer(GameListenerServerRMI gameListener) throws RemoteException, InvalidPlayerException,
-            ConnectionException, GameStatusException {
-        gameController.reconnectPlayer(gameListener);
-    }
-
-    /**
-     * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
-     * @param player Player to disconnect from the game
-     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
+     * Disconnects the player. No other method should be called after this.
      * @throws ConnectionException if the player had already been disconnected
+     * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
-    public void disconnectPlayer(PlayerLobby player) throws RemoteException, InvalidPlayerException,
-            ConnectionException, LobbyException {
-        GameListenerServerRMI lis = mapLis.get(player);
-        if(lis == null)
-            throw new LobbyException("Given player (" + player + ") is not in the lobby");
-        gameController.disconnectPlayer(lis);
-        mapLis.remove(player);
+    public void disconnectPlayer() throws RemoteException, ConnectionException, LobbyException {
+        try {
+            gameController.disconnectPlayer(player);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
-     * Updates the ping of the given game listener by setting it to the current time
-     * @param playerLobby one of players of the match
+     * Updates the ping of the player's listener by setting it to the current time
      */
-    public synchronized void updatePing(PlayerLobby playerLobby) throws RemoteException {
-        gameController.updatePing(playerLobby);
+    public synchronized void updatePing() throws RemoteException {
+        gameController.updatePing(player);
     }
 
     /**
-     * Method callable only once per player during INIT phase.
-     * It plays the starter card of the given player on the passed side
-     * @param player Player who has chosen which side of the starting card he wants to play
+     * Method callable only once during INIT phase.
+     * It plays the starter card of the player on the passed side
      * @param side The side of the starting card
-     * @throws InvalidPlayerException If the player is not among the playing players in the match
      * @throws GameStatusException If game phase is not INIT
      * @throws InvalidPlayCardException Positioning error of the card at coordinates (0,0).
      */
-    public synchronized void playStarter(PlayerLobby player, Side side) throws RemoteException, InvalidPlayerException,
+    public synchronized void playStarter(Side side) throws RemoteException,
             InvalidPlayCardException, GameStatusException {
-        gameController.playStarter(player, side);
+        try {
+            gameController.playStarter(player, side);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Method callable only during INIT phase. Sets the personal objective of the player according to his choice.
      * The objective card must be between the 2 possible cards given to the player. They can be retrieved with
      * <code>fetchPersonalObjectives(player)</code>
-     * @param player one of the players of the match
      * @param cardObj the objective chosen by the player
      * @throws GameStatusException if this method isn't called in the INIT phase
-     * @throws InvalidPlayerException if the player is not one of the players of this match
      * @throws InvalidChoiceException if the objective card does not belong to the list of the possible objective cards for the player
      * @throws VariableAlreadySetException if this method has been called before for the player
      */
-    public synchronized void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
-            throws RemoteException, InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
-        gameController.choosePersonalObjective(player, cardObj);
+    public synchronized void choosePersonalObjective(CardObjectiveIF cardObj)
+            throws RemoteException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
+        try {
+            gameController.choosePersonalObjective(player, cardObj);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -120,11 +107,14 @@ public class GameControllerRMI extends UnicastRemoteObject implements Remote {
      * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
      * @throws InvalidPlayCardException If the player doesn't have the specified card
      * @throws GameStatusException If this method is called in the INIT or CALC POINTS phase
-     * @throws InvalidPlayerException If the passed player is not the current player
      */
-    public void playCard(PlayerLobby playerLobby, CardPlayableIF card, Side side, Coordinates coord)
-            throws RemoteException, RequirementsNotMetException, InvalidPlayCardException, GameStatusException, InvalidPlayerException {
-        gameController.playCard(playerLobby, card, side, coord);
+    public void playCard(CardPlayableIF card, Side side, Coordinates coord)
+            throws RemoteException, RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
+        try {
+            gameController.playCard(player, card, side, coord);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -133,11 +123,14 @@ public class GameControllerRMI extends UnicastRemoteObject implements Remote {
      * @param card A playable card that should be in the field
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
-     * @throws InvalidPlayerException If the passed player is not the current player
      */
-    public void pickCard(PlayerLobby playerLobby, CardPlayableIF card)
-            throws RemoteException, InvalidDrawCardException, GameStatusException, InvalidPlayerException {
-        gameController.pickCard(playerLobby, card);
+    public void pickCard(CardPlayableIF card)
+            throws RemoteException, InvalidDrawCardException, GameStatusException {
+        try {
+            gameController.pickCard(player, card);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

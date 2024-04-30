@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.controller.LobbyException;
@@ -53,27 +54,27 @@ public class GameModel implements GameModelIF {
     /**
      * Disconnects the given player, by calling the corresponding method in match, removing the listener and
      * notifying the listeners
-     * @param gameListener one of the listeners in ListenerHandler
+     * @param player Player to disconnect
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already disconnected when this method was called
-     * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
-    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, LobbyException {
-        match.disconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer());
-        listenerHandler.removeListener(gameListener);
+    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException {
+        match.disconnectPlayer(player);
+        listenerHandler.notifyPlayerDisconnected(player);
+        listenerHandler.removeListener(player);
     }
 
     /**
      * Reconnects the given player. It also notifies the players of this
-     * @param gameListener one of the listeners in ListenerHandler
+     * @param gameListener New listener of the player who want to reconnect
+     * @param controller Controller of the game
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already connected when this method was called
      */
-    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+    public void reconnectPlayer(GameListener gameListener, GameController controller) throws InvalidPlayerException, ConnectionException {
         listenerHandler.addListener(gameListener);
         match.reconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this);
+        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this, controller);
     }
 
     public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException {

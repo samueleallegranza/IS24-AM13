@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
 import it.polimi.ingsw.am13.controller.LobbyException;
@@ -30,7 +31,7 @@ public class TestGameModel {
             return player;
         }
         @Override
-        public void updateGameBegins() {
+        public void updateGameBegins(GameController controller) {
         }
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
@@ -74,7 +75,7 @@ public class TestGameModel {
         }
 
         @Override
-        public void updateGameModel(GameModelIF model) {
+        public void updateGameModel(GameModelIF model, GameController controller) {
         }
 
         @Override
@@ -712,7 +713,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, LobbyException {
+    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -755,8 +756,8 @@ public class TestGameModel {
         objective card for them.
          */
         GameListener disPlayer = playerListeners.getFirst();
-        game.disconnectPlayer(disPlayer);
-        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
+        game.disconnectPlayer(disPlayer.getPlayer());
+        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer.getPlayer()));
         assertEquals(GameStatus.INIT, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 
@@ -804,7 +805,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
+    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -832,7 +833,7 @@ public class TestGameModel {
         // Now 1 round (1 turn per each player) is done
         // A player disconnects
         GameListener disPlayer = playerListeners.getFirst();
-        game.disconnectPlayer(disPlayer);
+        game.disconnectPlayer(disPlayer.getPlayer());
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
@@ -854,7 +855,7 @@ public class TestGameModel {
         }
 
         //Now player reconnects, and will disconnect after playing a card but before drawing
-        game.reconnectPlayer(disPlayer);
+        game.reconnectPlayer(disPlayer, null);
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
@@ -863,7 +864,7 @@ public class TestGameModel {
             assertEquals(nPlayedCards+1, game.fetchPlayerField(p).getCoordinatesPlaced().size()); //I assume nothing is changed in field
             assertEquals(2, game.fetchHandPlayable(p).size());
             if(p == disPlayer.getPlayer())
-                game.disconnectPlayer(disPlayer);
+                game.disconnectPlayer(disPlayer.getPlayer());
             else {
                 CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
                 game.pickCard(cardDrawn);
@@ -875,7 +876,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
+    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -940,7 +941,7 @@ public class TestGameModel {
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
         //Now player 1 should win, but he/she disconnects
         GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer()==game.fetchFirstPlayer()).toList().getFirst();
-        game.disconnectPlayer(disPlayer);
+        game.disconnectPlayer(disPlayer.getPlayer());
 //        System.out.println(nTurns);
 //        System.out.println(game.fetchPoints().values());
 //        for(CardPlayableIF c : game.fetchPickables()) {

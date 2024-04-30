@@ -7,6 +7,7 @@ import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
+import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -38,7 +39,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
 
     }
 
-    public void updateGameBegins() throws RemoteException {
+    public void updateGameBegins(GameControllerRMIIF controllerRMI) throws RemoteException {
 
     }
 
@@ -94,7 +95,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
 
     }
 
-    public void updateGameModel(GameModelIF model) throws RemoteException {
+    public void updateGameModel(GameModelIF model, GameControllerRMIIF controllerRMI) throws RemoteException {
 
     }
 

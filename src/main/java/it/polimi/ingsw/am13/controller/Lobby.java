@@ -96,12 +96,11 @@ public class Lobby {
      * If the room with the newly joined players if full, it makes the game start (and notify the players of this).
      * @param gameId Id of the room the player wants to join
      * @param player Listener of the player to add to that room
-     * @return GameController of the game if the room got full (and the game started), null otherwise
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
      * or if the room with the given gameId does not exist,
      * or if it exists but the room is already full
      */
-    public synchronized GameController joinRoom(int gameId, GameListener player) throws LobbyException {
+    public synchronized void joinRoom(int gameId, GameListener player) throws LobbyException {
         Room room = rooms.get(gameId);
         if(room == null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
@@ -110,12 +109,11 @@ public class Lobby {
         room.joinRoom(player);
         try {
             if(room.isFull())
-                return startGame(gameId);
+                startGame(gameId);
         } catch (InvalidPlayersNumberException e) {
             // Should never happen
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -137,21 +135,19 @@ public class Lobby {
      * It creates the associated <code>GameController</code>, actually starting that game
      * It notifies the players currently in the room of the game beginning
      * @param gameId Game to start
-     * @return GameController of the newly started game
      * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
      * @throws InvalidPlayersNumberException If the game contains only 1 player
      */
-    private synchronized GameController startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
+    private synchronized void startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
         /* Oss: If a player crashed while being in a room, and the game for that room starts, they will be considered still
             connected, and will be disconnected by ping system of gameController
         */
         Room room = rooms.get(gameId);
         if(room==null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
-        room.startGameForRoom();
         GameController controller = new GameController(gameId, room.getListenerHandler());
+        room.startGameForRoom(controller);
         controllers.put(gameId, controller);
-        return controller;
     }
 
     /**

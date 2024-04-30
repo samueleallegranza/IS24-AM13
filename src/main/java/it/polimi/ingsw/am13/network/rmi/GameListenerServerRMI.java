@@ -1,11 +1,13 @@
 package it.polimi.ingsw.am13.network.rmi;
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
+import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.rmi.RemoteException;
@@ -17,6 +19,8 @@ public class GameListenerServerRMI implements GameListener {
 
     // TODO: può succedere che anche se mi arrivano i ping (non disconnetto il player), non riesco a inviare l'update?
     // TODO: in generale pensa meglio a come gestire le RemoteException
+
+
 
     private static final int NTRIES = 4;
     
@@ -71,14 +75,18 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateGameBegins() {
+    public void updateGameBegins(GameController controller) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updateGameBegins();
+                GameControllerRMI controllerRMI = new GameControllerRMI(controller, clientLis.getPlayer());
+                clientLis.updateGameBegins(controllerRMI);
                 break;
             } catch (RemoteException e) {
                 cnt++;
+            } catch (InvalidPlayerException e) {
+                //TODO: capisci se gestire meglio questa eccezione
+                throw new RuntimeException(e);
             }
         }
     }
@@ -253,26 +261,18 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model) {
+    public void updateGameModel(GameModelIF model, GameController controller) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updateGameModel(model);
+                GameControllerRMI controllerRMI = new GameControllerRMI(controller, clientLis.getPlayer());
+                clientLis.updateGameModel(model, controllerRMI);
                 break;
             } catch (RemoteException e) {
                 cnt++;
-            }
-        }
-    }
-
-    public void updateGameController(GameControllerRMI gameControllerRMI) {
-        int cnt = 0;
-        while (cnt < NTRIES) {
-            try {
-                clientLis.updateGameController(gameControllerRMI);
-                break;
-            } catch (RemoteException e) {
-                cnt++;
+            } catch (InvalidPlayerException e) {
+                //TODO capisci se gestire meglio questa eccezione
+                throw new RuntimeException(e);
             }
         }
     }

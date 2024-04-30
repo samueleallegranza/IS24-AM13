@@ -75,7 +75,7 @@ public class GameController implements Runnable {
             for (GameListener gameListener : listeners) {
                 if (System.currentTimeMillis() - gameListener.getPing() > timeout) {
                     try {
-                        disconnectPlayer(gameListener);
+                        disconnectPlayer(gameListener.getPlayer());
                         if(gameModel.countConnected()==0){
                             stopReconnectionTimer();
                             Lobby.getInstance().endGame(getGameId());
@@ -96,12 +96,13 @@ public class GameController implements Runnable {
 
     /**
      * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
-     * @param gameListener one of the listeners of ListenerHandler
+     * @param player Player to disconnect
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player had already been disconnected
+     * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
-    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException,LobbyException {
-        gameModel.disconnectPlayer(gameListener);
+    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
+        gameModel.disconnectPlayer(player);
         if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
             startReconnectionTimer();
     }
@@ -116,8 +117,9 @@ public class GameController implements Runnable {
      * @throws ConnectionException if the player was already connected when this method was called
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      */
-    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
-        gameModel.reconnectPlayer(gameListener);
+    void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
+        gameModel.reconnectPlayer(gameListener, this);
+        //TODO: per una migliore gestione potresti spostare la notify qui invece che in model
         int numberConnectedPlayers=gameModel.countConnected();
         if(numberConnectedPlayers>1) {
             stopReconnectionTimer();

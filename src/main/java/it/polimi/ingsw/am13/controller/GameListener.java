@@ -44,8 +44,9 @@ public interface GameListener {
 
     /**
      * Updates the view that the game has begun (from Lobby to actual game)
+     * @param controller {@link GameController} created for the started game
      */
-    void updateGameBegins();
+    void updateGameBegins(GameController controller);
 
 
     // METHODS CALLED BY ListenerHandler in GameModel TO MANAGE THE GAME FLOW
@@ -139,8 +140,9 @@ public interface GameListener {
      * This method should be called ONLY when a player reconnects to the game.
      * Updates the view of the reconnected player with the updated game model.
      * @param model The updated game model.
+     * @param controller Controller of the game
      */
-    void updateGameModel(GameModelIF model);
+    void updateGameModel(GameModelIF model, GameController controller);
 
     /**
      * Updates last ping received

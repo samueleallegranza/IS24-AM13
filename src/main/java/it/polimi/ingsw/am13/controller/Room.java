@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.controller;
 
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
@@ -132,7 +133,11 @@ public class Room implements RoomIF {
             throw new LobbyException("The game has already started");
         if(listenerHandler.getListeners().size()==nPlayersTarget)
             throw new LobbyException("The target number of players has been reached, no one can leave");
-        listenerHandler.removeListener(player);
+        try {
+            listenerHandler.removeListener(player.getPlayer());
+        } catch (InvalidPlayerException e) {
+            throw new LobbyException("The listener of the player in not in the listener list");
+        }
         listenerHandler.notifyPlayerLeftRoom(player.getPlayer());
         return listenerHandler.getListeners().isEmpty();
     }
@@ -141,11 +146,11 @@ public class Room implements RoomIF {
      * Starts the game for this room. This can be done only if it has not been set yet and if the target number of players is reached.
      * @throws LobbyException If the game has already started or if the target number of players is not reached.
      */
-    public void startGameForRoom() throws LobbyException {
+    public void startGameForRoom(GameController controller) throws LobbyException {
         if(listenerHandler.getListeners().size()!=nPlayersTarget || gameStarted)
             throw new LobbyException("Cannot start the game, the target number of players is not reached or the game has already started");
         gameStarted = true;
-        listenerHandler.notifyGameBegins();
+        listenerHandler.notifyGameBegins(controller);
     }
 
     /**

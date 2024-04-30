@@ -64,7 +64,7 @@ public class TestGameController {
         public void updatePlayerReconnected(PlayerLobby player) {
         }
         @Override
-        public void updateGameModel(GameModelIF model) {
+        public void updateGameModel(GameModelIF model, GameController controller) {
         }
         @Override
         public void updateFinalPhase() {
@@ -77,7 +77,7 @@ public class TestGameController {
             return player;
         }
         @Override
-        public void updateGameBegins() {
+        public void updateGameBegins(GameController controller) {
         }
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
@@ -91,7 +91,6 @@ public class TestGameController {
         }
         @Override
         public void updatePing() {
-            this.ping=ping;
         }
     }
     @Test

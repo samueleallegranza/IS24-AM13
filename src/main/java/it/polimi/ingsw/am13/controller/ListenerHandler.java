@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.ArrayList;
@@ -47,12 +48,16 @@ public class ListenerHandler {
 
     /**
      * Removes a {@link GameListener} from the list of GameListener.
-     * @param listener The listener to be removed
-     * @throws LobbyException if the GameListener was not part of the listeners list.
+     * @param player Player to disconnect
+     * @throws InvalidPlayerException if the player was not part of the listeners list.
      */
-    public void removeListener(GameListener listener) throws LobbyException{
-        if(!listeners.remove(listener))
-            throw new LobbyException();
+    public void removeListener(PlayerLobby player) throws InvalidPlayerException {
+        for(GameListener l : listeners)
+            if(l.getPlayer().equals(player)) {
+                listeners.remove(l);
+                return;
+            }
+        throw new InvalidPlayerException("Player " + player + " is not among current listeners of the game");
     }
 
     /**
@@ -66,10 +71,11 @@ public class ListenerHandler {
     // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
     /**
      * Notifies the view that the game is beginning and that the Room has been moved to startedGames
+     * @param controller Controller of the game started
      */
-    public void notifyGameBegins(){
+    public void notifyGameBegins(GameController controller){
         for (GameListener listener : listeners) {
-            listener.updateGameBegins();
+            listener.updateGameBegins(controller);
         }
     }
 
@@ -209,11 +215,12 @@ public class ListenerHandler {
      * Notifies the view that a player has reconnected to the game. <br>
      * @param player The player that has reconnected to the game.
      * @param model The {@link GameModelIF} containing the updated version of the game.
+     * @param controller The {@link GameController} handling this game
      */
-    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
+    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model, GameController controller){
         for (GameListener listener : listeners){
             if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model);
+                listener.updateGameModel(model, controller);
             else
                 listener.updatePlayerReconnected(player);
         }

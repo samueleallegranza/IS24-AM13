@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.network.socket;
 
+import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
@@ -19,7 +20,7 @@ public class GameListenerServerSocket implements GameListener {
     private PlayerLobby player;
 
     //FIXME: forse non serve
-    private ClientRequestsHandler clientHandler;
+    private final ClientRequestsHandler clientHandler;
 
     public GameListenerServerSocket(PrintWriter out, PlayerLobby player, ClientRequestsHandler clientHandler) {
         this.out = out;
@@ -48,7 +49,7 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameBegins() {
+    public void updateGameBegins(GameController controller) {
 
     }
 
@@ -118,7 +119,7 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model) {
+    public void updateGameModel(GameModelIF model, GameController controller) {
 
     }
 

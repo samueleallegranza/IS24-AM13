@@ -1,20 +1,20 @@
 package it.polimi.ingsw.am13.network.rmi;
 
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
-import it.polimi.ingsw.am13.controller.*;
+import it.polimi.ingsw.am13.controller.GameController;
+import it.polimi.ingsw.am13.controller.LobbyException;
+import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Version of class representing lobby for the RMI connection. Hence this class is exposed to the network as RMI remote object.
+ * Interface representing lobby for the RMI connection. Hence this class is exposed to the network as RMI remote interface.
  * The methods who allow players to join a room/game must receive a <code>{@link GameListenerClientRMI}</code> already instantiated,
  * so that the server can use them to give update to the corresponding clients via RMI
  * <br><br>
@@ -31,38 +31,12 @@ import java.util.Map;
  * The players who were in the room in that moment are so the definite ones for that game and they cannot change.
  * All the rooms and the already started games are associated to a unique gameId.
  */
-public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
-
-    // TODO: non dovrebbe servire transient sugli attributi, ma ragionaci meglio
-
-    //TODO: pensa se implementare i registri RMI qua o su ServerMain
-
-    /**
-     * Map between players and their corresponding listeners.
-     * The listeners are specific for the RMI connection.
-     * Hence note that these are only part of the clients, in particular those who chose to communicate via RMI
-     */
-    private final Map<PlayerLobby, GameListenerServerRMI> mapLis;
-
-    //TODO: it should not need pattern singleton also for LobbyRMI, it is uniquely exposed to the network via rmi registry binding...
-
-    /**
-     * Stored instance of lobby (only for not to keep calling <code>Lobby.getInstance()</code>)
-     */
-    private final Lobby lobby;
-
-    public LobbyRMI() throws RemoteException {
-        super();
-        this.mapLis = new HashMap<>();
-        lobby = Lobby.getInstance();
-    }
+public interface LobbyRMIIF extends Remote {
 
     /**
      * @return List of all rooms in the lobby, both the ones with game starter and not already started
      */
-    public synchronized List<RoomIF> getRooms() throws RemoteException {
-        return lobby.getRooms();
-    }
+    List<RoomIF> getRooms() throws RemoteException;
 
     /**
      * Creates a new Room, for now populated only with the specified player.
@@ -72,11 +46,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
-    public synchronized void createRoom(GameListenerClientRMI playerListener, int nPlayers) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
-        lobby.createRoom(lis, nPlayers);
-        mapLis.put(playerListener.getPlayer(), lis);
-    }
+    void createRoom(GameListenerClientRMI playerListener, int nPlayers) throws LobbyException, RemoteException;
 
     /**
      * Adds a players to an existing room, specified by the given gameId.
@@ -88,11 +58,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * or if the room with the given gameId does not exist,
      * or if it exists but the room is already full
      */
-    public synchronized void joinRoom(int gameId, GameListenerClientRMI playerListener) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
-        lobby.joinRoom(gameId, lis);
-        mapLis.put(playerListener.getPlayer(), lis);
-    }
+    void joinRoom(int gameId, GameListenerClientRMI playerListener) throws LobbyException, RemoteException;
 
     /**
      * Removes a players from the existing room (specified by the given gameId) they joined.
@@ -101,22 +67,14 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @param player Player to remove from that room
      * @throws LobbyException If the specified player is not in any existing rooms
      */
-    public synchronized void leaveRoom(PlayerLobby player) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = mapLis.get(player);
-        if(lis == null)
-            throw new LobbyException("Player doesn't exist in lobby");
-        lobby.leaveRoom(lis);
-        mapLis.remove(player);
-    }
+    void leaveRoom(PlayerLobby player) throws LobbyException, RemoteException;
 
     /**
      * Ends the given started game, by removing it from the stored games
      * @param gameId Id of the started game to end
      * @throws LobbyException If the specified game does not exist
      */
-    public synchronized void endGame(int gameId) throws LobbyException, RemoteException {
-        lobby.endGame(gameId);
-    }
+    void endGame(int gameId) throws LobbyException, RemoteException;
 
     /**
      * Reconnects a disconnected player for the already started game they took part in.
@@ -124,13 +82,11 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @param playerListener Client listener of the player to reconnect
      * @throws LobbyException If the given player is not among players of any started game
      * @throws ConnectionException If the player was already connected
+     * @throws InvalidPlayerException If the player is not among the players in the game
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      * (generic error, should not happen)
      */
-    public synchronized void reconnectPlayer(GameListenerClientRMI playerListener) throws LobbyException, RemoteException, ConnectionException, GameStatusException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
-        lobby.reconnectPlayer(lis);
-        mapLis.put(playerListener.getPlayer(), lis);
-    }
-
+    void reconnectPlayer(GameListenerClientRMI playerListener) throws LobbyException, RemoteException,
+            ConnectionException, GameStatusException, InvalidPlayerException;
+    
 }

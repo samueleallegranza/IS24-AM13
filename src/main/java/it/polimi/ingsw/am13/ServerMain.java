@@ -1,19 +1,23 @@
 package it.polimi.ingsw.am13;
 
+import it.polimi.ingsw.am13.network.rmi.LobbyRMI;
 import it.polimi.ingsw.am13.network.socket.ServerSocketHandler;
 
 import java.io.IOException;
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class ServerMain {
-    private static int  SOCKET_DEFAULT_PORT = 25566;
-    private static int RMI_DEFAULT_PORT = 25567;
+    public static final int  SOCKET_DEFAULT_PORT = 25566;
+    public static final int RMI_DEFAULT_PORT = 25567;
+    public static final String LOBBY_RMI_NAME = "lobby_rmi";
+
     private int socket_port;
     private int rmi_port;
 
     public static void main(String[] args) {
-        // default ports for socket & RMI
-        int SOCKET_DEFAULT_PORT = 25566;
-        int RMI_DEFAULT_PORT = 25567;
 
         int socket_port;
         int rmi_port;
@@ -35,7 +39,6 @@ public class ServerMain {
         System.out.println("Socket port : " + socket_port);
         System.out.println("RMI port    : " + rmi_port);
 
-
         // ### 2. Instantiate Socket handler. Quit if port is invalid
         try {
             ServerSocketHandler serverSocket = new ServerSocketHandler(socket_port);
@@ -44,6 +47,16 @@ public class ServerMain {
             throw new RuntimeException(e); // invalid port
         }
 
+        // ### 3. Binding of RMI registry
+        try {
+            Registry registry = LocateRegistry.getRegistry();
+            registry.bind(LOBBY_RMI_NAME, new LobbyRMI());
+        } catch (RemoteException e) {
+            //TODO: capisci come gestire
+            throw new RuntimeException(e);
+        } catch (AlreadyBoundException e) { // Should never happen, unless ServerMain is run more than once
+            throw new RuntimeException(e);
+        }
 
     }
 }
