@@ -1,8 +1,5 @@
 package it.polimi.ingsw.am13.network.socket;
 
-import it.polimi.ingsw.am13.network.socket.message.command.MessageCommand;
-import it.polimi.ingsw.am13.network.socket.message.command.MessageGetRooms;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -36,23 +33,7 @@ public class ClientRequestsHandler extends Thread {
         }
 
         // TODO: Reimplement with real messages. This is just a test!
-        while(true) {
-            while (true) {
-                // read a message from client
-                String message;
-                try {
-                    if ((message = in.readLine()) == null) break;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                System.out.printf("[Socket][Client:%d] Message from client: %s\n", clientSocket.getPort(), message);
-
-                // send a test response message
-                String jsonMsg = new MessageCommand("sneaky_peaky", new MessageGetRooms("xyz", 123)).toJson();
-
-                // Write the JSON string to the socket's output stream
-                out.println(jsonMsg);
-            }
+        while (true) {
         }
     }
 }

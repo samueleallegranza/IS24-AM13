@@ -1,8 +1,5 @@
 package it.polimi.ingsw.am13.client;
 
-import it.polimi.ingsw.am13.network.socket.message.command.MessageCommand;
-import it.polimi.ingsw.am13.network.socket.message.command.MessageGetRooms;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,10 +45,14 @@ public class ClientMain {
             String message;
             try {
                 message = in.readLine();
+                System.out.println("Message from client: " + message);
+                message = in.readLine();
+                System.out.println("Message from client: " + message);
+//                message = in.readLine();
+//                System.out.println("Message from client: " + message);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("Message from client: " + message);
 
             // Close the socket when done
             socket.close();

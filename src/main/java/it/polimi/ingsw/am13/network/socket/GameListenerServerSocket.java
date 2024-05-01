@@ -9,7 +9,6 @@ import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.socket.message.Message;
-import it.polimi.ingsw.am13.network.socket.message.result.*;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -38,9 +37,10 @@ public class GameListenerServerSocket implements GameListener {
         return null;
     }
 
+    // FIXME: Reimplement
     @Override
     public void updatePlayerJoinedRoom(PlayerLobby player) {
-        sendMessage(new MessageResultJoinRoom("joinRoom", "resJoinRoom", player));
+        // sendMessage(new MessageResultJoinRoom("joinRoom", "resJoinRoom", player));
     }
 
     @Override
@@ -132,7 +132,8 @@ public class GameListenerServerSocket implements GameListener {
         this.player = player;
     }
 
+    // FIXME: Reimplement
     public void sendMessage(Message message) {
-        out.println(message.toJson());
+        // out.println(message.toJson());
     }
 }

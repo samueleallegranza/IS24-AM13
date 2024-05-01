@@ -14,9 +14,6 @@ public class ServerMain {
     public static final int RMI_DEFAULT_PORT = 25567;
     public static final String LOBBY_RMI_NAME = "lobby_rmi";
 
-    private int socket_port;
-    private int rmi_port;
-
     public static void main(String[] args) {
 
         int socket_port;

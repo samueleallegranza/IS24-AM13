@@ -8,8 +8,5 @@ module it.polimi.ingsw.am13 {
 
     opens it.polimi.ingsw.am13 to javafx.fxml;
 
-    // Fix for jackson to support socket message serialization
-    exports it.polimi.ingsw.am13.network.socket.message.command;
-
     exports it.polimi.ingsw.am13;
 }
