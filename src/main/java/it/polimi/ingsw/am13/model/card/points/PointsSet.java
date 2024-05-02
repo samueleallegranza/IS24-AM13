@@ -3,6 +3,7 @@ package it.polimi.ingsw.am13.model.card.points;
 import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -12,7 +13,7 @@ import java.util.Objects;
  * (first 3 types of objective cards presentd in the rule book).
  * An object instantiated from this class is immutable.
  */
-public class PointsSet implements PointsObjective {
+public class PointsSet implements PointsObjective, Serializable {
 
     /**
      * Represets the set of resources/objects that must be present to obtain the points

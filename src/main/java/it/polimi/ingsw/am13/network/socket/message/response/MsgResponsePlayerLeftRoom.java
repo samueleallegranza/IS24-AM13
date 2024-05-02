@@ -4,13 +4,13 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.io.Serializable;
 
-public class MsgResponsePlayerReconnected extends MsgResponse implements Serializable {
+public class MsgResponsePlayerLeftRoom extends MsgResponse implements Serializable {
     /**
-     * The player that has reconnected
+     * Player who left the room
      */
     private final PlayerLobby player;
 
-    public MsgResponsePlayerReconnected(String command, String type, PlayerLobby player) {
+    public MsgResponsePlayerLeftRoom(String command, String type, PlayerLobby player) {
         super(command, type);
         this.player = player;
     }

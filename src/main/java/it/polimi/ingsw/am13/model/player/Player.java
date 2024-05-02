@@ -3,10 +3,11 @@ package it.polimi.ingsw.am13.model.player;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements PlayerIF, Serializable {
 
     /**
      * Player decontextualized from game. It stores nickname and token chosen by the player

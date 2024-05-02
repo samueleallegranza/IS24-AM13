@@ -3,6 +3,7 @@ package it.polimi.ingsw.am13.model.player;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -11,7 +12,7 @@ import java.util.*;
  * -> Card positions are referenced with Coordinates (see Coordinates class for a detailed description of the system)
  * -> Resource counters are stored in a Map in the form of (Resource, count) key-value pair
  */
-public class Field implements FieldIF {
+public class Field implements FieldIF, Serializable {
     /**
      * Description of the player's card positions using a sparse matrix representation.
      * They are stored in a Map in the form of (Coordinates, CardSidePlayable) key-value pair.

@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
  * Representation of points of a playable card side of the type
  * "x points for each resource of type y present on the field immediately after you play it"
  */
-public class PointsResource implements PointsPlayable {
+public class PointsResource implements PointsPlayable, Serializable {
     /**
      * This variable represents the number of points this card gives for each resource
      */

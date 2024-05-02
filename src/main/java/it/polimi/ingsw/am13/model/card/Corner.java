@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +10,7 @@ import java.util.Objects;
 /**
  * This is a class that represents one of the four corners of the side of a card
  */
-public class Corner {
+public class Corner implements Serializable {
     /**
      * This attribute represents whether the corner is visible or not
      */

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model;
 
+import java.io.Serializable;
+
 /**
  * Represents phases of the flow of the game
  * <ul>
@@ -21,6 +23,6 @@ package it.polimi.ingsw.am13.model;
  *     the maximum accumulated points </li>
  * </ul>>
  */
-public enum GameStatus {
+public enum GameStatus implements Serializable {
     INIT,IN_GAME,FINAL_PHASE,CALC_POINTS,ENDED
 }

@@ -6,6 +6,7 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.*;
 
@@ -17,7 +18,7 @@ import java.util.*;
  * The vectors represent where the card right below the previous one is: in order, the next card is to the left / below / to the right of the previous card.
  * An object instantiated from this class is immutable.
  */
-public class PointsPattern implements PointsObjective {
+public class PointsPattern implements PointsObjective, Serializable {
 
     /**
      * Color of the upper card
