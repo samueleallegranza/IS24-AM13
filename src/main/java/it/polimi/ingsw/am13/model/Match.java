@@ -479,9 +479,9 @@ public class Match {
             }
 
             if (side == Side.SIDEFRONT) {
-                currentPlayer.playCard(card.getFront(), coordinates);
+                currentPlayer.playCard(card.getSide(Side.SIDEFRONT), coordinates);
             } else {
-                currentPlayer.playCard(card.getBack(), coordinates);
+                currentPlayer.playCard(card.getSide(Side.SIDEBACK), coordinates);
             }
         }
         turnActionsCounter++;

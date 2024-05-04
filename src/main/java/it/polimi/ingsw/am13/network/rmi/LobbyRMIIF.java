@@ -70,13 +70,6 @@ public interface LobbyRMIIF extends Remote {
     void leaveRoom(PlayerLobby player) throws LobbyException, RemoteException;
 
     /**
-     * Ends the given started game, by removing it from the stored games
-     * @param gameId Id of the started game to end
-     * @throws LobbyException If the specified game does not exist
-     */
-    void endGame(int gameId) throws LobbyException, RemoteException;
-
-    /**
      * Reconnects a disconnected player for the already started game they took part in.
      * Triggers the notification for other players, and the update for the gameController for the reconnected player.
      * @param playerListener Client listener of the player to reconnect

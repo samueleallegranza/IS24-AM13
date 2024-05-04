@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player implements PlayerIF, Serializable {
+public class Player implements Serializable {
 
     /**
      * Player decontextualized from game. It stores nickname and token chosen by the player
@@ -171,10 +171,10 @@ public class Player implements PlayerIF, Serializable {
         startCard.placeCardInField(side);
         CardSidePlayable starterSide;
         if(side.equals(Side.SIDEBACK))
-            starterSide = this.startCard.getBack();
+            starterSide = this.startCard.getSide(Side.SIDEBACK);
         else {
             if(side.equals(Side.SIDEFRONT))
-                starterSide = this.startCard.getFront();
+                starterSide = this.startCard.getSide(Side.SIDEFRONT);
             else
                 throw new InvalidChoiceException();
         }
@@ -199,9 +199,9 @@ public class Player implements PlayerIF, Serializable {
         // check that the player has the side's card on his hand
         CardPlayable cardToPlay = null;
         for(CardPlayable currCard: this.handCards) {
-            if(currCard.getFront().equals(sideToPlay) || currCard.getBack().equals(sideToPlay)) {
+            if(currCard.getSide(Side.SIDEFRONT).equals(sideToPlay) || currCard.getSide(Side.SIDEBACK).equals(sideToPlay)) {
                 cardToPlay = currCard;
-                if(currCard.getFront().equals(sideToPlay))
+                if(currCard.getSide(Side.SIDEFRONT).equals(sideToPlay))
                     cardToPlay.placeCardInField(Side.SIDEFRONT);
                 else
                     cardToPlay.placeCardInField(Side.SIDEBACK);

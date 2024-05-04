@@ -20,7 +20,7 @@ public class TestCardStarter {
                 backCorners
         );
 
-        CardSidePlayable side = card.getFront();
+        CardSidePlayable side = card.getSide(Side.SIDEFRONT);
         assertEquals(side.getColor(), Color.NO_COLOR);
         assertTrue(side.getRequirements().isEmpty());
         assertEquals(side.getCorners(), frontCorners);
@@ -28,7 +28,7 @@ public class TestCardStarter {
         assertEquals(side.getCenterResources().get(0), Resource.PLANT);
         assertEquals(side.getCenterResources().get(1), Resource.FUNGUS);
 
-        side = card.getBack();
+        side = card.getSide(Side.SIDEBACK);
         assertEquals(side.getColor(), Color.NO_COLOR);
         assertTrue(side.getRequirements().isEmpty());
         assertEquals(side.getCorners(), backCorners);

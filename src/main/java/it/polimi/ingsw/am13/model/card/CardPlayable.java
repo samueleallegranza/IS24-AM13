@@ -32,7 +32,11 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
         this.back = back;
     }
 
-    private CardSidePlayable getCorrespondingSide(Side side) {
+    /**
+     * @param side Side whose card side is to be retrieved
+     * @return Card side corresponding to specified side
+     */
+    public CardSidePlayable getSide(Side side) {
         return side==Side.SIDEFRONT ? front : back;
     }
 
@@ -43,21 +47,7 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
     public CardSidePlayable getPlayedCardSide() {
         if(getVisibleSide()==null)
             return null;
-        return getCorrespondingSide(getVisibleSide());
-    }
-
-    /**
-     * @return Front side of the card
-     */
-    public CardSidePlayable getFront() {
-        return front;
-    }
-
-    /**
-     * @return Back side of the card
-     */
-    public CardSidePlayable getBack() {
-        return back;
+        return getSide(getVisibleSide());
     }
 
     @Override

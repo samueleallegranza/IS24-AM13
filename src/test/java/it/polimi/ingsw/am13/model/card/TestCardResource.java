@@ -19,13 +19,13 @@ public class TestCardResource {
 
         CardResource card = new CardResource("bho", Color.FUNGUS, frontCorners, 1);
 
-        CardSidePlayable side = card.getFront();
+        CardSidePlayable side = card.getSide(Side.SIDEFRONT);
         assertEquals(side.getColor(), Color.FUNGUS);
         assertTrue(side.getRequirements().isEmpty());
         assertEquals(side.getCorners(), frontCorners);
         assertEquals(side.getCenterResources().size(), 0);
 
-        side = card.getBack();
+        side = card.getSide(Side.SIDEBACK);
         assertEquals(side.getColor(), Color.FUNGUS);
         assertTrue(side.getRequirements().isEmpty());
         assertEquals(side.getCorners().size(), 4);

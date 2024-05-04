@@ -127,13 +127,13 @@ public class TestMatch {
             }
 
             /*System.out.println(i);
-            for(Resource resource : handCards.getFirst().getBack().getRequirements().keySet())
+            for(Resource resource : handCards.getFirst().getSide(Side.SIDEBACK).getRequirements().keySet())
                 System.out.println(resource);
-            for(Resource resource : handCards.getFirst().getFront().getRequirements().keySet())
+            for(Resource resource : handCards.getFirst().getSide(Side.SIDEFRONT).getRequirements().keySet())
                 System.out.println(resource);
              */
             try {
-                if(handCards.getFirst().getFront().getCorners().get(1).isPlaceable()){
+                if(handCards.getFirst().getSide(Side.SIDEFRONT).getCorners().get(1).isPlaceable()){
                     try {
                         match.playCard(handCards.getFirst(), Side.SIDEFRONT, coordinates);
                     } catch (RequirementsNotMetException e){
@@ -290,7 +290,7 @@ public class TestMatch {
             }
 
             try {
-                if(handCards.getFirst().getFront().getCorners().get(1).isPlaceable()){
+                if(handCards.getFirst().getSide(Side.SIDEFRONT).getCorners().get(1).isPlaceable()){
                     try {
                         match.playCard(handCards.getFirst(), Side.SIDEFRONT, coordinates);
                     } catch (RequirementsNotMetException e){

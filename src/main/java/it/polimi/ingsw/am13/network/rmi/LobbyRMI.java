@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
 import it.polimi.ingsw.am13.controller.*;
 import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.rmi.RemoteException;
@@ -107,15 +106,6 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
             throw new LobbyException("Player doesn't exist in lobby");
         lobby.leaveRoom(lis);
         mapLis.remove(player);
-    }
-
-    /**
-     * Ends the given started game, by removing it from the stored games
-     * @param gameId Id of the started game to end
-     * @throws LobbyException If the specified game does not exist
-     */
-    public synchronized void endGame(int gameId) throws LobbyException, RemoteException {
-        lobby.endGame(gameId);
     }
 
     /**
