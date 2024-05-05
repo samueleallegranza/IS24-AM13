@@ -138,7 +138,7 @@ public class Lobby {
      * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
      * @throws InvalidPlayersNumberException If the game contains only 1 player
      */
-    private synchronized void startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
+    private synchronized GameController startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
         /* Oss: If a player crashed while being in a room, and the game for that room starts, they will be considered still
             connected, and will be disconnected by ping system of gameController
         */
@@ -148,6 +148,7 @@ public class Lobby {
         GameController controller = new GameController(gameId, room.getListenerHandler());
         room.startGameForRoom(controller);
         controllers.put(gameId, controller);
+        return controller;
     }
 
     /**
