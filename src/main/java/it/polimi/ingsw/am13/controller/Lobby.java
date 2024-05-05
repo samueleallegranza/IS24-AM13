@@ -93,7 +93,7 @@ public class Lobby {
     /**
      * Adds a players to an existing room, specified by the given gameId.
      * In case of success, the players in that room are notified.
-     * If the room with the newly joined players if full, it makes the game start (and notify the players of this).
+     * If the room with the newly joined players if full, it makes the game start.
      * @param gameId Id of the room the player wants to join
      * @param player Listener of the player to add to that room
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
@@ -133,7 +133,6 @@ public class Lobby {
     /**
      * Starts the game for the room specified by gameId.
      * It creates the associated <code>GameController</code>, actually starting that game
-     * It notifies the players currently in the room of the game beginning
      * @param gameId Game to start
      * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
      * @throws InvalidPlayersNumberException If the game contains only 1 player
@@ -146,7 +145,7 @@ public class Lobby {
         if(room==null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
         GameController controller = new GameController(gameId, room.getListenerHandler());
-        room.startGameForRoom(controller);
+        room.startGameForRoom();
         controllers.put(gameId, controller);
         return controller;
     }

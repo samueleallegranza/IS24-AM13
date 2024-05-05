@@ -2,9 +2,7 @@ package it.polimi.ingsw.am13.client.gamestate;
 
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.player.FieldIF;
 import it.polimi.ingsw.am13.model.player.PlayerIF;
 
 import java.util.ArrayList;
@@ -50,7 +48,7 @@ public class PlayerClient {
 
     public PlayerClient(PlayerIF player) {
         this.starterCard = player.getStarter();
-        this.possibleHandObjectives = player.getPossiblePersonalObjectives();
+        this.possibleHandObjectives = new ArrayList<>(player.getPossiblePersonalObjectives());
         this.handObjective = player.getPersonalObjective();
         this.isConnected = true;
         this.handPlayable = new ArrayList<>(player.getHandCards());

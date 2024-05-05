@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.controller;
 
-import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
@@ -42,12 +41,6 @@ public interface GameListener {
      */
     void updatePlayerLeftRoom(PlayerLobby player);
 
-    /**
-     * Updates the view that the game has begun (from Lobby to actual game)
-     * @param controller {@link GameController} created for the started game
-     */
-    void updateGameBegins(GameController controller);
-
 
     // METHODS CALLED BY ListenerHandler in GameModel TO MANAGE THE GAME FLOW
 
@@ -57,7 +50,7 @@ public interface GameListener {
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
      * @param model The game model containing the game status set to INIT.
      */
-    void updateStartGame(GameModelIF model);
+    void updateStartGame(GameModelIF model, GameController controller);
 
     /**
      * Updates the view that a player has played their starter card.

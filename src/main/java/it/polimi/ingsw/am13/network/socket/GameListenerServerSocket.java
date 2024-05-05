@@ -47,13 +47,9 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameBegins(GameController controller) {
-        sendMessage(new MsgResponseGameBegins());
-    }
-
-    @Override
-    public void updateStartGame(GameModelIF model) {
+    public void updateStartGame(GameModelIF model, GameController controller) {
         sendMessage(new MsgResponseStartGame(model));
+        //TODO: ora non serve più MsgResponseGameBegins, sistema MsgResponseStartGame se serve, altrimenti elimina TODO
     }
 
     @Override

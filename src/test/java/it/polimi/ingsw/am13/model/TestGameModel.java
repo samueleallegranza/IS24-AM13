@@ -29,9 +29,7 @@ public class TestGameModel {
         public PlayerLobby getPlayer() {
             return player;
         }
-        @Override
-        public void updateGameBegins(GameController controller) {
-        }
+
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
         }
@@ -39,7 +37,7 @@ public class TestGameModel {
         public void updatePlayerLeftRoom(PlayerLobby player) {
         }
         @Override
-        public void updateStartGame(GameModelIF model) {
+        public void updateStartGame(GameModelIF model, GameController controller) {
         }
         @Override
         public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
@@ -169,7 +167,7 @@ public class TestGameModel {
     @Test
     public void testStartGame() throws InvalidPlayerException, InvalidPlayersNumberException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, InvalidPlayCardException {
         testCreation();
-        game.startGame();
+        game.startGame(null);
         assertThrows(GameStatusException.class, ()->game.nextTurn());
 
         //Test of 3 possibly changed turn-async non-player-specific methods
@@ -211,7 +209,7 @@ public class TestGameModel {
         }
 
         // Now we cannot call again startGame
-        assertThrows(GameStatusException.class, game::startGame);
+        assertThrows(GameStatusException.class, ()->game.startGame(null));
         // I assume that internal state has not changed...
 
         // Test of 3 methods callable in INIT phase
@@ -368,7 +366,7 @@ public class TestGameModel {
             else
                 fail();
             assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
-            assertThrows(GameStatusException.class, ()->game.startGame());
+            assertThrows(GameStatusException.class, ()->game.startGame(null));
             PlayerLobby finalPlayer = player;
             assertThrows(GameStatusException.class, ()->game.playStarter(finalPlayer, Side.SIDEFRONT));
             assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
@@ -729,7 +727,7 @@ public class TestGameModel {
             assertTrue(game.fetchAvailableCoord(player).isEmpty());
         }
         assertNull(game.fetchGameStatus());
-        game.startGame();
+        game.startGame(null);
 
         //Test of 4 turn-async player-specific methods
         for(PlayerLobby player : players) {
@@ -813,7 +811,7 @@ public class TestGameModel {
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
         game = new GameModel(0, new ListenerHandler(playerListeners));
-        game.startGame();
+        game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());
@@ -884,7 +882,7 @@ public class TestGameModel {
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
         game = new GameModel(0, new ListenerHandler(playerListeners));
-        game.startGame();
+        game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());

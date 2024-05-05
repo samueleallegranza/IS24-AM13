@@ -47,7 +47,7 @@ public class GameController implements Runnable {
     GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
         gameModel=new GameModel(gameId, listenerHandler);
         try {
-            gameModel.startGame();
+            gameModel.startGame(this);
         } catch (GameStatusException e) {
             throw new RuntimeException(e);
         }

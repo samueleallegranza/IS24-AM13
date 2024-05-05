@@ -237,13 +237,14 @@ public class GameModel implements GameModelIF {
      * Can be called only if the match has not started yet (<code>gamePhase==null</code>) and sets game phase to INIT.
      * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
-    public void startGame() throws GameStatusException {
+    public void startGame(GameController controller) throws GameStatusException {
         match.startGame();
-        listenerHandler.notifyStartGame(this);
+        listenerHandler.notifyStartGame(this, controller);
     }
 
 
     // METHODS CALLABLE IN PHASE INIT
+
 
     /**
      * Method callable only once per player during INIT phase.

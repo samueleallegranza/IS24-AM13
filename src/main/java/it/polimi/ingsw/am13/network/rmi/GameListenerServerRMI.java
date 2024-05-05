@@ -76,28 +76,11 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateGameBegins(GameController controller) {
+    public void updateStartGame(GameModelIF model, GameController controller) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                GameControllerRMI controllerRMI = new GameControllerRMI(controller, clientLis.getPlayer());
-                clientLis.updateGameBegins(controllerRMI);
-                break;
-            } catch (RemoteException e) {
-                cnt++;
-            } catch (InvalidPlayerException e) {
-                //TODO: capisci se gestire meglio questa eccezione
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Override
-    public void updateStartGame(GameModelIF model) {
-        int cnt = 0;
-        while (cnt < NTRIES) {
-            try {
-                clientLis.updateStartGame(model);
+                clientLis.updateStartGame(model, controller);
                 break;
             } catch (RemoteException e) {
                 cnt++;

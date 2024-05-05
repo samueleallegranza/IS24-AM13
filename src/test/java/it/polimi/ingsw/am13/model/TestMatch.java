@@ -47,7 +47,7 @@ public class TestMatch {
             } catch (GameStatusException | InvalidPlayerException e){
                 throw new RuntimeException(e);
             }
-            List<CardObjectiveIF> cardObjectives;
+            List<CardObjective> cardObjectives;
             try {
                 cardObjectives=match.fetchPersonalObjectives(player.getPlayerLobby());
             } catch (InvalidPlayerException e){
@@ -223,7 +223,7 @@ public class TestMatch {
                 } catch (GameStatusException | InvalidPlayerException e) {
                     throw new RuntimeException(e);
                 }
-                List<CardObjectiveIF> cardObjectives;
+                List<CardObjective> cardObjectives;
                 try {
                     cardObjectives = match.fetchPersonalObjectives(player.getPlayerLobby());
                 } catch (InvalidPlayerException e) {

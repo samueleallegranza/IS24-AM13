@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
+import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
@@ -39,11 +40,8 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
 
     }
 
-    public void updateGameBegins(GameControllerRMIIF controllerRMI) throws RemoteException {
 
-    }
-
-    public void updateStartGame(GameModelIF model) throws RemoteException {
+    public void updateStartGame(GameModelIF model, GameController controller) throws RemoteException {
 
     }
 

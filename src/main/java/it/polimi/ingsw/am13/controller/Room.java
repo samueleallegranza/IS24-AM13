@@ -11,7 +11,7 @@ import java.util.List;
  * The players listed by this class can be added/removed until the target number is reached. After that moment, the
  * players present in the room are the definitive ones.
  * Note that the room starts managing the listeners for the players, notifying them for other player joinig/leaving
- * the room, and for the game to start.
+ * the room.
  */
 public class Room implements RoomIF {
 
@@ -144,13 +144,13 @@ public class Room implements RoomIF {
 
     /**
      * Starts the game for this room. This can be done only if it has not been set yet and if the target number of players is reached.
+     * Note that this action is not notified to the players in the room
      * @throws LobbyException If the game has already started or if the target number of players is not reached.
      */
-    public void startGameForRoom(GameController controller) throws LobbyException {
+    public void startGameForRoom() throws LobbyException {
         if(listenerHandler.getListeners().size()!=nPlayersTarget || gameStarted)
             throw new LobbyException("Cannot start the game, the target number of players is not reached or the game has already started");
         gameStarted = true;
-        listenerHandler.notifyGameBegins(controller);
     }
 
     /**

@@ -68,16 +68,9 @@ public class ListenerHandler {
         return listeners;
     }
 
+
     // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
-    /**
-     * Notifies the view that the game is beginning and that the Room has been moved to startedGames
-     * @param controller Controller of the game started
-     */
-    public void notifyGameBegins(GameController controller){
-        for (GameListener listener : listeners) {
-            listener.updateGameBegins(controller);
-        }
-    }
+
 
     /**
      * Notify the view that a Player has entered a Room.
@@ -101,15 +94,18 @@ public class ListenerHandler {
         }
     }
 
+
     // METHODS TO BE CALLED BY GAMEMODEL
+
+
     /**
      * Notifies the view that the game has started: starter cards and initial cards have been given to the players. <br>
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
      * @param model The {@link GameModelIF} containing the immutable version of a GameModel.
      */
-    public void notifyStartGame(GameModelIF model){
+    public void notifyStartGame(GameModelIF model, GameController controller){
         for (GameListener listener : listeners) {
-            listener.updateStartGame(model);
+            listener.updateStartGame(model, controller);
         }
     }
 
@@ -154,7 +150,8 @@ public class ListenerHandler {
      * @param points The points given by the card.
      * @param availableCoords The list of updated coordinates where the player can play a card.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords){
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord,
+                                 int points, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
             listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
         }
@@ -163,7 +160,7 @@ public class ListenerHandler {
     /**
      * Notifies the view that a card has been picked by a player. <br>
      * @param player The player that picked the card.
-     * @param updatedVisibleCards The updated list of visible cards in the common field.
+     * @param updatedVisibleCards The updated list of visible cards in the common field (size 6).
      */
     public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
         for (GameListener listener : listeners) {

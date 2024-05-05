@@ -291,7 +291,7 @@ public class Player implements Serializable, PlayerIF {
      * @return the two objective cards among which the player can choose his personal objective.
      * Null if they have not been set yet
      */
-    public List<CardObjectiveIF> getPossiblePersonalObjectives() {
+    public List<CardObjective> getPossiblePersonalObjectives() {
         return new ArrayList<>(possiblePersonalObjectives);
     }
 

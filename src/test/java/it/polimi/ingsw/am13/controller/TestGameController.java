@@ -22,7 +22,7 @@ public class TestGameController {
         }
 
         @Override
-        public void updateStartGame(GameModelIF model) {
+        public void updateStartGame(GameModelIF model, GameController controller) {
             /*for(Player player: players) {
                 try {
                     player.initStarter(model.fetchStarter(player.getPlayerLobby()));
@@ -76,9 +76,7 @@ public class TestGameController {
         public PlayerLobby getPlayer() {
             return player;
         }
-        @Override
-        public void updateGameBegins(GameController controller) {
-        }
+
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
         }
