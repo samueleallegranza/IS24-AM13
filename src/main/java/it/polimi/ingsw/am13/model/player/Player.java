@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player implements Serializable {
+public class Player implements Serializable, PlayerIF {
 
     /**
      * Player decontextualized from game. It stores nickname and token chosen by the player
@@ -28,11 +28,13 @@ public class Player implements Serializable {
      * Player's personal objective. It affects only player's points when the game ends.
      */
     private CardObjective personalObjective;
+
     /**
      * The two objective cards among which the player can choose his personal objective.
      * They can't change once they have been set.
      */
     private final List<CardObjective> possiblePersonalObjectives;
+
     /**
      * Player's starter card which has been drawn to him. It can't change once it has been set.
      */
@@ -126,14 +128,6 @@ public class Player implements Serializable {
             throw new VariableAlreadySetException();
         possiblePersonalObjectives.add(possiblePersonalObjective0);
         possiblePersonalObjectives.add(possiblePersonalObjective1);
-    }
-
-    /**
-     *
-     * @return the two objective cards among which the player can choose his personal objective
-     */
-    public List<CardObjective> getPossiblePersonalObjectives() {
-        return possiblePersonalObjectives;
     }
 
     /**
@@ -282,7 +276,7 @@ public class Player implements Serializable {
      * @return Player's hand of cards, which could be Gold cards or Resource cards.
      */
     public List<CardPlayable> getHandCards() {
-        return handCards;
+        return new ArrayList<>(handCards);
     }
 
     /**
@@ -294,13 +288,24 @@ public class Player implements Serializable {
     }
 
     /**
+     * @return the two objective cards among which the player can choose his personal objective.
+     * Null if they have not been set yet
+     */
+    public List<CardObjectiveIF> getPossiblePersonalObjectives() {
+        return new ArrayList<>(possiblePersonalObjectives);
+    }
+
+    /**
      * @return The list of coordinates in which new cards can be played.
      * If game has not started yet, the list is empty
      */
     public List<Coordinates> getAvailableCoord(){
-        return field.getAvailableCoord();
+        return field.getAvailableCoords();
     }
 
+    /**
+     * @return Player's field
+     */
     public FieldIF getField() {
         return field;
     }

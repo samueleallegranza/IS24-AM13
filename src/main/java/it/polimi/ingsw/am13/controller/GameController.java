@@ -292,6 +292,6 @@ public class GameController implements Runnable {
      * @return the players of the match
      */
     public List<PlayerLobby> getPlayers(){
-        return gameModel.fetchPlayers();
+        return gameModel.fetchPlayersLobby();
     }
 }

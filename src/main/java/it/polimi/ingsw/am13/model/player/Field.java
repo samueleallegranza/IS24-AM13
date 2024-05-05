@@ -154,7 +154,7 @@ public class Field implements FieldIF, Serializable {
      * for which cardIsPlaceableAtCoord() returns true for the actual Field situation.
      * @return A list of coordinates in which a card can be placed.
      */
-    public List<Coordinates> getAvailableCoord() {
+    public List<Coordinates> getAvailableCoords() {
         List<Coordinates> surroundingCoords;
         Coordinates targetCoord;
         Set<Coordinates> availableCoordSet = new HashSet<>();

@@ -2,8 +2,10 @@ package it.polimi.ingsw.am13.client.gamestate;
 
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,18 @@ public class FieldClient {
     private Map<Coordinates, CardSidePlayableIF> field;
 
     private List<Coordinates> availableCoords;
+
+//    public FieldClient() {
+//        this.field = new HashMap<>();
+//        this.availableCoords = new ArrayList<>();
+//    }
+
+    public FieldClient(FieldIF field) {
+        this.field = new HashMap<>();
+        for(Coordinates c : field.getCoordinatesPlaced())
+            this.field.put(c, field.getCardSideAtCoord(c));
+        this.availableCoords = field.getAvailableCoords();
+    }
 
     public List<Coordinates> getPlacedCoords() {
         return new ArrayList<>(field.keySet());

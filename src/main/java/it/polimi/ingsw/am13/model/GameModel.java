@@ -3,7 +3,6 @@ package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
-import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
@@ -98,8 +97,15 @@ public class GameModel implements GameModelIF {
     /**
      * @return List of players, decontextualized from game (their nicknames/tokens, nothing else)
      */
-    public List<PlayerLobby> fetchPlayers() {
+    public List<PlayerLobby> fetchPlayersLobby() {
         return match.getPlayers().stream().map(Player::getPlayerLobby).toList();
+    }
+
+    /**
+     * @return List of players
+     */
+    public List<PlayerIF> fetchPlayers() {
+        return new ArrayList<>(match.getPlayers());
     }
 
     /**
@@ -161,9 +167,6 @@ public class GameModel implements GameModelIF {
     public List<Optional<? extends CardPlayableIF>> fetchPickablesOptional() {
         return new ArrayList<>(match.fetchPickablesOptional().stream()
                 .map(c -> (Optional<? extends CardPlayableIF>)c).toList());
-//        return match.fetchPickablesOptional().stream()
-//                .map(cardOptional -> (Optional<? extends CardObjectiveIF>)cardOptional).toList();
-//        return null;
     }
 
     /**

@@ -3,7 +3,6 @@ package it.polimi.ingsw.am13.model;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.controller.ListenerHandler;
-import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
@@ -128,7 +127,7 @@ public class TestGameModel {
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
-        assertEquals(players, game.fetchPlayers());
+        assertEquals(players, game.fetchPlayersLobby());
 
         List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);

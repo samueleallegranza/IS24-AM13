@@ -21,6 +21,7 @@ public class GameListenerServerRMI implements GameListener {
     // TODO: in generale pensa meglio a come gestire le RemoteException
 
 
+    //TODO: fai fare update a nuovo Thread, per problema di latenza
 
     private static final int NTRIES = 4;
     

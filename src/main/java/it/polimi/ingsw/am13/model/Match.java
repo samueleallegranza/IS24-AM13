@@ -370,7 +370,7 @@ public class Match {
      * @return a list containing the two objective cards the player can choose from
      * @throws InvalidPlayerException if the player is not one of the players of this match
      */
-    public List<CardObjective> fetchPersonalObjectives(PlayerLobby player) throws InvalidPlayerException{
+    public List<CardObjectiveIF> fetchPersonalObjectives(PlayerLobby player) throws InvalidPlayerException{
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
         return playersMap.get(player).getPossiblePersonalObjectives();
