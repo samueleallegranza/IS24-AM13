@@ -10,8 +10,8 @@ public class MsgResponsePlayerJoinedRooom extends MsgResponse implements Seriali
      */
     private final PlayerLobby player;
 
-    public MsgResponsePlayerJoinedRooom(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponsePlayerJoinedRooom(PlayerLobby player) {
+        super("resPlayerJoinedRoom");
         this.player = player;
     }
 

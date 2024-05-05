@@ -10,8 +10,8 @@ public class MsgResponsePlayerLeftRoom extends MsgResponse implements Serializab
      */
     private final PlayerLobby player;
 
-    public MsgResponsePlayerLeftRoom(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponsePlayerLeftRoom(PlayerLobby player) {
+        super("resPlayerLeftRoom");
         this.player = player;
     }
 

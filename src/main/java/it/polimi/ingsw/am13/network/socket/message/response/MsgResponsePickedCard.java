@@ -16,8 +16,8 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
      */
     private final List<? extends CardPlayableIF> updatedVisibleCards;
 
-    public MsgResponsePickedCard(String command, String type, PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
-        super(command, type);
+    public MsgResponsePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+        super("resPickedCard");
         this.player = player;
         this.updatedVisibleCards = updatedVisibleCards;
     }

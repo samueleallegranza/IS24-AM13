@@ -10,8 +10,8 @@ public class MsgResponseNextTurn extends MsgResponse implements Serializable {
      */
     private final PlayerLobby player;
 
-    public MsgResponseNextTurn(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponseNextTurn(PlayerLobby player) {
+        super("resNextTurn");
         this.player = player;
     }
 

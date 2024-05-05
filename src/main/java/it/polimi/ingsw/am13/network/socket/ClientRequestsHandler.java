@@ -4,7 +4,8 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClientRequestsHandler extends Thread {
-    Socket clientSocket;
+    private Socket clientSocket;
+    private GameListenerServerSocket gameListenerServerSocket;
 
     public ClientRequestsHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -24,10 +25,10 @@ public class ClientRequestsHandler extends Thread {
 
         // Prepare socket output buffer
         //FIXME: need to get the player from the client somehow
-        PrintWriter out = null;
+        ObjectOutputStream out = null;
         try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            new GameListenerServerSocket(out, null, this);
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
+            new GameListenerServerSocket(out, null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -10,8 +10,8 @@ public class MsgResponsePlayerReconnected extends MsgResponse implements Seriali
      */
     private final PlayerLobby player;
 
-    public MsgResponsePlayerReconnected(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponsePlayerReconnected(PlayerLobby player) {
+        super("resPlayerReconnected");
         this.player = player;
     }
 

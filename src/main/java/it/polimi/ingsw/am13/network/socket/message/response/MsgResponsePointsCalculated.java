@@ -11,8 +11,8 @@ public class MsgResponsePointsCalculated extends MsgResponse implements Serializ
      */
     private final Map<PlayerLobby, Integer> pointsMap;
 
-    public MsgResponsePointsCalculated(String command, String type, Map<PlayerLobby, Integer> pointsMap) {
-        super(command, type);
+    public MsgResponsePointsCalculated(Map<PlayerLobby, Integer> pointsMap) {
+        super("resPointsCalculated");
         this.pointsMap = pointsMap;
     }
 

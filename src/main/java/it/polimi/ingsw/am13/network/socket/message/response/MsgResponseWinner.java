@@ -10,8 +10,8 @@ public class MsgResponseWinner extends MsgResponse implements Serializable {
      */
     private final PlayerLobby player;
 
-    public MsgResponseWinner(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponseWinner(PlayerLobby player) {
+        super("resWinner");
         this.player = player;
     }
 

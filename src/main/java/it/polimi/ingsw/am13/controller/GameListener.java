@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.controller;
 
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
@@ -28,7 +29,6 @@ public interface GameListener {
 
 
     // METHODS TO BE CALLED BY ListenerHandler in Lobby TO MANAGE ROOMS
-
 
     /**
      * Updates the view that a player has joined a lobby (waiting for a game)

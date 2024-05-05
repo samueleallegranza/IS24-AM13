@@ -15,8 +15,8 @@ public class MsgResponsePlayedStarter extends MsgResponse implements Serializabl
      */
     private final CardStarterIF starter;
 
-    public MsgResponsePlayedStarter(String command, String type, PlayerLobby player, CardStarterIF starter) {
-        super(command, type);
+    public MsgResponsePlayedStarter(PlayerLobby player, CardStarterIF starter) {
+        super("resPlayedStarter");
         this.player = player;
         this.starter = starter;
     }

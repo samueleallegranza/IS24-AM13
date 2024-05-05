@@ -10,8 +10,8 @@ public class MsgResponsePlayerDisconnected extends MsgResponse implements Serial
      */
     private final PlayerLobby player;
 
-    public MsgResponsePlayerDisconnected(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponsePlayerDisconnected(PlayerLobby player) {
+        super("resPlayerDisconnected");
         this.player = player;
     }
 

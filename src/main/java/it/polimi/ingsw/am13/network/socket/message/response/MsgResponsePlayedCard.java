@@ -34,8 +34,8 @@ public class MsgResponsePlayedCard extends MsgResponse implements Serializable {
      */
     private final List<Coordinates> availableCoordinates;
 
-    public MsgResponsePlayedCard(String command, String type, PlayerLobby player, CardPlayableIF cardPlayer, Side side, Coordinates ccordinates, Integer points, List<Coordinates> availableCoordinates) {
-        super(command, type);
+    public MsgResponsePlayedCard(PlayerLobby player, CardPlayableIF cardPlayer, Side side, Coordinates ccordinates, Integer points, List<Coordinates> availableCoordinates) {
+        super("resPlayedCard");
         this.player = player;
         this.cardPlayer = cardPlayer;
         this.side = side;

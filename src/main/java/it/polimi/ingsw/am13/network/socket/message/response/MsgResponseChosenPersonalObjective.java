@@ -10,8 +10,8 @@ public class MsgResponseChosenPersonalObjective extends MsgResponse implements S
      */
     private final PlayerLobby player;
 
-    public MsgResponseChosenPersonalObjective(String command, String type, PlayerLobby player) {
-        super(command, type);
+    public MsgResponseChosenPersonalObjective(PlayerLobby player) {
+        super("resChosenPersonalObjective");
         this.player = player;
     }
 
