@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServerSocketHandler {
@@ -15,6 +16,7 @@ public class ServerSocketHandler {
 
     public ServerSocketHandler(int socket_port) {
         this.socket_port = socket_port;
+        this.clientSockets = new ArrayList<>();
     }
 
     public void start() throws IOException {
@@ -39,6 +41,9 @@ public class ServerSocketHandler {
 
                     // start a new thread to handle the new client socket
                     new ClientRequestsHandler(newClientSocket).start();
+
+                    // add current socket to the list
+                    clientSockets.add(newClientSocket);
                 }
             }
         };
