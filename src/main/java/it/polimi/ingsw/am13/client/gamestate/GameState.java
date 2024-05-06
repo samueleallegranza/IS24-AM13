@@ -23,7 +23,7 @@ public class GameState implements Serializable {
     /**
      * The players in the game, mapped via their player lobby
      */
-    private final Map<PlayerLobby, PlayerClient> players;
+    private final Map<PlayerLobby, PlayerState> players;
 
     /**
      * The list of cards that are visible to the player (the two tops aof the decks and the four cards that are drawable).
@@ -59,7 +59,7 @@ public class GameState implements Serializable {
     public GameState(GameModelIF model) {
         this.players = new HashMap<>();
         for(PlayerIF p : model.fetchPlayers())
-            this.players.put(p.getPlayerLobby(), new PlayerClient(p));
+            this.players.put(p.getPlayerLobby(), new PlayerState(p));
         this.pickables = model.fetchPickables();
         this.commonObjectives = model.fetchCommonObjectives();
         this.gameStatus = model.fetchGameStatus();
@@ -67,38 +67,72 @@ public class GameState implements Serializable {
         this.firstPlayer = model.fetchFirstPlayer();
     }
 
-    public PlayerClient getPlayerClient(PlayerLobby playerLobby) {
+    /**
+     * @param playerLobby Player whose the state is to be retrieved
+     * @return The representation of the state for the given player
+     */
+    public PlayerState getPlayerState(PlayerLobby playerLobby) {
         return players.get(playerLobby);
     }
 
+    /**
+     * @return The list of cards that are visible to the player (the two tops aof the decks and the four cards that are drawable).
+     * Following game's rules, this should be always of size 6
+     */
     public List<CardPlayableIF> getPickables() {
         return pickables;
     }
 
-    public void setPickables(List<CardPlayableIF> pickables) {
+    /**
+     * Sets the (6) pickable cards.
+     * Note that the is not created another list
+     * @param pickables List of pickable cards to set
+     */
+    void setPickables(List<CardPlayableIF> pickables) {
         this.pickables = pickables;
     }
 
+    /**
+     * @return The list of objectives that are common to all players
+     * Following game's rules, this should be always of size 2
+     */
     public List<CardObjectiveIF> getCommonObjectives() {
         return commonObjectives;
     }
 
+    /**
+     * @return The current game status
+     */
     public GameStatus getGameStatus() {
         return gameStatus;
     }
 
-    public void setGameStatus(GameStatus gameStatus) {
+    /**
+     * Set the current game status
+     * @param gameStatus Game status to set
+     */
+    void setGameStatus(GameStatus gameStatus) {
         this.gameStatus = gameStatus;
     }
 
+    /**
+     * @return The current player in a turn-based phase (the one who must play or pick a card)
+     */
     public PlayerLobby getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public void setCurrentPlayer(PlayerLobby currentPlayer) {
+    /**
+     * Set the current player
+     * @param currentPlayer Current player to set
+     */
+    void setCurrentPlayer(PlayerLobby currentPlayer) {
         this.currentPlayer = currentPlayer;
     }
 
+    /**
+     * @return The first player (from which the rounds start)
+     */
     public PlayerLobby getFirstPlayer() {
         return firstPlayer;
     }

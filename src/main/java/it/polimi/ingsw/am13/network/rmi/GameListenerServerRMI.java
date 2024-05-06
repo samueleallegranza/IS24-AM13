@@ -11,10 +11,15 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//TODO: scrivi documentazione
+/**
+ * Implementation of a game listener for RMI connection.
+ * For each type of update, it tries asynchronously to call the corresponding method of {@link GameListenerClientRMI},
+ * that is in the client (RMI remote call), for a fixed maximum number of times
+ */
 public class GameListenerServerRMI implements GameListener {
 
     // TODO: può succedere che anche se mi arrivano i ping (non disconnetto il player), non riesco a inviare l'update?
@@ -84,6 +89,9 @@ public class GameListenerServerRMI implements GameListener {
                 break;
             } catch (RemoteException e) {
                 cnt++;
+            } catch (InvalidPlayerException e) {
+                //It should not happen
+                throw new RuntimeException(e);
             }
         }
     }
@@ -145,7 +153,7 @@ public class GameListenerServerRMI implements GameListener {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updatePickedCard(player, updatedVisibleCards);
+                clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards));
                 break;
             } catch (RemoteException e) {
                 cnt++;
@@ -249,13 +257,12 @@ public class GameListenerServerRMI implements GameListener {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                GameControllerRMI controllerRMI = new GameControllerRMI(controller, clientLis.getPlayer());
-                clientLis.updateGameModel(model, controllerRMI);
+                clientLis.updateGameModel(model, controller);
                 break;
             } catch (RemoteException e) {
                 cnt++;
             } catch (InvalidPlayerException e) {
-                //TODO capisci se gestire meglio questa eccezione
+                // It should never happen
                 throw new RuntimeException(e);
             }
         }

@@ -34,9 +34,9 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
      * Wraps the given gameController to be exposed to the network, and associates this specific controller to the given player
      * @param gameController gameController to wrap in order to be exposed to the network
      * @param player Player (client RMI) who will use this gameController
-     * @throws InvalidPlayerException If the listener is of a player not present in the game
+     * @throws InvalidPlayerException If the given player is not present in the game
      */
-    GameControllerRMI(GameController gameController, PlayerLobby player) throws RemoteException, InvalidPlayerException {
+    public GameControllerRMI(GameController gameController, PlayerLobby player) throws RemoteException, InvalidPlayerException {
         super();
         this.gameController = gameController;
         if(!gameController.getPlayers().contains(player))

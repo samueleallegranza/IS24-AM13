@@ -1,105 +1,121 @@
 package it.polimi.ingsw.am13.client.gamestate;
 
 import it.polimi.ingsw.am13.model.GameModelIF;
+import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
-import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class handling the representation of the state of the game ({@link GameState}).
+ * There is an "update method" for each game event (hence not events like "joinedRoom"). Each of these methods set the
+ * right attributes of the game state to change it according to the event who provoked the change.
+ * So if there is the need for manipulating the game state (i.e. creating it and changing it to keep representing the current
+ * game's state), it should be done by using this class
+ */
 public class GameStateHandler {
 
+    /**
+     * Game state to handle
+     */
     private final GameState state;
 
+    /**
+     * Builds a new handler for the representation of the game's state, starting from the interface of the game's model
+     * @param model Interface of the game's model from which to build the representation of the game's state and the
+     *              corresponding handler
+     */
     public GameStateHandler(GameModelIF model) {
         state = new GameState(model);
     }
 
+    /**
+     * Builds a new handler for the representation of the game's state, starting from an already built representation
+     * @param state Already built representation of the game's state, whose handler is to be created
+     */
     public GameStateHandler(GameState state) {
         this.state = state;
     }
 
+    
+    /**
+     * @return Representation of game's state handled
+     */
     public GameState getState() {
         return state;
     }
 
-    //TODO pensa a quali update servono e quali no
 
-    public void updatePlayerJoinedRoom(PlayerLobby player) throws RemoteException {
 
+
+
+    //TODO: aggiungi anche un paramentro List<Coordinates> availableCoords!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+        state.getPlayerState(player).setStarterCard(cardStarter);
+        FieldState field = state.getPlayerState(player).getField();
+        field.placeCardSideAtCoord(Coordinates.origin(), cardStarter.getPlayedCardSide());
+        //field.setAvailableCoords(availableCoordinates);
     }
 
-    public void updatePlayerLeftRoom(PlayerLobby player) throws RemoteException {
-
+    //TODO: senza il parametro della carta scelta non posso aggiornare lo stato !!!!!!!!!!!!!!!!!!!!!
+    public void updateChosenPersonalObjective(PlayerLobby player) {
     }
 
-    public void updateGameBegins(GameControllerRMIIF controllerRMI) throws RemoteException {
-
+    public void updateNextTurn(PlayerLobby player) {
+        state.setCurrentPlayer(player);
     }
 
-    public void updateStartGame(GameModelIF model) throws RemoteException {
+    //TODO non serve il parametro side
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Side side, Coordinates coords, int points, List<Coordinates> availableCoords) {
+        PlayerState playerState = state.getPlayerState(player);
+        FieldState fieldState = playerState.getField();
 
+        playerState.removeCardPlayed(card);
+        playerState.setPoints(points);
+        fieldState.placeCardSideAtCoord(coords, card.getPlayedCardSide());
+        fieldState.setAvailableCoords(availableCoords);
     }
 
-    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) throws RemoteException {
-
+    //TODO: non posso aggiornare la mano del giocatore se non ho il parametro carta pescata
+    public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards) {
+//        state.getPlayerState(player).addCardPicked(pickedCard);
+        state.setPickables(updatedVisibleCards);
     }
 
-    public void updateChosenPersonalObjective(PlayerLobby player) throws RemoteException {
-
+    public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
+        for(PlayerLobby p : pointsMap.keySet())
+            state.getPlayerState(p).setPoints(pointsMap.get(p));
     }
 
-    public void updateNextTurn(PlayerLobby player) throws RemoteException {
-
+    //TODO: metto winner in state?
+    public void updateWinner(PlayerLobby winner) {
+        state.setGameStatus(GameStatus.ENDED);
     }
 
-    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) throws RemoteException {
-
+    public void updateEndGame() {
+        //TODO: che devo fare? metto ended in state?
     }
 
-    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) throws RemoteException {
-
+    public void updatePlayerDisconnected(PlayerLobby player) {
+        state.getPlayerState(player).setConnected(false);
     }
 
-    public void updatePoints(Map<PlayerLobby, Integer> pointsMap) throws RemoteException {
-
+    public void updatePlayerReconnected(PlayerLobby player) {
+        state.getPlayerState(player).setConnected(true);
     }
 
-    public void updateWinner(PlayerLobby winner) throws RemoteException {
-
+    public void updateFinalPhase() {
+        state.setGameStatus(GameStatus.FINAL_PHASE);
     }
 
-    public void updateEndGame() throws RemoteException {
-
+    public void updateInGame() {
+        state.setGameStatus(GameStatus.IN_GAME);
     }
 
-    public void updatePlayerDisconnected(PlayerLobby player) throws RemoteException {
-
-    }
-
-    public void updatePlayerReconnected(PlayerLobby player) throws RemoteException {
-
-    }
-
-    public void updateFinalPhase() throws RemoteException {
-
-    }
-
-    public void updateInGame() throws RemoteException {
-
-    }
-
-    public void updateGameModel(GameModelIF model, GameControllerRMIIF controllerRMI) throws RemoteException {
-
-    }
-
-    public void updateGameController(GameControllerRMI gameControllerRMI) throws RemoteException {
-
-    }
 }
