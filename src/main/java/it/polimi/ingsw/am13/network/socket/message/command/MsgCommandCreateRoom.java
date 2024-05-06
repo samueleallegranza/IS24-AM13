@@ -23,7 +23,7 @@ public class MsgCommandCreateRoom extends MsgCommand implements Serializable {
 
 
     public MsgCommandCreateRoom(String chosenNickname, Token token, int players) {
-        super(null); // nickname is not set as we don't know if the chosen one is valid
+        super();
         this.chosenNickname = chosenNickname;
         this.token = token;
         this.players = players;

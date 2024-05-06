@@ -19,7 +19,7 @@ public class MsgCommandJoinRoom extends MsgCommand implements Serializable {
     private final int gameId;
 
     public MsgCommandJoinRoom(String chosenNickname, Token token, int gameId) {
-        super(null); // nickname is not set as we don't know if the chosen one is valid
+        super();
         this.chosenNickname = chosenNickname;
         this.token = token;
         this.gameId = gameId;

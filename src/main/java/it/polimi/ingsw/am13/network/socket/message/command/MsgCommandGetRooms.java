@@ -7,6 +7,6 @@ public class MsgCommandGetRooms extends MsgCommand implements Serializable {
     // Empty
 
     public MsgCommandGetRooms() {
-        super(null); // send as anonymous player
+        super();
     }
 }

@@ -7,6 +7,6 @@ public class MsgCommandLeaveRoom extends MsgCommand implements Serializable {
     // Empty
 
     public MsgCommandLeaveRoom(String nickname) {
-        super(nickname);
+        super();
     }
 }
