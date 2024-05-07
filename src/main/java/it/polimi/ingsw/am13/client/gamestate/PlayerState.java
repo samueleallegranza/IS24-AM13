@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.player.PlayerIF;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
  * the points, the field (with the placed cards) and whether they are connected.
  * All the information can be set in any time, with no limitation or checks.
  */
-public class PlayerState {
+public class PlayerState implements Serializable {
 
     /**
      * Starter card of the player. Null if it has not been set yet.
