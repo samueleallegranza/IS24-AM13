@@ -1,4 +1,119 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
+import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
+import it.polimi.ingsw.am13.network.socket.message.response.*;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.ArrayList;
+
 public class ServerResponseHandler extends Thread{
+    private final Socket socket;
+    private GameStateHandler gameStateHandler;
+    public ServerResponseHandler(Socket socket){
+        this.socket=socket;
+        gameStateHandler=null;
+    }
+
+    public void run(){
+
+            ObjectInputStream in=null;
+            try {
+                in = new ObjectInputStream(this.socket.getInputStream());
+            } catch (IOException e){
+                throw new RuntimeException();
+            }
+            while(true){
+                MsgResponse msgResponse;
+                try {
+                    msgResponse=(MsgResponse) in.readObject();
+                }
+                 catch (ClassNotFoundException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    //Todo notifica la view di getRooms, di eventuali errori legati a gameState (rami else di tutti gli if sottostanti), idem per MsgResponseError
+                    switch (msgResponse) {
+                        case MsgResponseGetRooms msgResponseGetRooms ->{
+
+                        }
+
+                        case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom -> {
+                            //if(gameStateHandler!=null)
+                        }
+                        case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->{
+                            //if(gameStateHandler!=null)
+                        }
+                        case MsgResponsePlayerDisconnected msgResponsePlayerDisconnected -> {
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePlayerDisconnected(msgResponsePlayerDisconnected.getPlayer());
+                        }
+                        case MsgResponsePlayerReconnected msgResponsePlayerReconnected -> {
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePlayerReconnected(msgResponsePlayerReconnected.getPlayer());
+                        }
+
+                        case MsgResponseStartGame msgResponseStartGame -> {
+                            if(gameStateHandler==null)
+                                gameStateHandler=new GameStateHandler(msgResponseStartGame.getGameState());
+                        }
+                        case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter());
+                        }
+                        case MsgResponseChosenPersonalObjective msgResponseChosenPersonalObjective ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer());
+                        }
+                        case MsgResponseInGame msgResponseInGame ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateInGame();
+                        }
+
+                        case MsgResponsePlayedCard msgResponsePlayedCard ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePlayedCard(msgResponsePlayedCard.getPlayer(),msgResponsePlayedCard.getCardPlayer(),msgResponsePlayedCard.getSide(),msgResponsePlayedCard.getCoordinates(),msgResponsePlayedCard.getPoints(),msgResponsePlayedCard.getAvailableCoordinates());
+                        }
+                        case MsgResponsePickedCard msgResponsePickedCard ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()));
+                        }
+                        case MsgResponseNextTurn msgResponseNextTurn ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateNextTurn(msgResponseNextTurn.getPlayer());
+                        }
+                        case MsgResponseFinalPhase msgResponseFinalPhase ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateFinalPhase();
+                        }
+
+                        case MsgResponsePointsCalculated msgResponsePointsCalculated ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePoints(msgResponsePointsCalculated.getPoints());
+                        }
+                        case MsgResponseWinner msgResponseWinner ->{
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateWinner(msgResponseWinner.getPlayer());
+                        }
+
+                        case MsgResponseEndGame msgResponseEndGame ->{
+                            if(gameStateHandler!=null) {
+                                gameStateHandler.updateEndGame();
+                                socket.close();
+                            }
+                        }
+
+                        case MsgResponseUpdateGameState msgResponseUpdateGameState ->{
+
+                        }
+                        case MsgResponseError msgResponseError -> System.out.println("Error");
+                        default -> throw new IllegalStateException("Unexpected value: " + msgResponse);
+                    }
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+    }
+
 }

@@ -24,7 +24,7 @@ public class MsgResponsePlayedCard extends MsgResponse implements Serializable {
     /**
      * The coordinates of the card that has been played
      */
-    private final Coordinates ccordinates;
+    private final Coordinates coordinates;
     /**
      * The points that the player has earned by playing the card
      */
@@ -34,12 +34,12 @@ public class MsgResponsePlayedCard extends MsgResponse implements Serializable {
      */
     private final List<Coordinates> availableCoordinates;
 
-    public MsgResponsePlayedCard(PlayerLobby player, CardPlayableIF cardPlayer, Side side, Coordinates ccordinates, Integer points, List<Coordinates> availableCoordinates) {
+    public MsgResponsePlayedCard(PlayerLobby player, CardPlayableIF cardPlayer, Side side, Coordinates coordinates, Integer points, List<Coordinates> availableCoordinates) {
         super("resPlayedCard");
         this.player = player;
         this.cardPlayer = cardPlayer;
         this.side = side;
-        this.ccordinates = ccordinates;
+        this.coordinates = coordinates;
         this.points = points;
         this.availableCoordinates = availableCoordinates;
     }
@@ -56,8 +56,8 @@ public class MsgResponsePlayedCard extends MsgResponse implements Serializable {
         return side;
     }
 
-    public Coordinates getCcordinates() {
-        return ccordinates;
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
     public Integer getPoints() {

@@ -33,7 +33,7 @@ public class Lobby {
     private static Lobby instance = null;
 
     /**
-     * Controllers of the games alreaddy started (mapped via their gameId)
+     * Controllers of the games already started (mapped via their gameId)
      */
     private final Map<Integer, GameController> controllers;
 

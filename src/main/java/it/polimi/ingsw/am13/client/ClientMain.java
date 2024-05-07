@@ -1,66 +1,38 @@
 package it.polimi.ingsw.am13.client;
 
-import java.io.BufferedReader;
+import it.polimi.ingsw.am13.client.network.socket.NetworkHandlerSocket;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.*;
+import java.util.Objects;
 
 public class ClientMain {
-    // TODO: Main of client needs to be replaced! The current one has been placed as a dummy for testing
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         String serverAddress = "localhost";
         int port = 25566;
+        Boolean isSocket=true; //if true, use socket; otherwise, use RMI (they will be modified in the following code)
+        Boolean isTui=true; //if true, use TUI; otherwise use GUI
 
-        Thread.sleep(500);
-
-        try {
-            // Create a socket connection to the server
-            Socket socket = new Socket(serverAddress, port);
-
-            // Connection successful
-            System.out.println("Connected to server at " + serverAddress + ":" + port);
-
-            // Prepare socket input buffer
-            BufferedReader in = null;
+        Thread.sleep(500); //todo a cosa serve?\
+        //TODO se il parametro è help stampare i parametri richiesti
+        if(args.length == 2) {
+            isSocket=(args[0].equals("socket"));
+            isTui=(args[1].equals("tui"));
+        }
+        if(isSocket){
             try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Create a socket connection to the server
+                Socket socket = new Socket(serverAddress, port);
+
+                // Connection successful
+                System.out.println("Connected to server at " + serverAddress + ":" + port);
+                new NetworkHandlerSocket(socket);
+
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // Handle connection errors
+                System.err.println("Error: Could not connect to server at " + serverAddress + ":" + port);
+                e.printStackTrace();
             }
-
-            // Prepare socket output buffer
-            PrintWriter out = null;
-            try {
-                out = new PrintWriter(socket.getOutputStream(), true);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            // send hello message to server
-            String hiMsg = "Hello";
-            out.println(hiMsg);
-
-            // read the response from server
-            String message;
-            try {
-                message = in.readLine();
-                System.out.println("Message from client: " + message);
-                message = in.readLine();
-                System.out.println("Message from client: " + message);
-//                message = in.readLine();
-//                System.out.println("Message from client: " + message);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            // Close the socket when done
-            socket.close();
-
-        } catch (IOException e) {
-            // Handle connection errors
-            System.err.println("Error: Could not connect to server at " + serverAddress + ":" + port);
-            e.printStackTrace();
         }
     }
 }
