@@ -23,30 +23,21 @@ public class TestGameController {
 
         @Override
         public void updateStartGame(GameModelIF model, GameController controller) {
-            /*for(Player player: players) {
-                try {
-                    player.initStarter(model.fetchStarter(player.getPlayerLobby()));
-                } catch (VariableAlreadySetException e) {
-                    throw new RuntimeException(e);
-                } catch (InvalidPlayerException e) {
-                    throw new RuntimeException(e);
-                }
-            }*/
         }
         @Override
-        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         }
         @Override
-        public void updateChosenPersonalObjective(PlayerLobby player) {
+        public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
         }
         @Override
         public void updateNextTurn(PlayerLobby player) {
         }
         @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) {
+        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
         }
         @Override
-        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         }
         @Override
         public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
@@ -64,19 +55,18 @@ public class TestGameController {
         public void updatePlayerReconnected(PlayerLobby player) {
         }
         @Override
-        public void updateGameModel(GameModelIF model, GameController controller) {
-        }
-        @Override
         public void updateFinalPhase() {
         }
         @Override
         public void updateInGame() {
         }
         @Override
+        public void updateGameModel(GameModelIF model) {
+        }
+        @Override
         public PlayerLobby getPlayer() {
             return player;
         }
-
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
         }

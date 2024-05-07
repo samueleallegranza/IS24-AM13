@@ -118,7 +118,7 @@ public class GameController implements Runnable {
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      */
     void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
-        gameModel.reconnectPlayer(gameListener, this);
+        gameModel.reconnectPlayer(gameListener);
         //TODO: per una migliore gestione potresti spostare la notify qui invece che in model
         int numberConnectedPlayers=gameModel.countConnected();
         if(numberConnectedPlayers>1) {
@@ -165,11 +165,6 @@ public class GameController implements Runnable {
                         }
                         else {
                             reconnectionThread=null;
-                        }
-                        try {
-                            Lobby.getInstance().endGame(getGameId());
-                        } catch (LobbyException e) {
-                            throw new RuntimeException(e);
                         }
                     }
                 }

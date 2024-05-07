@@ -66,14 +66,13 @@ public class GameModel implements GameModelIF {
     /**
      * Reconnects the given player. It also notifies the players of this
      * @param gameListener New listener of the player who want to reconnect
-     * @param controller Controller of the game
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already connected when this method was called
      */
-    public void reconnectPlayer(GameListener gameListener, GameController controller) throws InvalidPlayerException, ConnectionException {
+    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         listenerHandler.addListener(gameListener);
         match.reconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this, controller);
+        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this);
     }
 
     public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException {
@@ -258,7 +257,7 @@ public class GameModel implements GameModelIF {
     public void playStarter(PlayerLobby player, Side side)
             throws InvalidPlayerException, GameStatusException, InvalidPlayCardException {
         match.playStarter(player, side);
-        listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player));
+        listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
         if(match.getGameStatus() == GameStatus.IN_GAME)
             listenerHandler.notifyInGame();
     }
@@ -291,7 +290,7 @@ public class GameModel implements GameModelIF {
     public void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         match.choosePersonalObjective(player, cardObj);
-        listenerHandler.notifyChosenPersonalObjective(player);
+        listenerHandler.notifyChosenPersonalObjective(player, cardObj);
         if(match.getGameStatus() == GameStatus.IN_GAME)
             listenerHandler.notifyInGame();
     }
@@ -330,7 +329,7 @@ public class GameModel implements GameModelIF {
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
         match.playCard(card, side, coord);
         try {
-            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, side, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
+            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
         } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
@@ -338,13 +337,13 @@ public class GameModel implements GameModelIF {
 
     /**
      * Picks one of the 6 cards on the table
-     * @param card A playable card that should be in the field
+     * @param card The playable card to pick (that should be in the common field)
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
      */
     public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
         match.pickCard(card);
-        listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables());
+        listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables(), card);
     }
 
 

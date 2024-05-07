@@ -2,10 +2,7 @@ package it.polimi.ingsw.am13.client.gamestate;
 
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.GameStatus;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
@@ -51,28 +48,25 @@ public class GameStateHandler {
     }
 
 
+    //TODO aggiungi documentazione
 
 
-
-    //TODO: aggiungi anche un paramentro List<Coordinates> availableCoords!!!!!!!!!!!!!!!!!!!!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         state.getPlayerState(player).setStarterCard(cardStarter);
         FieldState field = state.getPlayerState(player).getField();
         field.placeCardSideAtCoord(Coordinates.origin(), cardStarter.getPlayedCardSide());
-        //field.setAvailableCoords(availableCoordinates);
+        field.setAvailableCoords(availableCoords);
     }
 
-    //TODO: senza il parametro della carta scelta non posso aggiornare lo stato !!!!!!!!!!!!!!!!!!!!!
-    public void updateChosenPersonalObjective(PlayerLobby player) {
+    public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
+        state.getPlayerState(player).setHandObjective(chosenObj);
     }
 
     public void updateNextTurn(PlayerLobby player) {
         state.setCurrentPlayer(player);
     }
 
-    //TODO non serve il parametro side
-    public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Side side, Coordinates coords, int points, List<Coordinates> availableCoords) {
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Coordinates coords, int points, List<Coordinates> availableCoords) {
         PlayerState playerState = state.getPlayerState(player);
         FieldState fieldState = playerState.getField();
 
@@ -82,9 +76,8 @@ public class GameStateHandler {
         fieldState.setAvailableCoords(availableCoords);
     }
 
-    //TODO: non posso aggiornare la mano del giocatore se non ho il parametro carta pescata
-    public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards) {
-//        state.getPlayerState(player).addCardPicked(pickedCard);
+    public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
+        state.getPlayerState(player).addCardPicked(pickedCard);
         state.setPickables(updatedVisibleCards);
     }
 
@@ -93,13 +86,9 @@ public class GameStateHandler {
             state.getPlayerState(p).setPoints(pointsMap.get(p));
     }
 
-    //TODO: metto winner in state?
     public void updateWinner(PlayerLobby winner) {
         state.setGameStatus(GameStatus.ENDED);
-    }
-
-    public void updateEndGame() {
-        //TODO: che devo fare? metto ended in state?
+        state.setWinner(winner);
     }
 
     public void updatePlayerDisconnected(PlayerLobby player) {

@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am13.controller;
 import it.polimi.ingsw.am13.model.GameModel;
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -113,20 +110,22 @@ public class ListenerHandler {
      * Notifies the view that a starter card has been played by a player. <br>
      * @param player The player that played the starter card.
      * @param cardStarter The starter card played by the player.
+     * @param availableCoords The list of coordinates that are available to play a card
      */
-    public void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter){
+    public void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
-            listener.updatePlayedStarter(player, cardStarter);
+            listener.updatePlayedStarter(player, cardStarter, availableCoords);
         }
     }
 
     /**
      * Notifies the view that a player has chosen a personal objective card. <br>
      * @param player The player that has chosen a personal objective card.
+     * @param chosenObj Objective card chosen by the player
      */
-    public void notifyChosenPersonalObjective(PlayerLobby player){
+    public void notifyChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj){
         for (GameListener listener : listeners) {
-            listener.updateChosenPersonalObjective(player);
+            listener.updateChosenPersonalObjective(player, chosenObj);
         }
     }
 
@@ -145,15 +144,14 @@ public class ListenerHandler {
      * Also notifies the updated list of coordinates where the player can play a card.
      * @param player The player that played the card.
      * @param cardPlayable The card played by the player.
-     * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      * @param points The points given by the card.
      * @param availableCoords The list of updated coordinates where the player can play a card.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord,
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Coordinates coord,
                                  int points, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
-            listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
+            listener.updatePlayedCard(player, cardPlayable, coord, points,availableCoords);
         }
     }
 
@@ -161,10 +159,11 @@ public class ListenerHandler {
      * Notifies the view that a card has been picked by a player. <br>
      * @param player The player that picked the card.
      * @param updatedVisibleCards The updated list of visible cards in the common field (size 6).
+     * @param pickedCard The card picked by the player
      */
-    public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
+    public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard){
         for (GameListener listener : listeners) {
-            listener.updatePickedCard(player, updatedVisibleCards);
+            listener.updatePickedCard(player, updatedVisibleCards, pickedCard);
         }
     }
 
@@ -212,12 +211,11 @@ public class ListenerHandler {
      * Notifies the view that a player has reconnected to the game. <br>
      * @param player The player that has reconnected to the game.
      * @param model The {@link GameModelIF} containing the updated version of the game.
-     * @param controller The {@link GameController} handling this game
      */
-    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model, GameController controller){
+    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
         for (GameListener listener : listeners){
             if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model, controller);
+                listener.updateGameModel(model);
             else
                 listener.updatePlayerReconnected(player);
         }

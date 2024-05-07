@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am13.controller;
 
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
@@ -56,14 +53,16 @@ public interface GameListener {
      * Updates the view that a player has played their starter card.
      * @param player The player that played the starter card.
      * @param cardStarter The starter card played.
+     * @param availableCoords The list of coordinates that are available to play a card
      */
-    void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter);
+    void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords);
 
     /**
      * Updates the view that a player has chosen their personal objective card.
      * @param player The player that chose the personal objective card.
+     * @param chosenObj Objective card chosen by the player
      */
-    void updateChosenPersonalObjective(PlayerLobby player);
+    void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj);
 
     /**
      * Updates the view that the turn has passed to another player.
@@ -75,19 +74,19 @@ public interface GameListener {
      * Updates the view when a player plays a card.
      * @param player The player that played the card.
      * @param cardPlayed The card played.
-     * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      * @param points The points given by the card.
-     * @param availableCoords The list of coordinates that are available to play a card.
+     * @param availableCoords The list of coordinates that are available to play a card
      */
-    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Side side, Coordinates coord, int points, List<Coordinates> availableCoords);
+    void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords);
 
     /**
      * Updates the view when a player picks a card from the common visible cards.
      * @param player The player that picked the card.
      * @param updatedVisibleCards The updated list of visible cards in the common field.
+     * @param pickedCard The card picked by the player
      */
-    void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards);
+    void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard);
 
     /**
      * Updates the view when the points given by Objective cards (common and personal) have been calculated.
@@ -133,9 +132,8 @@ public interface GameListener {
      * This method should be called ONLY when a player reconnects to the game.
      * Updates the view of the reconnected player with the updated game model.
      * @param model The updated game model.
-     * @param controller Controller of the game
      */
-    void updateGameModel(GameModelIF model, GameController controller);
+    void updateGameModel(GameModelIF model);
 
     /**
      * Updates last ping received

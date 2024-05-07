@@ -3,10 +3,7 @@ package it.polimi.ingsw.am13.network.socket;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.socket.message.Message;
 import it.polimi.ingsw.am13.network.socket.message.response.*;
@@ -55,13 +52,15 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         sendMessage(new MsgResponsePlayedStarter(player, cardStarter));
+        //TODO: modifica messaggio (includi available coords)
     }
 
     @Override
-    public void updateChosenPersonalObjective(PlayerLobby player) {
+    public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
         sendMessage(new MsgResponseChosenPersonalObjective(player));
+        //TODO: modifica messaggio (includi chosenObj)
     }
 
     @Override
@@ -70,13 +69,16 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        sendMessage(new MsgResponsePlayedCard(player, cardPlayable, side, coord, points, availableCoords));
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable,
+                                 Coordinates coord, int points, List<Coordinates> availableCoords) {
+        sendMessage(new MsgResponsePlayedCard(player, cardPlayable, null, coord, points, availableCoords));
+        //TODO: modifica messaggio (elimina side, ora l'ho messo a null)
     }
 
     @Override
-    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         sendMessage(new MsgResponsePickedCard(player, updatedVisibleCards));
+        //TODO: modifica messaggio (includi picked card)
     }
 
     @Override
@@ -116,7 +118,7 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model, GameController controller) {
+    public void updateGameModel(GameModelIF model) {
         sendMessage(new MsgResponseUpdateGameState(model));
     }
 

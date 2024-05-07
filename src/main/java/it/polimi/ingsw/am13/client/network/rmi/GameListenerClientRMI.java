@@ -3,10 +3,7 @@ package it.polimi.ingsw.am13.client.network.rmi;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
@@ -49,31 +46,32 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
         //TODO devo solo notificate la view
     }
 
-    public void updateStartGame(GameModelIF model, GameController controller) throws RemoteException, InvalidPlayerException {
+    public void updateStartGame(GameModelIF model, GameController controller)
+            throws RemoteException, InvalidPlayerException {
         GameControllerRMI controllerRMI = new GameControllerRMI(controller, player);
         networkHandler.setController(controllerRMI);
         stateHandler = new GameStateHandler(model);
     }
 
-    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) throws RemoteException {
-        stateHandler.updatePlayedStarter(player, cardStarter);
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) throws RemoteException {
+        stateHandler.updatePlayedStarter(player, cardStarter, availableCoords);
     }
 
-    public void updateChosenPersonalObjective(PlayerLobby player) throws RemoteException {
-        stateHandler.updateChosenPersonalObjective(player);
+    public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) throws RemoteException {
+        stateHandler.updateChosenPersonalObjective(player, chosenObj);
     }
 
     public void updateNextTurn(PlayerLobby player) throws RemoteException {
         stateHandler.updateNextTurn(player);
     }
 
-    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side,
-                                 Coordinates coord, int points, List<Coordinates> availableCoords) throws RemoteException {
-        stateHandler.updatePlayedCard(player, cardPlayable, side, coord, points, availableCoords);
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Coordinates coord,
+                                 int points, List<Coordinates> availableCoords) throws RemoteException {
+        stateHandler.updatePlayedCard(player, cardPlayable, coord, points, availableCoords);
     }
 
-    public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards) throws RemoteException {
-        stateHandler.updatePickedCard(player, updatedVisibleCards);
+    public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) throws RemoteException {
+        stateHandler.updatePickedCard(player, updatedVisibleCards, pickedCard);
     }
 
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) throws RemoteException {
@@ -85,7 +83,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
     }
 
     public void updateEndGame() throws RemoteException {
-        stateHandler.updateEndGame();
+        //TODO devo solo notificare la view
     }
 
     public void updatePlayerDisconnected(PlayerLobby player) throws RemoteException {
@@ -104,9 +102,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
         stateHandler.updateInGame();
     }
 
-    public void updateGameModel(GameModelIF model, GameController controller) throws RemoteException, InvalidPlayerException {
-        GameControllerRMI controllerRMI = new GameControllerRMI(controller, player);
-        networkHandler.setController(controllerRMI);
+    public void updateGameModel(GameModelIF model) throws RemoteException, InvalidPlayerException {
         stateHandler = new GameStateHandler(model);
     }
 }

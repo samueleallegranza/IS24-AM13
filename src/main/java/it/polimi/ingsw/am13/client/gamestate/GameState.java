@@ -53,6 +53,11 @@ public class GameState implements Serializable {
     private final PlayerLobby firstPlayer;
 
     /**
+     * Winner of the game, initially null
+     */
+    private PlayerLobby winner;
+
+    /**
      * Creates a new representation of the game's state starting from the given interface of model
      * @param model Game model from which to retrieve the game's state
      */
@@ -65,6 +70,7 @@ public class GameState implements Serializable {
         this.gameStatus = model.fetchGameStatus();
         this.currentPlayer = model.fetchCurrentPlayer();
         this.firstPlayer = model.fetchFirstPlayer();
+        this.winner = null;
     }
 
     /**
@@ -135,5 +141,21 @@ public class GameState implements Serializable {
      */
     public PlayerLobby getFirstPlayer() {
         return firstPlayer;
+    }
+
+
+    /**
+     * @return Winner of the game, initially null
+     */
+    public PlayerLobby getWinner() {
+        return winner;
+    }
+
+    /**
+     * Sets the winner. This method should be used only once the game is ended
+     * @param winner Winner to set
+     */
+    public void setWinner(PlayerLobby winner) {
+        this.winner = winner;
     }
 }

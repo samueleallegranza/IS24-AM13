@@ -5,7 +5,6 @@ import it.polimi.ingsw.am13.network.socket.message.response.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class ServerResponseHandler extends Thread{
     private final Socket socket;
@@ -17,7 +16,7 @@ public class ServerResponseHandler extends Thread{
 
     public void run(){
 
-            ObjectInputStream in=null;
+            ObjectInputStream in;
             try {
                 in = new ObjectInputStream(this.socket.getInputStream());
             } catch (IOException e){
@@ -58,12 +57,14 @@ public class ServerResponseHandler extends Thread{
                                 gameStateHandler=new GameStateHandler(msgResponseStartGame.getGameState());
                         }
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
-                            if(gameStateHandler!=null)
-                                gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter());
+//                            if(gameStateHandler!=null)
+//                                gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter(), availableCoords);
+                            //TODO ricava available coords da msg
                         }
                         case MsgResponseChosenPersonalObjective msgResponseChosenPersonalObjective ->{
-                            if(gameStateHandler!=null)
-                                gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer());
+//                            if(gameStateHandler!=null)
+//                                gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer(), chosenObj);
+                            //TODO ricava chosen obj da msg
                         }
                         case MsgResponseInGame msgResponseInGame ->{
                             if(gameStateHandler!=null)
@@ -72,11 +73,12 @@ public class ServerResponseHandler extends Thread{
 
                         case MsgResponsePlayedCard msgResponsePlayedCard ->{
                             if(gameStateHandler!=null)
-                                gameStateHandler.updatePlayedCard(msgResponsePlayedCard.getPlayer(),msgResponsePlayedCard.getCardPlayer(),msgResponsePlayedCard.getSide(),msgResponsePlayedCard.getCoordinates(),msgResponsePlayedCard.getPoints(),msgResponsePlayedCard.getAvailableCoordinates());
+                                gameStateHandler.updatePlayedCard(msgResponsePlayedCard.getPlayer(),msgResponsePlayedCard.getCardPlayer(),msgResponsePlayedCard.getCoordinates(),msgResponsePlayedCard.getPoints(),msgResponsePlayedCard.getAvailableCoordinates());
                         }
                         case MsgResponsePickedCard msgResponsePickedCard ->{
-                            if(gameStateHandler!=null)
-                                gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()));
+//                            if(gameStateHandler!=null)
+//                                gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()), pickedCard);
+                            //TODO ricava picked card da msg
                         }
                         case MsgResponseNextTurn msgResponseNextTurn ->{
                             if(gameStateHandler!=null)
@@ -98,9 +100,9 @@ public class ServerResponseHandler extends Thread{
 
                         case MsgResponseEndGame msgResponseEndGame ->{
                             if(gameStateHandler!=null) {
-                                gameStateHandler.updateEndGame();
                                 socket.close();
                             }
+                            //TODO c'è da notificare la view
                         }
 
                         case MsgResponseUpdateGameState msgResponseUpdateGameState ->{

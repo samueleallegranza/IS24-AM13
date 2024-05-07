@@ -11,9 +11,7 @@ import it.polimi.ingsw.am13.network.socket.message.response.MsgResponseGetRooms;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ClientRequestsHandler extends Thread {
 

@@ -3,10 +3,7 @@ import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -97,11 +94,11 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updatePlayedStarter(player, cardStarter);
+                clientLis.updatePlayedStarter(player, cardStarter, availableCoords);
                 break;
             } catch (RemoteException e) {
                 cnt++;
@@ -110,11 +107,11 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateChosenPersonalObjective(PlayerLobby player) {
+    public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updateChosenPersonalObjective(player);
+                clientLis.updateChosenPersonalObjective(player, chosenObj);
                 break;
             } catch (RemoteException e) {
                 cnt++;
@@ -136,11 +133,11 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) {
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Coordinates coord, int points, List<Coordinates> availableCoords) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updatePlayedCard(player, cardPlayable, side, coord, points, availableCoords);
+                clientLis.updatePlayedCard(player, cardPlayable, coord, points, availableCoords);
                 break;
             } catch (RemoteException e) {
                 cnt++;
@@ -149,11 +146,11 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards));
+                clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards), pickedCard);
                 break;
             } catch (RemoteException e) {
                 cnt++;
@@ -253,16 +250,17 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model, GameController controller) {
+    public void updateGameModel(GameModelIF model) {
         int cnt = 0;
         while (cnt < NTRIES) {
             try {
-                clientLis.updateGameModel(model, controller);
+                clientLis.updateGameModel(model);
                 break;
             } catch (RemoteException e) {
                 cnt++;
             } catch (InvalidPlayerException e) {
                 // It should never happen
+                //TODO ripensaci
                 throw new RuntimeException(e);
             }
         }

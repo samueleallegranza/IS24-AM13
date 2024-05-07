@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.network.rmi;
 
-import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
@@ -20,13 +19,6 @@ import java.util.List;
  * This is a controller for a single game/match
  */
 public interface GameControllerRMIIF extends Remote {
-
-    /**
-     * Disconnects the player. No other method should be called after this.
-     * @throws ConnectionException if the player had already been disconnected
-     * @throws LobbyException if gameListener didn't belong to ListenerHandler
-     */
-    void disconnectPlayer() throws RemoteException, ConnectionException, LobbyException;
 
     /**
      * Updates the ping of the player's listener by setting it to the current time

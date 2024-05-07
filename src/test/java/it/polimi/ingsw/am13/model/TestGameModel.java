@@ -29,7 +29,6 @@ public class TestGameModel {
         public PlayerLobby getPlayer() {
             return player;
         }
-
         @Override
         public void updatePlayerJoinedRoom(PlayerLobby player) {
         }
@@ -40,19 +39,19 @@ public class TestGameModel {
         public void updateStartGame(GameModelIF model, GameController controller) {
         }
         @Override
-        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
+        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         }
         @Override
-        public void updateChosenPersonalObjective(PlayerLobby player) {
+        public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
         }
         @Override
         public void updateNextTurn(PlayerLobby player) {
         }
         @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) {
+        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
         }
         @Override
-        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         }
         @Override
         public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
@@ -62,7 +61,6 @@ public class TestGameModel {
         }
         @Override
         public void updateEndGame() {
-
         }
         @Override
         public void updatePlayerDisconnected(PlayerLobby player) {
@@ -70,21 +68,15 @@ public class TestGameModel {
         @Override
         public void updatePlayerReconnected(PlayerLobby player) {
         }
-
-        @Override
-        public void updateGameModel(GameModelIF model, GameController controller) {
-        }
-
         @Override
         public void updateFinalPhase() {
-
         }
-
         @Override
         public void updateInGame() {
-
         }
-
+        @Override
+        public void updateGameModel(GameModelIF model) {
+        }
         @Override
         public Long getPing() {
             return null;
@@ -852,7 +844,7 @@ public class TestGameModel {
         }
 
         //Now player reconnects, and will disconnect after playing a card but before drawing
-        game.reconnectPlayer(disPlayer, null);
+        game.reconnectPlayer(disPlayer);
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();

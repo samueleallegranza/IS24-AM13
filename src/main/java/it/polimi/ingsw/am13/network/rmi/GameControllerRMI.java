@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.network.rmi;
 
 import it.polimi.ingsw.am13.controller.GameController;
-import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
@@ -44,19 +43,6 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
         this.player = player;
     }
     // In this way all methods cannot throw InvalidException (I'm sure this controller is associated to a player present in the game)
-    
-    /**
-     * Disconnects the player. No other method should be called after this.
-     * @throws ConnectionException if the player had already been disconnected
-     * @throws LobbyException if gameListener didn't belong to ListenerHandler
-     */
-    public void disconnectPlayer() throws RemoteException, ConnectionException, LobbyException {
-        try {
-            gameController.disconnectPlayer(player);
-        } catch (InvalidPlayerException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Updates the ping of the player's listener by setting it to the current time
