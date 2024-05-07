@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 public class GameListenerServerSocket implements GameListener {
+    private final ClientRequestsHandler clientRequestsHandler;
     private final ObjectOutputStream out;
     private PlayerLobby player;
 
-    public GameListenerServerSocket(ObjectOutputStream out, PlayerLobby player) {
+    public GameListenerServerSocket(ClientRequestsHandler clientRequestsHandler,ObjectOutputStream out, PlayerLobby player) {
+        this.clientRequestsHandler = clientRequestsHandler;
         this.out = out;
         this.player = player;
     }
@@ -48,8 +50,8 @@ public class GameListenerServerSocket implements GameListener {
 
     @Override
     public void updateStartGame(GameModelIF model, GameController controller) {
+        clientRequestsHandler.handleStartGame(controller);
         sendMessage(new MsgResponseStartGame(model));
-        //TODO: ora non serve più MsgResponseGameBegins, sistema MsgResponseStartGame se serve, altrimenti elimina TODO
     }
 
     @Override
@@ -89,6 +91,7 @@ public class GameListenerServerSocket implements GameListener {
 
     @Override
     public void updateEndGame() {
+        clientRequestsHandler.handleEndGame();
         sendMessage(new MsgResponseEndGame());
     }
 
@@ -114,7 +117,7 @@ public class GameListenerServerSocket implements GameListener {
 
     @Override
     public void updateGameModel(GameModelIF model, GameController controller) {
-        //FIXME: Implement
+        sendMessage(new MsgResponseUpdateGameState(model));
     }
 
     @Override

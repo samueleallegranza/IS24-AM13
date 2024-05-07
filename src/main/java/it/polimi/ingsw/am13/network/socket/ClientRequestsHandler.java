@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.network.socket;
 
-import it.polimi.ingsw.am13.client.gamestate.PlayerClient;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.Lobby;
 import it.polimi.ingsw.am13.controller.LobbyException;
@@ -137,7 +136,7 @@ public class ClientRequestsHandler extends Thread {
         );
 
         // instantiate a hypothetical GameListener
-        GameListenerServerSocket hypotGameListener = new GameListenerServerSocket(this.outputStream, hypotPlayerLobby);
+        GameListenerServerSocket hypotGameListener = new GameListenerServerSocket(this, this.outputStream, hypotPlayerLobby);
 
         // try creating a new Room.
         try {
@@ -167,7 +166,7 @@ public class ClientRequestsHandler extends Thread {
         );
 
         // instantiate a hypothetical GameListener
-        GameListenerServerSocket hypotGameListener = new GameListenerServerSocket(this.outputStream, hypotPlayerLobby);
+        GameListenerServerSocket hypotGameListener = new GameListenerServerSocket(this, this.outputStream, hypotPlayerLobby);
 
 
         // try joining an existing Room.
