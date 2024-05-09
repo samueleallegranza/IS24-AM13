@@ -168,7 +168,7 @@ public class Lobby {
      * Triggers the notification for other players
      * @param player Listener of the player to reconnect
      * @return GameController for the game the player reconnected to
-     * @throws LobbyException If the given player is not among players of any started game
+     * @throws LobbyException If the given player (considering nickname and color of token) is not among players of any started game
      * @throws ConnectionException If the player was already connected
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      * (generic error, should not happen)

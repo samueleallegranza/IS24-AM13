@@ -46,7 +46,8 @@ public class ServerMain {
 
         // ### 3. Binding of RMI registry
         try {
-            Registry registry = LocateRegistry.getRegistry();
+            Registry registry = LocateRegistry.getRegistry(RMI_DEFAULT_PORT);
+            //TODO: capisci come prendere/creare il registro RMI su quella porta
             registry.bind(LOBBY_RMI_NAME, new LobbyRMI());
         } catch (RemoteException e) {
             //TODO: capisci come gestire

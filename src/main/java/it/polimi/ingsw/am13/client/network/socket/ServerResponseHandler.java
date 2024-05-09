@@ -31,6 +31,9 @@ public class ServerResponseHandler extends Thread{
                     throw new RuntimeException(e);
                 }
                 try {
+                    //TODO: le notifiche alla view (chiamate all'interfaccia view per modificarla) sono da fare qui, non le fa gameStateHandler.
+                    // Oppure sì, si può cambiare la cosa
+
                     //Todo notifica la view di getRooms, di eventuali errori legati a gameState (rami else di tutti gli if sottostanti), idem per MsgResponseError
                     switch (msgResponse) {
                         case MsgResponseGetRooms msgResponseGetRooms ->{
@@ -109,6 +112,8 @@ public class ServerResponseHandler extends Thread{
 
                         }
                         case MsgResponseError msgResponseError -> System.out.println("Error");
+                        //TODO: bisogna far arrivare l'eccezione alla view
+
                         default -> throw new IllegalStateException("Unexpected value: " + msgResponse);
                     }
                 }

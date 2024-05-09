@@ -120,7 +120,7 @@ public class Room implements RoomIF {
     }
 
     /**
-     * If the game has not started yet, it temoves the given player from the room.
+     * If the game has not started yet, it removes the given player from the room.
      * If the room is already full, no player in it can leave.
      * It also notifies all players currently in the room.
      * @param player Listener of the player to remove

@@ -102,9 +102,6 @@ public class TestGameModel {
                 new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
                         new LisForTest("2", ColorToken.BLUE),
                         new LisForTest("3", ColorToken.RED))) ));
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
-                        new LisForTest("2", ColorToken.BLACK))) ));
 
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),

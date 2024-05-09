@@ -221,6 +221,7 @@ public class ClientRequestsHandler extends Thread {
         // if a game listener does not exist, this should be handled inside the method Lobby.reconnectPlayer()
         try {
             lobby.reconnectPlayer(this.gameListener);
+            //TODO: no, devi creare tu il game listener nuovo (non esiste più quello vecchio) e passarlo a lobby
         } catch (   LobbyException |
                     ConnectionException |
                     GameStatusException exc

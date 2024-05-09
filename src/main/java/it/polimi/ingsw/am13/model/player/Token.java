@@ -6,7 +6,6 @@ import java.util.Objects;
 /**
  * Represents token present in game.
  * It could be a token representing the color chosen by the player, the token of that color in the scoreboard,
- * or the black token indicating the first player
  */
 public class Token implements Serializable {
 

@@ -1,23 +1,26 @@
 package it.polimi.ingsw.am13.client.network;
 
+import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.Token;
 
+import java.util.List;
+
 public interface NetworkHandler {
     //TODO add exceptions
     //todo msgCommandReconnectGame
-    public void getRooms();
-    public void createRoom(String chosenNickname, Token token, int players);
-    public void joinRoom(String chosenNickname, Token token, int gameId);
-    public void reconnect(String nickname, Token token);
-    public void leaveRoom(String nickname);
-    public void playStarter(Side side);
-    public void choosePersonalObjective(CardObjectiveIF card);
-    public void playCard(CardPlayableIF card, Coordinates coords, Side side);
-    public void pickCard(CardPlayableIF card);
-    public void ping();
+    List<RoomIF> getRooms();
+    void createRoom(String nickname, Token token, int nPlayers);
+    void joinRoom(String nickname, Token token, int gameId);
+    void reconnect(String nickname, Token token);
+    void leaveRoom();
+    void playStarter(Side side);
+    void choosePersonalObjective(CardObjectiveIF card);
+    void playCard(CardPlayableIF card, Coordinates coords, Side side);
+    void pickCard(CardPlayableIF card);
+    void ping();
 
 }

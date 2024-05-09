@@ -32,8 +32,8 @@ public class Match {
     private final Deck<CardStarter> deckStarter;
 
     /**
-     * The players of the match
-     * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
+     * The players of the match. The list is created by building the entire class, and cannot change
+     * The size is >=2 and <=4, the colors of players are all different
      * It includes all the players, even if they are disconnected
      */
     private final List<Player> players;
@@ -85,15 +85,16 @@ public class Match {
      * Initializes the match. It sets the game status to null (game not already really started), chooses the first player
      * at random from the list of players, instantiates the four decks and sets the players list to the list it receives as a parameter.
      * @param players the players of the match
+     * @throws InvalidPlayersNumberException If the number of players is not between 2 and 4,
+     * or the players have tokens of same colors
      */
     public Match(List<Player> players) throws InvalidPlayersNumberException{
         if(players.size()<2 || players.size()>4)
             throw new InvalidPlayersNumberException();
         List<ColorToken> distinctColors = players.stream().map(p -> p.getPlayerLobby().getToken().getColor()).distinct().toList();
-        if(distinctColors.contains(ColorToken.BLACK) || distinctColors.size()!=players.size())
-            // Checks if two or more players have same color of black color
+        if(distinctColors.size()!=players.size())
             throw new InvalidPlayersNumberException();
-        this.players = players;
+        this.players = Collections.unmodifiableList(players);
         playersMap = new HashMap<>();
         for(Player p : players) {
             playersMap.put(p.getPlayerLobby(), p);
@@ -177,7 +178,7 @@ public class Match {
      * @throws ConnectionException if the player was already connected when this method was called
      * @throws InvalidPlayerException if player is not among this match's players
      */
-    public void reconnectPlayer(PlayerLobby player) throws ConnectionException,InvalidPlayerException{
+    public void reconnectPlayer(PlayerLobby player) throws ConnectionException, InvalidPlayerException {
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException();
         playersMap.get(player).reconnectPlayer();
@@ -622,7 +623,7 @@ public class Match {
 
     /**
      * @return The players of the match
-     * The size is >=2 and <=4, the colors of players are all different and cant be a black token among them.
+     * The size is >=2 and <=4, and the colors of players are all different
      */
     public List<Player> getPlayers() {
         return players;

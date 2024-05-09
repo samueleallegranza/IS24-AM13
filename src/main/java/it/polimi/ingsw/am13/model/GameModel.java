@@ -30,7 +30,7 @@ public class GameModel implements GameModelIF {
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
      * @param gameId Class match with all the information regarding the match itself and how to precess it
      * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
-     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
+     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4,
      * or there are duplicate chosen colors
      */
     public GameModel(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {

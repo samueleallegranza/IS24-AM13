@@ -41,11 +41,11 @@ public class GameController implements Runnable {
      * It also starts the game
      * @param gameId Class match with all the information regarding the match itself and how to precess it
      * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
-     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
+     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4,
      * or there are duplicate chosen colors
      */
     GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
-        gameModel=new GameModel(gameId, listenerHandler);
+        gameModel = new GameModel(gameId, listenerHandler);
         try {
             gameModel.startGame(this);
         } catch (GameStatusException e) {
@@ -119,9 +119,8 @@ public class GameController implements Runnable {
      */
     void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
         gameModel.reconnectPlayer(gameListener);
-        //TODO: per una migliore gestione potresti spostare la notify qui invece che in model
-        int numberConnectedPlayers=gameModel.countConnected();
-        if(numberConnectedPlayers>1) {
+        int numberConnectedPlayers = gameModel.countConnected();
+        if(numberConnectedPlayers > 1) {
             stopReconnectionTimer();
             if (numberConnectedPlayers==2 && (gameModel.fetchGameStatus()==GameStatus.IN_GAME && gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
                 nextTurn();

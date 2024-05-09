@@ -6,6 +6,7 @@ import java.util.Objects;
 /**
  * Immutable class representing a player not yet in game.
  * It stores only the information about nickname and token chosen.
+ * 2 objects of this class are equals iff they have same nickname and color of token
  */
 public final class PlayerLobby implements Serializable {
 
@@ -56,8 +57,8 @@ public final class PlayerLobby implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayerLobby that = (PlayerLobby) o;
-        return Objects.equals(nickname, that.nickname);
-//        return Objects.equals(nickname, that.nickname) && Objects.equals(token, that.token);
+//        return Objects.equals(nickname, that.nickname);
+        return Objects.equals(nickname, that.nickname) && Objects.equals(token, that.token);
     }
 
     @Override
