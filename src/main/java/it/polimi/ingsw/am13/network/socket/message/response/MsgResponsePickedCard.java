@@ -16,10 +16,16 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
      */
     private final List<? extends CardPlayableIF> updatedVisibleCards;
 
-    public MsgResponsePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
+    /**
+     * The card that has been picked.
+     */
+    private final CardPlayableIF pickedCard;
+
+    public MsgResponsePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         super("resPickedCard");
         this.player = player;
         this.updatedVisibleCards = updatedVisibleCards;
+        this.pickedCard = pickedCard;
     }
 
     public PlayerLobby getPlayer() {
@@ -28,5 +34,9 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
 
     public List<? extends CardPlayableIF> getUpdatedVisibleCards() {
         return updatedVisibleCards;
+    }
+
+    public CardPlayableIF getPickedCard() {
+        return pickedCard;
     }
 }
