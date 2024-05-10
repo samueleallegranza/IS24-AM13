@@ -39,13 +39,13 @@ public class GameController implements Runnable {
      * Creates a new instance of <code>GameController</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
-     * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
+     * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
+     *                        handler of their listeners
      * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4,
      * or there are duplicate chosen colors
      */
-    GameController(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
-        gameModel = new GameModel(gameId, listenerHandler);
+    GameController(Room listenerHandler) throws InvalidPlayersNumberException {
+        gameModel = new GameModel(listenerHandler);
         try {
             gameModel.startGame(this);
         } catch (GameStatusException e) {

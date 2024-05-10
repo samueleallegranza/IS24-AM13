@@ -30,7 +30,7 @@ public class TestMatch {
         try{
             match=new Match(players);
         } catch (InvalidPlayersNumberException e){
-            System.out.println("Invalid number of players");
+            //System.out.println("Invalid number of players");
         }
 //        assertEquals(match.getGameStatus(),GameStatus.INIT);
         assertNull(match.getGameStatus());
@@ -81,7 +81,7 @@ public class TestMatch {
         try{
             coordinates=new Coordinates(1,1);
         } catch (InvalidCoordinatesException e){
-            System.out.println("Invalid Coordinates");
+            //System.out.println("Invalid Coordinates");
         }
         try {
             match.playCard(handCards.getFirst(),Side.SIDEFRONT,coordinates);
@@ -123,14 +123,14 @@ public class TestMatch {
             try{
                 coordinates=new Coordinates(i,i);
             } catch (InvalidCoordinatesException e){
-                System.out.println("Invalid Coordinates");
+                //System.out.println("Invalid Coordinates");
             }
 
-            /*System.out.println(i);
+            /*//System.out.println(i);
             for(Resource resource : handCards.getFirst().getSide(Side.SIDEBACK).getRequirements().keySet())
-                System.out.println(resource);
+                //System.out.println(resource);
             for(Resource resource : handCards.getFirst().getSide(Side.SIDEFRONT).getRequirements().keySet())
-                System.out.println(resource);
+                //System.out.println(resource);
              */
             try {
                 if(handCards.getFirst().getSide(Side.SIDEFRONT).getCorners().get(1).isPlaceable()){
@@ -151,7 +151,7 @@ public class TestMatch {
             try {
                 for (int j = 1; j < pickableCards.size(); j++) {
                     if(pickableCards.get(j)!=null) {
-                        //System.out.println(pickableCards.get(j));
+                        ////System.out.println(pickableCards.get(j));
                         match.pickCard(pickableCards.get(j));
                         break;
                     }
@@ -159,7 +159,7 @@ public class TestMatch {
             } catch (GameStatusException | InvalidDrawCardException e) {
                 throw new RuntimeException(e);
             }
-            //System.out.println(currentPlayer.getPoints());
+            ////System.out.println(currentPlayer.getPoints());
             assertEquals(currentPlayer.getHandCards().size(),3);
             if(currentPlayer==player1)
                 i++;
@@ -195,7 +195,7 @@ public class TestMatch {
         try{
             match=new Match(players);
         } catch (InvalidPlayersNumberException e){
-            System.out.println("Invalid number of players");
+            //System.out.println("Invalid number of players");
         }
 
         assertNull(match.getGameStatus());
@@ -259,7 +259,7 @@ public class TestMatch {
         try{
             coordinates=new Coordinates(1,1);
         } catch (InvalidCoordinatesException e){
-            System.out.println("Invalid Coordinates");
+            //System.out.println("Invalid Coordinates");
         }
         try {
             match.playCard(handCards.getFirst(),Side.SIDEFRONT,coordinates);
@@ -286,7 +286,7 @@ public class TestMatch {
             try{
                 coordinates=new Coordinates(i,i);
             } catch (InvalidCoordinatesException e){
-                System.out.println("Invalid Coordinates");
+                //System.out.println("Invalid Coordinates");
             }
 
             try {
@@ -308,18 +308,18 @@ public class TestMatch {
             try {
                 for (int j = 0; j < pickableCards.size(); j++) {
                     if(pickableCards.get(j)!=null) {
-                        System.out.println(pickableCards.get(j));
+//                        //System.out.println(pickableCards.get(j));
                         match.pickCard(pickableCards.get(j));
                         break;
                     } else if(j==pickableCards.size()-1) {
-                        System.out.println("No pickable card");
+//                        //System.out.println("No pickable card");
                         match.pickCard(null);
                     }
                 }
             } catch (GameStatusException | InvalidDrawCardException e) {
                 throw new RuntimeException(e);
             }
-            //System.out.println(currentPlayer.getPoints());
+            ////System.out.println(currentPlayer.getPoints());
             if(match.getGameStatus()==GameStatus.IN_GAME)
                 assertEquals(currentPlayer.getHandCards().size(),3);
             if(currentPlayer==player2)
@@ -329,8 +329,8 @@ public class TestMatch {
             } catch (GameStatusException e) {
                 throw new RuntimeException(e);
             }
-            if(match.getGameStatus()==GameStatus.FINAL_PHASE)
-                System.out.println(match.getGameStatus());
+//            if(match.getGameStatus()==GameStatus.FINAL_PHASE)
+                //System.out.println(match.getGameStatus());
         } while (hasNextTurn);
         try {
             match.addObjectivePoints();
@@ -344,7 +344,7 @@ public class TestMatch {
             if(player.getPoints()>wouldWin.getPoints())
                 wouldWin=player;
         match.disconnectPlayer(wouldWin.getPlayerLobby());
-        System.out.println(wouldWin.getPlayerLobby().getNickname()+" would have won");
+        //System.out.println(wouldWin.getPlayerLobby().getNickname()+" would have won");
         try{
             System.out.println("But he disconnected right before the end so "+match.calcWinner().getNickname()+" won");
 //            assertEquals(match.calcWinner(), player0);

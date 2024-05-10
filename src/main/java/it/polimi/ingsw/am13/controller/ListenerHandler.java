@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.Map;
  * and notifying the view when a change occurs in the {@link GameModel} after a game event happens.
  * Depending on the event, the view is notified passing the appropriate parameters.
  */
-public class ListenerHandler {
+public class ListenerHandler implements Serializable {
 
     //TODO: Non dovrebbe, ma potrebbero servire delle synchronized...
 
@@ -39,7 +40,7 @@ public class ListenerHandler {
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
      */
-    public void addListener(GameListener listener) {
+    protected void addListener(GameListener listener) {
         listeners.add(listener);
     }
 
@@ -47,12 +48,13 @@ public class ListenerHandler {
      * Removes a {@link GameListener} from the list of GameListener.
      * @param player Player to disconnect
      * @throws InvalidPlayerException if the player was not part of the listeners list.
+     * @return Listener removed
      */
-    public void removeListener(PlayerLobby player) throws InvalidPlayerException {
+    protected GameListener removeListener(PlayerLobby player) throws InvalidPlayerException {
         for(GameListener l : listeners)
             if(l.getPlayer().equals(player)) {
                 listeners.remove(l);
-                return;
+                return l;
             }
         throw new InvalidPlayerException("Player " + player + " is not among current listeners of the game");
     }
@@ -62,37 +64,12 @@ public class ListenerHandler {
      * @return the list of GameListener.
      */
     public List<GameListener> getListeners() {
-        return listeners;
+        return new ArrayList<>(listeners);
     }
 
 
-    // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
 
-
-    /**
-     * Notify the view that a Player has entered a Room.
-     * This method is to be used only when the game hasn't started yet.
-     * @param player The player that entered the room
-     */
-    public void notifyPlayerJoinedRoom(PlayerLobby player){
-        for (GameListener listener : listeners) {
-            listener.updatePlayerJoinedRoom(player);
-        }
-    }
-
-    /**
-     * Notify the view that a Player has left a Room.
-     * This method is to be used only when the game hasn't started yet.
-     * @param player The player that left the room
-     */
-    public void notifyPlayerLeftRoom(PlayerLobby player){
-        for (GameListener listener : listeners) {
-            listener.updatePlayerLeftRoom(player);
-        }
-    }
-
-
-    // METHODS TO BE CALLED BY GAMEMODEL
+    // NOTIFIES HANDLED BY GAME MODEL
 
 
     /**
@@ -191,35 +168,13 @@ public class ListenerHandler {
      * Notifies the listeners about ending of game.
      * After this notify, the server should not respond to any other request from the clients
      */
-    public void notifyEndGame() {
+    protected void notifyEndGame() {
         for (GameListener listener : listeners){
             listener.updateEndGame();
         }
     }
 
-    /**
-     * Notifies the view that a player has disconnected from the game. <br>
-     * @param player The player that has disconnected from the game.
-     */
-    public void notifyPlayerDisconnected(PlayerLobby player){
-        for (GameListener listener : listeners){
-            listener.updatePlayerDisconnected(player);
-        }
-    }
 
-    /**
-     * Notifies the view that a player has reconnected to the game. <br>
-     * @param player The player that has reconnected to the game.
-     * @param model The {@link GameModelIF} containing the updated version of the game.
-     */
-    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
-        for (GameListener listener : listeners){
-            if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model);
-            else
-                listener.updatePlayerReconnected(player);
-        }
-    }
 
     /**
      * Notifies the view that the game is in the playing phase. <br>

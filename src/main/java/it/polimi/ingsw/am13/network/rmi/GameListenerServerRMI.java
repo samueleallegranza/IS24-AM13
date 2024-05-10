@@ -252,7 +252,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateInGame() {
-        tryRMICall(clientLis::updateEndGame);
+        tryRMICall(clientLis::updateInGame);
     }
 
     /**

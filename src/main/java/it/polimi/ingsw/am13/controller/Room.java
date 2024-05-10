@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.controller;
 
+import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -8,12 +9,12 @@ import java.util.List;
 /**
  * Represents a set of players who are willing to start playing or are already playing.
  * When the room is created, the number of players to reach in order to start the game is set and cannot be modified.
- * The players listed by this class can be added/removed until the target number is reached. After that moment, the
- * players present in the room are the definitive ones.
+ * The players listed by this class can be always added/removed, remaining the size between 0 and the target number chosen.
+ * The first time that target number is reached, the room is set as "game started"
  * Note that the room starts managing the listeners for the players, notifying them for other player joinig/leaving
  * the room.
  */
-public class Room implements RoomIF {
+public class Room extends ListenerHandler implements RoomIF {
 
     /**
      * GameId for the room, denoting a game yet not started or already started
@@ -24,15 +25,6 @@ public class Room implements RoomIF {
      * Target number of players to reach in order to start the game
      */
     private final int nPlayersTarget;
-
-    /**
-     * Handler of the gameListeners for the players in the room.
-     * The number of listeners is >=0 and <=nPlayersTarget
-     */
-    private transient final ListenerHandler listenerHandler;
-    //Transient as I don't want it to go to the network
-
-    //TODO: Così dovrei evitare di inviare sulla rete ListenerHandler, ma controlla questo aspetto
 
     /**
      * Flag indicating if the game for this is started or not.
@@ -50,10 +42,10 @@ public class Room implements RoomIF {
      * @throws LobbyException If the target number of players is <2 or >4
      */
     public Room(int gameId, GameListener player, int nPlayersTarget) throws LobbyException {
+        super();
         this.gameId = gameId;
         if(nPlayersTarget<2 || nPlayersTarget>4)
             throw new LobbyException("The target number of players must be between 2 and 4");
-        this.listenerHandler = new ListenerHandler();
         this.nPlayersTarget = nPlayersTarget;
         gameStarted = false;
         joinRoom(player);
@@ -63,7 +55,7 @@ public class Room implements RoomIF {
      * @return List of players in this room
      */
     public List<PlayerLobby> getPlayers() {
-        return listenerHandler.getListeners().stream().map(GameListener::getPlayer).toList();
+        return getListeners().stream().map(GameListener::getPlayer).toList();
     }
 
     /**
@@ -71,14 +63,6 @@ public class Room implements RoomIF {
      */
     public int getGameId() {
         return gameId;
-    }
-
-    /**
-     * @return Handler of the gameListeners for the players in the room.
-     * The number of listeners is >=0 and <=nPlayersTarget
-     */
-    public ListenerHandler getListenerHandler() {
-        return listenerHandler;
     }
 
     /**
@@ -97,66 +81,114 @@ public class Room implements RoomIF {
     }
 
     /**
-     * @return True if the room is full (that is if the number of current players equals the target number of players), false otherwise
-     */
-    public boolean isFull() {
-        return nPlayersTarget==listenerHandler.getListeners().size();
-    }
-
-    /**
-     * If the game has not started yet, it adds the given player to the room.
-     * If the room is already full, no other player can join it.
-     * It also notifies all players currently in the room.
+     * If the game has not started yet, it adds the given player to the room and notifies all players currently in the room of this.
+     * If, after this, the room gets full, it sets the game for the room as started (Note: it does not notify the players for this)
      * @param player Listener of the player to add
-     * @throws LobbyException If the room is already full, or the game has already started
+     * @throws LobbyException If the room is already full, or if the game has already started
      */
     public void joinRoom(GameListener player) throws LobbyException {
         if(gameStarted)
             throw new LobbyException("The game has already started");
-        if(listenerHandler.getListeners().size() == nPlayersTarget)
+        if(getListeners().size() == nPlayersTarget)
             throw new LobbyException("This room is already full");
-        listenerHandler.addListener(player);
-        listenerHandler.notifyPlayerJoinedRoom(player.getPlayer());
+        addListener(player);
+        notifyPlayerJoinedRoom(player.getPlayer());
+        if(getListeners().size() == nPlayersTarget)
+            this.gameStarted = true;
+    }
+
+
+    /**
+     * If the game has started, it reconnects the given player to the room.
+     * If the room is already full, surely no other player can join it.
+     * It also notifies all players currently in the room of this.
+     * @param player Listener of the player to add
+     * @param model Model representing the current situation to give to the reconnected player
+     * @throws LobbyException If the room is already full, or if the game has not started yet
+     */
+    public void reconnectToRoom(GameListener player, GameModelIF model) throws LobbyException {
+        if(!gameStarted)
+            throw new LobbyException("The game has not started");
+        if(getListeners().size() == nPlayersTarget)
+            throw new LobbyException("This room is already full");
+        addListener(player);
+        notifyPlayerReconnected(player.getPlayer(), model);
     }
 
     /**
-     * If the game has not started yet, it removes the given player from the room.
-     * If the room is already full, no player in it can leave.
-     * It also notifies all players currently in the room.
+     * It removes the given player from the room.
+     * It also notifies all players currently in the room of this.
      * @param player Listener of the player to remove
      * @return True if the room gets empty after removing the given player, false otherwise
-     * @throws LobbyException If the room is already full, or the game has already started,
-     * or the given players is not in the room
+     * @throws LobbyException If the room is already empty, or the given players is not in the room
      */
-    public boolean leaveRoom(GameListener player) throws LobbyException {
-        if(gameStarted)
-            throw new LobbyException("The game has already started");
-        if(listenerHandler.getListeners().size()==nPlayersTarget)
-            throw new LobbyException("The target number of players has been reached, no one can leave");
+    public boolean leaveRoom(PlayerLobby player) throws LobbyException {
+        if(getListeners().isEmpty())
+            throw new LobbyException("The room is empty");
+        GameListener lis;
         try {
-            listenerHandler.removeListener(player.getPlayer());
+            lis = removeListener(player);
         } catch (InvalidPlayerException e) {
             throw new LobbyException("The listener of the player in not in the listener list");
         }
-        listenerHandler.notifyPlayerLeftRoom(player.getPlayer());
-        return listenerHandler.getListeners().isEmpty();
+        if(!gameStarted) {
+            notifyPlayerLeftRoom(player);
+            lis.updatePlayerLeftRoom(player);
+            // Also the just removed player must be notified
+        }
+        else
+            notifyPlayerDisconnected(player);
+            // In this case (network crash) the removed player must not be notified
+        return getListeners().isEmpty();
+    }
+
+
+
+    // NOTIFIES HANDLED BY ROOM
+
+    /**
+     * Notify the view that a Player has entered a Room.
+     * This method is to be used only when the game hasn't started yet.
+     * @param player The player that entered the room
+     */
+    private void notifyPlayerJoinedRoom(PlayerLobby player){
+        for (GameListener listener : getListeners()) {
+            listener.updatePlayerJoinedRoom(player);
+        }
     }
 
     /**
-     * Starts the game for this room. This can be done only if it has not been set yet and if the target number of players is reached.
-     * Note that this action is not notified to the players in the room
-     * @throws LobbyException If the game has already started or if the target number of players is not reached.
+     * Notify the view that a Player has left a Room.
+     * This method is to be used only when the game hasn't started yet.
+     * @param player The player that left the room
      */
-    public void startGameForRoom() throws LobbyException {
-        if(listenerHandler.getListeners().size()!=nPlayersTarget || gameStarted)
-            throw new LobbyException("Cannot start the game, the target number of players is not reached or the game has already started");
-        gameStarted = true;
+    private void notifyPlayerLeftRoom(PlayerLobby player){
+        for (GameListener listener : getListeners()) {
+            listener.updatePlayerLeftRoom(player);
+        }
     }
 
     /**
-     * Ends the game for this room. The room should not be used anymore after this method
+     * Notifies the view that a player has disconnected from the game. <br>
+     * @param player The player that has disconnected from the game.
      */
-    public void endGameForRoom() {
-        listenerHandler.notifyEndGame();
+    private void notifyPlayerDisconnected(PlayerLobby player){
+        for (GameListener listener : getListeners()){
+            listener.updatePlayerDisconnected(player);
+        }
+    }
+
+    /**
+     * Notifies the view that a player has reconnected to the game. <br>
+     * @param player The player that has reconnected to the game.
+     * @param model The {@link GameModelIF} containing the updated version of the game.
+     */
+    private void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
+        for (GameListener listener : getListeners()){
+            if(listener.getPlayer().equals(player))
+                listener.updateGameModel(model);
+            else
+                listener.updatePlayerReconnected(player);
+        }
     }
 }

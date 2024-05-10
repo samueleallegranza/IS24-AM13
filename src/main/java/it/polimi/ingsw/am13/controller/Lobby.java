@@ -108,7 +108,7 @@ public class Lobby {
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
         room.joinRoom(player);
         try {
-            if(room.isFull())
+            if(room.isGameStarted())
                 startGame(gameId);
         } catch (InvalidPlayersNumberException e) {
             // Should never happen
@@ -126,7 +126,7 @@ public class Lobby {
     public synchronized void leaveRoom(GameListener player) throws LobbyException {
         int gameId = rooms.entrySet().stream().filter(entry -> entry.getValue().getPlayers().contains(player.getPlayer())).map(Map.Entry::getKey)
                 .findFirst().orElseThrow(() -> new LobbyException("The specified player (" + player.getPlayer() + " is not in any existing room"));
-        if(rooms.get(gameId).leaveRoom(player))
+        if(rooms.get(gameId).leaveRoom(player.getPlayer()))
             rooms.remove(gameId);
     }
 
@@ -144,8 +144,7 @@ public class Lobby {
         Room room = rooms.get(gameId);
         if(room==null || room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
-        GameController controller = new GameController(gameId, room.getListenerHandler());
-        room.startGameForRoom();
+        GameController controller = new GameController(room);
         controllers.put(gameId, controller);
     }
 
@@ -158,7 +157,7 @@ public class Lobby {
         Room room = rooms.get(gameId);
         if(room==null || !room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or is not running.");
-        room.endGameForRoom();
+        room.notifyEndGame();
         rooms.remove(gameId);
         controllers.remove(gameId);
     }

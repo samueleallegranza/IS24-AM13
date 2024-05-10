@@ -1,13 +1,11 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.controller.GameController;
-import it.polimi.ingsw.am13.controller.GameListener;
-import it.polimi.ingsw.am13.controller.ListenerHandler;
+import it.polimi.ingsw.am13.LisForTest;
+import it.polimi.ingsw.am13.controller.*;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import it.polimi.ingsw.am13.model.player.Token;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -15,76 +13,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameModel {
-
-    private static class LisForTest implements GameListener {
-        private final PlayerLobby player;
-        public LisForTest(PlayerLobby player) {
-            this.player = player;
-        }
-        public LisForTest(String nick, ColorToken color) {
-            this.player = new PlayerLobby(nick, new Token(color));
-        }
-
-        @Override
-        public PlayerLobby getPlayer() {
-            return player;
-        }
-        @Override
-        public void updatePlayerJoinedRoom(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerLeftRoom(PlayerLobby player) {
-        }
-        @Override
-        public void updateStartGame(GameModelIF model, GameController controller) {
-        }
-        @Override
-        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
-        }
-        @Override
-        public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
-        }
-        @Override
-        public void updateNextTurn(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        }
-        @Override
-        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
-        }
-        @Override
-        public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
-        }
-        @Override
-        public void updateWinner(PlayerLobby winner) {
-        }
-        @Override
-        public void updateEndGame() {
-        }
-        @Override
-        public void updatePlayerDisconnected(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerReconnected(PlayerLobby player) {
-        }
-        @Override
-        public void updateFinalPhase() {
-        }
-        @Override
-        public void updateInGame() {
-        }
-        @Override
-        public void updateGameModel(GameModelIF model) {
-        }
-        @Override
-        public Long getPing() {
-            return null;
-        }
-        @Override
-        public void updatePing() {
-        }
-    }
 
     private enum Strategy {
         TRY_GOLD, PLAY_BACK
@@ -95,13 +23,18 @@ public class TestGameModel {
     private GameModel game;
 
     @Test
-    public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException {
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED))) ));
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
-                        new LisForTest("2", ColorToken.BLUE),
-                        new LisForTest("3", ColorToken.RED))) ));
+    public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException, LobbyException {
+
+        Room room1 = new Room(1, new LisForTest("1", ColorToken.RED), 2);
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room1));
+        Room room2 = new Room(1, new LisForTest("1", ColorToken.RED), 3);
+        room2.joinRoom(new LisForTest("2", ColorToken.BLUE));
+        room2.joinRoom(new LisForTest("3", ColorToken.RED));
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room2));
+        Room room3 = new Room(1, new LisForTest("1", ColorToken.RED), 4);
+        room3.joinRoom(new LisForTest("2", ColorToken.BLUE));
+        room3.joinRoom(new LisForTest("3", ColorToken.YELLOW));
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room3));
 
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
@@ -109,7 +42,9 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(2, playerListeners.getFirst(), 2);
+        room.joinRoom(playerListeners.get(1));
+        game = new GameModel(room);
 
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
@@ -154,7 +89,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testStartGame() throws InvalidPlayerException, InvalidPlayersNumberException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, InvalidPlayCardException {
+    public void testStartGame() throws InvalidPlayerException, InvalidPlayersNumberException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, InvalidPlayCardException, LobbyException {
         testCreation();
         game.startGame(null);
         assertThrows(GameStatusException.class, ()->game.nextTurn());
@@ -239,7 +174,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnOne() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidPlayCardException, InvalidDrawCardException, InvalidCoordinatesException {
+    public void testTurnOne() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidPlayCardException, InvalidDrawCardException, InvalidCoordinatesException, LobbyException {
         testStartGame();
         // Now I'm in the beginning of IN_GAME
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
@@ -322,7 +257,7 @@ public class TestGameModel {
     // So The test could fail for the asserts after pickCard, but I daresay this is a rare case.
     // In this case a re-run of the test should fix the fail
     @Test
-    public void testTurnPhasesReach20() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesReach20() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby player = null;
@@ -587,7 +522,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnPhasesReach20_2() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesReach20_2() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby prevPlayer = game.fetchFirstPlayer();
@@ -641,7 +576,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnPhasesEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby prevPlayer = game.fetchFirstPlayer();
@@ -699,7 +634,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException {
+    public void testDisconnectionsInit() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -707,7 +642,10 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(1, playerListeners.get(0), 3);
+        room.joinRoom(playerListeners.get(1));
+        room.joinRoom(playerListeners.get(2));
+        game = new GameModel(room);
 
         for(PlayerLobby player : players) {
             assertNull(game.fetchStarter(player));
@@ -791,7 +729,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testDisconnectionsInGame() throws InvalidPlayersNumberException, InvalidPlayerException, GameStatusException, ConnectionException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -799,7 +737,11 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(1, playerListeners.get(0), 3);
+        room.joinRoom(playerListeners.get(1));
+        room.joinRoom(playerListeners.get(2));
+        game = new GameModel(room);
+
         game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
@@ -862,7 +804,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException {
+    public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
                 new PlayerLobby("2", ColorToken.BLUE),
@@ -870,7 +812,11 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(1, playerListeners.get(0), 3);
+        room.joinRoom(playerListeners.get(1));
+        room.joinRoom(playerListeners.get(2));
+        game = new GameModel(room);
+
         game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);

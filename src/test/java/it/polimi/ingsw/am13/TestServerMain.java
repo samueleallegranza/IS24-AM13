@@ -9,8 +9,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class TestServerMain {
+
+    //TODO: da rivedere (lo faila)
+
     @Test
-    public void testSocket() throws InterruptedException {
+    void testSocket() throws InterruptedException {
         String serverAddress = "localhost";
         int port = 25566;
 
@@ -24,7 +27,7 @@ public class TestServerMain {
             System.out.println("Connected to server at " + serverAddress + ":" + port);
 
             // Prepare socket input buffer
-            BufferedReader in = null;
+            BufferedReader in;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
@@ -32,7 +35,7 @@ public class TestServerMain {
             }
 
             // Prepare socket output buffer
-            PrintWriter out = null;
+            PrintWriter out;
             try {
                 out = new PrintWriter(socket.getOutputStream(), true);
             } catch (IOException e) {
@@ -62,7 +65,7 @@ public class TestServerMain {
         } catch (IOException e) {
             // Handle connection errors
             System.err.println("Error: Could not connect to server at " + serverAddress + ":" + port);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

@@ -33,10 +33,5 @@ public interface RoomIF extends Serializable {
      */
     boolean isGameStarted();
 
-    /**
-     * @return True if the room is full (that is if the number of current players equals the target number of players), false otherwise
-     */
-    boolean isFull();
-
 
 }
