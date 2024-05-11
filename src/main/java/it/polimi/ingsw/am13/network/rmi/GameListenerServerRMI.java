@@ -230,6 +230,11 @@ public class GameListenerServerRMI implements GameListener {
         tryRMICall(() -> clientLis.updatePlayerDisconnected(player));
     }
 
+    @Override
+    public void updateCloseSocket() {
+        //TODO: lato socket lo uso per chiudere il socket del client, qua valuta se serve fare qualcosa.
+    }
+
     /**
      * Updates the client with the player that has reconnected to the game.
      * @param player The player that has reconnected.

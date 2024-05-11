@@ -111,6 +111,11 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
+    public void updateCloseSocket(){
+        clientRequestsHandler.handleDisconnection();
+    };
+
+    @Override
     public void updatePlayerReconnected(PlayerLobby player) {
         sendMessage(new MsgResponsePlayerReconnected(player));
     }

@@ -113,6 +113,11 @@ public interface GameListener {
     void updatePlayerDisconnected(PlayerLobby player);
 
     /**
+     * Updates the client that a player has disconnected and the corresponding socket must be closed.
+     */
+    void updateCloseSocket();
+
+    /**
      * Updates the client with the player that has reconnected to the game.
      * @param player The player that has reconnected.
      */

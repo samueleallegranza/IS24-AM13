@@ -174,6 +174,10 @@ public class Room extends ListenerHandler implements RoomIF {
      */
     private void notifyPlayerDisconnected(PlayerLobby player){
         for (GameListener listener : getListeners()){
+            if(listener.getPlayer().equals(player))
+                listener.updateCloseSocket();
+            else
+                listener.updatePlayerDisconnected(player);
             listener.updatePlayerDisconnected(player);
         }
     }
