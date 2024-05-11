@@ -1,10 +1,13 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
+import it.polimi.ingsw.am13.client.network.PingThread;
+import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 import it.polimi.ingsw.am13.network.socket.message.command.*;
 
@@ -12,18 +15,19 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
 
 public class NetworkHandlerSocket implements NetworkHandler {
     //private final PrintWriter out;
     private final ObjectOutputStream out;
-
+    private PlayerLobby latestPlayer;
     public NetworkHandlerSocket(Socket socket) {
         try {
             this.out = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        new ServerResponseHandler(socket);
+        new ServerResponseHandler(socket,new PingThread(this));
     }
 
     private void flushReset() throws IOException{
@@ -46,11 +50,13 @@ public class NetworkHandlerSocket implements NetworkHandler {
     @Override
     public void createRoom(String chosenNickname, Token token, int players) {
         sendMessage(new MsgCommandCreateRoom(chosenNickname,token,players));
+        latestPlayer=new PlayerLobby(chosenNickname,token);
     }
 
     @Override
     public void joinRoom(String chosenNickname, Token token, int gameId) {
         sendMessage(new MsgCommandJoinRoom(chosenNickname,token,gameId));
+        latestPlayer=new PlayerLobby(chosenNickname,token);
     }
 
     @Override
@@ -59,9 +65,10 @@ public class NetworkHandlerSocket implements NetworkHandler {
     }
 
     @Override
-    public void leaveRoom(String nickname) {
-        sendMessage(new MsgCommandLeaveRoom(nickname));
+    public void leaveRoom() {
+        sendMessage(new MsgCommandLeaveRoom(latestPlayer.getNickname()));
     }
+
 
     @Override
     public void playStarter(Side side) {

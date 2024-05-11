@@ -47,7 +47,7 @@ public class ClientMain {
             try {
                 registry = LocateRegistry.getRegistry(ServerMain.RMI_DEFAULT_PORT);
                 LobbyRMI lobby = (LobbyRMI) registry.lookup(ServerMain.LOBBY_RMI_NAME);
-                networkHandler = new NetworkHandlerRMI(lobby);
+                networkHandler = new NetworkHandlerRMI();
             } catch (RemoteException | NotBoundException e) {
                 System.err.println("Error: Could not connect (rmi) to server at " + serverAddress + ":" + port);
                 throw new RuntimeException(e);
