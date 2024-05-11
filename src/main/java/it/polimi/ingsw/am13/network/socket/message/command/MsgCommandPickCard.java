@@ -8,6 +8,7 @@ public class MsgCommandPickCard extends MsgCommand implements Serializable {
     private final CardPlayableIF card;
 
     public MsgCommandPickCard(CardPlayableIF card) {
+        super();
         this.card = card;
     }
 

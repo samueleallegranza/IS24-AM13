@@ -7,5 +7,6 @@ public class MsgCommandPing extends MsgCommand implements Serializable {
     // Empty
 
     public MsgCommandPing() {
+        super();
     }
 }

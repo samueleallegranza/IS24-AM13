@@ -12,6 +12,7 @@ public class MsgCommandPlayCard extends MsgCommand implements Serializable {
     private final Side side;
 
     public MsgCommandPlayCard(CardPlayableIF card, Coordinates coords, Side side) {
+        super();
         this.card = card;
         this.coords = coords;
         this.side = side;

@@ -12,11 +12,8 @@ public class ServerSocketHandler {
 
     private ServerSocket serverSocket;
 
-    private List<Socket> clientSockets;
-
     public ServerSocketHandler(int socket_port) {
         this.socket_port = socket_port;
-        this.clientSockets = new ArrayList<>();
     }
 
     public void start() throws IOException {
@@ -41,9 +38,6 @@ public class ServerSocketHandler {
 
                     // start a new thread to handle the new client socket
                     new ClientRequestsHandler(newClientSocket).start();
-
-                    // add current socket to the list
-                    clientSockets.add(newClientSocket);
                 }
             }
         };

@@ -9,6 +9,7 @@ public class MsgCommandPlayStarter extends MsgCommand implements Serializable {
     private final Side side;
 
     public MsgCommandPlayStarter(Side side) {
+        super();
         this.side = side;
     }
 

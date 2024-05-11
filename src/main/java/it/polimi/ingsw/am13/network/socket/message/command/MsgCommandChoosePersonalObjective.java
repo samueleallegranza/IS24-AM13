@@ -8,6 +8,7 @@ public class MsgCommandChoosePersonalObjective extends MsgCommand implements Ser
     private final CardObjectiveIF card;
 
     public MsgCommandChoosePersonalObjective(CardObjectiveIF card) {
+        super();
         this.card = card;
     }
 

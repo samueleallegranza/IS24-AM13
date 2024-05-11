@@ -13,21 +13,53 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 
+// TODO: Discuss about Exceptions. Should we add a new one for this class?
+
 public class ClientRequestsHandler extends Thread {
 
+    /**
+     * Socket opened with the connected client
+     */
     private final Socket clientSocket;
+
+    /**
+     * Socket input stream generated from the current socket
+     */
     private final ObjectInputStream inputStream;
+
+    /**
+     * Socket output stream generated from the current socket
+     */
     private final ObjectOutputStream outputStream;
+
+    /**
+     * Instance of the Lobby which exposes the main methods for match init & disconnection
+     */
     private final Lobby lobby;
 
 
+    /**
+     * PlayerLobby of the current socket
+     */
     private PlayerLobby player;
+
+    /**
+     * GameController associated to the match the current player is playing (if he's in a match)
+     */
     private GameController gameController;
 
 
+    /**
+     * GameListener instance associated to the current player
+     */
     private GameListenerServerSocket gameListener;
 
 
+    /**
+     * Constructor for the ClientRequestsHandler class. It retrieves the existing Lobby instance and gets the Socket's
+     * input and output streams.
+     * @param clientSocket Opened Socket of the newly connected client
+     */
     public ClientRequestsHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.lobby = Lobby.getInstance();
@@ -51,21 +83,35 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * Main method for the Thread execution
+     */
     @Override
     public void run() {
         System.out.printf("[Socket][Client:%d] Started listening for new requests\n", clientSocket.getPort());
 
         MsgCommand newCommand;
         while (true) {
-            // Read new Command sent from client (blocking function, until received)
+            // Read new Command sent from client
             try {
+                // readObject() is a blocking method!
                 newCommand = (MsgCommand) this.inputStream.readObject();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                /*
+                    TODO: Refine Exception management at this point. Here is what I guess should happen:
+                        ->  If the inputStream gets closed in handleDisconnection(), then a EOFException is thrown, which
+                            is a subclass of IOException. When this happens, we have to close the socket and end the Thread
+                        ->  If something strange happens, we should (only after EOFException management!) catch the
+                            general IOException. What to do when something like this happens needs to be discussed.
+                            (maybe a new Exception class for this strange behaviours?)
+                */
+                // When this happens, we suppose that the client always has been disconnected (not true, see "TODOs" above)
+                // Break out of the while true cycle.
+                break;
             } catch (ClassNotFoundException e) {
                 // throw away this request as it's not a Command
                 System.out.printf("[Socket][Client:%d] Unexpected message received (expected a Command)\n", clientSocket.getPort());
-                continue;
+                continue; // skip command switching
             }
 
             // Understand which command has been sent and act accordingly
@@ -79,32 +125,129 @@ public class ClientRequestsHandler extends Thread {
                 case MsgCommandChoosePersonalObjective command ->   handleChoosePersonalObjective(command);
                 case MsgCommandPlayCard command ->                  handlePlayCard(command);
                 case MsgCommandPickCard command ->                  handlePickCard(command);
+                case MsgCommandReconnectGame command ->             handleReconnectGame(command);
 
                 default -> System.out.printf("[Socket][Client:%d] Unexpected message received (Command type not found)\n", clientSocket.getPort());
             }
         }
+
+        // Client is disconnected
+        try {
+            this.clientSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // run() returns, the Thread ends its life.
     }
 
+    /**
+     * Logging function which notifies the command which has been received on the server console .
+     * @param cmd Command name
+     */
     private void logCommand(String cmd) {
         System.out.printf("[Socket][Client:%d] Received Command %s\n", clientSocket.getPort(), cmd);
     }
 
+    /**
+     * Checks if the game controller has been set. This method should be called by all the handlers associated to
+     * Commands related to the match.
+     * @return True if GameController is set, False otherwise.
+     */
     private boolean assertGameController() {
+        // TODO: maybe should be handled differently (Exception for this class?)
         return this.gameController != null;
     }
 
-    // TODO: Implement this function in GameListenerServerSocket, it needs to be called in the appropriate update
+    /**
+     * Handler which should be called from the GameListener when the match is started.
+     * It sets the GameController of the new mach the player is playing in.
+     * @param newGameController GameController of the new match
+     */
     public void handleStartGame(GameController newGameController) {
         this.gameController = newGameController;
     }
 
-    // TODO: Implement this function in GameListenerServerSocket, it needs to be called in the appropriate update
+    /**
+     * Handler which should be called from the GameListener when the match is ended.
+     * It unsets all the attributes related to the ended match.
+     */
     public void handleEndGame() {
         // reset PlayerLobby, GameListener and GameController as they are not useful anymore
         this.player = null;
         this.gameListener = null;
         this.gameController = null;
     }
+
+    // TODO: Implement this function in GameListenerServerSocket, it needs to be called in the appropriate update
+    /**
+     * Handler which should be called from the GameListener when the player results disconnected (connection crash or
+     * closed the application). When this happens, the inputStream associated with the client gets closed.
+     * The current ClientRequestsHandler should be "destroyed" (references are removed). <br>
+     * Please note that we close the socket no matter the type of disconnection. This enables a uniformed way of
+     * handling disconnections, even when the opened Socket could be reused.
+     */
+    public void handleDisconnection() {
+        // should arrive when a socket has already been opened
+        // destroy this ClientRequestsHandler object, as it's not useful anymore.
+
+        // close the input stream.
+        try {
+            this.inputStream.close();
+        } catch (IOException e) {
+            System.out.printf("[Socket][Client:%d] " +
+                    "handleDisconnection() called but IOException occurred when closing Input Stream." +
+                    "Please investigate (socket already closed?)\n", clientSocket.getPort());
+        }
+
+        // dereference all client-related attributes for safety.
+        this.player = null;
+        this.gameController = null;
+        this.gameListener = null;
+    }
+
+
+    // --------------------------------------------------------------------------
+    // ----------------------------- > COMMANDS < -------------------------------
+    // --------------------------------------------------------------------------
+
+    public void handleReconnectGame(MsgCommandReconnectGame command) {
+        logCommand("reconnectGame");
+
+        // create a hypothetical PlayerLobby
+        PlayerLobby hypotPlayerLobby = new PlayerLobby(
+                command.getNickname(),
+                command.getToken()
+        );
+
+        // instantiate a hypothetical GameListener
+        GameListenerServerSocket hypotGameListener = new GameListenerServerSocket(this, this.outputStream, hypotPlayerLobby);
+
+        // try reconnecting the player to its match
+        try {
+            // if information given are valid, the "ghost" player is found and successfully reconnected
+            this.gameController = this.lobby.reconnectPlayer(hypotGameListener);
+        } catch (LobbyException | ConnectionException | GameStatusException exc) {
+            // if no "ghost" player is found or other game-related exceptions are thrown, send error message back to client
+            this.gameListener.sendError(exc);
+            return; // [!] important!
+        }
+
+        // reconnection handled successfully, link attributes recovering previous client state
+        this.player = hypotPlayerLobby;
+        this.gameListener = hypotGameListener;
+    }
+
+    private void handlePing(MsgCommandPing command) {
+        logCommand("ping");
+
+        // TODO: What do we do when the gameController is null? Note that this is replicated in many other handlers.
+        if(assertGameController()) {
+            // update last ping
+            this.gameController.updatePing(this.player);
+        }
+    }
+
 
     private void handleGetRooms(MsgCommandGetRooms command) {
         // [!] Special case message: client has no PlayerLobby linked to it.
@@ -143,7 +286,7 @@ public class ClientRequestsHandler extends Thread {
                     command.getPlayers()
             );
         } catch (LobbyException exc) {
-           // the chosen nickname is invalid (another player has it!). Send an error back.
+            // the chosen nickname is invalid (another player has it!). Send an error back.
             hypotGameListener.sendError(exc);
             return; // [!] important
         }
@@ -199,35 +342,6 @@ public class ClientRequestsHandler extends Thread {
         // update PlayerLobby & GameListener of this client handler. The player has not them anymore.
         this.player = null;
         this.gameListener = null;
-    }
-
-    private void handlePing(MsgCommandPing command) {
-        logCommand("ping");
-
-        // TODO: What do we do when the gameController is null? Note that this is replicated in many other handlers.
-        if(assertGameController()) {
-            // update last ping
-            this.gameController.updatePing(this.player);
-        }
-    }
-
-
-    // TODO: This command does not handle player reconnection when has crashed because of connection issues.
-    // in that case a new socket is created (this thread will keep existing as a ghost)
-    private void handleReconnectGame(MsgCommandReconnectGame command) {
-        logCommand("playerReconnect");
-
-        // try the reconnection of the player linked to the current socket
-        // if a game listener does not exist, this should be handled inside the method Lobby.reconnectPlayer()
-        try {
-            lobby.reconnectPlayer(this.gameListener);
-            //TODO: no, devi creare tu il game listener nuovo (non esiste più quello vecchio) e passarlo a lobby
-        } catch (   LobbyException |
-                    ConnectionException |
-                    GameStatusException exc
-        ) {
-            this.gameListener.sendError(exc);
-        }
     }
 
     private void handlePlayStarter(MsgCommandPlayStarter command) {
