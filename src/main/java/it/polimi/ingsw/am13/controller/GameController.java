@@ -51,6 +51,7 @@ public class GameController implements Runnable {
         } catch (GameStatusException e) {
             throw new RuntimeException(e);
         }
+        new Thread(this).start();
     }
 
     /**

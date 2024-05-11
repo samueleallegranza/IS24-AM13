@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
+import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.network.socket.message.response.*;
 
 import java.io.*;
@@ -9,9 +10,11 @@ import java.net.Socket;
 public class ServerResponseHandler extends Thread{
     private final Socket socket;
     private GameStateHandler gameStateHandler;
-    public ServerResponseHandler(Socket socket){
+    private final PingThread pingThread;
+    public ServerResponseHandler(Socket socket, PingThread pingThread){
         this.socket=socket;
         gameStateHandler=null;
+        this.pingThread=pingThread;
     }
 
     public void run(){
@@ -102,9 +105,9 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponseEndGame msgResponseEndGame ->{
-                            if(gameStateHandler!=null) {
-                                socket.close();
-                            }
+                           // if(gameStateHandler!=null)
+                            socket.close();
+                            pingThread.interrupt();
                             //TODO c'è da notificare la view
                         }
 

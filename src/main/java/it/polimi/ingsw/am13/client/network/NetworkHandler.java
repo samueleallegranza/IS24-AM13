@@ -12,7 +12,7 @@ import java.util.List;
 public interface NetworkHandler {
     //TODO add exceptions
     //todo msgCommandReconnectGame
-    List<RoomIF> getRooms();
+    void getRooms();
     void createRoom(String nickname, Token token, int nPlayers);
     void joinRoom(String nickname, Token token, int gameId);
     void reconnect(String nickname, Token token);
