@@ -4,7 +4,9 @@ import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayersNumberException;
+import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import it.polimi.ingsw.am13.model.player.Token;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,11 +69,22 @@ public class Lobby {
     /**
      * Checks if specified nickname is valid, that is if it's not already chosen by someone else in the lobby
      * @param player Listener of the player whose nickname is to be checked if it is valid
-     * @return True if player is valid (has not been already chosen), false otherwise
+     * @return False if player is valid (has not been already chosen), true otherwise
      */
     private boolean isNickInvalid(GameListener player) {
         String nick = player.getPlayer().getNickname();
-        return !rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
+        return rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
+    }
+
+    /**
+     * Checks if the color of spcified player's token is valid, that is if it's not already chosen by someone else in the room
+     * @param player Listener of the player whose nickname is to be checked if it is valid
+     * @param room Room the player wants to join
+     * @return False if player is valid (has not been already chosen), true otherwise
+     */
+    private boolean isTokenInvalid(GameListener player, Room room) {
+        ColorToken color = player.getPlayer().getToken().getColor();
+        return room.getPlayers().stream().map(PlayerLobby::getToken).map(Token::getColor).toList().contains(color);
     }
 
     /**
@@ -80,7 +93,8 @@ public class Lobby {
      * In case of success, the player who created the room is notified.
      * @param player First player who creates the game which will start in the future
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
-     * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
+     * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
+     * or if the given target number of players to reach is <2 or >4
      */
     public synchronized void createRoom(GameListener player, int nPlayers) throws LobbyException {
         if(isNickInvalid(player))
@@ -93,12 +107,16 @@ public class Lobby {
     /**
      * Adds a players to an existing room, specified by the given gameId.
      * In case of success, the players in that room are notified.
-     * If the room with the newly joined players if full, it makes the game start.
+     * If the room with the newly joined players if full, it makes the game start (and notifies the players of this).
      * @param gameId Id of the room the player wants to join
      * @param player Listener of the player to add to that room
-     * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
-     * or if the room with the given gameId does not exist,
-     * or if it exists but the room is already full
+     * @throws LobbyException If
+     * <ul>
+     *     <li>the player has a nickName already chosen by another player in the lobby</li>
+     *     <li>or if the color chosen is already taken</li>
+     *     <li>or if the room with the given gameId does not exist</li>
+     *     <li>or if it exists but the room is already full</li>
+     * </ul>
      */
     public synchronized void joinRoom(int gameId, GameListener player) throws LobbyException {
         Room room = rooms.get(gameId);
@@ -106,6 +124,8 @@ public class Lobby {
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
         if(isNickInvalid(player))
             throw new LobbyException("Player " + player.getPlayer() + " is already present in a game");
+        if(isTokenInvalid(player, room))
+            throw new LobbyException("Chosen token " + player.getPlayer().getToken() + " is not a valid choice in this room");
         room.joinRoom(player);
         try {
             if(room.isGameStarted())
@@ -119,7 +139,7 @@ public class Lobby {
     /**
      * Removes a players from the existing room (specified by the given gameId) they joined.
      * In case of success, it notifies the players in the room
-     * If the room becomes empty, it is automatically removed, as if it has never been created.
+     * If the room becomes empty, it is automatically removed, as if it has never been created. (it does not notify the players of this)
      * @param player Player to remove from that room
      * @throws LobbyException If the specified player is not in any existing rooms
      */
@@ -134,7 +154,7 @@ public class Lobby {
      * Starts the game for the room specified by gameId.
      * It creates the associated <code>GameController</code>, actually starting that game
      * @param gameId Game to start
-     * @throws LobbyException If the specified game has not been created (is not among the yet-to-be-started games)
+     * @throws LobbyException If the room corresponding to the given gameId does not exist or has not started the game yet
      * @throws InvalidPlayersNumberException If the game contains only 1 player
      */
     private synchronized void startGame(int gameId) throws LobbyException, InvalidPlayersNumberException {
@@ -142,7 +162,7 @@ public class Lobby {
             connected, and will be disconnected by ping system of gameController
         */
         Room room = rooms.get(gameId);
-        if(room==null || room.isGameStarted())
+        if(room==null || !room.isGameStarted())
             throw new LobbyException("This game (" + gameId + ") does not exist or has already started");
         GameController controller = new GameController(room);
         controllers.put(gameId, controller);
@@ -156,7 +176,7 @@ public class Lobby {
     public synchronized void endGame(int gameId) throws LobbyException {
         Room room = rooms.get(gameId);
         if(room==null || !room.isGameStarted())
-            throw new LobbyException("This game (" + gameId + ") does not exist or is not running.");
+            throw new LobbyException("This game (" + gameId + ") does not exist or is not started.");
         room.notifyEndGame();
         rooms.remove(gameId);
         controllers.remove(gameId);
@@ -181,5 +201,10 @@ public class Lobby {
             throw new RuntimeException(e);
         }
         return controller;
+    }
+
+    //TODO: ripensaci
+    public static void resetLobby() {
+        instance = new Lobby();
     }
 }

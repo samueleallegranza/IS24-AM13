@@ -8,6 +8,7 @@ import it.polimi.ingsw.am13.model.player.PlayerIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,11 @@ import java.util.Map;
  * that the pre-game phase, where players join the room before it gets full, is not represented.
  */
 public class GameState implements Serializable {
+
+    /**
+     * Game ID for this game
+     */
+    private final int gameId;
 
     /**
      * The players in the game, mapped via their player lobby
@@ -62,6 +68,7 @@ public class GameState implements Serializable {
      * @param model Game model from which to retrieve the game's state
      */
     public GameState(GameModelIF model) {
+        this.gameId = model.getGameId();
         this.players = new HashMap<>();
         for(PlayerIF p : model.fetchPlayers())
             this.players.put(p.getPlayerLobby(), new PlayerState(p));
@@ -71,6 +78,20 @@ public class GameState implements Serializable {
         this.currentPlayer = model.fetchCurrentPlayer();
         this.firstPlayer = model.fetchFirstPlayer();
         this.winner = null;
+    }
+
+    /**
+     * @return Game ID for this game
+     */
+    public int getGameId() {
+        return gameId;
+    }
+
+    /**
+     * @return List of players in the game. (should not change)
+     */
+    public List<PlayerLobby> getPlayers() {
+        return new ArrayList<>(players.keySet());
     }
 
     /**

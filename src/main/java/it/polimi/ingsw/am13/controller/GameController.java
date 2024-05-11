@@ -77,7 +77,7 @@ public class GameController implements Runnable {
                 if (System.currentTimeMillis() - gameListener.getPing() > timeout) {
                     try {
                         disconnectPlayer(gameListener.getPlayer());
-                        if(gameModel.countConnected()==0){
+                        if(gameModel.countConnected() == 0) {
                             stopReconnectionTimer();
                             Lobby.getInstance().endGame(getGameId());
                             return;

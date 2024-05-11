@@ -9,7 +9,9 @@ import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import it.polimi.ingsw.am13.network.socket.message.response.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +23,18 @@ public class LisForTest implements GameListener {
 
     private final PlayerLobby player;
 
-    public ControlAction lastAction;
+    public GameController controller;
+
+    public final List<ControlAction> actions = new ArrayList<>();
+    public final List<MsgResponse> updates = new ArrayList<>();
 
     public LisForTest(PlayerLobby player) {
         this.player = player;
+        this.controller = null;
     }
 
     public LisForTest(String nick, ColorToken color) {
-        this.player = new PlayerLobby(nick, color);
+        this(new PlayerLobby(nick, color));
     }
 
     @Override
@@ -43,86 +49,113 @@ public class LisForTest implements GameListener {
 
     @Override
     public void updatePlayerJoinedRoom(PlayerLobby player) {
-        lastAction = ControlAction.JOIN_ROOM;
+        actions.add(ControlAction.JOIN_ROOM);
+        updates.add(new MsgResponsePlayerJoinedRooom(player));
     }
 
     @Override
     public void updatePlayerLeftRoom(PlayerLobby player) {
-        lastAction = ControlAction.LEAVE_ROOM;
+        actions.add(ControlAction.LEAVE_ROOM);
+        updates.add(new MsgResponsePlayerLeftRoom(player));
     }
 
     @Override
     public void updateStartGame(GameModelIF model, GameController controller) {
-        lastAction = ControlAction.START_GAME;
+        this.controller = controller;
+        actions.add(ControlAction.START_GAME);
+        updates.add(new MsgResponseStartGame(model));
     }
 
     @Override
     public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
-        lastAction = ControlAction.PLAY_STARTER;
+        actions.add(ControlAction.PLAY_STARTER);
+        updates.add(new MsgResponsePlayedStarter(player, cardStarter, availableCoords));
     }
 
     @Override
     public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
-        lastAction = ControlAction.CHOOSE_OBJ;
+        actions.add(ControlAction.CHOOSE_OBJ);
+        updates.add(new MsgResponseChosenPersonalObjective(player, chosenObj));
     }
 
     @Override
     public void updateNextTurn(PlayerLobby player) {
-        lastAction = ControlAction.NEXT_TURN;
+        actions.add(ControlAction.NEXT_TURN);
+        updates.add(new MsgResponseNextTurn(player));
     }
 
     @Override
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        lastAction = ControlAction.PLAY;
+        actions.add(ControlAction.PLAY);
+        updates.add(new MsgResponsePlayedCard(player, cardPlayed, coord, points, availableCoords));
     }
 
     @Override
     public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
-        lastAction = ControlAction.PICK;
+        actions.add(ControlAction.PICK);
+        updates.add(new MsgResponsePickedCard(player, updatedVisibleCards, pickedCard));
     }
 
     @Override
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
-        lastAction = ControlAction.EXTRAN_POINTS;
+        actions.add(ControlAction.EXTRAN_POINTS);
+        updates.add(new MsgResponsePointsCalculated(pointsMap));
     }
 
     @Override
     public void updateWinner(PlayerLobby winner) {
-        lastAction =  ControlAction.WINNER;
+        actions.add( ControlAction.WINNER);
+        updates.add(new MsgResponseWinner(player));
     }
 
     @Override
     public void updateEndGame() {
-        lastAction = ControlAction.END_GAME;
+        actions.add(ControlAction.END_GAME);
+        updates.add(new MsgResponseEndGame());
     }
 
     @Override
     public void updatePlayerDisconnected(PlayerLobby player) {
-        lastAction = ControlAction.DISCONNECTED;
+        actions.add(ControlAction.DISCONNECTED);
+        updates.add(new MsgResponsePlayerDisconnected(player));
+    }
+
+    /**
+     * Updates the client that a player has disconnected and the corresponding socket must be closed.
+     */
+    @Override
+    public void updateCloseSocket() {
+        //TODO: gestisci
+
     }
 
     @Override
     public void updatePlayerReconnected(PlayerLobby player) {
-        lastAction = ControlAction.RECONNECTED;
+        actions.add(ControlAction.RECONNECTED);
+        updates.add(new MsgResponsePlayerReconnected(player));
     }
 
     @Override
     public void updateFinalPhase() {
-        lastAction = ControlAction.FINAL_PHASE;
+        actions.add(ControlAction.FINAL_PHASE);
+        updates.add(new MsgResponseFinalPhase());
     }
 
     @Override
     public void updateInGame() {
-        lastAction = ControlAction.IN_GAME;
+        actions.add(ControlAction.IN_GAME);
+        updates.add(new MsgResponseInGame());
     }
 
     @Override
     public void updateGameModel(GameModelIF model) {
-        lastAction = ControlAction.UPDATE_GAMEMODEL;
+        actions.add(ControlAction.UPDATE_GAMEMODEL);
+        updates.add(new MsgResponseUpdateGameState(model));
     }
 
     @Override
     public void updatePing() {
-        lastAction = ControlAction.UPDATE_PING;
+        actions.add(ControlAction.UPDATE_PING);
+        updates.add(new MsgResponsePing());
     }
 }

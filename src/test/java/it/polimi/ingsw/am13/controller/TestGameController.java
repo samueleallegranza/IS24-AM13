@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.controller;
 
 
-import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -13,73 +12,7 @@ public class TestGameController {
     GameController gameController;
     List<CardPlayable> playableCards;
     //List<Player> players;
-    static class GameListenerForTesting implements GameListener{
-        private final PlayerLobby player;
-        private Long ping;
-        public GameListenerForTesting(PlayerLobby player) {
-            this.player = player;
-        }
 
-        @Override
-        public void updateStartGame(GameModelIF model, GameController controller) {
-        }
-        @Override
-        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
-        }
-        @Override
-        public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
-        }
-        @Override
-        public void updateNextTurn(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        }
-        @Override
-        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
-        }
-        @Override
-        public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
-        }
-        @Override
-        public void updateWinner(PlayerLobby winner) {
-        }
-        @Override
-        public void updateEndGame() {
-        }
-        @Override
-        public void updatePlayerDisconnected(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerReconnected(PlayerLobby player) {
-        }
-        @Override
-        public void updateFinalPhase() {
-        }
-        @Override
-        public void updateInGame() {
-        }
-        @Override
-        public void updateGameModel(GameModelIF model) {
-        }
-        @Override
-        public PlayerLobby getPlayer() {
-            return player;
-        }
-        @Override
-        public void updatePlayerJoinedRoom(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerLeftRoom(PlayerLobby player) {
-        }
-        @Override
-        public Long getPing() {
-            return null;
-        }
-        @Override
-        public void updatePing() {
-        }
-    }
     @Test
     public void testConstruction(){
         ArrayList<PlayerLobby> players=new ArrayList<>(Arrays.asList(new PlayerLobby("Al", ColorToken.RED),new PlayerLobby("John",ColorToken.BLUE)));
@@ -90,6 +23,22 @@ public class TestGameController {
 //        } catch (InvalidPlayersNumberException e){
 //            throw new RuntimeException();
 //        }
+    }
+
+    @Test
+    void testUpdatePing() {
+    }
+
+    @Test
+    public void testDisconnectPlayer() {
+
+    }
+
+
+
+    @Test
+    public void testPlayCard() {
+
     }
 
     @Test
