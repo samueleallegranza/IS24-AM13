@@ -13,6 +13,7 @@ public class ViewTUIHandler implements View {
 
     @Override
     public void showStartupScreen() {
+        this.currentView = new ViewTUIRooms();
 
     }
 
