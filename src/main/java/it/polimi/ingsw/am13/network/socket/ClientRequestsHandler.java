@@ -195,9 +195,11 @@ public class ClientRequestsHandler extends Thread {
         try {
             this.inputStream.close();
         } catch (IOException e) {
+            // TODO: Investigate more on this matter
             System.out.printf("[Socket][Client:%d] " +
                     "handleDisconnection() called but IOException occurred when closing Input Stream." +
                     "Please investigate (socket already closed?)\n", clientSocket.getPort());
+            return;
         }
 
         // dereference all client-related attributes for safety.
@@ -211,6 +213,12 @@ public class ClientRequestsHandler extends Thread {
     // ----------------------------- > COMMANDS < -------------------------------
     // --------------------------------------------------------------------------
 
+    /**
+     * Command handler for "reconnectGame" command. This command should be the first one received from a client which
+     * wants to reconnect after a disconnection. Will be checked if a player with given command's information exists,
+     * otherwise an error response is sent back to client.
+     * @param command reconnectGame command
+     */
     public void handleReconnectGame(MsgCommandReconnectGame command) {
         logCommand("reconnectGame");
 
@@ -238,6 +246,10 @@ public class ClientRequestsHandler extends Thread {
         this.gameListener = hypotGameListener;
     }
 
+    /**
+     * Command handler for "ping" command. Updates the game controller about the last ping received.
+     * @param command MsgCommandPing command
+     */
     private void handlePing(MsgCommandPing command) {
         logCommand("ping");
 
@@ -248,7 +260,11 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
-
+    /**
+     * Command handler for "getRooms" command. This command is handled differently compared with others as no player is
+     * associated with the request.
+     * @param command MsgCommandGetRooms command
+     */
     private void handleGetRooms(MsgCommandGetRooms command) {
         // [!] Special case message: client has no PlayerLobby linked to it.
         //     Response is custom managed here.
@@ -267,6 +283,11 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * Command handler for "createRoom" command. The client sends its chosen nickname and token color. If the given
+     * information are valid for the creation of a new Room, it gets created. Otherwise, an error is sent back to client.
+     * @param command
+     */
     private void handleCreateRoom(MsgCommandCreateRoom command) {
         logCommand("createRoom");
 
