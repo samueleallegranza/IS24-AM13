@@ -137,4 +137,8 @@ public class ViewTUI implements View {
     public void showPlayerReconnected(PlayerLobby player) {
 
     }
+
+    public Map<String, MenuItem> getCurrentMenu() {
+        return currentMenu;
+    }
 }
