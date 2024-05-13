@@ -3,6 +3,7 @@ package it.polimi.ingsw.am13.client.view.tui.menu;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
 
@@ -19,13 +20,12 @@ public class MenuItemPlayCard extends MenuItem {
 
     /**
      * Build a new item for playing a card on field
-     * @param networkHandler Handler of the network, which allows to send the command to the server
      * @param state Reference to the current game's state
      */
-    public MenuItemPlayCard(NetworkHandler networkHandler, GameState state) {
+    public MenuItemPlayCard(GameState state) {
         super("play",
-                "Choose the card to play: 'play <Number of card> <Number of spot in field> <Side (front/back)>'",
-                networkHandler);
+                "Choose the card to play: 'play <Number of card> <Number of spot in field> <Side (front/back)>'"
+                );
         this.state = state;
 
     }
@@ -33,10 +33,11 @@ public class MenuItemPlayCard extends MenuItem {
     /**
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
+     * @param networkHandler Handler of the network thanks to which the item sends the command to the server
      * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=3)
             throw new InvalidTUIArgumentsException("Parameters must be 3: <Number of card to play>, <Number of spot where" +
@@ -63,6 +64,7 @@ public class MenuItemPlayCard extends MenuItem {
             throw new InvalidTUIArgumentsException("Third parameter must be the side on which to play the card (F for front, B for back");
 
         //TODO forse è da sistemare la numerazione (non so se parte da 1 o da 0)
+        PlayerLobby player = networkHandler.getPlayer();
         try {
             networkHandler.playCard(
                     state.getPlayerState(player).getHandPlayable().get(cardIdx),

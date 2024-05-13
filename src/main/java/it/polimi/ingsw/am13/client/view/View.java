@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -13,6 +14,12 @@ import java.util.List;
  * The other methods can be used to modify the view in order to respond to the updates coming from the server.
  */
 public interface View {
+
+    /**
+     * Sets the handler of the network, which the view can use to send its command actions to the server
+     * @param networkHandler Handler of the network
+     */
+    void setNetworkHandler(NetworkHandler networkHandler);
 
     /**
      * Shows a startup screen. It should be used as first introduction view when the view is created

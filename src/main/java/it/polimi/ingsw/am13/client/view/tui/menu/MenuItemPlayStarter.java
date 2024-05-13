@@ -13,21 +13,21 @@ public class MenuItemPlayStarter extends MenuItem {
 
     /**
      * Build a new item for playing the starter card
-     * @param networkHandler Handler of the network, which allows to send the command to the server
      */
-    public MenuItemPlayStarter(NetworkHandler networkHandler) {
+    public MenuItemPlayStarter() {
         super("play_starter",
-                "Choose the side on which to play the starter card: 'play_starter <Side (front/back)>'",
-                networkHandler);
+                "Choose the side on which to play the starter card: 'play_starter <Side (front/back)>'"
+                );
     }
 
     /**
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
+     * @param networkHandler Handler of the network thanks to which the item sends the command to the server
      * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=1)
             throw new InvalidTUIArgumentsException("There must be 1 parameter: <Side on which to play the started card (front/back>");

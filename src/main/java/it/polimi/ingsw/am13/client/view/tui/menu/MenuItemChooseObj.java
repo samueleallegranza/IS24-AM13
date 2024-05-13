@@ -23,18 +23,19 @@ public class MenuItemChooseObj extends MenuItem {
      */
     public MenuItemChooseObj(NetworkHandler networkHandler, GameState state) {
         super("choose_obj",
-                "Choose your personal objective card: 'choose_obj <Card to choose starting from left (1/2)>'",
-                networkHandler);
+                "Choose your personal objective card: 'choose_obj <Card to choose starting from left (1/2)>'"
+                );
         this.state = state;
     }
 
     /**
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
+     * @param networkHandler Handler of the network thanks to which the item sends the command to the server
      * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=1)
             throw new InvalidTUIArgumentsException("There must be 1 parameter: <Card to choose starting from left (1/2)>");
@@ -47,6 +48,6 @@ public class MenuItemChooseObj extends MenuItem {
         else
             throw new InvalidTUIArgumentsException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
 
-        networkHandler.choosePersonalObjective(state.getPlayerState(player).getPossibleHandObjectives().get(cardIdx));
+        networkHandler.choosePersonalObjective(state.getPlayerState(networkHandler.getPlayer()).getPossibleHandObjectives().get(cardIdx));
     }
 }

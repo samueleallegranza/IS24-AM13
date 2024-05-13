@@ -4,12 +4,12 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
 
 public class MenuItemUpdateRoomList extends MenuItem{
 
-        public MenuItemUpdateRoomList(NetworkHandler networkHandler) {
-            super("update", "Update the list of available rooms: 'update'", networkHandler);
+        public MenuItemUpdateRoomList() {
+            super("update", "Update the list of available rooms: 'update'");
         }
 
         @Override
-        public void executeCommand(String args) {
+        public void executeCommand(String args, NetworkHandler networkHandler) {
             networkHandler.getRooms();
         }
 }

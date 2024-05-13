@@ -6,12 +6,12 @@ import it.polimi.ingsw.am13.model.player.Token;
 
 public class MenuItemJoinRoom extends MenuItem{
 
-        public MenuItemJoinRoom(NetworkHandler networkHandler) {
-            super("join", "Join a room: ‘join <your nickname> <your token color (red/blue/green/yellow)> <game id of the game to join> ’", networkHandler);
+        public MenuItemJoinRoom() {
+            super("join", "Join a room: ‘join <your nickname> <your token color (red/blue/green/yellow)> <game id of the game to join> ’");
         }
 
         @Override
-        public void executeCommand(String args) throws InvalidTUIArgumentsException {
+        public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
             if (args == null || args.isEmpty()) {
                 throw new InvalidTUIArgumentsException("Invalid arguments. Please specify the room ID.");
             }

@@ -18,15 +18,14 @@ public class MenuItemPickCard extends MenuItem {
 
     /**
      * Build a new item for playing a card on field
-     * @param networkHandler Handler of the network, which allows to send the command to the server
      * @param state Reference to the current game's state
      */
-    public MenuItemPickCard(NetworkHandler networkHandler, GameState state) {
+    public MenuItemPickCard(GameState state) {
         super("pick",
                 "Pick one of the six visible cards in the common field: " +
-                        "'pick <Type of card ('resource'/'gold')> <'draw'/'pick'> [<Card to pick starting from left (1/2)>]'",
-//                "Pick one of the six visible cards in the common field: pick <Number of the card to pick>",
-                networkHandler);
+                        "'pick <Type of card ('resource'/'gold')> <'draw'/'pick'> [<Card to pick starting from left (1/2)>]'"
+//                "Pick one of the six visible cards in the common field: pick <Number of the card to pick>"
+                );
         this.state = state;
     }
 
@@ -59,7 +58,7 @@ public class MenuItemPickCard extends MenuItem {
      * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()<2)
             throw new InvalidTUIArgumentsException("Parameters must be at least 2: <Type of card> <Draw or pick>");

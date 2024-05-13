@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 import it.polimi.ingsw.am13.controller.RoomIF;
@@ -13,19 +14,25 @@ import java.util.Map;
 
 public class ViewTUI implements View {
 
-    ViewTUIStartup viewStartup;
-    ViewTUILobby viewLobby;
-    ViewTUIRoom viewRoom;
-    ViewTUIMatch viewMatch;
+    private final ViewTUIStartup viewStartup;
+    private final ViewTUILobby viewLobby;
+    private final ViewTUIRoom viewRoom;
+    private final ViewTUIMatch viewMatch;
 
     Map<String, MenuItem> currentMenu;
 
     public ViewTUI() {
+        this.currentMenu = new HashMap<>();
         this.viewStartup = new ViewTUIStartup();
         this.viewLobby = new ViewTUILobby();
         this.viewRoom = new ViewTUIRoom();
         this.viewMatch = new ViewTUIMatch();
-        this.currentMenu = new HashMap<>();
+    }
+
+    @Override
+    public void setNetworkHandler(NetworkHandler networkHandler) {
+        MenuInputReader inputReader = new MenuInputReader(this, networkHandler);
+        inputReader.start();
     }
 
     @Override

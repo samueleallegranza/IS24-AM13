@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
-import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
@@ -13,9 +12,7 @@ import it.polimi.ingsw.am13.network.socket.message.command.*;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.List;
 
 public class NetworkHandlerSocket implements NetworkHandler {
     //private final PrintWriter out;
@@ -27,7 +24,7 @@ public class NetworkHandlerSocket implements NetworkHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        new ServerResponseHandler(socket,new PingThread(this));
+        new ServerResponseHandler(socket, new PingThread(this));
     }
 
     private void flushReset() throws IOException{
@@ -42,6 +39,15 @@ public class NetworkHandlerSocket implements NetworkHandler {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * @return The current valid player this class is associated to. Null is no valid player is currently associated.
+     */
+    @Override
+    public PlayerLobby getPlayer() {
+        return null;
+    }
+
     @Override
     public void getRooms() {
         sendMessage(new MsgCommandGetRooms());
@@ -68,7 +74,6 @@ public class NetworkHandlerSocket implements NetworkHandler {
     public void leaveRoom() {
         sendMessage(new MsgCommandLeaveRoom(latestPlayer.getNickname()));
     }
-
 
     @Override
     public void playStarter(Side side) {

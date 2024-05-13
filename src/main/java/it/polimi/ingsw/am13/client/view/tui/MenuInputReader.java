@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.tui.menu.InvalidTUIArgumentsException;
 import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 
@@ -9,8 +10,11 @@ public class MenuInputReader extends Thread {
     ViewTUI view;
     private final Scanner scanner;
 
-    public MenuInputReader(ViewTUI view) {
+    private final NetworkHandler networkHandler;
+
+    public MenuInputReader(ViewTUI view, NetworkHandler networkHandler) {
         this.view = view;
+        this.networkHandler = networkHandler;
         this.scanner = new Scanner(System.in);
     }
 
@@ -19,13 +23,14 @@ public class MenuInputReader extends Thread {
         while (!Thread.interrupted()) {
             String input = scanner.nextLine();
 
+            //TODO assicurati di questa synchronized
             synchronized (view) {
                 // Get commandKey from input
                 MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, input.indexOf(" ")));
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
-                        menuItem.executeCommand(input.substring(input.indexOf(" ") + 1));
+                        menuItem.executeCommand(input.substring(input.indexOf(" ") + 1), networkHandler);
                     } catch (InvalidTUIArgumentsException e) {
                         view.showException(e);
                         //TODO forse da gestire meglio

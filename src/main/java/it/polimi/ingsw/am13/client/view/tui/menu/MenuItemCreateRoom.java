@@ -6,11 +6,12 @@ import it.polimi.ingsw.am13.model.player.Token;
 
 public class MenuItemCreateRoom extends MenuItem {
 
-    public MenuItemCreateRoom(String commandKey, String description, NetworkHandler networkHandler) {
-        super("create", "Create a room: 'create <your nickname> <your token color (red/blue/green/yellow)> <number of players (2/3/4)>'", networkHandler);
+    public MenuItemCreateRoom() {
+        super("create",
+                "Create a room: 'create <your nickname> <your token color (red/blue/green/yellow)> <number of players (2/3/4)>'");
     }
     @Override
-    public void executeCommand(String args) throws InvalidTUIArgumentsException {
+    public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
         if (args == null || args.isEmpty()) {
             throw new InvalidTUIArgumentsException("Invalid arguments. Please specify the room ID.");
         }

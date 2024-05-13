@@ -124,14 +124,12 @@ public class ClientMain {
         }
         assert(view) != null; // FIXME: Remove when GUI will be implemented
 
-        view.showStartupScreen(isTUI, isSocket, ip, port);
-
         // open connection with Server via RMI or Socket
         NetworkHandler networkHandler;
         if(isSocket) {
             // open socket connection with ip:port
             System.out.println("[Client] Connecting to server " + ip + ":" + port);
-            Socket socket = null;
+            Socket socket;
             try {
                 socket = new Socket(ipInet, port);
             } catch (IOException e) {
@@ -152,6 +150,12 @@ public class ClientMain {
                 throw new RuntimeException(e);
             }
         }
+
+        // Sets the network handler for the view, so as to allow it to send commands/messages to the server
+        view.setNetworkHandler(networkHandler);
+
+        view.showStartupScreen(isTUI, isSocket, ip, port);
+        networkHandler.getRooms();
 
     }
 //    public static void oldmain(String[] args) throws InterruptedException {

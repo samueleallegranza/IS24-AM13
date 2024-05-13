@@ -6,12 +6,14 @@ import it.polimi.ingsw.am13.model.player.Token;
 
 public class MenuItemReconnect extends MenuItem{
 
-        public MenuItemReconnect(NetworkHandler networkHandler) {
-            super("reconnect", "Reconnect to a game: ‘reconnect <your nickname before disconnecting> <your token color (red/blue/green/yellow) before disconnecting>’", networkHandler);
+        public MenuItemReconnect() {
+            super("reconnect",
+                    "Reconnect to a game: ‘reconnect <your nickname before disconnecting> " +
+                            "<your token color (red/blue/green/yellow) before disconnecting>’");
         }
 
         @Override
-        public void executeCommand(String args) throws InvalidTUIArgumentsException {
+        public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
             if (args == null || args.isEmpty()) {
                 throw new InvalidTUIArgumentsException("Invalid arguments. Please specify the room ID.");
             }
