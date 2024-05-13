@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ViewTUILobby implements MenuDisplayer {
+public class ViewTUILobby {
 
     private final Map<String, MenuItem> menu;
 
@@ -16,7 +16,6 @@ public class ViewTUILobby implements MenuDisplayer {
         //TODO: popola menu
     }
 
-    @Override
     public Map<String, MenuItem> getMenu() {
         return menu;
     }

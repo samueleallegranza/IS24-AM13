@@ -6,7 +6,7 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewTUIRoom {
+public class ViewTUIRoom implements ViewTuiMenuDisplayer {
 
     private final Map<String, MenuItem> menu;
 
@@ -25,5 +25,10 @@ public class ViewTUIRoom {
 
     public void printPlayerLeftRoom(PlayerLobby player) {
         System.out.println("Player " + player + " left the room");
+    }
+
+    @Override
+    public Map<String, MenuItem> getMenu() {
+        return menu;
     }
 }
