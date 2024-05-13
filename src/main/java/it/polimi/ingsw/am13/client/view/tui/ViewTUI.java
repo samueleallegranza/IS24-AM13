@@ -2,10 +2,10 @@ package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.View;
+import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import javafx.scene.control.Menu;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,17 +46,26 @@ public class ViewTUI implements View {
 
     @Override
     public void showRooms(List<RoomIF> rooms) {
-
+        viewLobby.printRooms(rooms);
     }
 
     @Override
-    public void showPlayerJoinedRoom(PlayerLobby playerLobby) {
-
+    public void showJoinedRoom() {
+        viewRoom.printJoinedRoom();
+    }
+    @Override
+    public void showPlayerJoinedRoom(PlayerLobby player) {
+        viewRoom.printPlayerJoinedRoom(player);
     }
 
     @Override
     public void showPlayerLeftRoom(PlayerLobby player) {
+        viewRoom.printPlayerLeftRoom(player);
+    }
 
+    @Override
+    public void showLeftRoom() {
+        viewLobby.printLeftRoom();
     }
 
     @Override

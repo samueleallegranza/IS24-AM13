@@ -17,7 +17,7 @@ public interface View {
     /**
      * Shows a startup screen. It should be used as first introduction view when the view is created
      */
-    void showStartupScreen(boolean isRMI, boolean isSocket, String ip, int port);
+    void showStartupScreen(boolean isTUI, boolean isSocket, String ip, int port);
 
     /**
      * Shows a generic exception in the view (specific exception could be handled in different ways, also depending
@@ -39,10 +39,20 @@ public interface View {
     void showRooms(List<RoomIF> rooms);
 
     /**
+     * Show the players who is using this view joining the room
+     */
+    void showJoinedRoom();
+
+    /**
      * Shows a player joining the room, possibly the client himself
      * @param playerLobby Player who joined the room
      */
     void showPlayerJoinedRoom(PlayerLobby playerLobby);
+
+    /**
+     * Show the players who is using this view leaving the room
+     */
+    void showLeftRoom();
 
     /**
      * Shows a player leaving the room, possibly the client himself

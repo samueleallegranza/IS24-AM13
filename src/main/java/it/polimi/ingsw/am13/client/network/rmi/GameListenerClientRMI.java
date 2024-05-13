@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
+import it.polimi.ingsw.am13.client.network.PingThread;
+import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.*;
@@ -32,9 +34,20 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
     private final NetworkHandlerRMI networkHandler;
 
     /**
+     * View the listener refers to
+     */
+    private final View view;
+
+    /**
      * Handler of the game's state
      */
     private GameStateHandler stateHandler;
+
+    /**
+     * Thread which will send periodically the pings to the server.
+     * If it is != null, is should be running.
+     */
+    private PingThread ping;
 
     /**
      * Creates a new client-side listener, setting the player it represents and the network's handler which created it
@@ -45,6 +58,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
         super();
         this.player = player;
         this.networkHandler = networkHandler;
+        this.view = networkHandler.getView();
         stateHandler = null;
     }
 
@@ -64,7 +78,10 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      * @param player player who joined
      */
     public void updatePlayerJoinedRoom(PlayerLobby player) throws RemoteException {
-        //TODO devo solo notificare la view
+        if(this.player.equals(player))
+            view.showJoinedRoom();
+        else
+            view.showPlayerJoinedRoom(player);
     }
 
     /**
@@ -72,12 +89,16 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      * @param player Player who left
      */
     public void updatePlayerLeftRoom(PlayerLobby player) throws RemoteException {
-        //TODO devo solo notificate la view
+        if(this.player.equals(player))
+            view.showLeftRoom();
+        else
+            view.showPlayerLeftRoom(player);
     }
 
     /**
      * The game has started: starter cards and initial cards have been given to the players.
      * The specified model contains the initial set up for the started game.
+     * This triggers also the beginning of the thread for sending pings
      * @param model The game model containing the game status set to INIT.
      */
     public void updateStartGame(GameModelIF model, GameController controller)
@@ -85,6 +106,9 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
         GameControllerRMI controllerRMI = new GameControllerRMI(controller, player);
         networkHandler.setController(controllerRMI);
         stateHandler = new GameStateHandler(model);
+        view.showStartGame(stateHandler.getState());
+
+        ping = new PingThread(networkHandler);      // It starts automatically
     }
 
     /**
@@ -95,6 +119,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) throws RemoteException {
         stateHandler.updatePlayedStarter(player, cardStarter, availableCoords);
+        view.showPlayedStarter(player);
     }
 
     /**
@@ -104,6 +129,15 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) throws RemoteException {
         stateHandler.updateChosenPersonalObjective(player, chosenObj);
+        view.showChosenPersonalObjective(player);
+    }
+
+    /**
+     * The game has begun the turn-based phase.
+     */
+    public void updateInGame() throws RemoteException {
+        stateHandler.updateInGame();
+        view.showInGame();
     }
 
     /**
@@ -112,6 +146,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updateNextTurn(PlayerLobby player) throws RemoteException {
         stateHandler.updateNextTurn(player);
+        view.showNextTurn();
     }
 
     /**
@@ -125,6 +160,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord,
                                  int points, List<Coordinates> availableCoords) throws RemoteException {
         stateHandler.updatePlayedCard(player, cardPlayed, coord, points, availableCoords);
+        view.showPlayedCard(player, coord);
     }
 
     /**
@@ -135,6 +171,15 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) throws RemoteException {
         stateHandler.updatePickedCard(player, updatedVisibleCards, pickedCard);
+        view.showPickedCard(player);
+    }
+
+    /**
+     * The game is in the final phase.
+     */
+    public void updateFinalPhase() throws RemoteException {
+        stateHandler.updateFinalPhase();
+        view.showFinalPhase();
     }
 
     /**
@@ -144,6 +189,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) throws RemoteException {
         stateHandler.updatePoints(pointsMap);
+        view.showUpdatePoints();
     }
 
     /**
@@ -152,14 +198,17 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updateWinner(PlayerLobby winner) throws RemoteException {
         stateHandler.updateWinner(winner);
+        view.showWinner();
     }
 
     /**
      * The game has ended.
      * After this update, the server should not respond to any other request
+     * This triggers also the interruption for the thread sending pings
      */
     public void updateEndGame() throws RemoteException {
-        //TODO devo solo notificare la view
+        view.showEndGame();
+        ping.stopPing();
     }
 
     /**
@@ -168,6 +217,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePlayerDisconnected(PlayerLobby player) throws RemoteException {
         stateHandler.updatePlayerDisconnected(player);
+        view.showPlayerDisconnected(player);
     }
 
     /**
@@ -176,20 +226,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePlayerReconnected(PlayerLobby player) throws RemoteException {
         stateHandler.updatePlayerReconnected(player);
-    }
-
-    /**
-     * The game is in the final phase.
-     */
-    public void updateFinalPhase() throws RemoteException {
-        stateHandler.updateFinalPhase();
-    }
-
-    /**
-     * The game has begun the turn-based phase.
-     */
-    public void updateInGame() throws RemoteException {
-        stateHandler.updateInGame();
+        view.showPlayerReconnected(player);
     }
 
     /**
@@ -200,5 +237,6 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updateGameModel(GameModelIF model) throws RemoteException, InvalidPlayerException {
         stateHandler = new GameStateHandler(model);
+        view.showStartGameReconnected(stateHandler.getState());
     }
 }

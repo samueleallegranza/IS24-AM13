@@ -60,7 +60,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
         this.corners = corners;
         this.centerResources = centerResources;
         this.points = points;
-        this.color=color;
+        this.color = color;
     }
 
     /**

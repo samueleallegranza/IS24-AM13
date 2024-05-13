@@ -178,7 +178,6 @@ public class Room extends ListenerHandler implements RoomIF {
                 listener.updateCloseSocket();
             else
                 listener.updatePlayerDisconnected(player);
-            listener.updatePlayerDisconnected(player);
         }
     }
 

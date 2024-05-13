@@ -1,9 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
-import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 
 import java.io.Serializable;
-import java.security.InvalidParameterException;
 
 /**
  * Represents color of a card side.
@@ -22,11 +20,9 @@ public enum Color implements Serializable {
 
     /**
      * Gets the resource associated to the color of a card.
-     * @return Resource corresponding to this color
+     * @return Resource corresponding to this color (NO_RESOURCE for NO_COLOR)
      */
     public Resource correspondingResource() {
-        if(this == NO_COLOR)
-            throw new InvalidParameterException("You're trying to fetch a resource from color NO_COLOR");
-        return Resource.valueOf(this.name());
+        return this!=NO_COLOR ? Resource.valueOf(this.name()) : Resource.NO_RESOURCE;
     }
 }

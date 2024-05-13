@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am13.client.view.tui;
+package it.polimi.ingsw.am13.client.view.tui.menu;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 

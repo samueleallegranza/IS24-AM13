@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
-import javafx.scene.control.Menu;
+import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public class ViewTUIStartup {
     private String ip;
     private int port;
 
-    private Map<String, MenuItem> menu;
+    private final Map<String, MenuItem> menu;
 
     // constructor
     public ViewTUIStartup() {

@@ -107,7 +107,7 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseEndGame msgResponseEndGame ->{
                            // if(gameStateHandler!=null)
                             socket.close();
-                            pingThread.interrupt();
+                            pingThread.stopPing();
                             //TODO c'è da notificare la view
                         }
 
