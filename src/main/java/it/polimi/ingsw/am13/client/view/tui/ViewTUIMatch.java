@@ -10,6 +10,11 @@ public class ViewTUIMatch implements ViewTUI {
     }
 
     @Override
+    public boolean isUserInputEnabled() {
+        return true;
+    }
+
+    @Override
     public void printView() {
 
     }

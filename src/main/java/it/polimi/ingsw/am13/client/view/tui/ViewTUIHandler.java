@@ -11,10 +11,14 @@ import java.util.List;
 public class ViewTUIHandler implements View {
     ViewTUI currentView;
 
-    @Override
-    public void showStartupScreen() {
-        this.currentView = new ViewTUIRooms();
+    public void setCurrentView(ViewTUI currentView) {
+        this.currentView = currentView;
+    }
 
+    @Override
+    public void showStartupScreen(boolean isTUI, boolean isSocket, String ip, int port) {
+        setCurrentView(new ViewTUIStartup(isTUI, isSocket, ip, port));
+        this.currentView.printView();
     }
 
     @Override

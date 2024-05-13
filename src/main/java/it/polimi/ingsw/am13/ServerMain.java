@@ -10,6 +10,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class ServerMain {
+
+    // TODO: Create a common constant class for these
     public static final int  SOCKET_DEFAULT_PORT = 25566;
     public static final int RMI_DEFAULT_PORT = 25567;
     public static final String LOBBY_RMI_NAME = "lobby_rmi";

@@ -4,6 +4,7 @@ import java.util.Map;
 
 public interface ViewTUI {
     Map<String, MenuItem> getMenu();
+    boolean isUserInputEnabled();
 
     void printView();
 }

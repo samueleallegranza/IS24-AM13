@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.LocalTime;
@@ -27,12 +26,6 @@ public class Log {
     }
 
     public void logPlayedStarter(PlayerLobby player) {
-        try {
-            CardSidePlayableIF card = gameState.getPlayerState(player).getField().getCardSideAtCoord(
-                    new Coordinates(0,0)
-            );
-        } catch (InvalidCoordinatesException ignore) {}
-
         String log = String.format(
                 "[%s][%s] Played starter card",
                 this.currentTimeString(),

@@ -11,6 +11,11 @@ public class ViewTUIRooms implements ViewTUI {
     }
 
     @Override
+    public boolean isUserInputEnabled() {
+        return true;
+    }
+
+    @Override
     public void printView() {
 
     }
