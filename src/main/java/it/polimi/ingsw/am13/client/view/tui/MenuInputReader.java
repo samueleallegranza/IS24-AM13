@@ -23,7 +23,7 @@ public class MenuInputReader extends Thread {
                 // Get commandKey from input
                 MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, input.indexOf(" ")));
                 if (menuItem != null) {
-                    // Get args from input
+                    // Get args from input (first space excluded)
                     try {
                         menuItem.executeCommand(input.substring(input.indexOf(" ") + 1));
                     } catch (InvalidTUIArgumentsException e) {
