@@ -24,7 +24,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
      * It stores the 4 corners of the card side
      * In order, they are: upper left, upper right, lower right, lower left
      */
-    final transient private List<Corner> corners;
+    final private List<Corner> corners;
 
     /**
      * This possibly empty list contains the resources at the center of the card side

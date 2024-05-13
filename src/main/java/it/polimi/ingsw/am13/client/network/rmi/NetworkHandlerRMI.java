@@ -33,6 +33,7 @@ public class NetworkHandlerRMI implements NetworkHandler {
         this.controller = null;
     }
 
+    @Override
     public PlayerLobby getPlayer() {
         return player;
     }
@@ -120,6 +121,7 @@ public class NetworkHandlerRMI implements NetworkHandler {
             view.showException(e);
 //            throw new RuntimeException(e);
         }
+        this.player = null;
     }
 
     @Override
