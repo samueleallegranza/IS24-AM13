@@ -1,12 +1,13 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import it.polimi.ingsw.am13.client.view.tui.menu.InvalidTUIArgumentsException;
 import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 
 import java.util.Scanner;
 
 public class MenuInputReader extends Thread {
     ViewTUI view;
-    private Scanner scanner;
+    private final Scanner scanner;
 
     public MenuInputReader(ViewTUI view) {
         this.view = view;
@@ -15,7 +16,7 @@ public class MenuInputReader extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             String input = scanner.nextLine();
 
             synchronized (view) {
@@ -23,7 +24,12 @@ public class MenuInputReader extends Thread {
                 MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, input.indexOf(" ")));
                 if (menuItem != null) {
                     // Get args from input
-                    menuItem.executeCommand(input.substring(input.indexOf(" ") + 1));
+                    try {
+                        menuItem.executeCommand(input.substring(input.indexOf(" ") + 1));
+                    } catch (InvalidTUIArgumentsException e) {
+                        view.showException(e);
+                        //TODO forse da gestire meglio
+                    }
                 } else {
                     System.out.println("Invalid command. Please try again.");
                 }

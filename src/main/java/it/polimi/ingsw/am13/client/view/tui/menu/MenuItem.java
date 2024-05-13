@@ -7,15 +7,22 @@ public abstract class MenuItem {
     private final String commandKey;
     private final String description;
 
-    NetworkHandler networkHandler;
-
-    public abstract void executeCommand(String args);
-    public abstract String getCommandKey();
+    protected NetworkHandler networkHandler;
 
     public MenuItem(String commandKey, String description, NetworkHandler networkHandler) {
         this.commandKey = commandKey;
         this.description = description;
         this.networkHandler = networkHandler;
+    }
+
+    public abstract void executeCommand(String args) throws InvalidTUIArgumentsException;
+
+    public String getCommandKey() {
+        return commandKey;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     @Override
