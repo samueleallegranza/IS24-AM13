@@ -6,6 +6,7 @@ import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.player.Player;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.HashMap;
@@ -17,15 +18,18 @@ public class ViewTUI implements View {
     private final ViewTUIStartup viewStartup;
     private final ViewTUILobby viewLobby;
     private final ViewTUIRoom viewRoom;
+    private final ViewTUIOpening viewOpening ;
     private final ViewTUIMatch viewMatch;
 
     Map<String, MenuItem> currentMenu;
+    PlayerLobby thisPlayer;
 
     public ViewTUI() {
         this.currentMenu = new HashMap<>();
         this.viewStartup = new ViewTUIStartup();
         this.viewLobby = new ViewTUILobby();
         this.viewRoom = new ViewTUIRoom();
+        this.viewOpening = new ViewTUIOpening();
         this.viewMatch = new ViewTUIMatch();
     }
 
@@ -57,9 +61,11 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showJoinedRoom() {
+    public void showJoinedRoom(PlayerLobby player) {
+        this.thisPlayer = player;
         viewRoom.printJoinedRoom();
     }
+
     @Override
     public void showPlayerJoinedRoom(PlayerLobby player) {
         viewRoom.printPlayerJoinedRoom(player);
@@ -77,7 +83,7 @@ public class ViewTUI implements View {
 
     @Override
     public void showStartGame(GameState state) {
-
+        viewOpening.printStartGame(state, this.thisPlayer);
     }
 
     @Override

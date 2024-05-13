@@ -48,7 +48,7 @@ public interface View {
     /**
      * Show the players who is using this view joining the room
      */
-    void showJoinedRoom();
+    void showJoinedRoom(PlayerLobby player);
 
     /**
      * Shows a player joining the room, possibly the client himself

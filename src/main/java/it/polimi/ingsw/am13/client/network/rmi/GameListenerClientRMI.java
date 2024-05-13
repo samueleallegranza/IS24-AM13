@@ -79,7 +79,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      */
     public void updatePlayerJoinedRoom(PlayerLobby player) throws RemoteException {
         if(this.player.equals(player))
-            view.showJoinedRoom();
+            view.showJoinedRoom(player);
         else
             view.showPlayerJoinedRoom(player);
     }

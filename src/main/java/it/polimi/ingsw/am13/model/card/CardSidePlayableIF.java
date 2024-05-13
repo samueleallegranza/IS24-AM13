@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,4 +27,10 @@ public interface CardSidePlayableIF extends Serializable {
      * Fow how the game works, except for the starter card when no other card is added, it will be always <=3
      */
     int calcCornersCovered();
+
+    /**
+     * Get the list of resources present in the 4 angles of the card (clockwise order)
+     * @return A list of card's corner resources
+     */
+    ArrayList<Resource> getCornerResources();
 }

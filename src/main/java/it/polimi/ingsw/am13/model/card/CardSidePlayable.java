@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,6 +98,18 @@ public class CardSidePlayable implements CardSidePlayableIF {
     @Override
     public int calcCornersCovered() {
         return corners.stream().filter(c -> c.getLink()!=null).toList().size();
+    }
+
+    /**
+     * Get the list of resources present in the 4 angles of the card (clockwise order)
+     * @return A list of card's corner resources
+     */
+    @Override
+    public ArrayList<Resource> getCornerResources() {
+        ArrayList<Resource> resourceList = new ArrayList<>(4);
+        List<Corner> corners = this.getCorners();
+        for(Corner c: corners) resourceList.add(c.getResource());
+        return resourceList;
     }
 
     /**
