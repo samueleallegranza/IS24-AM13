@@ -6,7 +6,6 @@ import it.polimi.ingsw.am13.client.network.rmi.NetworkHandlerRMI;
 import it.polimi.ingsw.am13.client.network.socket.NetworkHandlerSocket;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.tui.ViewTUI;
-import it.polimi.ingsw.am13.client.view.tui.ViewTUIHandler;
 import it.polimi.ingsw.am13.network.rmi.LobbyRMI;
 
 import java.io.IOException;
@@ -95,7 +94,7 @@ public class ClientMain {
         // start view (TUI/GUI)
         View view = null;
         if(isTUI) {
-            view = new ViewTUIHandler();
+            view = new ViewTUI();
         } else {
             // TODO: Implement GUI
         }

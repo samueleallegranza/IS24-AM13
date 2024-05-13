@@ -9,6 +9,7 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.time.LocalTime;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Vector;
 
 
@@ -37,18 +38,20 @@ public class Log {
     public void logPlayedCard(PlayerLobby player, Coordinates coord) {
         CardSidePlayableIF card = gameState.getPlayerState(player).getField().getCardSideAtCoord(coord);
 
-        try {
-            String log = String.format(
-                    "[%s][%s] Played card %s (%s) at coordinates (%d, %d)",
-                    this.currentTimeString(),
-                    player.getNickname(),
-                    TUIUtils.resourceToName(card.getColor().correspondingResource()),
-                    TUIUtils.resourceToSymbol(card.getColor().correspondingResource()),
-                    coord.getPosX(),
-                    coord.getPosY()
-            );
-            this.addToLog(log);
-        } catch (InvalidCardCreationException ignore) {}
+        String resourceName = card.getColor().correspondingResource().name();
+        resourceName = resourceName.substring(0,1).toUpperCase() +
+                       resourceName.substring(1).toLowerCase();
+
+        String log = String.format(
+                "[%s][%s] Played card %s (%s) at coordinates (%d, %d)",
+                this.currentTimeString(),
+                player.getNickname(),
+                resourceName,
+                ViewTUIConstants.resourceToSymbol(card.getColor().correspondingResource()),
+                coord.getPosX(),
+                coord.getPosY()
+        );
+        this.addToLog(log);
     }
 
     public void logPickedCard(PlayerLobby player) {
@@ -114,12 +117,12 @@ public class Log {
 
     private String currentTimeString() {
         LocalTime currentTime = LocalTime.now();
-        return currentTime.format(TUIConstants.DATETIME_FORMAT);
+        return currentTime.format(ViewTUIConstants.DATETIME_FORMAT);
     }
 
     private void addToLog(String log) {
         // remove the oldest log from the queue if logs to make space for the new one
-        if(logMessages.size() == TUIConstants.LOG_MAXLINES) {
+        if(logMessages.size() == ViewTUIConstants.LOG_MAXLINES) {
             logMessages.removeLast();
         }
         // add new log to the queue

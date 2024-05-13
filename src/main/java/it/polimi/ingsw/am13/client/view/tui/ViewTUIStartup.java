@@ -1,34 +1,37 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import javafx.scene.control.Menu;
+
+import java.util.HashMap;
 import java.util.Map;
 
-public class ViewTUIStartup implements ViewTUI {
-    private final boolean isTUI;
-    private final boolean isSocket;
-    private final String ip;
-    private final int port;
+public class ViewTUIStartup {
+    private boolean isTUI;
+    private boolean isSocket;
+    private String ip;
+    private int port;
 
-    public ViewTUIStartup(boolean isTUI, boolean isSocket, String ip, int port) {
+    private Map<String, MenuItem> menu;
+
+    // constructor
+    public ViewTUIStartup() {
+        this.menu = new HashMap<>(); // empty because startup has no menu
+    }
+
+    public Map<String, MenuItem> getMenu() {
+        return this.menu;
+    }
+
+
+    public void updateStartup(boolean isTUI, boolean isSocket, String ip, int port) {
         this.isTUI = isTUI;
         this.isSocket = isSocket;
         this.ip = ip;
         this.port = port;
+        this.printView();
     }
 
-    // NO MENU
-    @Override
-    public Map<String, MenuItem> getMenu() {
-        return null;
-    }
-
-    // DISABLE USER INPUT
-    @Override
-    public boolean isUserInputEnabled() {
-        return false;
-    }
-
-    @Override
-    public void printView() {
+    private void printView() {
         String options = String.format(
                 "\t> %s Mode\n" +
                 "\t> %s Connection type\n" +
