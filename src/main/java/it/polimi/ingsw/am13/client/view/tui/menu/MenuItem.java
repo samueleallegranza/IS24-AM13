@@ -7,7 +7,7 @@ public abstract class MenuItem {
     private final String commandKey;
     private final String description;
 
-    private NetworkHandler networkHandler;
+    NetworkHandler networkHandler;
 
     public abstract void executeCommand(String args);
     public abstract String getCommandKey();

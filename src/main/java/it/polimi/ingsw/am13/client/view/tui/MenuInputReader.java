@@ -19,9 +19,10 @@ public class MenuInputReader extends Thread {
             String input = scanner.nextLine();
 
             synchronized (view) {
-
+                // Get commandKey from input
                 MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, input.indexOf(" ")));
                 if (menuItem != null) {
+                    // Get args from input
                     menuItem.executeCommand(input.substring(input.indexOf(" ") + 1));
                 } else {
                     System.out.println("Invalid command. Please try again.");
