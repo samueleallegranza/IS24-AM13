@@ -7,6 +7,7 @@ import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.socket.message.command.*;
+import it.polimi.ingsw.am13.network.socket.message.response.MsgResponse;
 import it.polimi.ingsw.am13.network.socket.message.response.MsgResponseGetRooms;
 
 import java.io.*;
@@ -150,6 +151,14 @@ public class ClientRequestsHandler extends Thread {
     }
 
     /**
+     * Logging function which notifies the response which has been sent on the server console .
+     * @param res Response name
+     */
+    public void logResponse(String res) {
+        System.out.printf("[Socket][Client:%d] Sent Response %s\n", clientSocket.getPort(), res);
+    }
+
+    /**
      * Checks if the game controller has been set. This method should be called by all the handlers associated to
      * Commands related to the match.
      * @return True if GameController is set, False otherwise.
@@ -280,6 +289,10 @@ public class ClientRequestsHandler extends Thread {
             this.outputStream.writeObject(response);
             this.outputStream.flush();
             this.outputStream.reset();
+
+            // for debugging purposes only
+            MsgResponse msg = (MsgResponse) response;
+            logResponse(msg.getType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
