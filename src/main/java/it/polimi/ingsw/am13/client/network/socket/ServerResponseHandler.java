@@ -7,14 +7,19 @@ import it.polimi.ingsw.am13.network.socket.message.response.*;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * This class keeps waiting for responses coming from the server.
+ * Depending on the received message, it calls the corresponding GameStateHandler and View methods.
+ */
 public class ServerResponseHandler extends Thread{
     private final Socket socket;
     private GameStateHandler gameStateHandler;
-    private final PingThread pingThread;
-    public ServerResponseHandler(Socket socket, PingThread pingThread){
+    private PingThread pingThread;
+    private final NetworkHandlerSocket networkHandlerSocket;
+    public ServerResponseHandler(Socket socket, NetworkHandlerSocket networkHandlerSocket){
         this.socket=socket;
         gameStateHandler=null;
-        this.pingThread=pingThread;
+        this.networkHandlerSocket=networkHandlerSocket;
     }
 
     public void run(){
@@ -61,6 +66,7 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseStartGame msgResponseStartGame -> {
                             if(gameStateHandler==null)
                                 gameStateHandler=new GameStateHandler(msgResponseStartGame.getGameState());
+                            pingThread=new PingThread(networkHandlerSocket);
                         }
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
 //                            if(gameStateHandler!=null)

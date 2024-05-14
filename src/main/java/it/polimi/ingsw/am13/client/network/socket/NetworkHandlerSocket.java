@@ -24,7 +24,7 @@ public class NetworkHandlerSocket implements NetworkHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        new ServerResponseHandler(socket, new PingThread(this));
+        new ServerResponseHandler(socket,this);
     }
 
     private void flushReset() throws IOException{
