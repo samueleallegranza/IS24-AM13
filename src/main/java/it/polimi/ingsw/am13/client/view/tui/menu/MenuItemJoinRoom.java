@@ -7,7 +7,7 @@ import it.polimi.ingsw.am13.model.player.Token;
 public class MenuItemJoinRoom extends MenuItem{
 
         public MenuItemJoinRoom() {
-            super("join", "Join a room: ‘join <your nickname> <your token color (red/blue/green/yellow)> <game id of the game to join> ’");
+            super("join", "Join a room: ‘join <your nickname> <your token color (red/blue/green/yellow)> <game id of the game to join>’");
         }
 
         @Override
