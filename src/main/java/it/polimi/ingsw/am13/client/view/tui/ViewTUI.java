@@ -83,7 +83,8 @@ public class ViewTUI implements View {
 
     @Override
     public void showStartGame(GameState state) {
-        viewOpening.printStartGame(state, this.thisPlayer);
+        viewOpening.printStarterSelection(state, this.thisPlayer);
+
     }
 
     @Override
@@ -93,7 +94,7 @@ public class ViewTUI implements View {
 
     @Override
     public void showPlayedStarter(PlayerLobby player) {
-
+        viewOpening.printObjectiveSelection();
     }
 
     @Override

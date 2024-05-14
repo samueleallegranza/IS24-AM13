@@ -30,22 +30,13 @@ public class ViewTUIOpening implements ViewTuiMenuDisplayer {
         return this.menu;
     }
 
-
-    public void printStartGame(GameState state, PlayerLobby player) {
+    public void printStarterSelection(GameState state, PlayerLobby player) {
         // set new game state
         this.gameState = state;
         this.thisPlayer = player;
 
-        System.out.println("Game started.");
-
+        System.out.print("Game started.\n");
         // TODO: How to handle looping until correct ??
-        printStarterSelection();
-        printObjectiveSelection();
-    }
-
-
-
-    public void printStarterSelection() {
         System.out.print("Please choose the side of your starter card: \n");
         System.out.print(this.starterCards());
 
