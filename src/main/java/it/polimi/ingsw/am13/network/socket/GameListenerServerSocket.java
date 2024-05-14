@@ -166,6 +166,10 @@ public class GameListenerServerSocket implements GameListener {
             out.writeObject(message);
             out.flush();
             out.reset();
+
+            // for debugging purposes only
+            MsgResponse msg = (MsgResponse) message;
+            clientRequestsHandler.logResponse(msg.getType());
         } catch (IOException e) {
             //TODO: handle better
             throw new RuntimeException(e);
