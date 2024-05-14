@@ -112,6 +112,15 @@ public class CardSidePlayable implements CardSidePlayableIF {
         return resourceList;
     }
 
+    @Override
+    public List<Boolean> getCoveredCorners() {
+        List<Boolean> isCovered=new ArrayList<>(4);
+        for (int i = 0; i < 4; i++) {
+            isCovered.set(i,corners.get(i).isCovered());
+        }
+        return isCovered;
+    }
+
     /**
      *
      * @param field the field of the player

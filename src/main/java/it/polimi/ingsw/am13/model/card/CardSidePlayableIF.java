@@ -33,4 +33,10 @@ public interface CardSidePlayableIF extends Serializable {
      * @return A list of card's corner resources
      */
     ArrayList<Resource> getCornerResources();
+
+    /**
+     *
+     * @return list of 4 booleans, true if the corresponding corners is covered
+     */
+    List<Boolean> getCoveredCorners();
 }
