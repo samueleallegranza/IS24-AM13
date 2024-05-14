@@ -26,7 +26,10 @@ public class MenuInputReader extends Thread {
             //TODO assicurati di questa synchronized
             synchronized (view) {
                 // Get commandKey from input
-                MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, input.indexOf(" ")));
+                int endCommandKey = input.indexOf(" ");
+                if(endCommandKey == -1)
+                    endCommandKey = input.length();
+                MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, endCommandKey));
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
