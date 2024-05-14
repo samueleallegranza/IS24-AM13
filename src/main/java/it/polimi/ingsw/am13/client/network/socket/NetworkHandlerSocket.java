@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
+import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
@@ -18,13 +19,13 @@ public class NetworkHandlerSocket implements NetworkHandler {
     //private final PrintWriter out;
     private final ObjectOutputStream out;
     private PlayerLobby latestPlayer;
-    public NetworkHandlerSocket(Socket socket) {
+    public NetworkHandlerSocket(Socket socket, View view) {
         try {
             this.out = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        new ServerResponseHandler(socket,this);
+        new ServerResponseHandler(socket,this, view).start();
     }
 
     private void flushReset() throws IOException{

@@ -278,6 +278,8 @@ public class ClientRequestsHandler extends Thread {
         // Send the Response
         try {
             this.outputStream.writeObject(response);
+            this.outputStream.flush();
+            this.outputStream.reset();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

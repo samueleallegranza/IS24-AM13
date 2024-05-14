@@ -138,7 +138,7 @@ public class ClientMain {
             }
             System.out.println("[Client] Connected to server");
 
-            networkHandler = new NetworkHandlerSocket(socket);
+            networkHandler = new NetworkHandlerSocket(socket, view);
         } else {
             Registry registry = null;
             try {

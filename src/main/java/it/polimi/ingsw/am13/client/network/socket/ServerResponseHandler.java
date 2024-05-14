@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
+import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.network.socket.message.response.*;
 
 import java.io.*;
@@ -16,10 +17,12 @@ public class ServerResponseHandler extends Thread{
     private GameStateHandler gameStateHandler;
     private PingThread pingThread;
     private final NetworkHandlerSocket networkHandlerSocket;
-    public ServerResponseHandler(Socket socket, NetworkHandlerSocket networkHandlerSocket){
+    private final View view;
+    public ServerResponseHandler(Socket socket, NetworkHandlerSocket networkHandlerSocket, View view){
         this.socket=socket;
         gameStateHandler=null;
         this.networkHandlerSocket=networkHandlerSocket;
+        this.view = view;
     }
 
     public void run(){
@@ -44,8 +47,8 @@ public class ServerResponseHandler extends Thread{
 
                     //Todo notifica la view di getRooms, di eventuali errori legati a gameState (rami else di tutti gli if sottostanti), idem per MsgResponseError
                     switch (msgResponse) {
-                        case MsgResponseGetRooms msgResponseGetRooms ->{
-
+                        case MsgResponseGetRooms msgResponseGetRooms -> {
+                            view.showRooms(msgResponseGetRooms.getRooms());
                         }
 
                         case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom -> {
