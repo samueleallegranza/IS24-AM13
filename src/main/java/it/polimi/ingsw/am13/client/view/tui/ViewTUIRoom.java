@@ -15,12 +15,11 @@ public class ViewTUIRoom implements ViewTuiMenuDisplayer {
         //TODO: popola menu
     }
 
-    public void printJoinedRoom() {
-        System.out.println("You have joined the room");
-    }
-
-    public void printPlayerJoinedRoom(PlayerLobby player) {
-        System.out.println("Player " + player + " joined the room");
+    public void printPlayerJoinedRoom(PlayerLobby player, PlayerLobby thisPlayer) {
+        if(player.equals(thisPlayer))
+            System.out.println("You have joined the room");
+        else
+            System.out.println("Player " + player + " joined the room");
     }
 
     public void printPlayerLeftRoom(PlayerLobby player) {

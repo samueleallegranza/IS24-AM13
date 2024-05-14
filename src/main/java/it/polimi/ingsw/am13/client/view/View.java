@@ -46,20 +46,10 @@ public interface View {
     void showRooms(List<RoomIF> rooms);
 
     /**
-     * Show the players who is using this view joining the room
-     */
-    void showJoinedRoom(PlayerLobby player);
-
-    /**
      * Shows a player joining the room, possibly the client himself
      * @param player Player who joined the room
      */
     void showPlayerJoinedRoom(PlayerLobby player);
-
-    /**
-     * Show the players who is using this view leaving the room
-     */
-    void showLeftRoom();
 
     /**
      * Shows a player leaving the room, possibly the client himself

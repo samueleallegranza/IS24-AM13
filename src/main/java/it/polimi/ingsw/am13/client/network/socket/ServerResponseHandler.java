@@ -53,6 +53,7 @@ public class ServerResponseHandler extends Thread{
 
                         case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom -> {
                             //if(gameStateHandler!=null)
+                            view.showPlayerJoinedRoom(msgResponsePlayerJoinedRooom.getPlayer());
                         }
                         case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->{
                             //if(gameStateHandler!=null)
@@ -67,9 +68,10 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponseStartGame msgResponseStartGame -> {
-                            if(gameStateHandler==null)
-                                gameStateHandler=new GameStateHandler(msgResponseStartGame.getGameState());
-                            pingThread=new PingThread(networkHandlerSocket);
+                            if(gameStateHandler == null)
+                                gameStateHandler = new GameStateHandler(msgResponseStartGame.getGameState());
+                            pingThread = new PingThread(networkHandlerSocket);
+                            view.showStartGame(gameStateHandler.getState());
                         }
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
 //                            if(gameStateHandler!=null)
@@ -118,6 +120,10 @@ public class ServerResponseHandler extends Thread{
                             socket.close();
                             pingThread.stopPing();
                             //TODO c'è da notificare la view
+                        }
+
+                        case MsgResponsePing msgResponsePing -> {
+                            //TODO c'è da gestirla?
                         }
 
                         case MsgResponseUpdateGameState msgResponseUpdateGameState ->{

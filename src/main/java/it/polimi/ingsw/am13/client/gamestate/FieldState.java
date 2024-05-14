@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Map;
  * Representation of one player's field.
  * It stores information about the placed cards, and the available coordinates where to place new cards
  */
-public class FieldState {
+public class FieldState implements Serializable {
 
     /**
      * Map between coordinates and cards placed on them

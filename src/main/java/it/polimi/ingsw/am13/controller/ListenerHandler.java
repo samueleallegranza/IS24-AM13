@@ -25,7 +25,7 @@ public class ListenerHandler implements Serializable {
     /**
      * Listeners handled by the class
      */
-    private final List<GameListener> listeners;
+    private transient final List<GameListener> listeners;
 
     public ListenerHandler() {
         listeners = new ArrayList<>();

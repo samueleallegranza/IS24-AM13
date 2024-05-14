@@ -58,27 +58,21 @@ public class ViewTUI implements View {
     @Override
     public void showRooms(List<RoomIF> rooms) {
         viewLobby.printRooms(rooms);
+        currentMenu = viewLobby.getMenu();
     }
 
-    @Override
-    public void showJoinedRoom(PlayerLobby player) {
-        this.thisPlayer = player;
-        viewRoom.printJoinedRoom();
-    }
 
     @Override
     public void showPlayerJoinedRoom(PlayerLobby player) {
-        viewRoom.printPlayerJoinedRoom(player);
+        if(thisPlayer==null)
+            thisPlayer = player;
+        viewRoom.printPlayerJoinedRoom(player, thisPlayer);
+        currentMenu = viewRoom.getMenu();
     }
 
     @Override
     public void showPlayerLeftRoom(PlayerLobby player) {
         viewRoom.printPlayerLeftRoom(player);
-    }
-
-    @Override
-    public void showLeftRoom() {
-        viewLobby.printLeftRoom();
     }
 
     @Override
