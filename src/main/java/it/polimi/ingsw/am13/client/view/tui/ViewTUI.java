@@ -78,7 +78,7 @@ public class ViewTUI implements View {
     @Override
     public void showStartGame(GameState state) {
         viewOpening.printStarterSelection(state, this.thisPlayer);
-
+        currentMenu = viewRoom.getMenu();
     }
 
     @Override
@@ -89,11 +89,12 @@ public class ViewTUI implements View {
     @Override
     public void showPlayedStarter(PlayerLobby player) {
         viewOpening.printObjectiveSelection();
+        currentMenu = viewRoom.getMenu();
     }
 
     @Override
     public void showChosenPersonalObjective(PlayerLobby player) {
-
+        // TODO: How to handle here? We should implement a "waiting"
     }
 
     @Override
@@ -113,7 +114,6 @@ public class ViewTUI implements View {
 
     @Override
     public void showNextTurn() {
-
     }
 
     @Override

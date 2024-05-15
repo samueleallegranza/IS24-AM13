@@ -121,6 +121,11 @@ public class CardSidePlayable implements CardSidePlayableIF {
         return isCovered;
     }
 
+    @Override
+    public PointsPlayable getPoints() {
+        return this.points;
+    }
+
     /**
      *
      * @param field the field of the player

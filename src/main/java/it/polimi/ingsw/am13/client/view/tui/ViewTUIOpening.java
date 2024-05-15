@@ -17,7 +17,7 @@ public class ViewTUIOpening implements ViewTuiMenuDisplayer {
     private GameState gameState;
     private PlayerLobby thisPlayer;
 
-    private Map<String, MenuItem> menu;
+    private HashMap<String, MenuItem> menu;
 
     public ViewTUIOpening() {
         this.gameState = null;
@@ -36,38 +36,25 @@ public class ViewTUIOpening implements ViewTuiMenuDisplayer {
         this.thisPlayer = player;
 
         System.out.print("Game started.\n");
-        // TODO: How to handle looping until correct ??
         System.out.print("Please choose the side of your starter card: \n");
         System.out.print(this.starterCards());
 
         // set menu for starter selection
-        Map<String, MenuItem> newMenu = new HashMap<>();
-        // menu options:
-        MenuItem menuItemPlayStarter = new MenuItemPlayStarter();
-        // insert options inside menu
-        newMenu.put(menuItemPlayStarter.getCommandKey(), menuItemPlayStarter);
-        // update local menu
-        this.menu = newMenu;
-        // display menu
-        System.out.println("Menu:\n");
-        for(String k: newMenu.keySet()) System.out.println(newMenu.get(k).toString());
+        this.menu = MenuItem.menuBuilder(List.of(
+                new MenuItemPlayStarter()
+        ));
+        MenuItem.printMenu(this.menu);
     }
 
     public void printObjectiveSelection() {
         System.out.print("Please choose your personal objective card: \n");
         System.out.print(this.objectiveCards());
 
-        // set menu for objective selection
-        Map<String, MenuItem> newMenu = new HashMap<>();
-        // menu options:
-        MenuItem menuItemChooseObj = new MenuItemChooseObj(null, gameState); // FIXME: why do I have to pass a networkHandler?!>!|@!!?.?
-        // insert options inside menu
-        newMenu.put(menuItemChooseObj.getCommandKey(), menuItemChooseObj);
-        // update local menu
-        this.menu = newMenu;
-        // display menu
-        System.out.println("Menu:\n");
-        for(String k: newMenu.keySet()) System.out.println(newMenu.get(k).toString());
+        // FIXME: why do I have to pass a networkHandler?!>!|@!!?.?
+        this.menu = MenuItem.menuBuilder(List.of(
+                new MenuItemChooseObj(null, gameState)
+        ));
+        MenuItem.printMenu(this.menu);
     }
 
 

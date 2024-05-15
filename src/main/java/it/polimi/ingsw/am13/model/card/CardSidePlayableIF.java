@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.card;
 
+import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,4 +41,11 @@ public interface CardSidePlayableIF extends Serializable {
      * @return list of 4 booleans, true if the corresponding corners is covered
      */
     List<Boolean> getCoveredCorners();
+
+    // FIXME: Another approach could be to create specific methods to retrieve: points multiplier, points resource and points corner
+    /**
+     * Return the object which describes all the matter related to points
+     * @return PointsPlayable interface of the card side
+     */
+    PointsPlayable getPoints();
 }

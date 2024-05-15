@@ -26,6 +26,11 @@ public final class ViewTUIConstants {
     // An angle which is not linkable
     public static final String ANGLE_NOTLINKABLE_SYMBOL = "□";
 
+
+
+    public static final String POINTS_PATTERN_ANGLE = "▖";
+
+
     // TODO: fix to map
     public static String resourceToSymbol(Resource r) {
         switch (r) {

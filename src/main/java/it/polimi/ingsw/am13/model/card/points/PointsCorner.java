@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.io.Serializable;
@@ -32,6 +33,21 @@ public class PointsCorner implements PointsPlayable, Serializable {
     @Override
     public int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field) {
         return cardSidePlayable.calcCornersCovered()*points;
+    }
+
+    @Override
+    public int getPointsMultiplier() {
+        return this.points;
+    }
+
+    @Override
+    public Resource getPointsResource() {
+        return Resource.NO_RESOURCE;
+    }
+
+    @Override
+    public boolean isCornerTypePoints() {
+        return true;
     }
 
     @Override

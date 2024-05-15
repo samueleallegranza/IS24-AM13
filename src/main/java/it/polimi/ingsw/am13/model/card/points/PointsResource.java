@@ -46,6 +46,21 @@ public class PointsResource implements PointsPlayable, Serializable {
     }
 
     @Override
+    public int getPointsMultiplier() {
+        return this.points;
+    }
+
+    @Override
+    public Resource getPointsResource() {
+        return this.resource;
+    }
+
+    @Override
+    public boolean isCornerTypePoints() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

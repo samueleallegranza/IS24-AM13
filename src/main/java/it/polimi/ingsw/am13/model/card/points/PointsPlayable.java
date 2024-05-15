@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
 /**
@@ -16,4 +17,22 @@ public interface PointsPlayable{
      * @return number of points the player gets after playing the card side
      */
     int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field);
+
+    /**
+     * Return the points multiplier. In other words, the number of points which appears on the card.
+     * @return Points multiplier
+     */
+    int getPointsMultiplier();
+
+    /**
+     * Return the required resource to get points by playing the card.
+     * @return Resource required
+     */
+    Resource getPointsResource();
+
+    /**
+     * Returns true if the number of points is conditioned to the number of angles the card covers.
+     * @return true if PointsCorner, false otherwise
+     */
+    boolean isCornerTypePoints();
 }

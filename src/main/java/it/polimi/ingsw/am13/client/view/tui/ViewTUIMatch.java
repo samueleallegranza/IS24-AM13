@@ -1,34 +1,80 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
-import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
-import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Resource;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.client.view.tui.menu.*;
+import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.player.Player;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ViewTUIMatch implements ViewTuiMenuDisplayer {
 
     private GameState gameState;
     private PlayerLobby thisPlayer;
+    private PlayerLobby displayPlayer;
+    private HashMap<String, MenuItem> menu;
+    private boolean flowCardPlaced;
 
     public ViewTUIMatch() {
         this.gameState = null;
+        this.thisPlayer = null;
+        this.displayPlayer = null;
+        this.menu = null;
+        this.flowCardPlaced = false;
     }
 
     @Override
     public Map<String, MenuItem> getMenu() {
-        return null;
+        return this.menu;
     }
 
-    public void printMatch() {
+    public void printMatch(PlayerLobby player) {
+        this.displayPlayer = player;
+
         // print player header
         System.out.println(sectionPlayers());
+
+        // print player field
+        System.out.println(sectionField());
+
+        // print player cards (with proper censorship if opponent)
+        System.out.println(sectionCards());
+
+        // print logs
+
+
+        // print menu (different based on player's turn status)
+        this.menu = null;
+        if(this.gameState.getCurrentPlayer().equals(this.thisPlayer)) {
+            // it's this player's turn. Force game flow: (1) place, (2) pick
+            if (!flowCardPlaced) {
+                // player has to place a card first
+                this.menu = MenuItem.menuBuilder(List.of(
+                        new MenuItemPlayCard(this.gameState)
+                ));
+
+                this.flowCardPlaced = true; // FIXME: could be broken with disconnections :/
+            } else {
+                // player has to pick a new card from drawable ones
+                this.menu = MenuItem.menuBuilder(List.of(
+                        new MenuItemPickCard(this.gameState)
+                ));
+
+                this.flowCardPlaced = false; // FIXME: could be broken with disconnections :/
+            }
+        } else {
+            // not this player's turn, can move around until its turn.
+            this.menu = MenuItem.menuBuilder(List.of());    // FIXME: implement player movement in other fields!
+        }
+
+        MenuItem.printMenu(this.menu);
     }
 
     // --------------------------------------------------------------------
@@ -36,13 +82,218 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
     // --------------------------------------------------------------------
 
     public String sectionPlayers() {
-        return "";
+        List<PlayerLobby> players = this.gameState.getPlayers();
+
+        // turn symbol
+        Character[] turnSymbol = {' ', ' ', ' ', ' '};
+        for(int i=0; i<players.size(); i++) turnSymbol[i] = players.get(i).equals(this.gameState.getCurrentPlayer()) ? '▼' : ' ';
+
+        // player nicknames
+        String[] nickString = {"", "", "", ""};
+        for(int i=0; i< players.size(); i++) nickString[i] = players.get(i).getNickname();
+
+        // player online/offline
+        Character[] onlineSymbol = {' ', ' ', ' ', ' '};
+        for(int i=0; i<players.size(); i++) turnSymbol[i] = this.gameState.getPlayerState(players.get(i)).isConnected() ? '✓' : '⚠';
+
+        // player points
+        Integer[] points = {-1, -1, -1, -1};
+        for(int i=0; i<players.size(); i++) points[i] = this.gameState.getPlayerState(players.get(i)).getPoints();
+        String[] pointsStr = new String[4];
+        for(int i=0; i<4; i++) pointsStr[i] = ((points[i] == -1) ? "  " :  points[i].toString());
+
+        return String.format(
+                "Turn   │         %c         │         %c         │         %c         │         %c         │\n" +
+                "Player │ %c  %-14s │ %c  %-14s │ %c  %-14s │ %c  %-14s │\n"+
+                "Points │        %2s         │        %2s         │        %2s         │        %2s         │\n",
+                turnSymbol[0], turnSymbol[1], turnSymbol[2], turnSymbol[3],
+                onlineSymbol[0], nickString[0],
+                onlineSymbol[1], nickString[1],
+                onlineSymbol[2], nickString[2],
+                onlineSymbol[3], nickString[3],
+                pointsStr[0], pointsStr[1], pointsStr[2], pointsStr[3]
+        );
     }
 
+    private String sectionField() {
+        return genFieldString(this.displayPlayer);
+    }
+
+    private String sectionCards() {
+        if(this.thisPlayer == this.displayPlayer)
+            return sectionCardsThisPlayer();
+        else return sectionCardsOpponentPlayer();
+    }
 
     // --------------------------------------------------------------------
     // ------------------------------ UTILS -------------------------------
     // --------------------------------------------------------------------
+
+    private class CardSideSymbols {
+        public Character type; // gold/resource -> G/R
+        public Character side; // front/back -> F/B
+        public Character[] corners; // -> {x,y,z,k}
+        public String points; // points -> "2xK" / " 2 "
+        public Character color; // resource color -> 'x'
+        public String requirements; // requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
+
+        public CardSideSymbols(CardPlayableIF c, Side s) {
+            CardSidePlayableIF cs = c.getSide(s);
+
+            this.type = c instanceof CardGold ? 'G' : 'R';
+            this.side = s.equals(Side.SIDEFRONT) ? 'F' : 'B';
+
+            List<Resource> cornerRes = cs.getCornerResources();
+            this.corners = new Character[4];
+            for(int i=0; i<4; i++) this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
+
+            if(cs.getPoints().isCornerTypePoints())
+                this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
+            else if(cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
+                this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
+            } else {
+                this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
+            }
+
+            this.color = ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0);
+
+            List<Character> requirementList = new ArrayList<>();
+            for(Resource r: cs.getRequirements().keySet()) for(int i=0; i<cs.getRequirements().get(r); i++) requirementList.add(ViewTUIConstants.resourceToSymbol(r).charAt(0));
+            switch (requirementList.size()){
+                case 0: { this.requirements = "     "; break;}
+                case 1: { this.requirements = String.format("  %c  ", requirementList.getFirst()); break;}
+                case 2: { this.requirements = String.format(" %c%c  ", requirementList.get(0), requirementList.get(1)); break;}
+                case 3: { this.requirements = String.format(" %c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2)); break;}
+                case 4: { this.requirements = String.format("%c%c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2), requirementList.get(3)); break;}
+                case 5: { this.requirements = requirementList.stream().map(String::valueOf).collect(Collectors.joining()); }
+            }
+        }
+    }
+
+    private String sectionCardsThisPlayer() {
+        // player hand displayed with front sides
+        List<CardSideSymbols> hand = new ArrayList<>();
+        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+            hand.add(new CardSideSymbols(card, Side.SIDEFRONT));
+        }
+
+        // decks for resource cards and gold cards
+        List<CardSideSymbols> deckRes = new ArrayList<>();
+        List<CardSideSymbols> deckGold = new ArrayList<>();
+
+        List<CardPlayableIF> pickables = this.gameState.getPickables();
+        deckRes.add(new CardSideSymbols(pickables.get(0), Side.SIDEBACK)); // deck
+        deckRes.add(new CardSideSymbols(pickables.get(1), Side.SIDEFRONT)); // option 1
+        deckRes.add(new CardSideSymbols(pickables.get(2), Side.SIDEFRONT)); // option 2
+
+        deckGold.add(new CardSideSymbols(pickables.get(3), Side.SIDEBACK)); // deck
+        deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
+        deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
+
+        return String.format(
+                "╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗\n" +
+                "║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───F───┬───┐ ║\n"+
+                "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║\n"+
+                "║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘    [%c]    └───┤ ║\n"+
+                "║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║\n"+
+                "║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║\n"+
+                "║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║\n"+
+                "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║\n"+
+                "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───F───┬───┐ ║\n"+
+                "║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║\n"+
+                "║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘    [%c]    └───┤ ║\n"+
+                "║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║\n"+
+                "║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║\n"+
+                "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║\n"+
+                "╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║\n"+
+                "║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───F───┬───┐ ║\n"+
+                "║   │                   │  │                   │  │                   │ ║ │ %c │    %3s    │ %c │ ║\n"+
+                "║   │       FIX ME      │  │       FIX ME      │  │       FIX ME      │ ║ ├───┘    [%c]    └───┤ ║\n"+
+                "║   │                   │  │                   │  │                   │ ║ ├───┐           ┌───┤ ║\n"+
+                "║   │                   │  │                   │  │                   │ ║ │ %c │   %5s   │ %c │ ║\n"+
+                "║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║\n"+
+                "╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝\n",
+                hand.get(0).type,
+                deckRes.get(0).type, deckRes.get(1).type, deckRes.get(2).type, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
+                deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,
+                deckRes.get(0).color, deckRes.get(1).color, deckRes.get(2).color,
+                hand.get(0).corners[3], hand.get(0).points, hand.get(0).corners[2],
+                deckRes.get(0).corners[3], deckRes.get(0).requirements, deckRes.get(0).corners[2], deckRes.get(1).corners[3], deckRes.get(1).requirements, deckRes.get(1).corners[2], deckRes.get(2).corners[3], deckRes.get(2).requirements, deckRes.get(2).corners[2],
+
+                deckGold.get(0).type, deckGold.get(1).type, deckGold.get(2).type, hand.get(1).type,
+                deckGold.get(0).corners[0], deckGold.get(0).points, deckGold.get(0).corners[1], deckGold.get(1).corners[0], deckGold.get(1).points, deckGold.get(1).corners[1], deckGold.get(2).corners[0], deckGold.get(2).points, deckGold.get(2).corners[1], hand.get(1).corners[0], hand.get(1).points, hand.get(1).corners[1],
+                deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
+                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(2).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
+
+                hand.get(3).type,
+                hand.get(3).corners[0], hand.get(3).points, hand.get(3).corners[1],
+                hand.get(3).color,
+                hand.get(3).corners[3], hand.get(3).requirements, hand.get(3).corners[2]
+            );
+    }
+
+    private String sectionCardsOpponentPlayer() {
+        // player hand displayed with front sides
+        List<CardSideSymbols> hand = new ArrayList<>();
+        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+            hand.add(new CardSideSymbols(card, Side.SIDEBACK));
+        }
+
+        // decks for resource cards and gold cards
+        List<CardSideSymbols> deckRes = new ArrayList<>();
+        List<CardSideSymbols> deckGold = new ArrayList<>();
+
+        List<CardPlayableIF> pickables = this.gameState.getPickables();
+        deckRes.add(new CardSideSymbols(pickables.get(0), Side.SIDEBACK)); // deck
+        deckRes.add(new CardSideSymbols(pickables.get(1), Side.SIDEFRONT)); // option 1
+        deckRes.add(new CardSideSymbols(pickables.get(2), Side.SIDEFRONT)); // option 2
+
+        deckGold.add(new CardSideSymbols(pickables.get(3), Side.SIDEBACK)); // deck
+        deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
+        deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
+
+        return String.format(
+                "╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗\n" +
+                        "║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───B───┬───┐ ║\n"+
+                        "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║\n"+
+                        "║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘     %c     └───┤ ║\n"+
+                        "║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║\n"+
+                        "║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║\n"+
+                        "║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║\n"+
+                        "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║\n"+
+                        "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───B───┬───┐ ║\n"+
+                        "║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║\n"+
+                        "║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘     %c     └───┤ ║\n"+
+                        "║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║\n"+
+                        "║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║\n"+
+                        "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║\n"+
+                        "╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║\n"+
+                        "║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───B───┬───┐ ║\n"+
+                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │    %3s    │ %c │ ║\n"+
+                        "║   │       FIX ME      │  │       FIX ME      │  │░░░░░░░HIDDEN░░░░░░│ ║ ├───┘     %c     └───┤ ║\n"+
+                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤ ║\n"+
+                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │ ║\n"+
+                        "║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║\n"+
+                        "╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝\n",
+                hand.get(0).type,
+                deckRes.get(0).type, deckRes.get(1).type, deckRes.get(2).type, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
+                deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,
+                deckRes.get(0).color, deckRes.get(1).color, deckRes.get(2).color,
+                hand.get(0).corners[3], hand.get(0).points, hand.get(0).corners[2],
+                deckRes.get(0).corners[3], deckRes.get(0).requirements, deckRes.get(0).corners[2], deckRes.get(1).corners[3], deckRes.get(1).requirements, deckRes.get(1).corners[2], deckRes.get(2).corners[3], deckRes.get(2).requirements, deckRes.get(2).corners[2],
+
+                deckGold.get(0).type, deckGold.get(1).type, deckGold.get(2).type, hand.get(1).type,
+                deckGold.get(0).corners[0], deckGold.get(0).points, deckGold.get(0).corners[1], deckGold.get(1).corners[0], deckGold.get(1).points, deckGold.get(1).corners[1], deckGold.get(2).corners[0], deckGold.get(2).points, deckGold.get(2).corners[1], hand.get(1).corners[0], hand.get(1).points, hand.get(1).corners[1],
+                deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
+                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(2).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
+
+                hand.get(3).type,
+                hand.get(3).corners[0], hand.get(3).points, hand.get(3).corners[1],
+                hand.get(3).color,
+                hand.get(3).corners[3], hand.get(3).requirements, hand.get(3).corners[2]
+        );
+    }
+
     private List<List<Character>> cardToStr(CardSidePlayableIF cardSidePlayableIF){
         List<List<Character>> strCard=new ArrayList<>(3);
         List<Resource> cornerResources=cardSidePlayableIF.getCornerResources();
@@ -65,6 +316,7 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
             strCard.get(1).set(startInd+i,ViewTUIConstants.resourceToSymbol(centerResources.get(i)).charAt(0));
         return strCard;
     }
+
     private List<List<Character>> availableStr(int index){
         List<List<Character>> strPos=new ArrayList<>(3);
         strPos.get(0).add(0,'┌');
@@ -80,7 +332,8 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
         strPos.get(2).add(2,'┘');
         return strPos;
     }
-    public String printField(PlayerLobby playerLobby){
+
+    private String genFieldString(PlayerLobby playerLobby){
         StringBuilder strField= new StringBuilder();
         try {
             CardSidePlayableIF starterCard=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(new Coordinates(0,0));
