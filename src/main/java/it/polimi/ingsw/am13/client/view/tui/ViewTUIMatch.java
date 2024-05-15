@@ -139,14 +139,15 @@ public class ViewTUIMatch {
             this.corners = new Character[4];
             for(int i=0; i<4; i++) this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
 
-            if(cs.getPoints().isCornerTypePoints())
-                this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
-            else if(cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
-                this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
-            } else {
-                this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
+            if(cs.getPoints()!=null) { //TODO controlla se va gestito in qualche altro modo
+                if (cs.getPoints().isCornerTypePoints())
+                    this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
+                else if (cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
+                    this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
+                } else {
+                    this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
+                }
             }
-
             this.color = ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0);
 
             List<Character> requirementList = new ArrayList<>();
@@ -168,7 +169,7 @@ public class ViewTUIMatch {
         for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
             hand.add(new CardSideSymbols(card, Side.SIDEFRONT));
         }
-
+        //hand.add(new CardSideSymbols(this.gameState.getPlayerState(this.displayPlayer).getHandObjective(),Side.SIDEFRONT));
         // decks for resource cards and gold cards
         List<CardSideSymbols> deckRes = new ArrayList<>();
         List<CardSideSymbols> deckGold = new ArrayList<>();
@@ -294,15 +295,18 @@ public class ViewTUIMatch {
         List<List<Character>> strCard=new ArrayList<>(3);
         List<Resource> cornerResources=cardSidePlayableIF.getCornerResources();
         List<Resource> centerResources=cardSidePlayableIF.getCenterResources();
+        for (int i = 0; i < 3; i++) {
+            strCard.add(i,new ArrayList<>(3));
+        }
+        strCard.get(0).add(0,ViewTUIConstants.resourceToSymbol(cornerResources.get(0)).charAt(0));
         strCard.get(0).add(1,'─');
+        strCard.get(0).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(1)).charAt(0));
         strCard.get(1).add(0,'│');
         strCard.get(1).add(1,' ');
         strCard.get(1).add(2,'│');
-        strCard.get(2).add(1,'─');
-        strCard.get(0).add(0,ViewTUIConstants.resourceToSymbol(cornerResources.get(0)).charAt(0));
-        strCard.get(0).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(1)).charAt(0));
-        strCard.get(2).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(2)).charAt(0));
         strCard.get(2).add(0,ViewTUIConstants.resourceToSymbol(cornerResources.get(3)).charAt(0));
+        strCard.get(2).add(1,'─');
+        strCard.get(2).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(2)).charAt(0));
         int startInd;
         if(centerResources.size()<3)
             startInd=1;
@@ -315,6 +319,9 @@ public class ViewTUIMatch {
 
     private List<List<Character>> availableStr(int index){
         List<List<Character>> strPos=new ArrayList<>(3);
+        for (int i = 0; i < 3; i++) {
+            strPos.add(i,new ArrayList<>(3));
+        }
         strPos.get(0).add(0,'┌');
         strPos.get(0).add(1,'─');
         strPos.get(0).add(2,'┐');
@@ -347,40 +354,43 @@ public class ViewTUIMatch {
                     else if(coord.getPosY()>maxY)
                         maxY= coord.getPosY();
                 }
-                int dimX=2*(maxX-minY+2),dimY=2*(maxY-minY+2);
+                int dimX=2*(maxX-minX+3)+1,dimY=2*(maxY-minY+3)+1;
                 List<List<Character>> fieldMatrix=new ArrayList<>(dimY);
                 List<Character> emptyLine= new ArrayList<>(dimX);
                 for (int i = 0; i < dimX; i++) {
-                    emptyLine.set(i,' ');
+                    emptyLine.add(i,' ');
                 }
                 for (int i = 0; i < dimY; i++) {
-                    fieldMatrix.set(i, emptyLine);
+                    fieldMatrix.add(i, emptyLine);
                 }
                 for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
                     CardSidePlayableIF cardSidePlayableIF=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(coord);
                     List<List<Character>> strCard=cardToStr(cardSidePlayableIF);
+                    int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
                     for (int i = 0; i < 3; i++) {
                         for (int j = 0; j < 3; j++) {
-                            if(fieldMatrix.get(2*coord.getPosY()+j).get(2*coord.getPosX()+i)==' ')
-                                fieldMatrix.get(2*coord.getPosY()+j).set(2*coord.getPosX()+i,strCard.get(j).get(i));
+                            if(fieldMatrix.get(curY+j).get(curX+i)==' ')
+                                fieldMatrix.get(curY+j).set(curX+i,strCard.get(j).get(i));
                         }
                     }
                     if(!cardSidePlayableIF.getCoveredCorners().get(0))
-                        fieldMatrix.get(2*coord.getPosY()).set(2*coord.getPosX(),strCard.get(0).get(0));
+                        fieldMatrix.get(curY).set(curX,strCard.get(0).get(0));
                     if(!cardSidePlayableIF.getCoveredCorners().get(1))
-                        fieldMatrix.get(2*coord.getPosY()).set(2*coord.getPosX()+2,strCard.get(0).get(2));
+                        fieldMatrix.get(curY).set(curX+2,strCard.get(0).get(2));
                     if(!cardSidePlayableIF.getCoveredCorners().get(2))
-                        fieldMatrix.get(2*coord.getPosY()+2).set(2*coord.getPosX()+2,strCard.get(2).get(2));
+                        fieldMatrix.get(curY+2).set(curX+2,strCard.get(2).get(2));
                     if(!cardSidePlayableIF.getCoveredCorners().get(3))
-                        fieldMatrix.get(2*coord.getPosY()+2).set(2*coord.getPosX(),strCard.get(2).get(0));
+                        fieldMatrix.get(curY+2).set(curX,strCard.get(2).get(0));
                 }
                 for(int i=0; i<gameState.getPlayerState(playerLobby).getField().getAvailableCoords().size();i++){
                     List<List<Character>> strCard=availableStr(i);
                     Coordinates coord=gameState.getPlayerState(playerLobby).getField().getAvailableCoords().get(i);
+                    int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
+                    //System.out.println(coord.getPosX()+" "+coord.getPosY()+" "+curX+" "+curY);
                     for (int j = 0; j < 3; j++) {
                         for (int k = 0; k < 3; k++) {
-                            if(fieldMatrix.get(2*coord.getPosY()+k).get(2*coord.getPosX()+j)==' ')
-                                fieldMatrix.get(3*coord.getPosY()+k).set(coord.getPosX()+j,strCard.get(k).get(j));
+                            if(fieldMatrix.get(curY+k).get(curX+j)==' ')
+                                fieldMatrix.get(curY+k).set(curX+j,strCard.get(k).get(j));
                         }
                     }
                 }
