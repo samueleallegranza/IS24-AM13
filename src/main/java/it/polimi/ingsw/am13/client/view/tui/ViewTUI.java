@@ -3,122 +3,258 @@ package it.polimi.ingsw.am13.client.view.tui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
-import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
+import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.controller.RoomIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.player.Player;
+import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Implementation of a view for TUI.
+ * It stores and handles the flow of the game (the "show" updates it expects to receive)
+ */
 public class ViewTUI implements View {
 
-    private final ViewTUIStartup viewStartup;
-    private final ViewTUILobby viewLobby;
-    private final ViewTUIRoom viewRoom;
-    private final ViewTUIOpening viewOpening ;
-    private final ViewTUIMatch viewMatch;
+    //TODO finisci di implementare (da showPlayedCard in giù)
 
-    Map<String, MenuItem> currentMenu;
-    PlayerLobby thisPlayer;
+    //TODO finisci di documentare
 
+    /**
+     * Current menu, which defines the possible actions to perform
+     */
+    private MenuTUI currentMenu;
+
+    /**
+     * Player the view refers to. Null if it is not define yet
+     */
+    private PlayerLobby thisPlayer;
+
+    /**
+     * Game's state. Null if it is not defined yet
+     */
+    private GameState gameState;
+
+    /**
+     * Handler of the view for the turn-based phases. Null if it is not defined
+     */
+    ViewTUIMatch viewTUIMatch;
+
+    /**
+     * Builds a new TUI view, setting an empty menu and all state attributes to null (not yet set)
+     */
     public ViewTUI() {
-        this.currentMenu = new HashMap<>();
-        this.viewStartup = new ViewTUIStartup();
-        this.viewLobby = new ViewTUILobby();
-        this.viewRoom = new ViewTUIRoom();
-        this.viewOpening = new ViewTUIOpening();
-        this.viewMatch = new ViewTUIMatch();
+        this.currentMenu = new MenuTUI();
+        this.thisPlayer = null;
+        this.gameState = null;
+        this.viewTUIMatch = null;
     }
 
+    /**
+     * Creates a new menu with the specified items, sets this as the new current menu and prints it
+     * @param items Items to be included in the new current menu
+     */
+    private void changeAndPrintMenu(MenuItem ... items) {
+        this.currentMenu = new MenuTUI(items);
+        this.currentMenu.printMenu();
+    }
+
+    /**
+     * Starts the thread defined by {@link MenuInputReader} (listening for input from stdin)
+     * @param networkHandler Handler of the network, with which the commands can be sent to the server
+     */
     @Override
     public void setNetworkHandler(NetworkHandler networkHandler) {
         MenuInputReader inputReader = new MenuInputReader(this, networkHandler);
         inputReader.start();
     }
 
+    /**
+     * Shows a startup screen
+     * @param isSocket If the chosen connection is socket (vs RMI)
+     * @param ip Ip of the client
+     * @param port Port of the client
+     */
     @Override
-    public void showStartupScreen(boolean isTUI, boolean isSocket, String ip, int port) {
-        viewStartup.updateStartup(isTUI, isSocket, ip, port);
-        this.currentMenu = viewStartup.getMenu();
+    public void showStartupScreen(boolean isSocket, String ip, int port) {
+        ViewTUIPrintUtils.printStartup(isSocket, ip, port);
     }
 
+    /**
+     * Prints a generic exception and prints again the current menu
+     * @param e Exception to be shown
+     */
     @Override
     public void showException(Exception e) {
-
+        System.out.println(e.getMessage());
+        currentMenu.printMenu();
+        //TODO basta così?
     }
 
     @Override
     public void showGenericLogMessage(String msg) {
-
+        System.out.println(msg);
+        //TODO basta così?
     }
 
+    /**
+     * Prints the list of all rooms (with game started or not started)
+     * @param rooms List of rooms
+     */
     @Override
     public void showRooms(List<RoomIF> rooms) {
-        viewLobby.printRooms(rooms);
-        currentMenu = viewLobby.getMenu();
+        System.out.println("Rooms:");
+        for (RoomIF r : rooms) {
+            System.out.println(r);
+        }
+
+        changeAndPrintMenu(new MenuItemUpdateRoomList(),
+                new MenuItemCreateRoom(),
+                new MenuItemJoinRoom());
     }
 
-
+    /**
+     * Prints a player joining the room.
+     * If the player for this was not set, it is assumed this is the ACK message from the server and handles it.
+     * Otherwise, it shows the update
+     * @param player Player who joined the room
+     */
     @Override
     public void showPlayerJoinedRoom(PlayerLobby player) {
-        if(thisPlayer==null)
+        if(thisPlayer==null) {
+            // I joined a room
             thisPlayer = player;
-        viewRoom.printPlayerJoinedRoom(player, thisPlayer);
-        currentMenu = viewRoom.getMenu();
+            System.out.println("You have joined the room");
+            changeAndPrintMenu(new MenuItemLeaveRoom());
+        } else {
+            // I already joined a room, someone else joined the same room
+            System.out.println("Player " + player + " joined the room");
+
+        }
     }
 
+    /**
+     * Prints a player leaving the room
+     * If the player is the one associated to the view, it is assumed that this is the ACK message from the server and handles it.
+     * Otherwise, it shows the update
+     * @param player Player who left the room
+     */
     @Override
     public void showPlayerLeftRoom(PlayerLobby player) {
-        viewRoom.printPlayerLeftRoom(player);
+        // TODO se lo chiamo quando il gioco è avviato, mi perdo l'informazione su thisPlayer e mando a quel paese il menu.
+        //  E' una situazione da gestire?
+
+        if(thisPlayer.equals(player)) {
+            // I left the room
+            System.out.println("You left the room");
+            thisPlayer = null;
+            changeAndPrintMenu(new MenuItemUpdateRoomList(),
+                    new MenuItemCreateRoom(),
+                    new MenuItemJoinRoom());
+        } else {
+            // Someone who was in my same room left it
+            System.out.println("Player " + player + " left the room");
+        }
     }
 
+    /**
+     * Shows the game starting.
+     * In particular prints the two sides of the starter card and sets the meny in order to play the starter
+     * @param gameState Reference to the game's state which is kept up to date
+     */
     @Override
-    public void showStartGame(GameState state) {
-        viewOpening.printStarterSelection(state, this.thisPlayer);
-        currentMenu = viewRoom.getMenu();
+    public void showStartGame(GameState gameState) {
+        // TODO cosa fare se gameState è già impostato? (sarebbe stato già chiamato startgame...)
+        //  E' una situazione da gestire (tipo player left room)?
+        this.gameState = gameState;
+
+        // get cars
+        CardSidePlayableIF cardFront = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEFRONT);
+        CardSidePlayableIF cardBack = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEBACK);
+
+        // print
+        System.out.print("Game started.\n");
+        System.out.print("Please choose the side of your starter card: \n");
+        System.out.print(ViewTUIPrintUtils.starterCards(cardFront, cardBack));
+
+        changeAndPrintMenu(
+                new MenuItemPlayStarter()
+        );
     }
 
     @Override
     public void showStartGameReconnected(GameState state) {
-
+        //TODO da implementare
     }
 
+    /**
+     * It shows a successful starter card played.
+     * If the player is not the one associated to the view, it shows the update.
+     * Otherwise, it shows the two possible objective card and sets the menu in order to choose between them.
+     * @param player Player who played their starter card
+     */
     @Override
     public void showPlayedStarter(PlayerLobby player) {
-        viewOpening.printObjectiveSelection();
-        currentMenu = viewRoom.getMenu();
+        if(thisPlayer.equals(player)) {
+            System.out.println("You successfully played your starter card\n");
+
+            CardObjectiveIF obj1 = this.gameState.getPlayerState(this.thisPlayer).getPossibleHandObjectives().getFirst();
+            CardObjectiveIF obj2 = this.gameState.getPlayerState(this.thisPlayer).getPossibleHandObjectives().getLast();
+            System.out.print("Please choose your personal objective card: \n");
+            System.out.print(ViewTUIPrintUtils.objectiveCards(obj1, obj2));
+
+            changeAndPrintMenu(
+                    new MenuItemChooseObj(null, gameState)
+            );
+        } else
+            System.out.println("Player " + player + " has player their starter card on side " +
+                    gameState.getPlayerState(player).getStarterCard().getVisibleSide());
     }
 
+    /**
+     * It shows a successful objective card chosen.
+     * If the player is the one associated to the view, is also updated the menu
+     * @param player Player who chose their personal objective card
+     */
     @Override
     public void showChosenPersonalObjective(PlayerLobby player) {
-        // TODO: How to handle here? We should implement a "waiting"
+        if(thisPlayer.equals(player)) {
+            System.out.println("You successfully chosen your personal card. Now wait for the other players");
+            currentMenu = new MenuTUI();
+        }
+        else
+            System.out.println("Player " + player + " has chosen their personal objective card");
     }
 
+    /**
+     * It shows the game entering the turn-based phase
+     * In particular sets the {@link ViewTUIMatch} and uses that to handle this phase.
+     */
     @Override
     public void showInGame() {
-
+        // TODO non mi dovrebbero arrivare + showInGame, ma se succedesse?
+        viewTUIMatch = new ViewTUIMatch(this, gameState, thisPlayer);
+        viewTUIMatch.printMatch(thisPlayer);
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-
+        // TODO che metodo di viewTUIMatch devo chiamare?
     }
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-
+        // TODO che metodo di viewTUIMatch devo chiamare?
     }
 
     @Override
     public void showNextTurn() {
+        // TODO che metodo di viewTUIMatch devo chiamare?
     }
 
     @Override
     public void showFinalPhase() {
-
+        // TODO che metodo di viewTUIMatch devo chiamare?
     }
 
     @Override
@@ -146,7 +282,11 @@ public class ViewTUI implements View {
 
     }
 
-    public Map<String, MenuItem> getCurrentMenu() {
+    public MenuTUI getCurrentMenu() {
         return currentMenu;
+    }
+
+    void setCurrentMenu(MenuTUI currentMenu) {
+        this.currentMenu = currentMenu;
     }
 }

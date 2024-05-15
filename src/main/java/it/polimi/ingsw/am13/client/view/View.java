@@ -24,7 +24,7 @@ public interface View {
     /**
      * Shows a startup screen. It should be used as first introduction view when the view is created
      */
-    void showStartupScreen(boolean isTUI, boolean isSocket, String ip, int port);
+    void showStartupScreen(boolean isSocket, String ip, int port);
 
     /**
      * Shows a generic exception in the view (specific exception could be handled in different ways, also depending

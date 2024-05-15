@@ -63,11 +63,11 @@ public class CardObjective extends Card implements CardObjectiveIF {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CardObjective that = (CardObjective) o;
-        return Objects.equals(front, that.front);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), front);
+        return Objects.hash(super.hashCode(), getId());
     }
 }

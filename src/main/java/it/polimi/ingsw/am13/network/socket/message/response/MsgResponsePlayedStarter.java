@@ -20,7 +20,7 @@ public class MsgResponsePlayedStarter extends MsgResponse implements Serializabl
     /**
      * The coordinates of the starter
      */
-    private List<Coordinates> availableCoords;
+    private final List<Coordinates> availableCoords;
 
     public MsgResponsePlayedStarter(PlayerLobby player, CardStarterIF starter, List<Coordinates> availableCoords) {
         super("resPlayedStarter");
@@ -37,4 +37,7 @@ public class MsgResponsePlayedStarter extends MsgResponse implements Serializabl
         return starter;
     }
 
+    public List<Coordinates> getAvailableCoords() {
+        return availableCoords;
+    }
 }

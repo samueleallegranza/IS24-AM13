@@ -194,4 +194,13 @@ public class Room extends ListenerHandler implements RoomIF {
                 listener.updatePlayerReconnected(player);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] Room %d: %d / %d players",
+                gameStarted ? "started" : "not started",
+                gameId,
+                getListeners().size(),
+                nPlayersTarget);
+    }
 }

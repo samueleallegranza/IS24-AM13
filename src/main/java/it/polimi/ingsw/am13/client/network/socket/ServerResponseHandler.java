@@ -7,6 +7,7 @@ import it.polimi.ingsw.am13.network.socket.message.response.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * This class keeps waiting for responses coming from the server.
@@ -52,11 +53,10 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom -> {
-                            //if(gameStateHandler!=null)
                             view.showPlayerJoinedRoom(msgResponsePlayerJoinedRooom.getPlayer());
                         }
                         case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->{
-                            //if(gameStateHandler!=null)
+                            view.showPlayerLeftRoom(msgResponsePlayerLeftRoom.getPlayer());
                         }
                         case MsgResponsePlayerDisconnected msgResponsePlayerDisconnected -> {
                             if(gameStateHandler!=null)
@@ -74,52 +74,61 @@ public class ServerResponseHandler extends Thread{
                             view.showStartGame(gameStateHandler.getState());
                         }
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
-//                            if(gameStateHandler!=null)
-//                                gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter(), availableCoords);
-                            //TODO ricava available coords da msg
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter(),
+                                        msgResponsePlayedStarter.getAvailableCoords());
+                            view.showPlayedStarter(msgResponsePlayedStarter.getPlayer());
                         }
                         case MsgResponseChosenPersonalObjective msgResponseChosenPersonalObjective ->{
-//                            if(gameStateHandler!=null)
-//                                gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer(), chosenObj);
-                            //TODO ricava chosen obj da msg
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer(),
+                                        msgResponseChosenPersonalObjective.getChosenObjective());
+                            view.showChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer());
                         }
                         case MsgResponseInGame msgResponseInGame ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateInGame();
+                            view.showInGame();
                         }
 
                         case MsgResponsePlayedCard msgResponsePlayedCard ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePlayedCard(msgResponsePlayedCard.getPlayer(),msgResponsePlayedCard.getCardPlayer(),msgResponsePlayedCard.getCoordinates(),msgResponsePlayedCard.getPoints(),msgResponsePlayedCard.getAvailableCoordinates());
+                            view.showPlayedCard(msgResponsePlayedCard.getPlayer(), msgResponsePlayedCard.getCoordinates());
                         }
                         case MsgResponsePickedCard msgResponsePickedCard ->{
-//                            if(gameStateHandler!=null)
-//                                gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()), pickedCard);
-                            //TODO ricava picked card da msg
+                            if(gameStateHandler!=null)
+                                gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()),
+                                        msgResponsePickedCard.getPickedCard());
+                            view.showPickedCard(msgResponsePickedCard.getPlayer());
                         }
                         case MsgResponseNextTurn msgResponseNextTurn ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateNextTurn(msgResponseNextTurn.getPlayer());
+                            view.showNextTurn();
                         }
                         case MsgResponseFinalPhase msgResponseFinalPhase ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateFinalPhase();
+                            view.showFinalPhase();
                         }
 
                         case MsgResponsePointsCalculated msgResponsePointsCalculated ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePoints(msgResponsePointsCalculated.getPoints());
+                            view.showUpdatePoints();
                         }
                         case MsgResponseWinner msgResponseWinner ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateWinner(msgResponseWinner.getPlayer());
+                            view.showWinner();
                         }
 
                         case MsgResponseEndGame msgResponseEndGame ->{
                            // if(gameStateHandler!=null)
                             socket.close();
                             pingThread.stopPing();
-                            //TODO c'è da notificare la view
+                            view.showEndGame();
                         }
 
                         case MsgResponsePing msgResponsePing -> {
@@ -127,10 +136,10 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponseUpdateGameState msgResponseUpdateGameState ->{
-
+                            // TODO come gestirla
                         }
-                        case MsgResponseError msgResponseError -> System.out.println("Error");
-                        //TODO: bisogna far arrivare l'eccezione alla view
+                        case MsgResponseError msgResponseError ->
+                            view.showException(msgResponseError.getException());
 
                         default -> throw new IllegalStateException("Unexpected value: " + msgResponse);
                     }

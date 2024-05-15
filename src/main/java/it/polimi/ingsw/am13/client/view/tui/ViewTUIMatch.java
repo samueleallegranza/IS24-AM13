@@ -3,36 +3,27 @@ package it.polimi.ingsw.am13.client.view.tui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.player.Player;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class ViewTUIMatch implements ViewTuiMenuDisplayer {
+public class ViewTUIMatch {
 
-    private GameState gameState;
-    private PlayerLobby thisPlayer;
+    private final ViewTUI view;
+    private final GameState gameState;
+    private final PlayerLobby thisPlayer;
     private PlayerLobby displayPlayer;
-    private HashMap<String, MenuItem> menu;
     private boolean flowCardPlaced;
 
-    public ViewTUIMatch() {
-        this.gameState = null;
-        this.thisPlayer = null;
+    public ViewTUIMatch(ViewTUI viewTUI, GameState gameState, PlayerLobby thisPlayer) {
+        this.view = viewTUI;
+        this.gameState = gameState;
+        this.thisPlayer = thisPlayer;
         this.displayPlayer = null;
-        this.menu = null;
         this.flowCardPlaced = false;
-    }
-
-    @Override
-    public Map<String, MenuItem> getMenu() {
-        return this.menu;
     }
 
     public void printMatch(PlayerLobby player) {
@@ -51,19 +42,18 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
 
 
         // print menu (different based on player's turn status)
-        this.menu = null;
         if(this.gameState.getCurrentPlayer().equals(this.thisPlayer)) {
             // it's this player's turn. Force game flow: (1) place, (2) pick
             if (!flowCardPlaced) {
                 // player has to place a card first
-                this.menu = MenuItem.menuBuilder(List.of(
+                view.setCurrentMenu(new MenuTUI(
                         new MenuItemPlayCard(this.gameState)
                 ));
 
                 this.flowCardPlaced = true; // FIXME: could be broken with disconnections :/
             } else {
                 // player has to pick a new card from drawable ones
-                this.menu = MenuItem.menuBuilder(List.of(
+                view.setCurrentMenu(new MenuTUI(
                         new MenuItemPickCard(this.gameState)
                 ));
 
@@ -71,10 +61,10 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
             }
         } else {
             // not this player's turn, can move around until its turn.
-            this.menu = MenuItem.menuBuilder(List.of());    // FIXME: implement player movement in other fields!
+            view.setCurrentMenu(new MenuTUI());    // FIXME: implement player movement in other fields!
         }
 
-        MenuItem.printMenu(this.menu);
+        view.getCurrentMenu().printMenu();
     }
 
     // --------------------------------------------------------------------
@@ -103,9 +93,11 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
         for(int i=0; i<4; i++) pointsStr[i] = ((points[i] == -1) ? "  " :  points[i].toString());
 
         return String.format(
-                "Turn   │         %c         │         %c         │         %c         │         %c         │\n" +
-                "Player │ %c  %-14s │ %c  %-14s │ %c  %-14s │ %c  %-14s │\n"+
-                "Points │        %2s         │        %2s         │        %2s         │        %2s         │\n",
+                """
+                        Turn   │         %c         │         %c         │         %c         │         %c         │
+                        Player │ %c  %-14s │ %c  %-14s │ %c  %-14s │ %c  %-14s │
+                        Points │        %2s         │        %2s         │        %2s         │        %2s         │
+                        """,
                 turnSymbol[0], turnSymbol[1], turnSymbol[2], turnSymbol[3],
                 onlineSymbol[0], nickString[0],
                 onlineSymbol[1], nickString[1],
@@ -191,28 +183,30 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
         deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
 
         return String.format(
-                "╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗\n" +
-                "║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───F───┬───┐ ║\n"+
-                "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║\n"+
-                "║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘    [%c]    └───┤ ║\n"+
-                "║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║\n"+
-                "║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║\n"+
-                "║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║\n"+
-                "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║\n"+
-                "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───F───┬───┐ ║\n"+
-                "║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║\n"+
-                "║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘    [%c]    └───┤ ║\n"+
-                "║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║\n"+
-                "║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║\n"+
-                "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║\n"+
-                "╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║\n"+
-                "║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───F───┬───┐ ║\n"+
-                "║   │                   │  │                   │  │                   │ ║ │ %c │    %3s    │ %c │ ║\n"+
-                "║   │       FIX ME      │  │       FIX ME      │  │       FIX ME      │ ║ ├───┘    [%c]    └───┤ ║\n"+
-                "║   │                   │  │                   │  │                   │ ║ ├───┐           ┌───┤ ║\n"+
-                "║   │                   │  │                   │  │                   │ ║ │ %c │   %5s   │ %c │ ║\n"+
-                "║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║\n"+
-                "╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝\n",
+                """
+                        ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗
+                        ║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───F───┬───┐ ║
+                        ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║
+                        ║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘    [%c]    └───┤ ║
+                        ║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║
+                        ║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║
+                        ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║
+                        ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───F───┬───┐ ║
+                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║
+                        ║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘    [%c]    └───┤ ║
+                        ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║
+                        ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║
+                        ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║
+                        ║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───F───┬───┐ ║
+                        ║   │                   │  │                   │  │                   │ ║ │ %c │    %3s    │ %c │ ║
+                        ║   │       FIX ME      │  │       FIX ME      │  │       FIX ME      │ ║ ├───┘    [%c]    └───┤ ║
+                        ║   │                   │  │                   │  │                   │ ║ ├───┐           ┌───┤ ║
+                        ║   │                   │  │                   │  │                   │ ║ │ %c │   %5s   │ %c │ ║
+                        ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║
+                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝
+                        """,
                 hand.get(0).type,
                 deckRes.get(0).type, deckRes.get(1).type, deckRes.get(2).type, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
                 deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,
@@ -253,28 +247,30 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
         deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
 
         return String.format(
-                "╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗\n" +
-                        "║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───B───┬───┐ ║\n"+
-                        "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║\n"+
-                        "║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘     %c     └───┤ ║\n"+
-                        "║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║\n"+
-                        "║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║\n"+
-                        "║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║\n"+
-                        "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║\n"+
-                        "║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───B───┬───┐ ║\n"+
-                        "║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║\n"+
-                        "║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘     %c     └───┤ ║\n"+
-                        "║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║\n"+
-                        "║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║\n"+
-                        "║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║\n"+
-                        "╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║\n"+
-                        "║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───B───┬───┐ ║\n"+
-                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │    %3s    │ %c │ ║\n"+
-                        "║   │       FIX ME      │  │       FIX ME      │  │░░░░░░░HIDDEN░░░░░░│ ║ ├───┘     %c     └───┤ ║\n"+
-                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤ ║\n"+
-                        "║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │ ║\n"+
-                        "║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║\n"+
-                        "╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝\n",
+                """
+                        ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗
+                        ║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───B───┬───┐ ║
+                        ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ │ %c │    %3s    │ %c │ ║
+                        ║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘     %c     └───┤ ║
+                        ║ E ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┐           ┌───┤ ║
+                        ║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │ ║
+                        ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║
+                        ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───B───┬───┐ ║
+                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║
+                        ║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘     %c     └───┤ ║
+                        ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║
+                        ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║
+                        ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║
+                        ║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───B───┬───┐ ║
+                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │    %3s    │ %c │ ║
+                        ║   │       FIX ME      │  │       FIX ME      │  │░░░░░░░HIDDEN░░░░░░│ ║ ├───┘     %c     └───┤ ║
+                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤ ║
+                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │ ║
+                        ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║
+                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝
+                        """,
                 hand.get(0).type,
                 deckRes.get(0).type, deckRes.get(1).type, deckRes.get(2).type, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
                 deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,
@@ -333,6 +329,7 @@ public class ViewTUIMatch implements ViewTuiMenuDisplayer {
         return strPos;
     }
 
+    //TODO da eccezione, da sistemare
     private String genFieldString(PlayerLobby playerLobby){
         StringBuilder strField= new StringBuilder();
         try {

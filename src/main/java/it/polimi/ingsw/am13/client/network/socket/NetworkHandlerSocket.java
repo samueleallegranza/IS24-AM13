@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
-import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
@@ -46,7 +45,7 @@ public class NetworkHandlerSocket implements NetworkHandler {
      */
     @Override
     public PlayerLobby getPlayer() {
-        return null;
+        return latestPlayer;
     }
 
     @Override

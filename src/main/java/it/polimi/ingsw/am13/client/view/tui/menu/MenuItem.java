@@ -2,9 +2,6 @@ package it.polimi.ingsw.am13.client.view.tui.menu;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * Item belonging to a menu. It stores the command key with which it is possible to invoke the command, and its description.
  * The focal point of this abstraction if the method which actually executes the command it represents.
@@ -55,27 +52,10 @@ public abstract class MenuItem {
         return description;
     }
 
-    /**
-     * Static function which creates a new menu (hashmap representation) given the list of MenuItem which the menu
-     * is composed of.
-     * @param menuItems list of MenuItem instances
-     * @return the menu in represented as a hashmap
-     */
-    public static HashMap<String, MenuItem> menuBuilder(List<MenuItem> menuItems) {
-        HashMap<String, MenuItem> newMenu = new HashMap<>();
-        for(MenuItem item : menuItems) newMenu.put(item.getCommandKey(), item);
-        return newMenu;
-    }
-
-    public static void printMenu(HashMap<String, MenuItem> menu) {
-        System.out.println("Menu:");
-        for(String k: menu.keySet()) System.out.printf("\t%s\n", menu.get(k).toString());
-        System.out.print("> ");
-    }
 
     @Override
     public String toString() {
         //FIXME: format better
-        return String.format("%s: %s", this.commandKey, this.description);
+        return String.format("%s: %s", getCommandKey(), getDescription());
     }
 }

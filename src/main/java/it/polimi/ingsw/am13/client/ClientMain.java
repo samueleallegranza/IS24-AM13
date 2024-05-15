@@ -140,7 +140,7 @@ public class ClientMain {
 
             networkHandler = new NetworkHandlerSocket(socket, view);
         } else {
-            Registry registry = null;
+            Registry registry;
             try {
                 //TODO: rivedi meglio questo setup x rmi
                 registry = LocateRegistry.getRegistry(ServerMain.RMI_DEFAULT_PORT);
@@ -154,7 +154,7 @@ public class ClientMain {
         // Sets the network handler for the view, so as to allow it to send commands/messages to the server
         view.setNetworkHandler(networkHandler);
 
-        view.showStartupScreen(isTUI, isSocket, ip, port);
+        view.showStartupScreen(isSocket, ip, port);
         networkHandler.getRooms();
 
     }

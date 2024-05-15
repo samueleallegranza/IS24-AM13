@@ -141,7 +141,7 @@ public class Player implements Serializable, PlayerIF {
             throw new VariableAlreadySetException();
         CardObjective objChosen = null;
         for(CardObjective obj : possiblePersonalObjectives)
-            if(obj == cardObj) {
+            if(obj.equals(cardObj)) {
                 objChosen = obj;
                 break;
             }

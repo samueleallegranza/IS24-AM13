@@ -7,7 +7,7 @@ import it.polimi.ingsw.am13.client.view.tui.menu.MenuItem;
 import java.util.Scanner;
 
 public class MenuInputReader extends Thread {
-    ViewTUI view;
+    private final ViewTUI view;
     private final Scanner scanner;
 
     private final NetworkHandler networkHandler;
@@ -29,7 +29,7 @@ public class MenuInputReader extends Thread {
                 int endCommandKey = input.indexOf(" ");
                 if(endCommandKey == -1)
                     endCommandKey = input.length();
-                MenuItem menuItem = view.getCurrentMenu().get(input.substring(0, endCommandKey));
+                MenuItem menuItem = view.getCurrentMenu().getItem(input.substring(0, endCommandKey));
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
