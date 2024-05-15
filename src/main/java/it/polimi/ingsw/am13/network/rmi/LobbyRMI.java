@@ -72,7 +72,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
     public synchronized void createRoom(GameListenerClientRMI playerListener, int nPlayers) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.createRoom(lis, nPlayers);
         mapLis.put(playerListener.getPlayer(), lis);
     }
@@ -88,7 +88,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * or if it exists but the room is already full
      */
     public synchronized void joinRoom(int gameId, GameListenerClientRMI playerListener) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.joinRoom(gameId, lis);
         mapLis.put(playerListener.getPlayer(), lis);
     }
@@ -118,7 +118,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * (generic error, should not happen)
      */
     public synchronized void reconnectPlayer(GameListenerClientRMI playerListener) throws LobbyException, RemoteException, ConnectionException, GameStatusException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener);
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.reconnectPlayer(lis);
         mapLis.put(playerListener.getPlayer(), lis);
     }

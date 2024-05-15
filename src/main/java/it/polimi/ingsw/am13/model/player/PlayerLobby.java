@@ -65,4 +65,9 @@ public final class PlayerLobby implements Serializable {
     public int hashCode() {
         return Objects.hash(nickname, token);
     }
+
+    @Override
+    public String toString() {
+        return String.format("Player %s (token %s)", nickname, token);
+    }
 }

@@ -36,15 +36,21 @@ public class GameListenerServerRMI implements GameListener {
      * Client-side listener, on which to call the RMI methods (to send the updates).
      * It the class that will receive the updates.
      */
-    private final GameListenerClientRMI clientLis;
+    private transient final GameListenerClientRMI clientLis;
+
+    /**
+     * Players associated to this game listener
+     */
+    private final PlayerLobby player;
 
     /**
      * Creates a new server-side game listener wrapping the client-side listener
      * @param clientLis Client-side listener, which will receive the updates.
      */
-    public GameListenerServerRMI(GameListenerClientRMI clientLis) {
+    public GameListenerServerRMI(GameListenerClientRMI clientLis, PlayerLobby player) {
         this.clientLis = clientLis;
         ping = System.currentTimeMillis();
+        this.player = player;
     }
 
     /**
@@ -52,7 +58,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public PlayerLobby getPlayer() {
-        return null;
+        return player;
     }
 
     /**

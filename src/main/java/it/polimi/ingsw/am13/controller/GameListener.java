@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  * Interface to be implemented by the classes that handle the communication between the server and the clients.
  * It contains methods to update the client of the clients with the game status.
  */
-public interface GameListener {
+public interface GameListener extends Serializable {
 
     /**
      * @return Player corresponding to this listener

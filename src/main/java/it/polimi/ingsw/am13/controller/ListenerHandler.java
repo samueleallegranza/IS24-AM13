@@ -25,7 +25,7 @@ public class ListenerHandler implements Serializable {
     /**
      * Listeners handled by the class
      */
-    private transient final List<GameListener> listeners;
+    private final List<GameListener> listeners;
 
     public ListenerHandler() {
         listeners = new ArrayList<>();
@@ -64,8 +64,7 @@ public class ListenerHandler implements Serializable {
      * @return the list of GameListener.
      */
     public List<GameListener> getListeners() {
-        //FIXME: c'è problema con transient, vedi meglio
-        return listeners==null ? new ArrayList<>() : new ArrayList<>(listeners);
+        return new ArrayList<>(listeners);
     }
 
 

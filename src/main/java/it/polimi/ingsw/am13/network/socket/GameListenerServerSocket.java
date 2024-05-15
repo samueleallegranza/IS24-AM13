@@ -23,8 +23,8 @@ public class GameListenerServerSocket implements GameListener {
     /**
      * The handler of the client requests.
      */
-    private final ClientRequestsHandler clientRequestsHandler;
-    private final ObjectOutputStream out;
+    private transient final ClientRequestsHandler clientRequestsHandler;
+    private transient final ObjectOutputStream out;
 
     /**
      * The player associated with this listener
@@ -113,7 +113,7 @@ public class GameListenerServerSocket implements GameListener {
     @Override
     public void updateCloseSocket(){
         clientRequestsHandler.handleDisconnection();
-    };
+    }
 
     @Override
     public void updatePlayerReconnected(PlayerLobby player) {

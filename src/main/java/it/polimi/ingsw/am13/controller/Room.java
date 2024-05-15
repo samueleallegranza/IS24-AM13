@@ -197,10 +197,14 @@ public class Room extends ListenerHandler implements RoomIF {
 
     @Override
     public String toString() {
-        return String.format("[%s] Room %d: %d / %d players",
+        StringBuilder text = new StringBuilder(String.format("[%s] Room %d: %d / %d players",
                 gameStarted ? "started" : "not started",
                 gameId,
                 getListeners().size(),
-                nPlayersTarget);
+                nPlayersTarget));
+        for(PlayerLobby p : getPlayers()) {
+            text.append("\n\t\t- ").append(p);
+        }
+        return text.toString();
     }
 }

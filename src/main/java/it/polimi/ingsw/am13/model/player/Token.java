@@ -40,4 +40,10 @@ public class Token implements Serializable {
     public int hashCode() {
         return Objects.hash(color);
     }
+
+    @Override
+    public String toString() {
+        String colorName = color.name();
+        return colorName.substring(0,1).toUpperCase() + colorName.substring(1).toLowerCase();
+    }
 }
