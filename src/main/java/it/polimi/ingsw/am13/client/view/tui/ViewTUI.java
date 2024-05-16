@@ -103,9 +103,32 @@ public class ViewTUI implements View {
      */
     @Override
     public void showRooms(List<RoomIF> rooms) {
-        System.out.println("Rooms:");
-        for (RoomIF r : rooms) {
-            System.out.println(r);
+        if (rooms.isEmpty())
+            System.out.println("There no rooms for you to join right now!");
+        else{
+            String table = String.format(
+                    "╔══════════════════════════════════════[▽ AVAILABLE ROOMS ▽]══════════════════════════════════════╗\n" +
+                    "║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║\n",
+                    "GAME ID", "STATUS", "Player1", "Player2", "Player3", "Player4", "#NP");
+            System.out.print(table);
+            for (RoomIF r : rooms) {
+                String[] p = {"X","X","X","X"};
+                for (int i = 0; i < r.getnPlayersTarget(); i++)
+                    if (i < r.getPlayers().size())
+                        p[i] = r.getPlayers().get(i).getNickname();
+                    else
+                        p[i]="-";
+                String formatted = String.format(
+                        "║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║\n",
+                        r.getGameId(), r.isGameStarted() ? "started" : "waiting",
+                        p[0], p[1], p[2], p[3], r.getPlayers().size() +"/"+ r.getnPlayersTarget()
+                );
+                for (int i = 0; i < r.getPlayers().size(); i++)
+                    formatted = formatted.replace(p[i], ViewTUIConstants.colorNickname(r.getPlayers().get(i)));
+                System.out.print(formatted);
+            }
+            System.out.println(
+                    "╚═════════════════════════════════════════════════════════════════════════════════════════════════╝");
         }
 
         changeAndPrintMenu(new MenuItemUpdateRoomList(),

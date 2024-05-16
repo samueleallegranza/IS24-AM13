@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.model.card.Resource;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.format.DateTimeFormatter;
 
@@ -26,9 +27,18 @@ public final class ViewTUIConstants {
     // An angle which is not linkable
     public static final String ANGLE_NOTLINKABLE_SYMBOL = "□";
 
-
-
     public static final String POINTS_PATTERN_ANGLE = "▖";
+
+    // CONSOLE COLORING STUFF
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
 
     // TODO: fix to map
@@ -47,5 +57,18 @@ public final class ViewTUIConstants {
         }
     }
 
-
+    /**
+     * Returns the colored version of this player's nickname, based on the color of the token
+     * @param player the player
+     * @return the colored version of the player's nickname
+     */
+    public static String colorNickname(PlayerLobby player) {
+        if (player == null) return "-";
+        return switch (player.getToken().getColor()) {
+            case RED -> ANSI_RED + player.getNickname() + ANSI_RESET;
+            case GREEN -> ANSI_GREEN + player.getNickname() + ANSI_RESET;
+            case YELLOW -> ANSI_YELLOW + player.getNickname() + ANSI_RESET;
+            case BLUE -> ANSI_BLUE + player.getNickname() + ANSI_RESET;
+        };
+    }
 }
