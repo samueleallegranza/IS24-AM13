@@ -33,7 +33,8 @@ public class ViewTUIMatch {
         System.out.println(sectionPlayers());
 
         // print player field
-        System.out.println(sectionField());
+        // FIXME: Something fuc*s up here...
+        // System.out.println(sectionField());
 
         // print player cards (with proper censorship if opponent)
         System.out.println(sectionCards());
@@ -147,7 +148,10 @@ public class ViewTUIMatch {
                 } else {
                     this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
                 }
+            } else {
+                this.points = "   "; // 0 points
             }
+
             this.color = ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0);
 
             List<Character> requirementList = new ArrayList<>();
@@ -194,7 +198,7 @@ public class ViewTUIMatch {
                         ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║
                         ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║
                         ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───F───┬───┐ ║
-                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║
+                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3s    │ %c │ ║
                         ║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘    [%c]    └───┤ ║
                         ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║
                         ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║
@@ -218,12 +222,12 @@ public class ViewTUIMatch {
                 deckGold.get(0).type, deckGold.get(1).type, deckGold.get(2).type, hand.get(1).type,
                 deckGold.get(0).corners[0], deckGold.get(0).points, deckGold.get(0).corners[1], deckGold.get(1).corners[0], deckGold.get(1).points, deckGold.get(1).corners[1], deckGold.get(2).corners[0], deckGold.get(2).points, deckGold.get(2).corners[1], hand.get(1).corners[0], hand.get(1).points, hand.get(1).corners[1],
                 deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
-                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(2).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
+                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
 
-                hand.get(3).type,
-                hand.get(3).corners[0], hand.get(3).points, hand.get(3).corners[1],
-                hand.get(3).color,
-                hand.get(3).corners[3], hand.get(3).requirements, hand.get(3).corners[2]
+                hand.get(2).type,
+                hand.get(2).corners[0], hand.get(2).points, hand.get(2).corners[1],
+                hand.get(2).color,
+                hand.get(2).corners[3], hand.get(2).requirements, hand.get(2).corners[2]
             );
     }
 
@@ -258,7 +262,7 @@ public class ViewTUIMatch {
                         ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘ ║
                         ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                       ║
                         ║   ┌───┬───%c───B───┬───┐  ┌───┬───%c───F───┬───┐  ┌───┬───%c───F───┬───┐ ║ ┌───┬───%c───B───┬───┐ ║
-                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3c    │ %c │ ║
+                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3s    │ %c │ ║
                         ║ O ├───┘     %c     └───┤  ├───┘    [%c]    └───┤  ├───┘    [%c]    └───┤ ║ ├───┘     %c     └───┤ ║
                         ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤ ║
                         ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │ ║
@@ -282,12 +286,12 @@ public class ViewTUIMatch {
                 deckGold.get(0).type, deckGold.get(1).type, deckGold.get(2).type, hand.get(1).type,
                 deckGold.get(0).corners[0], deckGold.get(0).points, deckGold.get(0).corners[1], deckGold.get(1).corners[0], deckGold.get(1).points, deckGold.get(1).corners[1], deckGold.get(2).corners[0], deckGold.get(2).points, deckGold.get(2).corners[1], hand.get(1).corners[0], hand.get(1).points, hand.get(1).corners[1],
                 deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
-                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(2).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
+                deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
 
-                hand.get(3).type,
-                hand.get(3).corners[0], hand.get(3).points, hand.get(3).corners[1],
-                hand.get(3).color,
-                hand.get(3).corners[3], hand.get(3).requirements, hand.get(3).corners[2]
+                hand.get(2).type,
+                hand.get(2).corners[0], hand.get(2).points, hand.get(2).corners[1],
+                hand.get(2).color,
+                hand.get(2).corners[3], hand.get(2).requirements, hand.get(2).corners[2]
         );
     }
 
