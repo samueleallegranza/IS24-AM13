@@ -116,7 +116,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
     public List<Boolean> getCoveredCorners() {
         List<Boolean> isCovered=new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            isCovered.set(i,corners.get(i).isCovered());
+            isCovered.add(i,corners.get(i).isCovered());
         }
         return isCovered;
     }
