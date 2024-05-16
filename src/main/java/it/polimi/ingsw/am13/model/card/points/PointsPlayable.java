@@ -4,12 +4,14 @@ import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
+
 /**
  * Representation of the points of a playable card.
  * It contains information about how to calculate the points, and allows to actually calculate them given a field and a card side playable.
  * Following the game rules, it should be used to calculate points when a player plays a card side.
  */
-public interface PointsPlayable{
+public interface PointsPlayable extends Serializable {
     /**
      * Calculate points of the card, according to information present in class that implements this interface.
      * @param cardSidePlayable side of the playable card that gives these points to the player

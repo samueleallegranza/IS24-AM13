@@ -12,7 +12,8 @@ import java.util.Objects;
  * Representation of points of a playable card side of the type
  * "x points for each resource of type y present on the field immediately after you play it"
  */
-public class PointsResource implements PointsPlayable, Serializable {
+public class PointsResource implements PointsPlayable {
+
     /**
      * This variable represents the number of points this card gives for each resource
      */

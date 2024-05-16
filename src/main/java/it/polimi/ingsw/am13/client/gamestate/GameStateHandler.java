@@ -105,6 +105,8 @@ public class GameStateHandler {
 
     public void updateInGame() {
         state.setGameStatus(GameStatus.IN_GAME);
+        state.setCurrentPlayer(state.getFirstPlayer());
+
     }
 
 }

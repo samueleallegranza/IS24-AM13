@@ -18,7 +18,7 @@ import java.util.*;
  * The vectors represent where the card right below the previous one is: in order, the next card is to the left / below / to the right of the previous card.
  * An object instantiated from this class is immutable.
  */
-public class PointsPattern implements PointsObjective, Serializable {
+public class PointsPattern implements PointsObjective {
 
     /**
      * Color of the upper card
@@ -40,7 +40,7 @@ public class PointsPattern implements PointsObjective, Serializable {
     private final Coordinates vec12;
     /**
      * Vector representing position of bottom card with respect to upper card
-     * Mathmatically vec12 = (coordinates of bottom card) - (coordinates of upper card)
+     * Mathmatically vec13 = (coordinates of bottom card) - (coordinates of upper card)
      * It can be only one among (-2,-2), (-1,-2), (1,-2), (2,-2)
      */
     private final Coordinates vec13;
@@ -78,6 +78,25 @@ public class PointsPattern implements PointsObjective, Serializable {
         this.points = points;
     }
 
+    public Color getColor1() {
+        return color1;
+    }
+
+    public Color getColor3() {
+        return color3;
+    }
+
+    public Color getColor2() {
+        return color2;
+    }
+
+    public Coordinates getVec12() {
+        return vec12;
+    }
+
+    public Coordinates getVec13() {
+        return vec13;
+    }
 
     /**
      * Calculate points of the card, according to how many (at most) non-intersercint patterns with right colors are found.
@@ -116,6 +135,14 @@ public class PointsPattern implements PointsObjective, Serializable {
         }
 
         return count * points;
+    }
+
+    /**
+     * @return Points multiplier of the objective card (how many points are given for each pattern/set satisfied in the field)
+     */
+    @Override
+    public int getPointsMultiplier() {
+        return points;
     }
 
     @Override

@@ -10,7 +10,8 @@ import java.util.Objects;
 /**
  * Representation of points of a playable card side of the type "x points when you play this card on this side"
  */
-public class PointsInstant implements PointsPlayable, Serializable {
+public class PointsInstant implements PointsPlayable {
+
     /**
      * This variable represents how many points the card gives
      */

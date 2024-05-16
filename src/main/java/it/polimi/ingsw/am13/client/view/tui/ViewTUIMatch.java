@@ -187,6 +187,11 @@ public class ViewTUIMatch {
         deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
         deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
 
+        List<String> infoObj1 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(0));
+        List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
+        List<String> infoObj3 = ViewTUIPrintUtils.createInfoForObjective(gameState.getPlayerState(thisPlayer).getHandObjective());
+
+
         return String.format(
                 """
                         ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗
@@ -205,10 +210,10 @@ public class ViewTUIMatch {
                         ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║
                         ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║
                         ║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───F───┬───┐ ║
-                        ║   │                   │  │                   │  │                   │ ║ │ %c │    %3s    │ %c │ ║
-                        ║   │       FIX ME      │  │       FIX ME      │  │       FIX ME      │ ║ ├───┘    [%c]    └───┤ ║
-                        ║   │                   │  │                   │  │                   │ ║ ├───┐           ┌───┤ ║
-                        ║   │                   │  │                   │  │                   │ ║ │ %c │   %5s   │ %c │ ║
+                        ║   │%s│  │%s│  │%s│ ║ │ %c │    %3s    │ %c │ ║
+                        ║   │%s│  │%s│  │%s│ ║ ├───┘    [%c]    └───┤ ║
+                        ║   │%s│  │%s│  │%s│ ║ ├───┐           ┌───┤ ║
+                        ║   │%s│  │%s│  │%s│ ║ │ %c │   %5s   │ %c │ ║
                         ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║
                         ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝
                         """,
@@ -225,8 +230,12 @@ public class ViewTUIMatch {
                 deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
 
                 hand.get(2).type,
+                infoObj1.get(0), infoObj2.get(0), infoObj3.get(0),
                 hand.get(2).corners[0], hand.get(2).points, hand.get(2).corners[1],
+                infoObj1.get(1), infoObj2.get(1), infoObj3.get(1),
                 hand.get(2).color,
+                infoObj1.get(2), infoObj2.get(2), infoObj3.get(2),
+                infoObj1.get(3), infoObj2.get(3), infoObj3.get(3),
                 hand.get(2).corners[3], hand.get(2).requirements, hand.get(2).corners[2]
             );
     }
@@ -251,6 +260,9 @@ public class ViewTUIMatch {
         deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
         deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
 
+        List<String> infoObj1 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(0));
+        List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
+
         return String.format(
                 """
                         ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═══════[▽ HAND ▽]══════╗
@@ -269,10 +281,10 @@ public class ViewTUIMatch {
                         ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘ ║
                         ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                       ║
                         ║   ┌─────────.─────────┐  ┌─────────.─────────┐  ┌─────────.─────────┐ ║ ┌───┬───%c───B───┬───┐ ║
-                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │    %3s    │ %c │ ║
-                        ║   │       FIX ME      │  │       FIX ME      │  │░░░░░░░HIDDEN░░░░░░│ ║ ├───┘     %c     └───┤ ║
-                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤ ║
-                        ║   │                   │  │                   │  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │ ║
+                        ║   │%s│  │%s│  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │    %3s    │ %c │ ║
+                        ║   │%s│  │%s│  │░░░░░░░HIDDEN░░░░░░│ ║ ├───┘     %c     └───┤ ║
+                        ║   │%s│  │%s│  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤ ║
+                        ║   │%s│  │%s│  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │ ║
                         ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘ ║
                         ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════╝
                         """,
@@ -289,8 +301,12 @@ public class ViewTUIMatch {
                 deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
 
                 hand.get(2).type,
+                infoObj1.get(0), infoObj2.get(0),
                 hand.get(2).corners[0], hand.get(2).points, hand.get(2).corners[1],
+                infoObj1.get(1), infoObj2.get(1),
                 hand.get(2).color,
+                infoObj1.get(2), infoObj2.get(2),
+                infoObj1.get(3), infoObj2.get(3),
                 hand.get(2).corners[3], hand.get(2).requirements, hand.get(2).corners[2]
         );
     }

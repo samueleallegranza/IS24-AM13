@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model.card;
 
+import it.polimi.ingsw.am13.model.card.points.PointsObjective;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
@@ -17,7 +18,7 @@ public class CardObjective extends Card implements CardObjectiveIF {
     /**
      * Active/front side of the card, where information about the points is stored.
      */
-    private transient final CardSideObjectiveActive front;
+    private final CardSideObjectiveActive front;
 
     /**
      * Creates a new immutable objective card, with points of type "x points for each set of resources/objects"
@@ -69,5 +70,10 @@ public class CardObjective extends Card implements CardObjectiveIF {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getId());
+    }
+
+    @Override
+    public PointsObjective getPoints() {
+        return front.getPoints();
     }
 }

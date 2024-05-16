@@ -1,8 +1,13 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.card.points.PointsObjective;
+import it.polimi.ingsw.am13.model.card.points.PointsPattern;
+import it.polimi.ingsw.am13.model.card.points.PointsSet;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ViewTUIPrintUtils {
 
@@ -70,20 +75,70 @@ public class ViewTUIPrintUtils {
         );
     }
 
+    public static List<String> createInfoForObjective(CardObjectiveIF obj) {
+        PointsObjective points = obj.getPoints();
+        List<String> infos = new ArrayList<>();
+        switch (points) {
+            case PointsSet p -> {
+                infos.add("      " + p.getPointsMultiplier() + " - SET      ");
+                Map<Resource, Integer> set = p.getSet();
+                for(Resource r : set.keySet()) {
+                    infos.add(String.format("      %s  (x%d)      ",
+                            ViewTUIConstants.resourceToSymbol(r),
+                            set.get(r)));
+                }
+                while(infos.size()<4)
+                    infos.add("                   ");
+            }
+            case PointsPattern p -> {
+                String pos1;
+                if(p.getVec12().getPosX()==-1)
+                    pos1 = "LT";
+                else if(p.getVec12().getPosX()==0)
+                    pos1 = "DN";
+                else
+                    pos1 = "RT";
+                String pos2;
+                if(p.getVec13().getPosX() - p.getVec12().getPosX() == -1)
+                    pos2 = "LT";
+                else if(p.getVec13().getPosX() - p.getVec12().getPosX() == 0)
+                    pos2 = "DN";
+                else
+                    pos2 = "RT";
+
+                infos.add("    " + p.getPointsMultiplier() + " - PATTERN    ");
+                infos.add(String.format("      %6s       ", p.getColor1()));
+                infos.add(String.format("    %6s - %s    ",
+                        p.getColor2(), pos1 ));
+                infos.add(String.format("    %6s - %s    ",
+                        p.getColor3(), pos2 ));
+                infos.add("                   ");
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + points);
+        }
+        return infos;
+    }
+
     public static String objectiveCards(CardObjectiveIF obj1, CardObjectiveIF obj2) {
         // FIXME: Dont have access to CardObjectiveIF informations!
+        List<String> info1 = createInfoForObjective(obj1);
+        List<String> info2 = createInfoForObjective(obj2);
+
         return String.format(
                 """
                         ┌─────OBJECTIVE─────┐     ┌─────OBJECTIVE─────┐
-                        │                   │     │                   │
-                        │         %s        │     │         %s        │
-                        │                   │     │                   │
-                        │                   │     │                   │
+                        │%s│     │%s│
+                        │%s│     │%s│
+                        │%s│     │%s│
+                        │%s│     │%s│
                         └───────────────────┘     └───────────────────┘
                         """,
-                obj1.getId(),
-                obj2.getId()
+                info1.get(0), info2.get(0),
+                info1.get(1), info2.get(1),
+                info1.get(2), info2.get(2),
+                info1.get(3), info2.get(3)
         );
+
     }
 
 }

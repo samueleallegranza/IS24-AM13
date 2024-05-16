@@ -35,7 +35,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
     /**
      * It stores the information needed to calculate the points the player gets when playing this card side
      */
-    final transient private PointsPlayable points;
+    final private PointsPlayable points;
 
     /**
      * It stores the color of this card

@@ -10,7 +10,8 @@ import java.util.Objects;
 /**
  * Representation of points of a playable card side of the type "x points for each corner covered by this card when you play it"
  */
-public class PointsCorner implements PointsPlayable, Serializable {
+public class PointsCorner implements PointsPlayable {
+
     /**
      * Represents how many points the card gives for each corner it covers
      */
