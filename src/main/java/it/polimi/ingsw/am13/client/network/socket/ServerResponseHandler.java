@@ -34,7 +34,8 @@ public class ServerResponseHandler extends Thread{
             } catch (IOException e){
                 throw new RuntimeException();
             }
-            while(true){
+
+            while(true) {
                 MsgResponse msgResponse;
                 try {
                     msgResponse=(MsgResponse) in.readObject();
@@ -48,20 +49,20 @@ public class ServerResponseHandler extends Thread{
 
                     //Todo notifica la view di getRooms, di eventuali errori legati a gameState (rami else di tutti gli if sottostanti), idem per MsgResponseError
                     switch (msgResponse) {
-                        case MsgResponseGetRooms msgResponseGetRooms -> {
+                        case MsgResponseGetRooms msgResponseGetRooms ->
                             view.showRooms(msgResponseGetRooms.getRooms());
-                        }
 
-                        case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom -> {
+                        case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom ->
                             view.showPlayerJoinedRoom(msgResponsePlayerJoinedRooom.getPlayer());
-                        }
-                        case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->{
+
+                        case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->
                             view.showPlayerLeftRoom(msgResponsePlayerLeftRoom.getPlayer());
-                        }
+
                         case MsgResponsePlayerDisconnected msgResponsePlayerDisconnected -> {
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePlayerDisconnected(msgResponsePlayerDisconnected.getPlayer());
                         }
+
                         case MsgResponsePlayerReconnected msgResponsePlayerReconnected -> {
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePlayerReconnected(msgResponsePlayerReconnected.getPlayer());
@@ -73,18 +74,21 @@ public class ServerResponseHandler extends Thread{
                             pingThread = new PingThread(networkHandlerSocket);
                             view.showStartGame(gameStateHandler.getState());
                         }
+
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePlayedStarter(msgResponsePlayedStarter.getPlayer(),msgResponsePlayedStarter.getStarter(),
                                         msgResponsePlayedStarter.getAvailableCoords());
                             view.showPlayedStarter(msgResponsePlayedStarter.getPlayer());
                         }
+
                         case MsgResponseChosenPersonalObjective msgResponseChosenPersonalObjective ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer(),
                                         msgResponseChosenPersonalObjective.getChosenObjective());
                             view.showChosenPersonalObjective(msgResponseChosenPersonalObjective.getPlayer());
                         }
+
                         case MsgResponseInGame msgResponseInGame ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateInGame();
@@ -96,17 +100,20 @@ public class ServerResponseHandler extends Thread{
                                 gameStateHandler.updatePlayedCard(msgResponsePlayedCard.getPlayer(),msgResponsePlayedCard.getCardPlayer(),msgResponsePlayedCard.getCoordinates(),msgResponsePlayedCard.getPoints(),msgResponsePlayedCard.getAvailableCoordinates());
                             view.showPlayedCard(msgResponsePlayedCard.getPlayer(), msgResponsePlayedCard.getCoordinates());
                         }
-                        case MsgResponsePickedCard msgResponsePickedCard ->{
+
+                        case MsgResponsePickedCard msgResponsePickedCard -> {
                             if(gameStateHandler!=null)
                                 gameStateHandler.updatePickedCard(msgResponsePickedCard.getPlayer(),new ArrayList<>(msgResponsePickedCard.getUpdatedVisibleCards()),
                                         msgResponsePickedCard.getPickedCard());
                             view.showPickedCard(msgResponsePickedCard.getPlayer());
                         }
+
                         case MsgResponseNextTurn msgResponseNextTurn ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateNextTurn(msgResponseNextTurn.getPlayer());
                             view.showNextTurn();
                         }
+
                         case MsgResponseFinalPhase msgResponseFinalPhase ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateFinalPhase();
@@ -118,6 +125,7 @@ public class ServerResponseHandler extends Thread{
                                 gameStateHandler.updatePoints(msgResponsePointsCalculated.getPoints());
                             view.showUpdatePoints();
                         }
+
                         case MsgResponseWinner msgResponseWinner ->{
                             if(gameStateHandler!=null)
                                 gameStateHandler.updateWinner(msgResponseWinner.getPlayer());
@@ -138,6 +146,7 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseUpdateGameState msgResponseUpdateGameState ->{
                             // TODO come gestirla
                         }
+
                         case MsgResponseError msgResponseError ->
                             view.showException(msgResponseError.getException());
 

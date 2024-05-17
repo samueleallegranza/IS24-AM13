@@ -107,8 +107,10 @@ public class ViewTUI implements View {
             System.out.println("There no rooms for you to join right now!");
         else{
             String table = String.format(
-                    "╔══════════════════════════════════════[▽ AVAILABLE ROOMS ▽]══════════════════════════════════════╗\n" +
-                    "║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║\n",
+                    """
+                            ╔══════════════════════════════════════[▽ AVAILABLE ROOMS ▽]══════════════════════════════════════╗
+                            ║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║
+                            """,
                     "GAME ID", "STATUS", "Player1", "Player2", "Player3", "Player4", "#NP");
             System.out.print(table);
             for (RoomIF r : rooms) {
@@ -257,22 +259,36 @@ public class ViewTUI implements View {
     public void showInGame() {
         // TODO non mi dovrebbero arrivare + showInGame, ma se succedesse?
         viewTUIMatch = new ViewTUIMatch(this, gameState, thisPlayer);
-        viewTUIMatch.printMatch(thisPlayer);
+        viewTUIMatch.setDisplayPlayer(thisPlayer);
+        viewTUIMatch.printMatch();
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         // TODO che metodo di viewTUIMatch devo chiamare?
+        if(thisPlayer.equals(player))
+            System.out.println("You successfully played the card");
+        else
+            System.out.println("Player " + player + " played a card on coordinates " + coord);
+        viewTUIMatch.setFlowCardPlaced(true);
+        viewTUIMatch.printMatch();
     }
 
     @Override
     public void showPickedCard(PlayerLobby player) {
         // TODO che metodo di viewTUIMatch devo chiamare?
+        if(thisPlayer.equals(player))
+            System.out.println("You successfully picked the card");
+        else
+            System.out.println("Player " + player + " picked a card");
+        viewTUIMatch.setFlowCardPlaced(false);
+        viewTUIMatch.printMatch();
     }
 
     @Override
     public void showNextTurn() {
         // TODO che metodo di viewTUIMatch devo chiamare?
+        viewTUIMatch.printMatch();
     }
 
     @Override

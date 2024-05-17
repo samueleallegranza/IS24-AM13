@@ -63,9 +63,9 @@ public class MenuItemPlayCard extends MenuItem {
         } catch (NumberFormatException e) {
             throw new InvalidTUICommandException("Second parameter must be an integer indicating the spot where to place the card");
         }
-        if(args.get(2).equals("F"))
+        if(args.get(2).equals("front"))
             side = Side.SIDEFRONT;
-        else if(args.get(2).equals("B"))
+        else if(args.get(2).equals("back"))
             side = Side.SIDEBACK;
         else
             throw new InvalidTUICommandException("Third parameter must be the side on which to play the card (F for front, B for back");

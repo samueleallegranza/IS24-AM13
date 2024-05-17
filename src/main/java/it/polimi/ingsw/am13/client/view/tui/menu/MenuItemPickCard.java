@@ -61,7 +61,7 @@ public class MenuItemPickCard extends MenuItem {
         } else if(args.get(1).equals("pick")) {
             if(args.size() != 3)
                 throw new InvalidTUICommandException("There must be 1 parameter after 'pick': <Number of card to pick (1/2)");
-            if(args.get(1).equals("1"))
+            if(args.get(2).equals("1"))
                 cardIdx += 1;
             else if(args.get(2).equals("2"))
                 cardIdx += 2;

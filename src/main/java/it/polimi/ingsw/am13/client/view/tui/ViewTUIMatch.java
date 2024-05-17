@@ -26,8 +26,16 @@ public class ViewTUIMatch {
         this.flowCardPlaced = false;
     }
 
-    public void printMatch(PlayerLobby player) {
-        this.displayPlayer = player;
+    public void setFlowCardPlaced(boolean flowCardPlaced) {
+        this.flowCardPlaced = flowCardPlaced;
+    }
+
+    public void setDisplayPlayer(PlayerLobby displayPlayer) {
+        this.displayPlayer = displayPlayer;
+    }
+
+    public void printMatch() {
+//        this.displayPlayer = player;
 
         // print player header
         System.out.println(sectionPlayers());
@@ -51,14 +59,14 @@ public class ViewTUIMatch {
                         new MenuItemPlayCard(this.gameState)
                 ));
 
-                this.flowCardPlaced = true; // FIXME: could be broken with disconnections :/
+//                this.flowCardPlaced = true; // FIXME: could be broken with disconnections :/
             } else {
                 // player has to pick a new card from drawable ones
                 view.setCurrentMenu(new MenuTUI(
                         new MenuItemPickCard(this.gameState)
                 ));
 
-                this.flowCardPlaced = false; // FIXME: could be broken with disconnections :/
+//                this.flowCardPlaced = false; // FIXME: could be broken with disconnections :/
             }
         } else {
             // not this player's turn, can move around until its turn.
@@ -131,38 +139,70 @@ public class ViewTUIMatch {
         public String requirements; // requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
 
         public CardSideSymbols(CardPlayableIF c, Side s) {
-            CardSidePlayableIF cs = c.getSide(s);
-
-            this.type = c instanceof CardGold ? 'G' : 'R';
-            this.side = s.equals(Side.SIDEFRONT) ? 'F' : 'B';
-
-            List<Resource> cornerRes = cs.getCornerResources();
-            this.corners = new Character[4];
-            for(int i=0; i<4; i++) this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
-
-            if(cs.getPoints()!=null) { //TODO controlla se va gestito in qualche altro modo
-                if (cs.getPoints().isCornerTypePoints())
-                    this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
-                else if (cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
-                    this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
-                } else {
-                    this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
-                }
+            if(c == null) {
+                type = '-';
+                side = '-';
+                corners = new Character[4];
+                for(int i=0 ; i<4 ; i++)
+                    corners[i] = ' ';
+                points = "   ";
+                color = ' ';
+                requirements = "     ";
             } else {
-                this.points = "   "; // 0 points
-            }
 
-            this.color = ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0);
+                CardSidePlayableIF cs = c.getSide(s);
 
-            List<Character> requirementList = new ArrayList<>();
-            for(Resource r: cs.getRequirements().keySet()) for(int i=0; i<cs.getRequirements().get(r); i++) requirementList.add(ViewTUIConstants.resourceToSymbol(r).charAt(0));
-            switch (requirementList.size()){
-                case 0: { this.requirements = "     "; break;}
-                case 1: { this.requirements = String.format("  %c  ", requirementList.getFirst()); break;}
-                case 2: { this.requirements = String.format(" %c%c  ", requirementList.get(0), requirementList.get(1)); break;}
-                case 3: { this.requirements = String.format(" %c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2)); break;}
-                case 4: { this.requirements = String.format("%c%c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2), requirementList.get(3)); break;}
-                case 5: { this.requirements = requirementList.stream().map(String::valueOf).collect(Collectors.joining()); }
+                this.type = c instanceof CardGold ? 'G' : 'R';
+                this.side = s.equals(Side.SIDEFRONT) ? 'F' : 'B';
+
+                List<Resource> cornerRes = cs.getCornerResources();
+                this.corners = new Character[4];
+                for (int i = 0; i < 4; i++)
+                    this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
+
+                if (cs.getPoints() != null) { //TODO controlla se va gestito in qualche altro modo
+                    if (cs.getPoints().isCornerTypePoints())
+                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
+                    else if (cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
+                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
+                    } else {
+                        this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
+                    }
+                } else {
+                    this.points = "   "; // 0 points
+                }
+
+                this.color = ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0);
+
+                List<Character> requirementList = new ArrayList<>();
+                for (Resource r : cs.getRequirements().keySet())
+                    for (int i = 0; i < cs.getRequirements().get(r); i++)
+                        requirementList.add(ViewTUIConstants.resourceToSymbol(r).charAt(0));
+                switch (requirementList.size()) {
+                    case 0: {
+                        this.requirements = "     ";
+                        break;
+                    }
+                    case 1: {
+                        this.requirements = String.format("  %c  ", requirementList.getFirst());
+                        break;
+                    }
+                    case 2: {
+                        this.requirements = String.format(" %c%c  ", requirementList.get(0), requirementList.get(1));
+                        break;
+                    }
+                    case 3: {
+                        this.requirements = String.format(" %c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2));
+                        break;
+                    }
+                    case 4: {
+                        this.requirements = String.format("%c%c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2), requirementList.get(3));
+                        break;
+                    }
+                    case 5: {
+                        this.requirements = requirementList.stream().map(String::valueOf).collect(Collectors.joining());
+                    }
+                }
             }
         }
     }
@@ -170,7 +210,10 @@ public class ViewTUIMatch {
     private String sectionCardsThisPlayer() {
         // player hand displayed with front sides
         List<CardSideSymbols> hand = new ArrayList<>();
-        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+        List<CardPlayableIF> handCards = this.gameState.getPlayerState(this.displayPlayer).getHandPlayable();
+        for(int i=0 ; i<3 ; i++) {
+//        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+            CardPlayableIF card = i<handCards.size() ? handCards.get(i) : null;
             hand.add(new CardSideSymbols(card, Side.SIDEFRONT));
         }
         //hand.add(new CardSideSymbols(this.gameState.getPlayerState(this.displayPlayer).getHandObjective(),Side.SIDEFRONT));
@@ -229,11 +272,11 @@ public class ViewTUIMatch {
                 deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
                 deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
 
-                hand.get(2).type,
+                hand.get(2).type,       //TODO si potrebbe non mostrare se non c'è la carta
                 infoObj1.get(0), infoObj2.get(0), infoObj3.get(0),
                 hand.get(2).corners[0], hand.get(2).points, hand.get(2).corners[1],
                 infoObj1.get(1), infoObj2.get(1), infoObj3.get(1),
-                hand.get(2).color,
+                hand.get(2).color,      //TODO si potrebbe generare le parentesi o meno se color è ' '
                 infoObj1.get(2), infoObj2.get(2), infoObj3.get(2),
                 infoObj1.get(3), infoObj2.get(3), infoObj3.get(3),
                 hand.get(2).corners[3], hand.get(2).requirements, hand.get(2).corners[2]
@@ -243,7 +286,10 @@ public class ViewTUIMatch {
     private String sectionCardsOpponentPlayer() {
         // player hand displayed with front sides
         List<CardSideSymbols> hand = new ArrayList<>();
-        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+        List<CardPlayableIF> handCards = this.gameState.getPlayerState(this.displayPlayer).getHandPlayable();
+        for(int i=0 ; i<3 ; i++) {
+//        for(CardPlayableIF card : this.gameState.getPlayerState(this.displayPlayer).getHandPlayable()) {
+            CardPlayableIF card = i<handCards.size() ? handCards.get(i) : null;
             hand.add(new CardSideSymbols(card, Side.SIDEBACK));
         }
 

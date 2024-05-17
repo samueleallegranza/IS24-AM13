@@ -174,11 +174,11 @@ public class DeckHandler<T extends Card>{
      * @throws InvalidDrawCardException ???
      */
     public T pickCard(CardPlayableIF cardPlayable) throws InvalidDrawCardException{
-        if(!deck.isEmpty() && getDeckTop()==cardPlayable){
+        if(!deck.isEmpty() && getDeckTop().equals(cardPlayable)){
             return drawFromDeck();
         }
         for (int i = 0; i < visibleCards.size(); i++) {
-            if(showFromTable(i)==cardPlayable){
+            if(showFromTable(i).equals(cardPlayable)){
                 return drawFromTable(i);
             }
         }

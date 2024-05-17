@@ -472,7 +472,7 @@ public class Match {
             // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
             CardPlayable card = null;
             for (CardPlayable c : currentPlayer.getHandCards())
-                if (c == cardIF) {
+                if (c.equals(cardIF)) {
                     card = c;
                 }
             if (card == null) {
