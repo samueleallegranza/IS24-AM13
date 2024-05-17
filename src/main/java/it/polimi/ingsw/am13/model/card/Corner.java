@@ -111,11 +111,11 @@ public class Corner implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Corner corner = (Corner) o;
-        return visibility == corner.visibility && covered == corner.covered && resource == corner.resource && Objects.equals(link, corner.link);
+        return visibility == corner.visibility && resource == corner.resource;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(visibility, covered, resource, link);
+        return Objects.hash(visibility, resource);
     }
 }

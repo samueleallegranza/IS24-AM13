@@ -44,7 +44,7 @@ public class LisForTest implements GameListener {
 
     @Override
     public Long getPing() {
-        return null;
+        return System.currentTimeMillis();
     }
 
     @Override

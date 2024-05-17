@@ -185,12 +185,11 @@ public class Player implements Serializable, PlayerIF {
      * is thrown.
      * @param sideToPlay Card side to be played on the field.
      * @param coordToPlay Coordinates where the card side has to be played on the field.
-     * @return The played card
      * @throws InvalidPlayCardException Positioning error of the card at given coordinates, or startCard is not yet
      * initialized.
      * @throws RequirementsNotMetException At least one Requirement is not satisfied for the given card.
      */
-    public CardPlayableIF playCard(CardSidePlayable sideToPlay, Coordinates coordToPlay) throws InvalidPlayCardException, RequirementsNotMetException {
+    public void playCard(CardSidePlayableIF sideToPlay, Coordinates coordToPlay) throws InvalidPlayCardException, RequirementsNotMetException {
         // check that the player has the side's card on his hand
         CardPlayable cardToPlay = null;
         for(CardPlayable currCard: this.handCards) {
@@ -206,15 +205,13 @@ public class Player implements Serializable, PlayerIF {
 
         if(cardToPlay == null) throw new InvalidPlayCardException("card not in the player's hand");
         // play the card on the field (exceptions will be thrown if action is not valid)
-        this.field.playCardSide(sideToPlay, coordToPlay);
+        this.field.playCardSide(cardToPlay.getPlayedCardSide(), coordToPlay);
 
         // remove the card from the player's hand
         this.handCards.remove(cardToPlay);
 
         // add points to player for card positioning
-        this.addPoints(sideToPlay.calcPoints(this.field));
-
-        return cardToPlay;
+        this.addPoints(cardToPlay.getPlayedCardSide().calcPoints(this.field));
     }
 
 

@@ -178,7 +178,7 @@ public class DeckHandler<T extends Card>{
             return drawFromDeck();
         }
         for (int i = 0; i < visibleCards.size(); i++) {
-            if(showFromTable(i).equals(cardPlayable)){
+            if(cardPlayable.equals(showFromTable(i))) {
                 return drawFromTable(i);
             }
         }

@@ -265,7 +265,6 @@ public class ViewTUI implements View {
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-        // TODO che metodo di viewTUIMatch devo chiamare?
         if(thisPlayer.equals(player))
             System.out.println("You successfully played the card");
         else
@@ -276,7 +275,6 @@ public class ViewTUI implements View {
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-        // TODO che metodo di viewTUIMatch devo chiamare?
         if(thisPlayer.equals(player))
             System.out.println("You successfully picked the card");
         else

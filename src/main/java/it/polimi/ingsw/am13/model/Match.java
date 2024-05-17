@@ -469,26 +469,23 @@ public class Match {
         if(turnActionsCounter!=0)
             throw new GameStatusException("It's not the moment for playing the card on field");
 
-        CardPlayable card = null;
-        CardPlayableIF playedCard = null;       // TODO rivedi meglio questo passaggio
+        CardPlayableIF card = null;
         if(currentPlayer.isConnected()) {
             // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
-            for (CardPlayable c : currentPlayer.getHandCards())
-                if (c.equals(cardIF)) {
-                    card = c;
-                }
+            card = currentPlayer.getHandCards().stream().filter(c -> c.equals(cardIF))
+                    .findFirst().orElseThrow(()-> new InvalidPlayCardException("Player doesn't have the card he's trying to play"));
             if (card == null) {
                 throw new InvalidPlayCardException("Player doesn't have the card he's trying to play");
             }
 
             if (side == Side.SIDEFRONT) {
-                playedCard = currentPlayer.playCard(card.getSide(Side.SIDEFRONT), coordinates);
+                currentPlayer.playCard(card.getSide(Side.SIDEFRONT), coordinates);
             } else {
-                playedCard = currentPlayer.playCard(card.getSide(Side.SIDEBACK), coordinates);
+                currentPlayer.playCard(card.getSide(Side.SIDEBACK), coordinates);
             }
         }
         turnActionsCounter++;
-        return playedCard;
+        return card;
     }
 
     /**
