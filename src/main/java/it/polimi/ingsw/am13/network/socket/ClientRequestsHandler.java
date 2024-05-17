@@ -260,7 +260,7 @@ public class ClientRequestsHandler extends Thread {
      * @param command MsgCommandPing command
      */
     private void handlePing(MsgCommandPing command) {
-        logCommand("ping");
+        // logCommand("ping");
 
         // TODO: What do we do when the gameController is null? Note that this is replicated in many other handlers.
         if(assertGameController()) {

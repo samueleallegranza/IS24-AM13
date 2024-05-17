@@ -169,7 +169,8 @@ public class GameListenerServerSocket implements GameListener {
 
             // for debugging purposes only
             MsgResponse msg = (MsgResponse) message;
-            clientRequestsHandler.logResponse(msg.getType());
+            if (msg.getClass()!= MsgResponsePing.class)
+                clientRequestsHandler.logResponse(msg.getType());
         } catch (IOException e) {
             //TODO: handle better
             throw new RuntimeException(e);
