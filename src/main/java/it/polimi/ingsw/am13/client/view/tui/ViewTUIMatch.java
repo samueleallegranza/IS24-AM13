@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import com.fasterxml.jackson.core.JsonToken;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.model.card.*;
@@ -42,7 +43,7 @@ public class ViewTUIMatch {
 
         // print player field
         // FIXME: Something fuc*s up here...
-        // System.out.println(sectionField());
+         System.out.println(sectionField());
 
         // print player cards (with proper censorship if opponent)
         System.out.println(sectionCards());
@@ -402,7 +403,6 @@ public class ViewTUIMatch {
         return strPos;
     }
 
-    //TODO da eccezione, da sistemare
     private String genFieldString(PlayerLobby playerLobby){
         StringBuilder strField= new StringBuilder();
         try {
@@ -421,13 +421,11 @@ public class ViewTUIMatch {
                         maxY= coord.getPosY();
                 }
                 int dimX=2*(maxX-minX+3)+1,dimY=2*(maxY-minY+3)+1;
-                List<List<Character>> fieldMatrix=new ArrayList<>(dimY);
-                List<Character> emptyLine= new ArrayList<>(dimX);
-                for (int i = 0; i < dimX; i++) {
-                    emptyLine.add(i,' ');
-                }
+                Character[][] fieldMatrix=new Character[dimY][dimX];
                 for (int i = 0; i < dimY; i++) {
-                    fieldMatrix.add(i, emptyLine);
+                    for (int j = 0; j < dimX; j++) {
+                        fieldMatrix[i][j]=' ';
+                    }
                 }
                 for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
                     CardSidePlayableIF cardSidePlayableIF=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(coord);
@@ -435,34 +433,33 @@ public class ViewTUIMatch {
                     int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
                     for (int i = 0; i < 3; i++) {
                         for (int j = 0; j < 3; j++) {
-                            if(fieldMatrix.get(curY+j).get(curX+i)==' ')
-                                fieldMatrix.get(curY+j).set(curX+i,strCard.get(j).get(i));
+                            if(fieldMatrix[curY+j][curX+i]==' ')
+                                fieldMatrix[curY+j][curX+i]=strCard.get(j).get(i);
                         }
                     }
                     if(!cardSidePlayableIF.getCoveredCorners().get(0))
-                        fieldMatrix.get(curY).set(curX,strCard.get(0).get(0));
+                        fieldMatrix[curY][curX]=strCard.get(0).get(0);
                     if(!cardSidePlayableIF.getCoveredCorners().get(1))
-                        fieldMatrix.get(curY).set(curX+2,strCard.get(0).get(2));
+                        fieldMatrix[curY][curX+2]=strCard.get(0).get(2);
                     if(!cardSidePlayableIF.getCoveredCorners().get(2))
-                        fieldMatrix.get(curY+2).set(curX+2,strCard.get(2).get(2));
+                        fieldMatrix[curY+2][curX+2]=strCard.get(2).get(2);
                     if(!cardSidePlayableIF.getCoveredCorners().get(3))
-                        fieldMatrix.get(curY+2).set(curX,strCard.get(2).get(0));
+                        fieldMatrix[curY+2][curX]=strCard.get(2).get(0);
                 }
                 for(int i=0; i<gameState.getPlayerState(playerLobby).getField().getAvailableCoords().size();i++){
                     List<List<Character>> strCard=availableStr(i);
                     Coordinates coord=gameState.getPlayerState(playerLobby).getField().getAvailableCoords().get(i);
                     int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
-                    //System.out.println(coord.getPosX()+" "+coord.getPosY()+" "+curX+" "+curY);
                     for (int j = 0; j < 3; j++) {
                         for (int k = 0; k < 3; k++) {
-                            if(fieldMatrix.get(curY+k).get(curX+j)==' ')
-                                fieldMatrix.get(curY+k).set(curX+j,strCard.get(k).get(j));
+                            if(fieldMatrix[curY+k][curX+j]==' ')
+                                fieldMatrix[curY+k][curX+j]=strCard.get(k).get(j);
                         }
                     }
                 }
                 for (int i = 0; i < dimY; i++) {
                     for (int j = 0; j < dimX; j++) {
-                        strField.append(fieldMatrix.get(i).get(j));
+                        strField.append(fieldMatrix[i][j]);
                     }
                     strField.append('\n');
                 }
