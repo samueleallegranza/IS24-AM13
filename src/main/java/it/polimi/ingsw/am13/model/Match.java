@@ -136,9 +136,15 @@ public class Match {
     /**
      * Disconnects the given player.
      * If this method is called before the player chooses the side in which he should play his starter card, or his secret objective,
-     * it assigns them to him.
+     * it assigns them to him.<br>
+     *
      * If this method is called when a player has played his card but not picked one yet, it assigns the first non-null
      * pickable card to the player.
+     * If instead it is called at the beginning of the player's turn, the ghost turn after the player is disconnected is
+     * handled by this method.
+     * This way, at the end of the disconnection for the current player in turn-based phase, it is always possible to
+     * make the game move on via <code>nextTurn()</code><br>
+     *
      * This method should not be called before game has actually starter
      * Then it calls the corresponding method in the Player class.
      * Note that the method only sets the player as "disconnected", but it does not remove the player themself from the game
@@ -162,15 +168,34 @@ public class Match {
                 throw new RuntimeException(e);
             }
         }
-        if((gameStatus==GameStatus.IN_GAME || gameStatus==GameStatus.FINAL_PHASE) && turnActionsCounter==1) {
-            CardPlayable cardToPick = fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
-            try {
-                pickCard(cardToPick);
-            } catch (GameStatusException | InvalidDrawCardException e) { //pickCard should never throw this exception because of the checks that are done above
-                throw new RuntimeException(e);
+
+        if((gameStatus==GameStatus.IN_GAME || gameStatus==GameStatus.FINAL_PHASE) && currentPlayer.getPlayerLobby().equals(player)) {
+            // The disconnected player is the one that is playing right now
+
+            if(turnActionsCounter == 0) {
+                // Case disconnection at the beginning of my turn. I play the ghost turn
+                // Actual disconnection
+                playersMap.get(player).disconnectPlayer();
+                try {
+                    playCard(null, null, null);
+                    pickCard(null);
+                } catch (GameStatusException | InvalidDrawCardException | RequirementsNotMetException |
+                         InvalidPlayCardException e) {  // Should not happen
+                    throw new RuntimeException(e);
+                }
+            } else if(turnActionsCounter == 1) {
+                // Case disconnection in middle of my turn. I pick the first possible card
+                CardPlayable cardToPick = fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
+                try {
+                    pickCard(cardToPick);
+                } catch (GameStatusException | InvalidDrawCardException e) { //pickCard should never throw this exception because of the checks that are done above
+                    throw new RuntimeException(e);
+                }
+                // Actual disconnection
+                playersMap.get(player).disconnectPlayer();
             }
-        }
-        playersMap.get(player).disconnectPlayer();
+        } else
+            playersMap.get(player).disconnectPlayer();
     }
 
     /**
@@ -336,14 +361,14 @@ public class Match {
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(playerLobby))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        if(playersMap.get(playerLobby).isConnected()) {
-            try {
-                playersMap.get(playerLobby).playStarter(side);
-            } catch (InvalidChoiceException e) {
-                System.out.println("The passed side does not belong to the starter card assigned to the given player");
-                throw new RuntimeException(e);
-            }
+//        if(playersMap.get(playerLobby).isConnected()) {
+        try {
+            playersMap.get(playerLobby).playStarter(side);
+        } catch (InvalidChoiceException e) {
+            System.out.println("The passed side does not belong to the starter card assigned to the given player");
+            throw new RuntimeException(e);
         }
+//        }
         countSetup++;
         checkInGamePhase();
     }
@@ -392,8 +417,8 @@ public class Match {
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(player))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-        if(playersMap.get(player).isConnected())
-            playersMap.get(player).initObjective(cardObjective);
+//        if(playersMap.get(player).isConnected())
+        playersMap.get(player).initObjective(cardObjective);
         countSetup++;
         checkInGamePhase();
     }

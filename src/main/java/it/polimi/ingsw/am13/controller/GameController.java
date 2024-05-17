@@ -97,16 +97,12 @@ public class GameController implements Runnable {
     }
 
     /**
-     * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
-     * @param player Player to disconnect
-     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
-     * @throws ConnectionException if the player had already been disconnected
-     * @throws LobbyException if gameListener didn't belong to ListenerHandler
+     * disconnection method only for tests
      */
-    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
+    public void disconnectPlayer(PlayerLobby player, long timeToWait) throws InvalidPlayerException, ConnectionException {
         gameModel.disconnectPlayer(player);
         if(player.equals(gameModel.fetchCurrentPlayer())) {
-            // Match forces the play-pick actions, but no one but the controller can move the game on via nextTurn
+            // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
             try {
                 nextTurn();
             } catch (GameStatusException e) {
@@ -114,7 +110,18 @@ public class GameController implements Runnable {
             }
         }
         if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
-            startReconnectionTimer();
+            startReconnectionTimer(timeToWait);
+    }
+
+    /**
+     * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
+     * @param player Player to disconnect
+     * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
+     * @throws ConnectionException if the player had already been disconnected
+     * @throws LobbyException if gameListener didn't belong to ListenerHandler
+     */
+    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
+        disconnectPlayer(player, timeToWaitReconnection);
     }
 
     /**
@@ -143,13 +150,14 @@ public class GameController implements Runnable {
      * If there are none, it deletes the game.
      * If there is only one, it calculates the winner (who will be the only connected player) and then deletes the game.
      * Otherwise, it resets the timer by setting the reconnectionThread to null.
+     * @param timeToWait Time in millis to wait for reconnection
      */
-    private void startReconnectionTimer(){
+    private void startReconnectionTimer(long timeToWait){
         reconnectionThread = new Thread(
                 ()-> {
                     long startingtimer = System.currentTimeMillis();
 
-                    while (reconnectionThread != null && !reconnectionThread.isInterrupted() && System.currentTimeMillis() - startingtimer < timeToWaitReconnection) {
+                    while (reconnectionThread != null && !reconnectionThread.isInterrupted() && System.currentTimeMillis() - startingtimer < timeToWait) {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
@@ -157,24 +165,16 @@ public class GameController implements Runnable {
                         }
                     }
                     int numberConnectedPlayers = gameModel.countConnected();
-                    if(numberConnectedPlayers==0){
-                        try {
+                    try {
+                        if(numberConnectedPlayers == 0)
                             Lobby.getInstance().endGame(getGameId());
-                        } catch (LobbyException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else
-                    {
-                        if (numberConnectedPlayers == 1) {
-                            try {
-                                gameModel.calcWinner();
-                            } catch (GameStatusException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        else {
-                            reconnectionThread=null;
-                        }
+                        else if(numberConnectedPlayers == 1)
+                            gameModel.calcWinner();
+                        else
+                            reconnectionThread = null;
+                    } catch (LobbyException | GameStatusException e) {
+                        // Should not happen
+                        throw new RuntimeException(e);
                     }
                 }
         );
@@ -277,8 +277,8 @@ public class GameController implements Runnable {
      * @throws GameStatusException if any of the methods it calls is called in the wrong game phase
      */
     private void nextTurn() throws GameStatusException {
-        boolean hasNextTurn=gameModel.nextTurn();
-        if(!hasNextTurn){
+        boolean hasNextTurn = gameModel.nextTurn();
+        if(!hasNextTurn) {
             gameModel.addObjectivePoints();
             gameModel.calcWinner();
         }
