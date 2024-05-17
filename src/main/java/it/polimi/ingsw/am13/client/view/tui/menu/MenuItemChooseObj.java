@@ -18,10 +18,9 @@ public class MenuItemChooseObj extends MenuItem {
 
     /**
      * Build a new item for choosing the personal objective card
-     * @param networkHandler Handler of the network, which allows to send the command to the server
      * @param state Reference to the current game's state
      */
-    public MenuItemChooseObj(NetworkHandler networkHandler, GameState state) {
+    public MenuItemChooseObj(GameState state) {
         super("choose_obj",
                 "Choose your personal objective card: 'choose_obj <Card to choose starting from left (1/2)>'"
                 );
@@ -32,13 +31,13 @@ public class MenuItemChooseObj extends MenuItem {
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
      * @param networkHandler Handler of the network thanks to which the item sends the command to the server
-     * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
+     * @throws InvalidTUICommandException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=1)
-            throw new InvalidTUIArgumentsException("There must be 1 parameter: <Card to choose starting from left (1/2)>");
+            throw new InvalidTUICommandException("There must be 1 parameter: <Card to choose starting from left (1/2)>");
 
         int cardIdx;
         if(args.getFirst().equals("1"))
@@ -46,7 +45,7 @@ public class MenuItemChooseObj extends MenuItem {
         else if(args.getFirst().equals("2"))
             cardIdx = 1;
         else
-            throw new InvalidTUIArgumentsException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
+            throw new InvalidTUICommandException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
 
         networkHandler.choosePersonalObjective(state.getPlayerState(networkHandler.getPlayer()).getPossibleHandObjectives().get(cardIdx));
     }

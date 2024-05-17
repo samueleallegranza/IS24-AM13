@@ -24,13 +24,13 @@ public class MenuItemPlayStarter extends MenuItem {
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
      * @param networkHandler Handler of the network thanks to which the item sends the command to the server
-     * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
+     * @throws InvalidTUICommandException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=1)
-            throw new InvalidTUIArgumentsException("There must be 1 parameter: <Side on which to play the started card (front/back>");
+            throw new InvalidTUICommandException("There must be 1 parameter: <Side on which to play the started card (front/back>");
 
         Side side;
         if(args.getFirst().equals("front"))
@@ -38,7 +38,7 @@ public class MenuItemPlayStarter extends MenuItem {
         else if(args.getFirst().equals("back"))
             side = Side.SIDEBACK;
         else
-            throw new InvalidTUIArgumentsException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
+            throw new InvalidTUICommandException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
 
         networkHandler.playStarter(side);
     }

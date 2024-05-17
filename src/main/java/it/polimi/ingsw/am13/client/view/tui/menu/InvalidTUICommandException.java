@@ -3,9 +3,9 @@ package it.polimi.ingsw.am13.client.view.tui.menu;
 /**
  * Exception representing invalid set of parameters associated to a TUI command
  */
-public class InvalidTUIArgumentsException extends Exception {
+public class InvalidTUICommandException extends Exception {
 
-    public InvalidTUIArgumentsException(String message) {
+    public InvalidTUICommandException(String message) {
         super(message);
     }
 }

@@ -9,7 +9,14 @@ import java.util.List;
 
 /**
  * Menu item for playing a card on field during a turn-based game phase.
- * It expects 3 arguments (card to play, where to place it and on which side) and sends the command to the server
+ * It expects 3 arguments:
+ * <li>
+ *     <ul> Number of card to play (index of the card in the list of hand cards in game's state </ul>
+ *     <ul> Number of spot where to place the card in field (index of the coordinates in the list of
+ *     available coordinates for that field in game's state </ul>
+ *     <ul> Side on which to play the card (front / back) </ul>
+ * </li>
+ * And then it sends the command to the server
  */
 public class MenuItemPlayCard extends MenuItem {
 
@@ -34,13 +41,13 @@ public class MenuItemPlayCard extends MenuItem {
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
      * @param networkHandler Handler of the network thanks to which the item sends the command to the server
-     * @throws InvalidTUIArgumentsException If the arguments passad via command line are wrong, or anyway different from what expected
+     * @throws InvalidTUICommandException If the arguments passad via command line are wrong, or anyway different from what expected
      */
     @Override
-    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
+    public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=3)
-            throw new InvalidTUIArgumentsException("Parameters must be 3: <Number of card to play>, <Number of spot where" +
+            throw new InvalidTUICommandException("Parameters must be 3: <Number of card to play>, <Number of spot where" +
                     "to place it>, <Side on which to play it (F/B)");
         int cardIdx;
         int coordIdx;
@@ -49,19 +56,19 @@ public class MenuItemPlayCard extends MenuItem {
         try {
             cardIdx = Integer.parseInt(args.getFirst());
         } catch (NumberFormatException e) {
-            throw new InvalidTUIArgumentsException("First parameter must be an integer indicating the card to play");
+            throw new InvalidTUICommandException("First parameter must be an integer indicating the card to play");
         }
         try {
             coordIdx = Integer.parseInt(args.get(1));
         } catch (NumberFormatException e) {
-            throw new InvalidTUIArgumentsException("Second parameter must be an integer indicating the spot where to place the card");
+            throw new InvalidTUICommandException("Second parameter must be an integer indicating the spot where to place the card");
         }
         if(args.get(2).equals("F"))
             side = Side.SIDEFRONT;
         else if(args.get(2).equals("B"))
             side = Side.SIDEBACK;
         else
-            throw new InvalidTUIArgumentsException("Third parameter must be the side on which to play the card (F for front, B for back");
+            throw new InvalidTUICommandException("Third parameter must be the side on which to play the card (F for front, B for back");
 
         //TODO forse è da sistemare la numerazione (non so se parte da 1 o da 0)
         PlayerLobby player = networkHandler.getPlayer();
@@ -72,7 +79,7 @@ public class MenuItemPlayCard extends MenuItem {
                     side
             );
         } catch (IndexOutOfBoundsException e) {
-            throw new InvalidTUIArgumentsException("Index for card to play or where to place it are invalid");
+            throw new InvalidTUICommandException("Index for card to play or where to place it are invalid");
         }
     }
 

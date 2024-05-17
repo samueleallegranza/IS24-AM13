@@ -227,7 +227,7 @@ public class ViewTUI implements View {
             System.out.print(ViewTUIPrintUtils.objectiveCards(obj1, obj2));
 
             changeAndPrintMenu(
-                    new MenuItemChooseObj(null, gameState)
+                    new MenuItemChooseObj(gameState)
             );
         } else
             System.out.println("Player " + player + " has player their starter card on side " +

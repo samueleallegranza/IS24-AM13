@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Token;
 
+// TODO testa e scrivi documentazione
 public class MenuItemReconnect extends MenuItem{
 
         public MenuItemReconnect() {
@@ -13,9 +14,9 @@ public class MenuItemReconnect extends MenuItem{
         }
 
         @Override
-        public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUIArgumentsException {
+        public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUICommandException {
             if (args == null || args.isEmpty()) {
-                throw new InvalidTUIArgumentsException("Invalid arguments. Please specify the room ID.");
+                throw new InvalidTUICommandException("Invalid arguments. Please specify the room ID.");
             }
             String[] arg = args.split(" ");
             String nickname = arg[0];
@@ -23,7 +24,7 @@ public class MenuItemReconnect extends MenuItem{
             try {
                 token = ColorToken.valueOf(arg[1].toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new InvalidTUIArgumentsException("Invalid token color. Please choose one of the following: red, blue, green, yellow");
+                throw new InvalidTUICommandException("Invalid token color. Please choose one of the following: red, blue, green, yellow");
             }
             networkHandler.reconnect(nickname, new Token(token));
         }

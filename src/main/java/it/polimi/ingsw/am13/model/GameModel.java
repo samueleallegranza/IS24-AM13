@@ -7,6 +7,13 @@ import it.polimi.ingsw.am13.model.player.*;
 
 import java.util.*;
 
+/**
+ * Model of the entire game.
+ * It can be used as an interface to handle the entire game, starting from its creation with a full room, till the
+ * natural end of the game.
+ * It handles also disconnections and reconnections, and is responsible of triggering all the notifies about game
+ * actions to the listeners
+ */
 public class GameModel implements GameModelIF {
 
     /**
