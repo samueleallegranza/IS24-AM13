@@ -25,6 +25,8 @@ public class LisForTest implements GameListener {
 
     public GameController controller;
 
+    public GameModelIF model;
+
     public final List<ControlAction> actions = new ArrayList<>();
     public final List<MsgResponse> updates = new ArrayList<>();
 
@@ -62,6 +64,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updateStartGame(GameModelIF model, GameController controller) {
         this.controller = controller;
+        this.model = model;
         actions.add(ControlAction.START_GAME);
         updates.add(new MsgResponseStartGame(model));
     }
@@ -147,10 +150,11 @@ public class LisForTest implements GameListener {
         updates.add(new MsgResponseInGame());
     }
 
+    // NOTA: uso messaggio per joined room
     @Override
     public void updateGameModel(GameModelIF model, PlayerLobby player) {
         actions.add(ControlAction.UPDATE_GAMEMODEL);
-        updates.add(new MsgResponseUpdateGameState(model, player));
+        updates.add(new MsgResponsePlayerJoinedRooom(player));
     }
 
     @Override

@@ -35,6 +35,7 @@ public class GameListenerServerSocket implements GameListener {
         this.clientRequestsHandler = clientRequestsHandler;
         this.out = out;
         this.player = player;
+        this.ping = System.currentTimeMillis();
     }
 
     @Override

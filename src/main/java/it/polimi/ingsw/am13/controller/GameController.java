@@ -35,8 +35,9 @@ public class GameController implements Runnable {
      * Thread used to manage the reconnection timer which is started when there only 1 player left
      */
     private Thread reconnectionThread;
+
     /**
-     * Creates a new instance of <code>GameController</code> with the specified players.
+     * Creates a new instance of the controller of the game with the specified room, which must be full.
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
      * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
@@ -60,7 +61,7 @@ public class GameController implements Runnable {
      */
     public synchronized void updatePing(PlayerLobby playerLobby){
         for(GameListener gameListener : gameModel.getListeners())
-            if(gameListener.getPlayer()==playerLobby) {
+            if(gameListener.getPlayer().equals(playerLobby)) {
                 gameListener.updatePing();
                 break;
             }
@@ -104,6 +105,14 @@ public class GameController implements Runnable {
      */
     public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
         gameModel.disconnectPlayer(player);
+        if(player.equals(gameModel.fetchCurrentPlayer())) {
+            // Match forces the play-pick actions, but no one but the controller can move the game on via nextTurn
+            try {
+                nextTurn();
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+        }
         if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
             startReconnectionTimer();
     }
@@ -136,7 +145,7 @@ public class GameController implements Runnable {
      * Otherwise, it resets the timer by setting the reconnectionThread to null.
      */
     private void startReconnectionTimer(){
-        reconnectionThread=new Thread(
+        reconnectionThread = new Thread(
                 ()-> {
                     long startingtimer = System.currentTimeMillis();
 
@@ -147,7 +156,7 @@ public class GameController implements Runnable {
                             //We can stop waiting since someone interrupted this thread
                         }
                     }
-                    int numberConnectedPlayers=gameModel.countConnected();
+                    int numberConnectedPlayers = gameModel.countConnected();
                     if(numberConnectedPlayers==0){
                         try {
                             Lobby.getInstance().endGame(getGameId());
@@ -156,7 +165,7 @@ public class GameController implements Runnable {
                         }
                     } else
                     {
-                        if (numberConnectedPlayers==1) {
+                        if (numberConnectedPlayers == 1) {
                             try {
                                 gameModel.calcWinner();
                             } catch (GameStatusException e) {
@@ -169,6 +178,7 @@ public class GameController implements Runnable {
                     }
                 }
         );
+        reconnectionThread.start();
     }
 
     /**
@@ -233,6 +243,8 @@ public class GameController implements Runnable {
         if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
             throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.playCard(card, side, coord);
+
+        // If there are no other cards to pick, I force the "pick"
         if(gameModel.fetchPickables().stream().noneMatch(Objects::nonNull))
             try {
                 pickCard(gameModel.fetchCurrentPlayer(), null);
