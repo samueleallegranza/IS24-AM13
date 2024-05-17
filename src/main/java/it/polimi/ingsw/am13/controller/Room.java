@@ -189,7 +189,7 @@ public class Room extends ListenerHandler implements RoomIF {
     private void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
         for (GameListener listener : getListeners()){
             if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model);
+                listener.updateGameModel(model, player);
             else
                 listener.updatePlayerReconnected(player);
         }

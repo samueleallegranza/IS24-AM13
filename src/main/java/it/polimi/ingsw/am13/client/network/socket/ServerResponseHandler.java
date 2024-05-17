@@ -44,10 +44,6 @@ public class ServerResponseHandler extends Thread{
                     throw new RuntimeException(e);
                 }
                 try {
-                    //TODO: le notifiche alla view (chiamate all'interfaccia view per modificarla) sono da fare qui, non le fa gameStateHandler.
-                    // Oppure sì, si può cambiare la cosa
-
-                    //Todo notifica la view di getRooms, di eventuali errori legati a gameState (rami else di tutti gli if sottostanti), idem per MsgResponseError
                     switch (msgResponse) {
                         case MsgResponseGetRooms msgResponseGetRooms ->
                             view.showRooms(msgResponseGetRooms.getRooms());
@@ -59,13 +55,17 @@ public class ServerResponseHandler extends Thread{
                             view.showPlayerLeftRoom(msgResponsePlayerLeftRoom.getPlayer());
 
                         case MsgResponsePlayerDisconnected msgResponsePlayerDisconnected -> {
-                            if(gameStateHandler!=null)
+                            if(gameStateHandler!=null) {
                                 gameStateHandler.updatePlayerDisconnected(msgResponsePlayerDisconnected.getPlayer());
+                                view.showPlayerDisconnected(msgResponsePlayerDisconnected.getPlayer());
+                            }
                         }
 
                         case MsgResponsePlayerReconnected msgResponsePlayerReconnected -> {
-                            if(gameStateHandler!=null)
+                            if(gameStateHandler!=null) {
                                 gameStateHandler.updatePlayerReconnected(msgResponsePlayerReconnected.getPlayer());
+                                view.showPlayerReconnected(msgResponsePlayerReconnected.getPlayer());
+                            }
                         }
 
                         case MsgResponseStartGame msgResponseStartGame -> {
@@ -140,11 +140,13 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponsePing msgResponsePing -> {
-                            //TODO c'è da gestirla?
+                            // do nothing
                         }
 
                         case MsgResponseUpdateGameState msgResponseUpdateGameState ->{
-                            // TODO come gestirla
+                            gameStateHandler = new GameStateHandler(msgResponseUpdateGameState.getGameState());
+                            pingThread = new PingThread(networkHandlerSocket);
+                            view.showStartGameReconnected(msgResponseUpdateGameState.getGameState(), msgResponseUpdateGameState.getPlayer());
                         }
 
                         case MsgResponseError msgResponseError ->

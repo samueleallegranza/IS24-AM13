@@ -42,6 +42,7 @@ public class ViewTUIMatch {
 
     public void printMatch() {
 
+        // TODO: fix order of printing for players... they are different between clients!
         // print player header
         System.out.println(sectionPlayers());
 

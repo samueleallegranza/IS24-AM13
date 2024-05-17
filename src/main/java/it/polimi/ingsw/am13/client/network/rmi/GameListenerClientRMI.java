@@ -231,8 +231,8 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      * (reconstructing the current situation in game).
      * @param model The updated game model.
      */
-    public void updateGameModel(GameModelIF model) throws RemoteException, InvalidPlayerException {
+    public void updateGameModel(GameModelIF model, PlayerLobby player) throws RemoteException, InvalidPlayerException {
         stateHandler = new GameStateHandler(model);
-        view.showStartGameReconnected(stateHandler.getState());
+        view.showStartGameReconnected(stateHandler.getState(), player);
     }
 }

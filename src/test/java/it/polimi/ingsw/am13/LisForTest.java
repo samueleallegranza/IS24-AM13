@@ -148,9 +148,9 @@ public class LisForTest implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model) {
+    public void updateGameModel(GameModelIF model, PlayerLobby player) {
         actions.add(ControlAction.UPDATE_GAMEMODEL);
-        updates.add(new MsgResponseUpdateGameState(model));
+        updates.add(new MsgResponseUpdateGameState(model, player));
     }
 
     @Override

@@ -268,14 +268,15 @@ public class GameListenerServerRMI implements GameListener {
 
     /**
      * This method should be called ONLY when a player reconnects to the game.
-     * Updates the client of the reconnected player with the updated game model.
+     * Updates the client of the reconnected player with the updated game model and corresponding player.
      * @param model The updated game model.
+     * @param player The updated player who is reconnecting.
      */
     @Override
-    public void updateGameModel(GameModelIF model) {
+    public void updateGameModel(GameModelIF model, PlayerLobby player) {
         tryRMICall(() -> {
             try {
-                clientLis.updateGameModel(model);
+                clientLis.updateGameModel(model, player);
             } catch (InvalidPlayerException e) {
                 throw new RuntimeException(e);
                 //TODO: pensaci meglio: può succedere?
