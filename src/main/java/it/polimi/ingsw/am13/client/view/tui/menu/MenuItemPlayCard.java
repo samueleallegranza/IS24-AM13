@@ -48,7 +48,7 @@ public class MenuItemPlayCard extends MenuItem {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=3)
             throw new InvalidTUICommandException("Parameters must be 3: <Number of card to play>, <Number of spot where" +
-                    "to place it>, <Side on which to play it (F/B)");
+                    "to place it>, <Side on which to play it (front/back)>");
         int cardIdx;
         int coordIdx;
         Side side;

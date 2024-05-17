@@ -1,12 +1,12 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
-import com.fasterxml.jackson.core.JsonToken;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +33,11 @@ public class ViewTUIMatch {
 
     public void setDisplayPlayer(PlayerLobby displayPlayer) {
         this.displayPlayer = displayPlayer;
+    }
+
+    public void setDisplayPlayer(String nick) throws InvalidParameterException {
+        this.displayPlayer = gameState.getPlayers().stream().filter(p -> p.getNickname().equals(nick)).
+                findFirst().orElseThrow(InvalidParameterException::new);
     }
 
     public void printMatch() {
@@ -71,7 +76,9 @@ public class ViewTUIMatch {
             }
         } else {
             // not this player's turn, can move around until its turn.
-            view.setCurrentMenu(new MenuTUI());    // FIXME: implement player movement in other fields!
+            view.setCurrentMenu(new MenuTUI(
+                    new MenuItemOtherField(this)
+            ));    // FIXME: implement player movement in other fields!
         }
 
         view.getCurrentMenu().printMenu();
@@ -408,7 +415,6 @@ public class ViewTUIMatch {
         try {
             CardSidePlayableIF starterCard=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(new Coordinates(0,0));
             if(starterCard!=null) {
-                Coordinates origin=new Coordinates(0, 0);
                 int minX=0,maxX=0,minY=0,maxY=0;
                 for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
                     if(coord.getPosX()<minX)

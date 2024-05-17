@@ -287,7 +287,8 @@ public class ViewTUI implements View {
 
     @Override
     public void showNextTurn() {
-        // TODO che metodo di viewTUIMatch devo chiamare?
+        if(thisPlayer.equals(gameState.getCurrentPlayer()))
+            viewTUIMatch.setDisplayPlayer(thisPlayer);
         viewTUIMatch.printMatch();
     }
 

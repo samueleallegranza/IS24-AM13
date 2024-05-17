@@ -454,12 +454,13 @@ public class Match {
      * @param cardIF Card which is being played. It must be in player's hand
      * @param side indicates whether the card is going to be played on the front or on the back
      * @param coordinates in the field of the player where the card is going to be positioned
+     * @return The played card, null if the player is not connected
      * @throws GameStatusException if the actual phase is different from IN_GAME or FINAL_PHASE,
      * or it's not the moment in turn for playing the card on field
      * @throws RequirementsNotMetException If the requirements for playing the specified card in player's field are not met
      * @throws InvalidPlayCardException If the player doesn't have the specified card, or generic positioning error
      */
-    public void playCard(CardPlayableIF cardIF, Side side, Coordinates coordinates)
+    public CardPlayableIF playCard(CardPlayableIF cardIF, Side side, Coordinates coordinates)
             throws GameStatusException, RequirementsNotMetException, InvalidPlayCardException {
         // Right game phase
         if(gameStatus!=GameStatus.IN_GAME && gameStatus!=GameStatus.FINAL_PHASE)
@@ -468,9 +469,10 @@ public class Match {
         if(turnActionsCounter!=0)
             throw new GameStatusException("It's not the moment for playing the card on field");
 
+        CardPlayable card = null;
+        CardPlayableIF playedCard = null;       // TODO rivedi meglio questo passaggio
         if(currentPlayer.isConnected()) {
             // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
-            CardPlayable card = null;
             for (CardPlayable c : currentPlayer.getHandCards())
                 if (c.equals(cardIF)) {
                     card = c;
@@ -480,12 +482,13 @@ public class Match {
             }
 
             if (side == Side.SIDEFRONT) {
-                currentPlayer.playCard(card.getSide(Side.SIDEFRONT), coordinates);
+                playedCard = currentPlayer.playCard(card.getSide(Side.SIDEFRONT), coordinates);
             } else {
-                currentPlayer.playCard(card.getSide(Side.SIDEBACK), coordinates);
+                playedCard = currentPlayer.playCard(card.getSide(Side.SIDEBACK), coordinates);
             }
         }
         turnActionsCounter++;
+        return playedCard;
     }
 
     /**

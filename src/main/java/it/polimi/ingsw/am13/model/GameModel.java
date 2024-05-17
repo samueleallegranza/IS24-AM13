@@ -343,9 +343,9 @@ public class GameModel implements GameModelIF {
      */
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
-        match.playCard(card, side, coord);
+        CardPlayableIF playedCard = match.playCard(card, side, coord);
         try {
-            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
+            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), playedCard, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
         } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
