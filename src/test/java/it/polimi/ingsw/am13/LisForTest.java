@@ -23,6 +23,9 @@ public class LisForTest implements GameListener {
 
     private final PlayerLobby player;
 
+    public boolean stopPing;
+    private long ping;
+
     public GameController controller;
 
     public GameModelIF model;
@@ -33,6 +36,7 @@ public class LisForTest implements GameListener {
     public LisForTest(PlayerLobby player) {
         this.player = player;
         this.controller = null;
+        this.stopPing = false;
     }
 
     public LisForTest(String nick, ColorToken color) {
@@ -46,7 +50,9 @@ public class LisForTest implements GameListener {
 
     @Override
     public Long getPing() {
-        return System.currentTimeMillis();
+        if(!stopPing)
+            ping = System.currentTimeMillis();
+        return ping;
     }
 
     @Override
@@ -108,7 +114,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updateWinner(PlayerLobby winner) {
         actions.add( ControlAction.WINNER);
-        updates.add(new MsgResponseWinner(player));
+        updates.add(new MsgResponseWinner(winner));
     }
 
     @Override

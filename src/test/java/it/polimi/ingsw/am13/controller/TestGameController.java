@@ -14,8 +14,7 @@ import it.polimi.ingsw.am13.network.socket.message.response.MsgResponsePlayerRec
 import it.polimi.ingsw.am13.network.socket.message.response.MsgResponseWinner;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,11 +75,6 @@ public class TestGameController {
         assertEquals(dim0.get(1), liss.get(1).actions.size());
         assertEquals(dim0.get(2)+1, liss.get(2).actions.size());
 
-    }
-
-    @Test
-    void run() {
-        // TODO come testarlo
     }
 
     @Test
@@ -370,7 +364,286 @@ public class TestGameController {
         assertTrue(Lobby.getInstance().getRooms().stream().filter(r -> r.getGameId()==id).toList().isEmpty());
     }
 
-    //TODO aggiungi
-    // run di gioco completa fino a fine, con fine dei deck
-    // disconnessione per ping,
+    @Test
+    public void testCompleteGame20Points() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InterruptedException {
+        testPlayStarterAndChooseObj();
+        Map<PlayerLobby, LisForTest> pl = new HashMap<>();
+        for(LisForTest l : liss)
+            pl.put(l.getPlayer(), l);
+
+        int count = 0;
+        PlayerLobby pToWin = liss.getFirst().getPlayer();
+        PlayerLobby currPlayer = model.fetchCurrentPlayer();
+        while(pl.get(currPlayer).actions.getLast() != ControlAction.FINAL_PHASE) {
+            if(currPlayer.equals(pToWin)) {
+                CardPlayableIF playedCard = null;
+                // If a gold card can be played, I play that
+                List<CardPlayableIF> golds = model.fetchHandPlayable(currPlayer).stream()
+                        .filter(c -> c instanceof CardGold).toList();
+                for (CardPlayableIF c : golds) {
+                    try {
+                        controller.playCard(currPlayer, c, Side.SIDEFRONT, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEFRONT, c.getVisibleSide());
+                    } catch (RequirementsNotMetException e) {
+                        continue;
+                    }
+                    // I managed to play that gold card
+                    playedCard = c;
+                    break;
+                }
+                if (playedCard == null) {
+                    List<CardPlayableIF> resources = model.fetchHandPlayable(currPlayer).stream()
+                            .filter(c -> c instanceof CardResource).toList();
+                    if (!resources.isEmpty()) {
+                        playedCard = resources.getFirst();
+                        controller.playCard(currPlayer, playedCard, Side.SIDEFRONT, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEFRONT, playedCard.getVisibleSide());
+                    } else {
+                        playedCard = model.fetchHandPlayable(currPlayer).getFirst();
+                        controller.playCard(currPlayer, playedCard, Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEBACK, playedCard.getVisibleSide());
+                    }
+                }
+            } else {
+                controller.playCard(currPlayer,
+                        model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK,
+                        model.fetchAvailableCoord(currPlayer).getFirst());
+            }
+
+            List<Integer> pickSeq = new ArrayList<>();
+            for (int i = 0; i < 6; i++)
+                pickSeq.add(i);
+            Collections.shuffle(pickSeq);
+            CardPlayableIF pickedCard = null;
+            for (Integer i : pickSeq) {
+                pickedCard = model.fetchPickables().get(i);
+                if (pickedCard != null)
+                    break;
+            }
+            assertNotNull(pickedCard);
+            controller.pickCard(currPlayer, pickedCard);
+
+            count = (count+1) % 3;
+            currPlayer = model.fetchCurrentPlayer();
+        }
+
+        if(count == 0)
+            count = 3;
+
+        while(count != 6) {
+            currPlayer = model.fetchCurrentPlayer();
+            for(LisForTest l : liss)
+                assertNotEquals(ControlAction.WINNER, l.actions.getLast());
+            controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
+            controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
+            count++;
+        }
+
+        for(LisForTest l : liss) {
+            assertEquals(ControlAction.WINNER, l.actions.getLast());
+            assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
+            assertEquals(pToWin, ((MsgResponseWinner)l.updates.getLast()).getPlayer());
+        }
+
+        assertEquals(1, Lobby.getInstance().getRooms().size());
+        for(PlayerLobby p : pl.keySet())
+            controller.disconnectPlayer(p, 2000);
+        Thread.sleep(2500);
+        assertEquals(0, Lobby.getInstance().getRooms().size());
+    }
+
+    @Test
+    public void testCompleteGame20PointsDisconnectinAtLast() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InterruptedException {
+        testPlayStarterAndChooseObj();
+        Map<PlayerLobby, LisForTest> pl = new HashMap<>();
+        for(LisForTest l : liss)
+            pl.put(l.getPlayer(), l);
+
+        PlayerLobby pToWin = liss.getFirst().getPlayer();
+        PlayerLobby currPlayer = model.fetchCurrentPlayer();
+        while(pl.get(currPlayer).actions.getLast() != ControlAction.FINAL_PHASE) {
+            if(currPlayer.equals(pToWin)) {
+                CardPlayableIF playedCard = null;
+                // If a gold card can be played, I play that
+                List<CardPlayableIF> golds = model.fetchHandPlayable(currPlayer).stream()
+                        .filter(c -> c instanceof CardGold).toList();
+                for (CardPlayableIF c : golds) {
+                    try {
+                        controller.playCard(currPlayer, c, Side.SIDEFRONT, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEFRONT, c.getVisibleSide());
+                    } catch (RequirementsNotMetException e) {
+                        continue;
+                    }
+                    // I managed to play that gold card
+                    playedCard = c;
+                    break;
+                }
+                if (playedCard == null) {
+                    List<CardPlayableIF> resources = model.fetchHandPlayable(currPlayer).stream()
+                            .filter(c -> c instanceof CardResource).toList();
+                    if (!resources.isEmpty()) {
+                        playedCard = resources.getFirst();
+                        controller.playCard(currPlayer, playedCard, Side.SIDEFRONT, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEFRONT, playedCard.getVisibleSide());
+                    } else {
+                        playedCard = model.fetchHandPlayable(currPlayer).getFirst();
+                        controller.playCard(currPlayer, playedCard, Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
+                        assertEquals(Side.SIDEBACK, playedCard.getVisibleSide());
+                    }
+                }
+            } else {
+                controller.playCard(currPlayer,
+                        model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK,
+                        model.fetchAvailableCoord(currPlayer).getFirst());
+            }
+
+            List<Integer> pickSeq = new ArrayList<>();
+            for (int i = 0; i < 6; i++)
+                pickSeq.add(i);
+            Collections.shuffle(pickSeq);
+            CardPlayableIF pickedCard = null;
+            for (Integer i : pickSeq) {
+                pickedCard = model.fetchPickables().get(i);
+                if (pickedCard != null)
+                    break;
+            }
+            assertNotNull(pickedCard);
+            controller.pickCard(currPlayer, pickedCard);
+
+            currPlayer = model.fetchCurrentPlayer();
+        }
+
+        // Now player who would win disconnects
+        controller.disconnectPlayer(pToWin);
+
+        while(liss.getLast().actions.getLast()!=ControlAction.WINNER) {
+            currPlayer = model.fetchCurrentPlayer();
+            for(LisForTest l : liss)
+                assertNotEquals(ControlAction.WINNER, l.actions.getLast());
+            controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
+            controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
+        }
+        PlayerLobby pActuallyWon = liss.get(1).getPlayer();
+        if(model.fetchPoints().get(pActuallyWon) < model.fetchPoints().get(liss.get(2).getPlayer()))
+            pActuallyWon = liss.get(2).getPlayer();
+        for(LisForTest l : liss) {
+            if(l.getPlayer() != pToWin) {
+                assertEquals(ControlAction.WINNER, l.actions.getLast());
+                assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
+                assertEquals(pActuallyWon, ((MsgResponseWinner)l.updates.getLast()).getPlayer());
+            }
+        }
+        assertNotEquals(ControlAction.WINNER, pl.get(pToWin).actions.getLast());
+
+        assertEquals(1, Lobby.getInstance().getRooms().size());
+        controller.disconnectPlayer(liss.get(1).getPlayer(), 2000);
+        controller.disconnectPlayer(liss.get(2).getPlayer(), 2000);
+        Thread.sleep(2500);
+        assertEquals(0, Lobby.getInstance().getRooms().size());
+    }
+
+    @Test
+    public void testCompleteGameEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InterruptedException {
+        testPlayStarterAndChooseObj();
+        Map<PlayerLobby, LisForTest> pl = new HashMap<>();
+        for(LisForTest l : liss)
+            pl.put(l.getPlayer(), l);
+
+        int count = 0;
+        PlayerLobby currPlayer = model.fetchCurrentPlayer();
+        while(pl.get(currPlayer).actions.getLast() != ControlAction.FINAL_PHASE) {
+            controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK,
+                model.fetchAvailableCoord(currPlayer).getFirst());
+
+            CardPlayableIF pickedCard = null;
+            for(int i=0 ; i<6 ; i++) {
+                pickedCard = model.fetchPickables().get(i);
+                if(pickedCard != null)
+                    break;
+            }
+            controller.pickCard(currPlayer, pickedCard);
+
+            count = (count+1) % 3;
+            currPlayer = model.fetchCurrentPlayer();
+        }
+
+        // For how I play, the FINAL_PHASE must be reached when the decks are empty
+        List<CardPlayableIF> pickables = model.fetchPickables();
+        assertNull(pickables.get(0));
+        assertNull(pickables.get(3));
+        int nNonNull = pickables.stream().filter(Objects::nonNull).toList().size();
+
+        if(count == 0)
+            count = 3;
+        while(count != 6) {
+            currPlayer = model.fetchCurrentPlayer();
+            for(LisForTest l : liss)
+                assertNotEquals(ControlAction.WINNER, l.actions.getLast());
+            controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
+            if(nNonNull > 0) {
+                controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
+                nNonNull--;
+            }
+            else {
+                System.out.println(nNonNull);
+                assertEquals(2, model.fetchHandPlayable(currPlayer).size());
+                for(CardPlayableIF c : model.fetchPickables())
+                    assertNull(c);
+            }
+            count++;
+        }
+
+        for(LisForTest l : liss) {
+            assertEquals(ControlAction.WINNER, l.actions.getLast());
+            assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
+        }
+    }
+
+    @Test
+    public void testDisconnectionPing() throws LobbyException, InterruptedException, InvalidPlayerException, InvalidPlayCardException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
+        testCreation();
+        List<PlayerLobby> ps = liss.stream().map(LisForTest::getPlayer).toList();
+
+        // Game has started, and now a player disconnects for network crash
+        liss.getLast().stopPing = true;
+        Thread.sleep(5000);
+        assertEquals(ControlAction.DISCONNECTED, liss.get(0).actions.getLast());
+        assertEquals(ControlAction.DISCONNECTED, liss.get(1).actions.getLast());
+
+        for(int i=0 ; i<2 ; i++) {
+            controller.playStarter(ps.get(i), Side.SIDEBACK);
+            controller.choosePersonalObjective(ps.get(i), model.fetchPersonalObjectives(ps.get(i)).getFirst());
+        }
+
+        // Now the turn-based phase has starter, and player who must play crashes
+        LisForTest lissRemain = liss.get(0);
+        LisForTest lissCrash = liss.get(1);
+        if(lissRemain.getPlayer() == model.fetchCurrentPlayer()) {
+            lissRemain = liss.get(1);
+            lissCrash = liss.get(0);
+        }
+        lissCrash.stopPing = true;
+        Thread.sleep(5000);
+        assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
+
+        PlayerLobby playerRemain = lissRemain.getPlayer();
+        assertEquals(playerRemain, model.fetchCurrentPlayer());
+        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
+        controller.pickCard(playerRemain, model.fetchPickables().getFirst());
+        assertEquals(playerRemain, model.fetchCurrentPlayer());     // Only playerRemain has remained, it's still his turn
+        assertNotEquals(ControlAction.WINNER, lissRemain.actions.getLast());
+
+        Thread.sleep(11000);
+        assertEquals(ControlAction.WINNER, lissRemain.actions.getLast());
+        assertEquals(playerRemain, ((MsgResponseWinner)lissRemain.updates.getLast()).getPlayer());
+    }
+
+    @Test
+    public void testDisconnectionPingForAllPlayers() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, InterruptedException {
+        testPlayStarterAndChooseObj();
+        assertEquals(1, Lobby.getInstance().getRooms().size());
+        liss.forEach(l -> l.stopPing=true);
+        Thread.sleep(5000);
+        assertTrue(Lobby.getInstance().getRooms().isEmpty());
+    }
 }

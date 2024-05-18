@@ -172,9 +172,7 @@ public class GameController implements Runnable {
                             gameModel.calcWinner();
                         else
                             reconnectionThread = null;
-                    } catch (LobbyException | GameStatusException e) {
-                        // Should not happen
-                        throw new RuntimeException(e);
+                    } catch (LobbyException | GameStatusException ignore) {
                     }
                 }
         );
@@ -281,7 +279,9 @@ public class GameController implements Runnable {
         if(!hasNextTurn) {
             gameModel.addObjectivePoints();
             gameModel.calcWinner();
+            return;
         }
+
         try {
             if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
                 //playCard and pickCard should not throw any exception since the player is not connected
