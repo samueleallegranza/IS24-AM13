@@ -160,9 +160,8 @@ public class Player implements Serializable, PlayerIF {
         // check if the starter card has been already set
         if(this.startCard == null)
             throw new InvalidPlayCardException("Starter card has not been drawn yet");
-        
+
         // get the proper side of the starter card
-        startCard.placeCardInField(side);
         CardSidePlayable starterSide;
         if(side.equals(Side.SIDEBACK))
             starterSide = this.startCard.getSide(Side.SIDEBACK);
@@ -176,6 +175,7 @@ public class Player implements Serializable, PlayerIF {
         // play the starter card on the field at coords (0,0)
         try {
             this.field.playCardSide(starterSide, Coordinates.origin());
+            startCard.placeCardInField(side);
         } catch (RequirementsNotMetException ignored) {} // No requirements for starter card.
 
     }

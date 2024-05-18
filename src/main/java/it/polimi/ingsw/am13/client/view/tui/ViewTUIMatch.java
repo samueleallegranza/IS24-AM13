@@ -42,6 +42,7 @@ public class ViewTUIMatch {
 
     public void printMatch() {
 
+        // TODO: fix order of printing for players... they are different between clients!
         // print player header
         System.out.println(sectionPlayers());
 
@@ -72,8 +73,8 @@ public class ViewTUIMatch {
         } else {
             // not this player's turn, can move around until its turn.
             view.setCurrentMenu(new MenuTUI(
-                    new MenuItemOtherField(this)
-            ));    // FIXME: implement player movement in other fields!
+                    new MenuItemChangeField(this)
+            ));    // FIXME: sistema visualizzazione di hidden / non hidden
         }
 
         view.getCurrentMenu().printMenu();

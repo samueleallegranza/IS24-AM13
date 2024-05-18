@@ -136,10 +136,11 @@ public interface GameListener extends Serializable {
 
     /**
      * This method should be called ONLY when a player reconnects to the game.
-     * Updates the client of the reconnected player with the updated game model.
+     * Updates the client of the reconnected player with the updated game model and corresponding player.
      * @param model The updated game model.
+     * @param player The updated player who is reconnecting.
      */
-    void updateGameModel(GameModelIF model);
+    void updateGameModel(GameModelIF model, PlayerLobby player);
 
     /**
      * Updates last ping received, and sends the update to the client

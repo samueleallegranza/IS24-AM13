@@ -63,9 +63,12 @@ public interface View {
      */
     void showStartGame(GameState state);
 
-    //TODO: corrisponderebbe a updateGameModel, non sonon sicuro del nome e forse potrebbe essere
-    // fuso insieme a showStartGame
-    void showStartGameReconnected(GameState state);
+    /**
+     * Shows the already started game to the player who has reconnected mid-game
+     * @param state GameState of the started match
+     * @param thisPlayer Player linked to this client which is reconnecting to the match
+     */
+   void showStartGameReconnected(GameState state, PlayerLobby thisPlayer);
 
 
     /**

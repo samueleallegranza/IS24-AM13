@@ -760,7 +760,7 @@ public class TestGameModel {
 
         // Now 1 round (1 turn per each player) is done
         // A player disconnects
-        GameListener disPlayer = playerListeners.getFirst();
+        GameListener disPlayer = playerListeners.getFirst().getPlayer().equals(game.fetchCurrentPlayer()) ? playerListeners.get(1) : playerListeners.getFirst();
         game.disconnectPlayer(disPlayer.getPlayer());
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
@@ -803,6 +803,7 @@ public class TestGameModel {
         }
     }
 
+    // TODO da rivedere (ogni tanto faila)
     @Test
     public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(

@@ -77,14 +77,14 @@ public class TestRoom {
         assertEquals(2, room.getPlayers().size());
 
         //TODO: sistema il parametro null di reconnect che dovrebbe essere il game model...
-//        assertThrows(LobbyException.class, ()->room.joinRoom(liss.getFirst()));
-//        room.reconnectToRoom(liss.getFirst(), null);
-//        assertEquals(3, room.getPlayers().size());
-//        assertTrue(room.getPlayers().containsAll(liss.stream().map(LisForTest::getPlayer).toList()));
-//        assertTrue(room.isGameStarted());
-//        assertEquals(ControlAction.UPDATE_GAMEMODEL, liss.get(0).actions.getLast());      // The reconnected players received the gamemodel
-//        assertEquals(ControlAction.RECONNECTED, liss.get(1).actions.getLast());
-//        assertEquals(ControlAction.RECONNECTED, liss.get(2).actions.getLast());
+        assertThrows(LobbyException.class, ()->room.joinRoom(liss.getFirst()));
+        room.reconnectToRoom(liss.getFirst(), null);
+        assertEquals(3, room.getPlayers().size());
+        assertTrue(room.getPlayers().containsAll(liss.stream().map(LisForTest::getPlayer).toList()));
+        assertTrue(room.isGameStarted());
+        assertEquals(ControlAction.UPDATE_GAMEMODEL, liss.get(0).actions.getLast());      // The reconnected players received the gamemodel
+        assertEquals(ControlAction.RECONNECTED, liss.get(1).actions.getLast());
+        assertEquals(ControlAction.RECONNECTED, liss.get(2).actions.getLast());
 
     }
 

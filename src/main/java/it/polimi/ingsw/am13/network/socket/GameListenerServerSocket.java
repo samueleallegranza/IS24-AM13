@@ -35,6 +35,7 @@ public class GameListenerServerSocket implements GameListener {
         this.clientRequestsHandler = clientRequestsHandler;
         this.out = out;
         this.player = player;
+        this.ping = System.currentTimeMillis();
     }
 
     @Override
@@ -131,8 +132,8 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model) {
-        sendMessage(new MsgResponseUpdateGameState(model));
+    public void updateGameModel(GameModelIF model, PlayerLobby player) {
+        sendMessage(new MsgResponseUpdateGameState(model, player));
     }
 
     @Override

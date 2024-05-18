@@ -35,8 +35,9 @@ public class GameController implements Runnable {
      * Thread used to manage the reconnection timer which is started when there only 1 player left
      */
     private Thread reconnectionThread;
+
     /**
-     * Creates a new instance of <code>GameController</code> with the specified players.
+     * Creates a new instance of the controller of the game with the specified room, which must be full.
      * The players used here to create the model are the definitive players, and nobody can be added afterwards.
      * It also starts the game
      * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
@@ -60,7 +61,7 @@ public class GameController implements Runnable {
      */
     public synchronized void updatePing(PlayerLobby playerLobby){
         for(GameListener gameListener : gameModel.getListeners())
-            if(gameListener.getPlayer()==playerLobby) {
+            if(gameListener.getPlayer().equals(playerLobby)) {
                 gameListener.updatePing();
                 break;
             }
@@ -96,6 +97,23 @@ public class GameController implements Runnable {
     }
 
     /**
+     * disconnection method only for tests
+     */
+    public void disconnectPlayer(PlayerLobby player, long timeToWait) throws InvalidPlayerException, ConnectionException {
+        gameModel.disconnectPlayer(player);
+        if(player.equals(gameModel.fetchCurrentPlayer())) {
+            // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
+            try {
+                nextTurn();
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
+            startReconnectionTimer(timeToWait);
+    }
+
+    /**
      * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
      * @param player Player to disconnect
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
@@ -103,9 +121,7 @@ public class GameController implements Runnable {
      * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
     public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
-        gameModel.disconnectPlayer(player);
-        if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
-            startReconnectionTimer();
+        disconnectPlayer(player, timeToWaitReconnection);
     }
 
     /**
@@ -134,41 +150,33 @@ public class GameController implements Runnable {
      * If there are none, it deletes the game.
      * If there is only one, it calculates the winner (who will be the only connected player) and then deletes the game.
      * Otherwise, it resets the timer by setting the reconnectionThread to null.
+     * @param timeToWait Time in millis to wait for reconnection
      */
-    private void startReconnectionTimer(){
-        reconnectionThread=new Thread(
+    private void startReconnectionTimer(long timeToWait){
+        reconnectionThread = new Thread(
                 ()-> {
                     long startingtimer = System.currentTimeMillis();
 
-                    while (reconnectionThread != null && !reconnectionThread.isInterrupted() && System.currentTimeMillis() - startingtimer < timeToWaitReconnection) {
+                    while (reconnectionThread != null && !reconnectionThread.isInterrupted() && System.currentTimeMillis() - startingtimer < timeToWait) {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
                             //We can stop waiting since someone interrupted this thread
                         }
                     }
-                    int numberConnectedPlayers=gameModel.countConnected();
-                    if(numberConnectedPlayers==0){
-                        try {
+                    int numberConnectedPlayers = gameModel.countConnected();
+                    try {
+                        if(numberConnectedPlayers == 0)
                             Lobby.getInstance().endGame(getGameId());
-                        } catch (LobbyException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else
-                    {
-                        if (numberConnectedPlayers==1) {
-                            try {
-                                gameModel.calcWinner();
-                            } catch (GameStatusException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        else {
-                            reconnectionThread=null;
-                        }
+                        else if(numberConnectedPlayers == 1)
+                            gameModel.calcWinner();
+                        else
+                            reconnectionThread = null;
+                    } catch (LobbyException | GameStatusException ignore) {
                     }
                 }
         );
+        reconnectionThread.start();
     }
 
     /**
@@ -233,6 +241,8 @@ public class GameController implements Runnable {
         if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
             throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.playCard(card, side, coord);
+
+        // If there are no other cards to pick, I force the "pick"
         if(gameModel.fetchPickables().stream().noneMatch(Objects::nonNull))
             try {
                 pickCard(gameModel.fetchCurrentPlayer(), null);
@@ -265,11 +275,13 @@ public class GameController implements Runnable {
      * @throws GameStatusException if any of the methods it calls is called in the wrong game phase
      */
     private void nextTurn() throws GameStatusException {
-        boolean hasNextTurn=gameModel.nextTurn();
-        if(!hasNextTurn){
+        boolean hasNextTurn = gameModel.nextTurn();
+        if(!hasNextTurn) {
             gameModel.addObjectivePoints();
             gameModel.calcWinner();
+            return;
         }
+
         try {
             if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
                 //playCard and pickCard should not throw any exception since the player is not connected

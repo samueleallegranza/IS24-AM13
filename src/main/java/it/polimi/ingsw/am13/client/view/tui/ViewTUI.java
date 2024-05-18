@@ -135,7 +135,9 @@ public class ViewTUI implements View {
 
         changeAndPrintMenu(new MenuItemUpdateRoomList(),
                 new MenuItemCreateRoom(),
-                new MenuItemJoinRoom());
+                new MenuItemJoinRoom(),
+                new MenuItemReconnect()
+        );
     }
 
     /**
@@ -193,7 +195,7 @@ public class ViewTUI implements View {
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
 
-        // get cars
+        // get cards
         CardSidePlayableIF cardFront = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEFRONT);
         CardSidePlayableIF cardBack = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEBACK);
 
@@ -208,8 +210,14 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showStartGameReconnected(GameState state) {
-        //TODO da implementare
+    public void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
+        this.gameState = state;
+        this.thisPlayer = thisPlayer;
+
+        this.viewTUIMatch = new ViewTUIMatch(this, this.gameState, this.thisPlayer);
+        viewTUIMatch.setDisplayPlayer(this.thisPlayer);
+
+        viewTUIMatch.printMatch();
     }
 
     /**
@@ -312,12 +320,14 @@ public class ViewTUI implements View {
 
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
-
+        viewTUIMatch.printMatch();
+        System.out.println("player " + player.getNickname() + " has disconnected");
     }
 
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
-
+        viewTUIMatch.printMatch();
+        System.out.println("player " + player.getNickname() + " has reconnected");
     }
 
     public MenuTUI getCurrentMenu() {

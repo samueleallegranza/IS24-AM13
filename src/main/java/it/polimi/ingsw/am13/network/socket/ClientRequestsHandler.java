@@ -139,6 +139,13 @@ public class ClientRequestsHandler extends Thread {
             throw new RuntimeException(e);
         }
 
+        try {
+            this.gameController.disconnectPlayer(player);
+        } catch (InvalidPlayerException| LobbyException e) {
+            throw new RuntimeException(e);
+        } catch (ConnectionException ignore) {
+        }
+
         // run() returns, the Thread ends its life.
     }
 
