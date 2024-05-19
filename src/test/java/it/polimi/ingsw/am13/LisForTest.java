@@ -23,7 +23,12 @@ public class LisForTest implements GameListener {
 
     private final PlayerLobby player;
 
+    public boolean stopPing;
+    private long ping;
+
     public GameController controller;
+
+    public GameModelIF model;
 
     public final List<ControlAction> actions = new ArrayList<>();
     public final List<MsgResponse> updates = new ArrayList<>();
@@ -31,6 +36,7 @@ public class LisForTest implements GameListener {
     public LisForTest(PlayerLobby player) {
         this.player = player;
         this.controller = null;
+        this.stopPing = false;
     }
 
     public LisForTest(String nick, ColorToken color) {
@@ -44,7 +50,9 @@ public class LisForTest implements GameListener {
 
     @Override
     public Long getPing() {
-        return System.currentTimeMillis();
+        if(!stopPing)
+            ping = System.currentTimeMillis();
+        return ping;
     }
 
     @Override
@@ -62,6 +70,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updateStartGame(GameModelIF model, GameController controller) {
         this.controller = controller;
+        this.model = model;
         actions.add(ControlAction.START_GAME);
         updates.add(new MsgResponseStartGame(model));
     }
@@ -105,7 +114,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updateWinner(PlayerLobby winner) {
         actions.add( ControlAction.WINNER);
-        updates.add(new MsgResponseWinner(player));
+        updates.add(new MsgResponseWinner(winner));
     }
 
     @Override
@@ -147,10 +156,11 @@ public class LisForTest implements GameListener {
         updates.add(new MsgResponseInGame());
     }
 
+    // NOTA: uso messaggio per joined room
     @Override
     public void updateGameModel(GameModelIF model, PlayerLobby player) {
         actions.add(ControlAction.UPDATE_GAMEMODEL);
-        updates.add(new MsgResponseUpdateGameState(model, player));
+        updates.add(new MsgResponsePlayerJoinedRooom(player));
     }
 
     @Override

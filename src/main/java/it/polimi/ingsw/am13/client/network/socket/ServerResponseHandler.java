@@ -143,7 +143,7 @@ public class ServerResponseHandler extends Thread{
                             // do nothing
                         }
 
-                        case MsgResponseUpdateGameState msgResponseUpdateGameState ->{
+                        case MsgResponseUpdateGameState msgResponseUpdateGameState -> {
                             gameStateHandler = new GameStateHandler(msgResponseUpdateGameState.getGameState());
                             pingThread = new PingThread(networkHandlerSocket);
                             view.showStartGameReconnected(msgResponseUpdateGameState.getGameState(), msgResponseUpdateGameState.getPlayer());

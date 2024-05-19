@@ -31,11 +31,6 @@ public class ListenerHandler implements Serializable {
         listeners = new ArrayList<>();
     }
 
-    public ListenerHandler(List<GameListener> listeners) {
-        this.listeners = listeners;
-    }
-
-
     /**
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
@@ -75,7 +70,7 @@ public class ListenerHandler implements Serializable {
     /**
      * Notifies the view that the game has started: starter cards and initial cards have been given to the players. <br>
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
-     * @param model The {@link GameModelIF} containing the immutable version of a GameModel.
+     * @param model The interface {@link GameModelIF} representing a version of the GameModel.
      */
     public void notifyStartGame(GameModelIF model, GameController controller){
         for (GameListener listener : listeners) {
