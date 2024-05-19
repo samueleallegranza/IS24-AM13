@@ -195,14 +195,10 @@ public class ViewTUI implements View {
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
 
-        // get cards
-        CardSidePlayableIF cardFront = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEFRONT);
-        CardSidePlayableIF cardBack = gameState.getPlayerState(thisPlayer).getStarterCard().getSide(Side.SIDEBACK);
-
         // print
         System.out.print("Game started.\n");
         System.out.print("Please choose the side of your starter card: \n");
-        System.out.print(ViewTUIPrintUtils.starterCards(cardFront, cardBack));
+        System.out.print(ViewTUIPrintUtils.starterCards(gameState.getPlayerState(thisPlayer).getStarterCard()));
 
         changeAndPrintMenu(
                 new MenuItemPlayStarter()

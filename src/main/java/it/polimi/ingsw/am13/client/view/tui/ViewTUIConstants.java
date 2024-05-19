@@ -4,6 +4,8 @@ import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 // could be replaced with enum
@@ -22,10 +24,10 @@ public final class ViewTUIConstants {
     public static final String MANUSCRIPT_SYMBOL = "@";
 
     // An angle which is linkable but has no resource in it
-    public static final String ANGLE_NORESOURCE_SYMBOL= "■";
+    public static final String ANGLE_NORESOURCE_SYMBOL= "□";
 
     // An angle which is not linkable
-    public static final String ANGLE_NOTLINKABLE_SYMBOL = "□";
+    public static final String ANGLE_NOTLINKABLE_SYMBOL = "■";
 
     public static final String POINTS_PATTERN_ANGLE = "▖";
 

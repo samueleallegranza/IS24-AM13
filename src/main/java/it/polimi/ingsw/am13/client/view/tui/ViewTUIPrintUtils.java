@@ -8,8 +8,113 @@ import it.polimi.ingsw.am13.model.card.points.PointsSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ViewTUIPrintUtils {
+
+
+    public static class CardSideSymbolsBuilder {
+        public Character type; // gold/resource/starter -> G/R/S
+        public Character side; // front/back -> F/B
+        public Character[] corners; // -> {x,y,z,k}
+        public String points; // points -> "2xK" / " 2 "
+        public String color; // resource color -> " x " / "[x]"
+        public String requirements; // requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
+        public String centerResourcesStarter; // "xyz"
+
+        public CardSideSymbolsBuilder(CardPlayableIF c, Side s) {
+            // if card is null, we mush show an empty one
+            if(c == null) {
+                type = '─';
+                side = '─';
+                corners = new Character[4];
+                for(int i=0 ; i<4 ; i++)
+                    corners[i] = ' ';
+                points = "   ";
+                color = "   ";
+                requirements = "     ";
+            } else {
+
+                CardSidePlayableIF cs = c.getSide(s);
+
+                switch (c) {
+                    case CardGold ignored -> this.type = 'G';
+                    case CardResource ignored -> this.type = 'R';
+                    case CardStarter ignored -> {
+                        this.type = 'S';
+
+                        List<Resource> centerRes = cs.getCenterResources();
+                        StringBuilder centerResTemp = new StringBuilder("   ");
+                        for(int i=0; i<centerRes.size(); i++) centerResTemp.setCharAt(i, ViewTUIConstants.resourceToSymbol(centerRes.get(i)).charAt(0));
+                        this.centerResourcesStarter = centerResTemp.toString();
+                    }
+                    default -> this.type = '?';
+                }
+
+                this.side = s.equals(Side.SIDEFRONT) ? 'F' : 'B';
+
+                List<Resource> cornerRes = cs.getCornerResources();
+                List<Corner> cornerList = cs.getCorners();
+
+                this.corners = new Character[4];
+                for (int i = 0; i < 4; i++) {
+                    if(cornerList.get(i).isPlaceable())
+                        this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
+                    else
+                        this.corners[i] = ViewTUIConstants.ANGLE_NOTLINKABLE_SYMBOL.charAt(0);
+                }
+
+                if (cs.getPoints() != null) {
+                    if (cs.getPoints().isCornerTypePoints())
+                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
+                    else if (cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
+                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
+                    } else {
+                        this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
+                    }
+                } else {
+                    this.points = "   "; // 0 points
+                }
+
+                if(s.equals(Side.SIDEBACK)) {
+                    this.color = " " + ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0) + " ";
+                } else {
+                    this.color = "[" + ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0) + "]";
+                }
+
+                List<Character> requirementList = new ArrayList<>();
+                for (Resource r : cs.getRequirements().keySet())
+                    for (int i = 0; i < cs.getRequirements().get(r); i++)
+                        requirementList.add(ViewTUIConstants.resourceToSymbol(r).charAt(0));
+                switch (requirementList.size()) {
+                    case 0: {
+                        this.requirements = "     ";
+                        break;
+                    }
+                    case 1: {
+                        this.requirements = String.format("  %c  ", requirementList.getFirst());
+                        break;
+                    }
+                    case 2: {
+                        this.requirements = String.format(" %c%c  ", requirementList.get(0), requirementList.get(1));
+                        break;
+                    }
+                    case 3: {
+                        this.requirements = String.format(" %c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2));
+                        break;
+                    }
+                    case 4: {
+                        this.requirements = String.format("%c%c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2), requirementList.get(3));
+                        break;
+                    }
+                    case 5: {
+                        this.requirements = requirementList.stream().map(String::valueOf).collect(Collectors.joining());
+                    }
+                }
+            }
+        }
+    }
+
 
     public static void printStartup(boolean isSocket, String ip, int port) {
         String options = String.format(
@@ -44,34 +149,40 @@ public class ViewTUIPrintUtils {
         );
     }
 
-    public static String starterCards(CardSidePlayableIF cardFront, CardSidePlayableIF cardBack) {
-        // create an array of resource symbols for corners
-        List<String> frontCorners = cardFront.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-        List<String> backCorners = cardBack.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
+    public static String starterCards(CardPlayableIF cardStarter) {
+//        // create an array of resource symbols for corners
+//        List<String> frontCorners = cardFront.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
+//        List<String> backCorners = cardBack.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
+//
+//        // create an array of resource symbols for center. Fill with spaces where needed.
+//        String[] frontCenter = {" ", " ", " "};
+//        List<String> frontCenterUnprocessed = cardFront.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
+//        int copyLength = Math.min(3, frontCenterUnprocessed.size());
+//        for (int i = 0; i < copyLength; i++) frontCenter[i] = frontCenterUnprocessed.get(i);
+//
+//        String[] backCenter = {" ", " ", " "};
+//        List<String> backCenterUnprocessed = cardBack.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
+//        copyLength = Math.min(3, backCenterUnprocessed.size());
+//        for (int i = 0; i < copyLength; i++) backCenter[i] = backCenterUnprocessed.get(i);
 
-        // create an array of resource symbols for center. Fill with spaces where needed.
-        String[] frontCenter = {" ", " ", " "};
-        List<String> frontCenterUnprocessed = cardFront.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-        int copyLength = Math.min(3, frontCenterUnprocessed.size());
-        for (int i = 0; i < copyLength; i++) frontCenter[i] = frontCenterUnprocessed.get(i);
-
-        String[] backCenter = {" ", " ", " "};
-        List<String> backCenterUnprocessed = cardBack.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-        copyLength = Math.min(3, backCenterUnprocessed.size());
-        for (int i = 0; i < copyLength; i++) backCenter[i] = backCenterUnprocessed.get(i);
+        CardSideSymbolsBuilder cardFront = new CardSideSymbolsBuilder(cardStarter, Side.SIDEFRONT);
+        CardSideSymbolsBuilder cardBack = new CardSideSymbolsBuilder(cardStarter, Side.SIDEBACK);
 
         return String.format(
                 """
-                        ┌───┬───S───F───┬───┐     ┌───┬───S───B───┬───┐
-                        │ %s │           │ %s │     │ %s │           │ %s │
-                        ├───┘   %s %s %s   └───┤     ├───┘   %s %s %s   └───┤
+                        ┌───┬───%c───%c───┬───┐     ┌───┬───%c───%c───┬───┐
+                        │ %c │           │ %c │     │ %c │           │ %c │
+                        ├───┘    %s    └───┤     ├───┘    %s    └───┤
                         ├───┐           ┌───┤     ├───┐           ┌───┤
-                        │ %s │           │ %s │     │ %s │           │ %s │
+                        │ %c │           │ %c │     │ %c │           │ %c │
                         └───┴───────────┴───┘     └───┴───────────┴───┘
-                        """,
-                frontCorners.get(0), frontCorners.get(1), backCorners.get(0), backCorners.get(1),
-                frontCenter[0], frontCenter[1], frontCenter[2], backCenter[0], backCenter[1], backCenter[2],
-                frontCorners.get(3), frontCorners.get(2), backCorners.get(3), backCorners.get(2)
+                """,
+                cardFront.type, cardFront.side, cardBack.type, cardBack.side,
+                cardFront.corners[0], cardFront.corners[1], cardBack.corners[0], cardBack.corners[1],
+                cardFront.centerResourcesStarter, cardBack.centerResourcesStarter,
+                cardFront.corners[3], cardFront.corners[2], cardBack.corners[3], cardBack.corners[2]
+
+
         );
     }
 

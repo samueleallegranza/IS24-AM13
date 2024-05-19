@@ -125,6 +125,11 @@ public class CardSidePlayable implements CardSidePlayableIF {
     public PointsPlayable getPoints() {
         return this.points;
     }
+//
+//    @Override
+//    public List<boolean> getLinkableCorners() {
+//        this.getCorners().
+//    }
 
     /**
      *

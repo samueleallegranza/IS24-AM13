@@ -127,114 +127,34 @@ public class ViewTUIMatch {
         else return sectionCardsOpponentPlayer();
     }
 
+
+
     // --------------------------------------------------------------------
     // ------------------------------ UTILS -------------------------------
     // --------------------------------------------------------------------
 
-    private class CardSideSymbols {
-        public Character type; // gold/resource -> G/R
-        public Character side; // front/back -> F/B
-        public Character[] corners; // -> {x,y,z,k}
-        public String points; // points -> "2xK" / " 2 "
-        public String color; // resource color -> " x " / "[x]"
-        public String requirements; // requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
-
-        public CardSideSymbols(CardPlayableIF c, Side s) {
-            // if card is null, we mush show an empty one
-            if(c == null) {
-                type = '─';
-                side = '─';
-                corners = new Character[4];
-                for(int i=0 ; i<4 ; i++)
-                    corners[i] = ' ';
-                points = "   ";
-                color = "   ";
-                requirements = "     ";
-            } else {
-
-                CardSidePlayableIF cs = c.getSide(s);
-
-                this.type = c instanceof CardGold ? 'G' : 'R';
-                this.side = s.equals(Side.SIDEFRONT) ? 'F' : 'B';
-
-                List<Resource> cornerRes = cs.getCornerResources();
-                this.corners = new Character[4];
-                for (int i = 0; i < 4; i++)
-                    this.corners[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
-
-                if (cs.getPoints() != null) {
-                    if (cs.getPoints().isCornerTypePoints())
-                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.POINTS_PATTERN_ANGLE.charAt(0));
-                    else if (cs.getPoints().getPointsResource() != Resource.NO_RESOURCE) {
-                        this.points = String.format("%dx%c", cs.getPoints().getPointsMultiplier(), ViewTUIConstants.resourceToSymbol(cs.getPoints().getPointsResource()).charAt(0));
-                    } else {
-                        this.points = String.format(" %d ", cs.getPoints().getPointsMultiplier());
-                    }
-                } else {
-                    this.points = "   "; // 0 points
-                }
-
-                if(s.equals(Side.SIDEBACK)) {
-                    this.color = " " + ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0) + " ";
-                } else {
-                    this.color = "[" + ViewTUIConstants.resourceToSymbol(cs.getColor().correspondingResource()).charAt(0) + "]";
-                }
-
-                List<Character> requirementList = new ArrayList<>();
-                for (Resource r : cs.getRequirements().keySet())
-                    for (int i = 0; i < cs.getRequirements().get(r); i++)
-                        requirementList.add(ViewTUIConstants.resourceToSymbol(r).charAt(0));
-                switch (requirementList.size()) {
-                    case 0: {
-                        this.requirements = "     ";
-                        break;
-                    }
-                    case 1: {
-                        this.requirements = String.format("  %c  ", requirementList.getFirst());
-                        break;
-                    }
-                    case 2: {
-                        this.requirements = String.format(" %c%c  ", requirementList.get(0), requirementList.get(1));
-                        break;
-                    }
-                    case 3: {
-                        this.requirements = String.format(" %c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2));
-                        break;
-                    }
-                    case 4: {
-                        this.requirements = String.format("%c%c%c%c ", requirementList.get(0), requirementList.get(1), requirementList.get(2), requirementList.get(3));
-                        break;
-                    }
-                    case 5: {
-                        this.requirements = requirementList.stream().map(String::valueOf).collect(Collectors.joining());
-                    }
-                }
-            }
-        }
-    }
-
     private String sectionCardsThisPlayer() {
 
         // player hand displayed with front side
-        List<CardSideSymbols> hand = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> hand = new ArrayList<>();
         List<CardPlayableIF> handCards = this.gameState.getPlayerState(this.displayPlayer).getHandPlayable();
         for(int i=0 ; i<3 ; i++) {
             CardPlayableIF card = i<handCards.size() ? handCards.get(i) : null;
-            hand.add(new CardSideSymbols(card, Side.SIDEFRONT));
+            hand.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(card, Side.SIDEFRONT));
         }
 
         // decks for resource cards and gold cards
-        List<CardSideSymbols> deckRes = new ArrayList<>();
-        List<CardSideSymbols> deckGold = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> deckRes = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> deckGold = new ArrayList<>();
 
         List<CardPlayableIF> pickables = this.gameState.getPickables();
-        deckRes.add(new CardSideSymbols(pickables.get(0), Side.SIDEBACK)); // deck
-        deckRes.add(new CardSideSymbols(pickables.get(1), Side.SIDEFRONT)); // option 1
-        deckRes.add(new CardSideSymbols(pickables.get(2), Side.SIDEFRONT)); // option 2
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(0), Side.SIDEBACK)); // deck
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(1), Side.SIDEFRONT)); // option 1
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(2), Side.SIDEFRONT)); // option 2
 
-        deckGold.add(new CardSideSymbols(pickables.get(3), Side.SIDEBACK)); // deck
-        deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
-        deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(3), Side.SIDEBACK)); // deck
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(4), Side.SIDEFRONT)); // option 1
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(5), Side.SIDEFRONT)); // option 2
 
         List<String> infoObj1 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(0));
         List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
@@ -292,25 +212,25 @@ public class ViewTUIMatch {
     private String sectionCardsOpponentPlayer() {
 
         // player hand displayed with back side
-        List<CardSideSymbols> hand = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> hand = new ArrayList<>();
         List<CardPlayableIF> handCards = this.gameState.getPlayerState(this.displayPlayer).getHandPlayable();
         for(int i=0 ; i<3 ; i++) {
             CardPlayableIF card = i<handCards.size() ? handCards.get(i) : null;
-            hand.add(new CardSideSymbols(card, Side.SIDEBACK));
+            hand.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(card, Side.SIDEBACK));
         }
 
         // decks for resource cards and gold cards
-        List<CardSideSymbols> deckRes = new ArrayList<>();
-        List<CardSideSymbols> deckGold = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> deckRes = new ArrayList<>();
+        List<ViewTUIPrintUtils.CardSideSymbolsBuilder> deckGold = new ArrayList<>();
 
         List<CardPlayableIF> pickables = this.gameState.getPickables();
-        deckRes.add(new CardSideSymbols(pickables.get(0), Side.SIDEBACK)); // deck
-        deckRes.add(new CardSideSymbols(pickables.get(1), Side.SIDEFRONT)); // option 1
-        deckRes.add(new CardSideSymbols(pickables.get(2), Side.SIDEFRONT)); // option 2
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(0), Side.SIDEBACK)); // deck
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(1), Side.SIDEFRONT)); // option 1
+        deckRes.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(2), Side.SIDEFRONT)); // option 2
 
-        deckGold.add(new CardSideSymbols(pickables.get(3), Side.SIDEBACK)); // deck
-        deckGold.add(new CardSideSymbols(pickables.get(4), Side.SIDEFRONT)); // option 1
-        deckGold.add(new CardSideSymbols(pickables.get(5), Side.SIDEFRONT)); // option 2
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(3), Side.SIDEBACK)); // deck
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(4), Side.SIDEFRONT)); // option 1
+        deckGold.add(new ViewTUIPrintUtils.CardSideSymbolsBuilder(pickables.get(5), Side.SIDEFRONT)); // option 2
 
         List<String> infoObj1 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(0));
         List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
