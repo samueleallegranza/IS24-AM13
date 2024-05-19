@@ -9,9 +9,10 @@ module it.polimi.ingsw.am13 {
     requires java.desktop;
 
     opens it.polimi.ingsw.am13 to javafx.fxml;
+    opens it.polimi.ingsw.am13.client.view.gui to javafx.fxml;
 
     exports it.polimi.ingsw.am13.network.rmi to java.rmi;
     exports it.polimi.ingsw.am13;
-    opens it.polimi.ingsw.am13.client.view.gui to javafx.fxml;
+
     exports it.polimi.ingsw.am13.client.view.gui to javafx.graphics;
 }

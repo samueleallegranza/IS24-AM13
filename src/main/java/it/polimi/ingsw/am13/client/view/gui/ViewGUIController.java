@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
-import it.polimi.ingsw.am13.client.view.tui.menu.InvalidTUICommandException;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Token;
@@ -14,13 +13,17 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-public class ViewGuiController {
+public class ViewGUIController {
     private NetworkHandler networkHandler;
     private Stage stage;
     @FXML
     private Label networkText;
     @FXML
     private TableView<RoomIF> roomsTable;
+    @FXML
+    private TextField nicknameField;
+    @FXML
+    private TextField colorField;
 
     public void setStage(Stage stage){
         this.stage = stage;
@@ -39,7 +42,6 @@ public class ViewGuiController {
             roomsTable.setRowFactory(roomButton -> {
                 TableRow<RoomIF> row = new TableRow<>();
                 row.setOnMouseClicked(mouseEvent -> {
-                    TextField nicknameField = new TextField(), colorField = new TextField();
                     String nickname = nicknameField.getText();
                     String color = colorField.getText();
                     ColorToken token = null;
