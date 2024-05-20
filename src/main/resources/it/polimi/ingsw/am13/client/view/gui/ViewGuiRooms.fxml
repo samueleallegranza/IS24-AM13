@@ -1,33 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<!--<AnchorPane xmlns="http://javafx.com/javafx"-->
-<!--            xmlns:fx="http://javafx.com/fxml"-->
-<!--            fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIController"-->
-<!--            prefHeight="400.0" prefWidth="600.0">-->
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIController">
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
-    <Label fx:id="networkText"/>
-    <TableView fx:id="roomsTable" prefHeight="200.0" prefWidth="200.0">
+    <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER">
+      <font>
+         <Font size="20.0" />
+      </font></Label>
+    <TableView fx:id="roomsTable" prefHeight="200.0" prefWidth="600.0">
         <columns>
-            <TableColumn fx:id="roomNameColumn" prefWidth="75.0" text="Room Name" />
-            <TableColumn fx:id="roomPlayersColumn" prefWidth="75.0" text="Players" />
+            <TableColumn fx:id="roomId" prefWidth="75.0" text="GAME ID" />
+            <TableColumn fx:id="roomStatus" prefWidth="100.0" text="STATUS" />
+            <TableColumn fx:id="roomP1" prefWidth="100.0" text="Player1" />
+            <TableColumn fx:id="roomP2" prefWidth="100.0" text="Player2" />
+            <TableColumn fx:id="roomP3" prefWidth="100.0" text="Player3" />
+            <TableColumn fx:id="roomP4" prefWidth="100.0" text="Player4" />
+            <TableColumn fx:id="roomNP" prefWidth="75.0" text="#NP" />
         </columns>
     </TableView>
-    <TextField fx:id="nicknameField" promptText="Nickname" />
-    <TextField fx:id="colorField" promptText="Color" />
+   <HBox spacing="30.0">
+      <children>
+            <TextField fx:id="nicknameField" prefHeight="25.0" prefWidth="220.0" promptText="Nickname" />
+         <HBox alignment="CENTER" prefHeight="25.0" prefWidth="245.0" spacing="10.0">
+            <children>
+                <Label prefHeight="17.0" prefWidth="75.0" text="Token Color:" />
+                <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" />
+            </children>
+         </HBox>
+         <Button fx:id="refreshRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms" onAction="#onRefreshRoomButtonClick" />
+      </children>
+   </HBox>
+    <HBox spacing="50.0">
+        <children>
+         <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="300.0" spacing="10.0">
+            <children>
+               <Label prefHeight="17.0" prefWidth="138.0" text="Target number of players:" />
+                  <Spinner fx:id="nPlayersSpinner" prefHeight="25.0" prefWidth="130.0" />
+            </children></HBox>
+            <Button fx:id="createRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Create Room" onAction="#onCreateRoomButtonClick"/>
+         <Button fx:id="joinRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Join Room" onAction="#onJoinRoomButtonClick" />
+        </children>
+    </HBox>
+   <Label fx:id="errorText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER" textFill="#e40000" />
 
 </VBox>

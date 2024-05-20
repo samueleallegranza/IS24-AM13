@@ -50,7 +50,7 @@ public class ViewGUI extends Application implements View{
         viewGUIController = fxmlLoader.getController();
         viewGUIController.setStage(stage);
 
-        viewGUIController.setNetworkHandler(networkHandler);
+        setNetworkHandler(networkHandler);
 
         showStartupScreen(true, "localhost", 25566);
         networkHandler.getRooms();
@@ -59,9 +59,7 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void setNetworkHandler(NetworkHandler networkHandler) {
-        //viewGUIController.setNetworkHandler(networkHandler);
-        //this.networkHandler = networkHandler;
-        //launch();
+        viewGUIController.setNetworkHandler(networkHandler);
     }
 
     @Override
@@ -71,7 +69,8 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void showException(Exception e) {
-
+        //TODO this doesn't work
+        viewGUIController.showException(e);
     }
 
     @Override
