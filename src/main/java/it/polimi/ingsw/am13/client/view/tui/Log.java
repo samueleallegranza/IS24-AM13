@@ -35,6 +35,15 @@ public class Log {
         this.addToLog(log);
     }
 
+    public void logChosenPersonalObjective(PlayerLobby player) {
+        String log = String.format(
+                "[%s][%s] Chosen personal objective",
+                this.currentTimeString(),
+                player.getNickname()
+        );
+        this.addToLog(log);
+    }
+
     public void logPlayedCard(PlayerLobby player, Coordinates coord) {
         CardSidePlayableIF card = gameState.getPlayerState(player).getField().getCardSideAtCoord(coord);
 

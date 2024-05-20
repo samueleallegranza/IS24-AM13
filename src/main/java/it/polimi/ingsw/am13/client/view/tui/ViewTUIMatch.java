@@ -12,8 +12,6 @@ import java.util.List;
 
 public class ViewTUIMatch {
 
-    //TODO: aggiungi evidenziazione per thisPlayer nell'header con i player
-
     //TODO: magari aggiungi legenda da qualche parte per i simboli usati
 
     //TODO: magari aggiungi un contatore per le risorse attualmente in campo
@@ -23,6 +21,7 @@ public class ViewTUIMatch {
     private final PlayerLobby thisPlayer;
     private PlayerLobby displayPlayer;
     private boolean flowCardPlaced;
+    private Log logs;
 
     public ViewTUIMatch(ViewTUI viewTUI, GameState gameState, PlayerLobby thisPlayer) {
         this.view = viewTUI;
@@ -30,6 +29,7 @@ public class ViewTUIMatch {
         this.thisPlayer = thisPlayer;
         this.displayPlayer = null;
         this.flowCardPlaced = false;
+        this.logs = null;
     }
 
     public void setFlowCardPlaced(boolean flowCardPlaced) {
@@ -45,7 +45,14 @@ public class ViewTUIMatch {
                 findFirst().orElseThrow(InvalidParameterException::new);
     }
 
+    public void setLogs(Log logs) {
+        this.logs = logs;
+    }
+
     public void printMatch() {
+
+        // clear screen
+        ViewTUIConstants.clearScreen();
 
         // TODO: fix order of printing for players... they are different between clients!
         // print player header
@@ -58,26 +65,25 @@ public class ViewTUIMatch {
         System.out.println(sectionCards());
 
         // print logs
-        // TODO: to be implemented
-
+        System.out.println(sectionLogs());
 
         // print menu (different based on player's turn status)
         if(this.gameState.getCurrentPlayer().equals(this.thisPlayer)) {
             // it's this player's turn. Force game flow: (1) place, (2) pick
             if (!flowCardPlaced) {
                 // player has to place a card first
-                view.setCurrentMenu(new MenuTUI(
+                view.setCurrentMenu(new MenuTUI( "",
                         new MenuItemPlayCard(this.gameState)
                 ));
             } else {
                 // player has to pick a new card from drawable ones
-                view.setCurrentMenu(new MenuTUI(
+                view.setCurrentMenu(new MenuTUI( "",
                         new MenuItemPickCard(this.gameState)
                 ));
             }
         } else {
             // not this player's turn, can move around until its turn.
-            view.setCurrentMenu(new MenuTUI(
+            view.setCurrentMenu(new MenuTUI( "",
                     new MenuItemChangeField(this)
             ));    // FIXME: sistema visualizzazione di hidden / non hidden
         }
@@ -116,7 +122,7 @@ public class ViewTUIMatch {
                         Turn   │ %c       %c         │ %c       %c         │ %c       %c         │ %c       %c         │
                         Player │    %-14s │    %-14s │    %-14s │    %-14s │
                         Points │        %2s         │        %2s         │        %2s         │        %2s         │
-                        """,
+                """,
                 onlineSymbol[0], turnSymbol[0], onlineSymbol[1], turnSymbol[1], onlineSymbol[2], turnSymbol[2], onlineSymbol[3], turnSymbol[3],
                 nickString[0], nickString[1], nickString[2], nickString[3],
                 pointsStr[0], pointsStr[1], pointsStr[2], pointsStr[3]
@@ -131,7 +137,22 @@ public class ViewTUIMatch {
         return thisPlayer.equals(displayPlayer) ? sectionCardsThisPlayer() : sectionCardsOpponentPlayer();
     }
 
+    private String sectionLogs() {
+        String logString = "";
+        for(String log: this.logs.getLogMessages()) {
+            String logLine = "";
+            logLine = logLine.concat("║" + log);
+            logLine = String.format("%-100s║\n", logLine);
+            logString = logString.concat(logLine);
+        }
 
+        return String.format(
+                "╔═════════════════════════════════════════════[▽ LOGS ▽]════════════════════════════════════════════╗\n" +
+                "%s" +
+                "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝\n",
+                logString
+        );
+    }
 
     // --------------------------------------------------------------------
     // ------------------------------ UTILS -------------------------------

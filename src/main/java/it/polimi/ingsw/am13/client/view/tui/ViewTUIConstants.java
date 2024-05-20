@@ -73,4 +73,10 @@ public final class ViewTUIConstants {
             case BLUE -> ANSI_BLUE + player.getNickname() + ANSI_RESET;
         };
     }
+
+    public static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
 }

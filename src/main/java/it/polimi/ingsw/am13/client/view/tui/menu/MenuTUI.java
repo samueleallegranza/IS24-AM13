@@ -9,22 +9,27 @@ import java.util.Map;
 public class MenuTUI {
 
     private final Map<String, MenuItem> menu;
+    private final String request;
 
     /**
      * Builds a new given the list of {@link MenuItem} which the menu is composed of.
      * @param menuItems list of MenuItem instances
      */
-    public MenuTUI(MenuItem ... menuItems) {
+    public MenuTUI(String request, MenuItem ... menuItems) {
         Map<String, MenuItem> newMenu = new HashMap<>();
         for(MenuItem item : menuItems)
             newMenu.put(item.getCommandKey(), item);
         this.menu = newMenu;
+        this.request = request;
     }
 
     /**
      * Prints (text) the menu
      */
     public void printMenu() {
+        if(request != null && !request.isEmpty())
+            System.out.println(this.request);
+
         System.out.println("Menu:");
         for(String k: menu.keySet()) System.out.printf("\t%s\n", menu.get(k).toString());
         System.out.print("> ");

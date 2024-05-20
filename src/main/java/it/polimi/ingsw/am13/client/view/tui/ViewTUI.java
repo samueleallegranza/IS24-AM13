@@ -44,21 +44,27 @@ public class ViewTUI implements View {
     private ViewTUIMatch viewTUIMatch;
 
     /**
+     * Log object to store logs displayed in the Log Section of the Match visualization
+     */
+    private Log logs;
+
+    /**
      * Builds a new TUI view, setting an empty menu and all state attributes to null (not yet set)
      */
     public ViewTUI() {
-        this.currentMenu = new MenuTUI();
+        this.currentMenu = new MenuTUI("");
         this.thisPlayer = null;
         this.gameState = null;
         this.viewTUIMatch = null;
+        this.logs = null;
     }
 
     /**
      * Creates a new menu with the specified items, sets this as the new current menu and prints it
      * @param items Items to be included in the new current menu
      */
-    private void changeAndPrintMenu(MenuItem ... items) {
-        this.currentMenu = new MenuTUI(items);
+    private void changeAndPrintMenu(String request, MenuItem ... items) {
+        this.currentMenu = new MenuTUI(request, items);
         this.currentMenu.printMenu();
     }
 
@@ -139,7 +145,7 @@ public class ViewTUI implements View {
                     "╚═════════════════════════════════════════════════════════════════════════════════════════════════╝");
         }
 
-        changeAndPrintMenu(new MenuItemUpdateRoomList(),
+        changeAndPrintMenu("", new MenuItemUpdateRoomList(),
                 new MenuItemCreateRoom(),
                 new MenuItemJoinRoom(),
                 new MenuItemReconnect()
@@ -158,7 +164,7 @@ public class ViewTUI implements View {
             // I joined a room
             thisPlayer = player;
             System.out.println("You have joined the room");
-            changeAndPrintMenu(new MenuItemLeaveRoom());
+            changeAndPrintMenu("", new MenuItemLeaveRoom());
         } else {
             // I already joined a room, someone else joined the same room
             System.out.println("Player " + player + " joined the room");
@@ -181,7 +187,7 @@ public class ViewTUI implements View {
             // I left the room
             System.out.println("You left the room");
             thisPlayer = null;
-            changeAndPrintMenu(new MenuItemUpdateRoomList(),
+            changeAndPrintMenu("", new MenuItemUpdateRoomList(),
                     new MenuItemCreateRoom(),
                     new MenuItemJoinRoom());
         } else {
@@ -201,12 +207,15 @@ public class ViewTUI implements View {
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
 
-        // print
-        System.out.print("Game started.\n");
-        System.out.print("Please choose the side of your starter card: \n");
-        System.out.print(ViewTUIPrintUtils.starterCards(gameState.getPlayerState(thisPlayer).getStarterCard()));
+        // initialize log
+        this.logs = new Log(gameState);
 
+        // print
+        ViewTUIConstants.clearScreen();
+        System.out.print("Game started.\n");
         changeAndPrintMenu(
+                ViewTUIPrintUtils.starterCards(gameState.getPlayerState(thisPlayer).getStarterCard()) +
+                "\nPlease choose the side of your starter card:",
                 new MenuItemPlayStarter()
         );
     }
@@ -216,9 +225,15 @@ public class ViewTUI implements View {
         this.gameState = state;
         this.thisPlayer = thisPlayer;
 
+        // re-initialize view
         this.viewTUIMatch = new ViewTUIMatch(this, this.gameState, this.thisPlayer);
-        viewTUIMatch.setDisplayPlayer(this.thisPlayer);
 
+        // re-initialize log
+        this.logs = new Log(gameState);
+        this.viewTUIMatch.setLogs(this.logs);
+        this.logs.logReconnect(thisPlayer);
+
+        viewTUIMatch.setDisplayPlayer(this.thisPlayer);
         viewTUIMatch.printMatch();
     }
 
@@ -230,20 +245,22 @@ public class ViewTUI implements View {
      */
     @Override
     public void showPlayedStarter(PlayerLobby player) {
-        if(thisPlayer.equals(player)) {
-            System.out.println("You successfully played your starter card\n");
+        this.logs.logPlayedStarter(player);
 
+        if(thisPlayer.equals(player)) {
             CardObjectiveIF obj1 = this.gameState.getPlayerState(this.thisPlayer).getPossibleHandObjectives().getFirst();
             CardObjectiveIF obj2 = this.gameState.getPlayerState(this.thisPlayer).getPossibleHandObjectives().getLast();
-            System.out.print("Please choose your personal objective card: \n");
-            System.out.print(ViewTUIPrintUtils.objectiveCards(obj1, obj2));
 
-            changeAndPrintMenu(
+            this.currentMenu = new MenuTUI(
+                    ViewTUIPrintUtils.objectiveCards(obj1, obj2)+
+                    "\nPlease choose your personal objective card:",
                     new MenuItemChooseObj(gameState)
-            );
-        } else
-            System.out.println("Player " + player + " has player their starter card on side " +
-                    gameState.getPlayerState(player).getStarterCard().getVisibleSide());
+            ) ;
+        }
+
+        ViewTUIConstants.clearScreen();
+        for(String log: this.logs.getLogMessages()) System.out.println(log);
+        currentMenu.printMenu();
     }
 
     /**
@@ -253,12 +270,15 @@ public class ViewTUI implements View {
      */
     @Override
     public void showChosenPersonalObjective(PlayerLobby player) {
+        this.logs.logChosenPersonalObjective(player);
+
         if(thisPlayer.equals(player)) {
-            System.out.println("You successfully chosen your personal card. Now wait for the other players");
-            currentMenu = new MenuTUI();
+            this.currentMenu = new MenuTUI("Wait for the other player to finish their initialization.");
         }
-        else
-            System.out.println("Player " + player + " has chosen their personal objective card");
+
+        ViewTUIConstants.clearScreen();
+        for(String log: this.logs.getLogMessages()) System.out.println(log);
+        currentMenu.printMenu();
     }
 
     /**
@@ -269,26 +289,22 @@ public class ViewTUI implements View {
     public void showInGame() {
         // TODO non mi dovrebbero arrivare + showInGame, ma se succedesse?
         viewTUIMatch = new ViewTUIMatch(this, gameState, thisPlayer);
+        this.viewTUIMatch.setLogs(this.logs);
+
         viewTUIMatch.setDisplayPlayer(thisPlayer);
         viewTUIMatch.printMatch();
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-        if(thisPlayer.equals(player))
-            System.out.println("You successfully played the card");
-        else
-            System.out.println("Player " + player + " played a card on coordinates " + coord);
+        this.logs.logPlayedCard(player, coord);
         viewTUIMatch.setFlowCardPlaced(true);
         viewTUIMatch.printMatch();
     }
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-        if(thisPlayer.equals(player))
-            System.out.println("You successfully picked the card");
-        else
-            System.out.println("Player " + player + " picked a card");
+        this.logs.logPickedCard(player);
         viewTUIMatch.setFlowCardPlaced(false);
         viewTUIMatch.printMatch();
     }
@@ -303,8 +319,8 @@ public class ViewTUI implements View {
 
     @Override
     public void showFinalPhase() {
+        this.logs.logFinalPhase();
         viewTUIMatch.printMatch();
-        System.out.println("The final round is about to start");
     }
 
     @Override
@@ -318,25 +334,26 @@ public class ViewTUI implements View {
 
     @Override
     public void showWinner() {
+        this.logs.logWinner();
         System.out.println(gameState.getWinner() + " has won!!!");
     }
 
     @Override
     public void showEndGame() {
         System.out.println("The game has ended");
-        // TODO devo distruggere qualcosa?
+        // TODO aggiungi networkHandler che chiama getRooms
     }
 
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
+        this.logs.logDisconnect(player);
         viewTUIMatch.printMatch();
-        System.out.println("player " + player.getNickname() + " has disconnected");
     }
 
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
+        this.logs.logReconnect(player);
         viewTUIMatch.printMatch();
-        System.out.println("player " + player.getNickname() + " has reconnected");
     }
 
     public MenuTUI getCurrentMenu() {
