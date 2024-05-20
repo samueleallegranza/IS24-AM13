@@ -13,6 +13,12 @@ import java.util.stream.Collectors;
 
 public class ViewTUIMatch {
 
+    //TODO: aggiungi evidenziazione per thisPlayer nell'header con i player
+
+    //TODO: magari aggiungi legenda da qualche parte per i simboli usati
+
+    //TODO: magari aggiungi un contatore per le risorse attualmente in campo
+
     private final ViewTUI view;
     private final GameState gameState;
     private final PlayerLobby thisPlayer;
@@ -122,9 +128,7 @@ public class ViewTUIMatch {
     }
 
     private String sectionCards() {
-        if(this.thisPlayer == this.displayPlayer)
-            return sectionCardsThisPlayer();
-        else return sectionCardsOpponentPlayer();
+        return thisPlayer.equals(displayPlayer) ? sectionCardsThisPlayer() : sectionCardsOpponentPlayer();
     }
 
 

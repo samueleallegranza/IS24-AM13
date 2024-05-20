@@ -72,6 +72,11 @@ public class GameController implements Runnable {
      * and disconnects players whose game listener ping is too old
      */
     public void run(){
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         while(!Thread.interrupted()) {
             List<GameListener> listeners = gameModel.getListeners();
             for (GameListener gameListener : listeners) {

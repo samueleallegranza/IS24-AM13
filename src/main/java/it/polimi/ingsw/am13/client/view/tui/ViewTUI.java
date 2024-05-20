@@ -20,6 +20,9 @@ public class ViewTUI implements View {
 
     //TODO finisci di documentare
 
+    // TODO non mi faceva giocare una carta con requisiti, anche se i requisiti erano soddisfatti.
+    //  Indaga meglio...
+
     /**
      * Current menu, which defines the possible actions to perform
      */
@@ -38,7 +41,7 @@ public class ViewTUI implements View {
     /**
      * Handler of the view for the turn-based phases. Null if it is not defined
      */
-    ViewTUIMatch viewTUIMatch;
+    private ViewTUIMatch viewTUIMatch;
 
     /**
      * Builds a new TUI view, setting an empty menu and all state attributes to null (not yet set)
@@ -86,7 +89,10 @@ public class ViewTUI implements View {
      */
     @Override
     public void showException(Exception e) {
-        System.out.println(e.getMessage());
+        if(e.getMessage() != null)
+            System.out.println(e.getMessage());
+        else
+            System.out.println(e.getClass().getName());
         currentMenu.printMenu();
         //TODO basta così?
     }
@@ -289,6 +295,7 @@ public class ViewTUI implements View {
 
     @Override
     public void showNextTurn() {
+        System.out.println("Now it the turn of " + gameState.getCurrentPlayer());
         if(thisPlayer.equals(gameState.getCurrentPlayer()))
             viewTUIMatch.setDisplayPlayer(thisPlayer);
         viewTUIMatch.printMatch();
@@ -296,22 +303,28 @@ public class ViewTUI implements View {
 
     @Override
     public void showFinalPhase() {
-        // TODO che metodo di viewTUIMatch devo chiamare?
+        viewTUIMatch.printMatch();
+        System.out.println("The final round is about to start");
     }
 
     @Override
     public void showUpdatePoints() {
-
+        System.out.println("Final points:");
+        for(PlayerLobby p : gameState.getPlayers()) {
+            System.out.println("\t" + p.getNickname() + "\t- " +
+                    gameState.getPlayerState(p).getPoints() + " points");
+        }
     }
 
     @Override
     public void showWinner() {
-
+        System.out.println(gameState.getWinner() + " has won!!!");
     }
 
     @Override
     public void showEndGame() {
-
+        System.out.println("The game has ended");
+        // TODO devo distruggere qualcosa?
     }
 
     @Override

@@ -26,6 +26,8 @@ import java.util.*;
 
 //TODO: Pensa se gestire il caso in cui availableCoord è empty (giocatore non piò fare più niente)
 public class Match {
+
+    private static final int POINTS_FOR_FINAL_PHASE = 20;
     private final DeckHandler<CardResource> deckResources;
     private final DeckHandler<CardGold> deckGold;
     private final DeckHandler<CardObjective> deckObjective;
@@ -589,7 +591,8 @@ public class Match {
      * or both the Resources and Gold decks are empty) are satisfied, false otherwise
      */
     private boolean checkFinalPhase(){
-        return currentPlayer.getPoints() >= 20 || (deckResources.isDeckEmpty() && deckGold.isDeckEmpty());
+        return currentPlayer.getPoints() >= POINTS_FOR_FINAL_PHASE
+                || (deckResources.isDeckEmpty() && deckGold.isDeckEmpty());
     }
 
 

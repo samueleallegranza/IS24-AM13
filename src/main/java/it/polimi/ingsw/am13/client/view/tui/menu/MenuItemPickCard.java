@@ -30,7 +30,8 @@ public class MenuItemPickCard extends MenuItem {
     public MenuItemPickCard(GameState state) {
         super("pick",
                 "Pick one of the six visible cards in the common field: " +
-                        "'pick <Type of card (resource/gold)> <draw/pick> [<Card to pick starting from left (1/2)>]'"
+                        "'pick <Type of card (res/gold)> <draw/1/2>' (draw for first card to the left (top of deck), " +
+                        "1 or 2 for first or second visible card starting from the left)"
 //                "Pick one of the six visible cards in the common field: pick <Number of the card to pick>"
                 );
         this.state = state;
@@ -44,30 +45,24 @@ public class MenuItemPickCard extends MenuItem {
     @Override
     public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
         List<String> args = List.of(argsStr.split("\\s+"));
-        if(args.size()<2)
-            throw new InvalidTUICommandException("Parameters must be at least 2: <Type of card> <Draw or pick>");
+        if(args.size()!=2)
+            throw new InvalidTUICommandException("Parameters must be 2: <Type of card> <draw/1/2>");
         int cardIdx;
 
-        if(args.get(0).equals("resource"))
+        if(args.get(0).equals("res"))
             cardIdx = 0;
         else if(args.get(0).equals("gold"))
             cardIdx = 3;
         else
-            throw new InvalidTUICommandException("First parameter must be the type of card ('resource' or 'gold')");
+            throw new InvalidTUICommandException("First parameter must be the type of card ('res' or 'gold')");
 
-        if(args.get(1).equals("draw")) {
-            if(args.size() != 2)
-                throw new InvalidTUICommandException("There must be no parameters after 'draw'");
-        } else if(args.get(1).equals("pick")) {
-            if(args.size() != 3)
-                throw new InvalidTUICommandException("There must be 1 parameter after 'pick': <Number of card to pick (1/2)");
-            if(args.get(2).equals("1"))
-                cardIdx += 1;
-            else if(args.get(2).equals("2"))
-                cardIdx += 2;
-            else
-                throw new InvalidTUICommandException("The third parameter must be the card to pick (1/2 starting from left)");
-        }
+        if(args.get(1).equals("1"))
+            cardIdx += 1;
+        else if(args.get(1).equals("2"))
+            cardIdx += 2;
+        else if(!args.get(1).equals("draw"))
+            throw new InvalidTUICommandException("The second parameter must be the card to pick (draw for the top of deck, " +
+                    "1/2 for one of the visible cards)");
 
         try {
             networkHandler.pickCard(
