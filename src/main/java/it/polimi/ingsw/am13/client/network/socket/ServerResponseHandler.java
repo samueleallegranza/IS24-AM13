@@ -38,7 +38,7 @@ public class ServerResponseHandler extends Thread{
             while(true) {
                 MsgResponse msgResponse;
                 try {
-                    msgResponse=(MsgResponse) in.readObject();
+                    msgResponse = (MsgResponse) in.readObject();
                 }
                  catch (ClassNotFoundException | IOException e) {
                     throw new RuntimeException(e);

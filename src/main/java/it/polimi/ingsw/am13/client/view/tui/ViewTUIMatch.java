@@ -68,7 +68,7 @@ public class ViewTUIMatch {
         System.out.println(sectionLogs());
 
         // print menu (different based on player's turn status)
-        if(this.gameState.getCurrentPlayer().equals(this.thisPlayer)) {
+        if(this.thisPlayer.equals(this.gameState.getCurrentPlayer())) {
             // it's this player's turn. Force game flow: (1) place, (2) pick
             if (!flowCardPlaced) {
                 // player has to place a card first
@@ -147,9 +147,10 @@ public class ViewTUIMatch {
         }
 
         return String.format(
-                "╔═════════════════════════════════════════════[▽ LOGS ▽]════════════════════════════════════════════╗\n" +
-                "%s" +
-                "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝\n",
+                """
+                        ╔═════════════════════════════════════════════[▽ LOGS ▽]════════════════════════════════════════════╗
+                        %s╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
+                        """,
                 logString
         );
     }
@@ -315,7 +316,7 @@ public class ViewTUIMatch {
         for (int i = 0; i < 3; i++) {
             strCard.add(i,new ArrayList<>(3));
         }
-        strCard.get(0).add(0,ViewTUIConstants.resourceToSymbol(cornerResources.get(0)).charAt(0));
+        strCard.getFirst().addFirst(ViewTUIConstants.resourceToSymbol(cornerResources.get(0)).charAt(0));
         strCard.get(0).add(1,'─');
         strCard.get(0).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(1)).charAt(0));
         strCard.get(1).add(0,'│');
@@ -339,7 +340,7 @@ public class ViewTUIMatch {
         for (int i = 0; i < 3; i++) {
             strPos.add(i,new ArrayList<>(3));
         }
-        strPos.get(0).add(0,'┌');
+        strPos.getFirst().addFirst('┌');
         strPos.get(0).add(1,'─');
         strPos.get(0).add(2,'┐');
         strPos.get(1).add(0,(char)('0'+index/100));

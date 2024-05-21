@@ -104,18 +104,25 @@ public class GameController implements Runnable {
     /**
      * disconnection method only for tests
      */
-    public void disconnectPlayer(PlayerLobby player, long timeToWait) throws InvalidPlayerException, ConnectionException {
-        gameModel.disconnectPlayer(player);
-        if(player.equals(gameModel.fetchCurrentPlayer())) {
-            // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
+    public synchronized void disconnectPlayer(PlayerLobby player, long timeToWait) throws InvalidPlayerException {
+        // TODO: gestisci meglio ConnectionException, cerca di non fare controlli ridondanti...
+        if(gameModel.fetchIsConnected(player)) {
             try {
-                nextTurn();
-            } catch (GameStatusException e) {
+                gameModel.disconnectPlayer(player);
+            } catch (ConnectionException e) {
                 throw new RuntimeException(e);
             }
+            if (player.equals(gameModel.fetchCurrentPlayer())) {
+                // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
+                try {
+                    nextTurn();
+                } catch (GameStatusException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (gameModel.countConnected() == 1 && gameModel.fetchGameStatus() != null && reconnectionThread == null)
+                startReconnectionTimer(timeToWait);
         }
-        if(gameModel.countConnected()==1 && gameModel.fetchGameStatus()!=null && reconnectionThread==null)
-            startReconnectionTimer(timeToWait);
     }
 
     /**
@@ -125,7 +132,7 @@ public class GameController implements Runnable {
      * @throws ConnectionException if the player had already been disconnected
      * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
-    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
+    public synchronized void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
         disconnectPlayer(player, timeToWaitReconnection);
     }
 

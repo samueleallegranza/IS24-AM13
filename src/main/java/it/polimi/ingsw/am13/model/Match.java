@@ -103,21 +103,21 @@ public class Match {
         }
 
         gameStatus = null;
-        Random rnd=new Random(1000000009);
-        firstPlayerIndex=rnd.nextInt(players.size()-1);
-        firstPlayer=players.get(firstPlayerIndex);
-        currentPlayer=null;
+        Random rnd = new Random(1000000009);
+        firstPlayerIndex = rnd.nextInt(players.size()-1);
+        firstPlayer = players.get(firstPlayerIndex);
+        currentPlayer = null;
 
         LinkedList<CardResource> cardsResource;
         LinkedList<CardGold> cardsGold;
         LinkedList<CardObjective> cardsObjective;
         LinkedList<CardStarter> cardsStarter;
-        CardFactory cardFactory=new CardFactory();
+        CardFactory cardFactory = new CardFactory();
         try {
             cardsResource = cardFactory.createCardsResource();
-            cardsGold= cardFactory.createCardsGold();
-            cardsObjective= cardFactory.createCardsObjective();
-            cardsStarter=cardFactory.createCardsStarter();
+            cardsGold = cardFactory.createCardsGold();
+            cardsObjective = cardFactory.createCardsObjective();
+            cardsStarter = cardFactory.createCardsStarter();
         }
         catch (InvalidCardCreationException e){
             System.out.println("Error in the creation of a card");
@@ -161,10 +161,13 @@ public class Match {
             throw new ConnectionException("Player " + player + " was already disconnected");
         if(gameStatus==GameStatus.INIT){
             try {
-                if(playersMap.get(player).getField().getCardSideAtCoord(Coordinates.origin())==null)
-                    playStarter(player,Side.SIDEFRONT);
-                if(playersMap.get(player).getPersonalObjective()==null)
-                    choosePersonalObjective(player,playersMap.get(player).getPossiblePersonalObjectives().getFirst());
+                if(playersMap.get(player).getField().getCardSideAtCoord(Coordinates.origin())==null) {
+                    playStarter(player, Side.SIDEFRONT);
+                }
+                if(playersMap.get(player).getPersonalObjective()==null) {
+                    CardObjective choosenObj = playersMap.get(player).getPossiblePersonalObjectives().getFirst();
+                    choosePersonalObjective(player, choosenObj);
+                }
             } catch (GameStatusException | InvalidChoiceException | VariableAlreadySetException |
                      InvalidPlayCardException e) {//the exceptions should never be thrown inside this if
                 throw new RuntimeException(e);
@@ -325,7 +328,7 @@ public class Match {
     private void setStarter(Player player){
       CardStarter cardStarter;
         try {
-            cardStarter=deckStarter.draw();
+            cardStarter = deckStarter.draw();
         } catch (InvalidDrawCardException e) {
             System.out.println("The starter deck has no card left in it");
             throw new RuntimeException(e);

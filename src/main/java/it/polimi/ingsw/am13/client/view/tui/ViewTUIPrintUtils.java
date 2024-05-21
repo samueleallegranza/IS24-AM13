@@ -150,21 +150,6 @@ public class ViewTUIPrintUtils {
     }
 
     public static String starterCards(CardPlayableIF cardStarter) {
-//        // create an array of resource symbols for corners
-//        List<String> frontCorners = cardFront.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-//        List<String> backCorners = cardBack.getCornerResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-//
-//        // create an array of resource symbols for center. Fill with spaces where needed.
-//        String[] frontCenter = {" ", " ", " "};
-//        List<String> frontCenterUnprocessed = cardFront.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-//        int copyLength = Math.min(3, frontCenterUnprocessed.size());
-//        for (int i = 0; i < copyLength; i++) frontCenter[i] = frontCenterUnprocessed.get(i);
-//
-//        String[] backCenter = {" ", " ", " "};
-//        List<String> backCenterUnprocessed = cardBack.getCenterResources().stream().map(ViewTUIConstants::resourceToSymbol).toList();
-//        copyLength = Math.min(3, backCenterUnprocessed.size());
-//        for (int i = 0; i < copyLength; i++) backCenter[i] = backCenterUnprocessed.get(i);
-
         CardSideSymbolsBuilder cardFront = new CardSideSymbolsBuilder(cardStarter, Side.SIDEFRONT);
         CardSideSymbolsBuilder cardBack = new CardSideSymbolsBuilder(cardStarter, Side.SIDEBACK);
 

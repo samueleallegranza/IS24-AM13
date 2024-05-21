@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.controller.RoomIF;
+import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -85,7 +86,7 @@ public class ViewTUI implements View {
      * @param port Port of the client
      */
     @Override
-    public void showStartupScreen(boolean isSocket, String ip, int port) {
+    public synchronized void showStartupScreen(boolean isSocket, String ip, int port) {
         ViewTUIPrintUtils.printStartup(isSocket, ip, port);
     }
 
@@ -94,7 +95,7 @@ public class ViewTUI implements View {
      * @param e Exception to be shown
      */
     @Override
-    public void showException(Exception e) {
+    public synchronized void showException(Exception e) {
         if(e.getMessage() != null)
             System.out.println(e.getMessage());
         else
@@ -104,7 +105,7 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showGenericLogMessage(String msg) {
+    public synchronized void showGenericLogMessage(String msg) {
         System.out.println(msg);
         //TODO basta così?
     }
@@ -114,7 +115,7 @@ public class ViewTUI implements View {
      * @param rooms List of rooms
      */
     @Override
-    public void showRooms(List<RoomIF> rooms) {
+    public synchronized void showRooms(List<RoomIF> rooms) {
         if (rooms.isEmpty())
             System.out.println("There no rooms for you to join right now!");
         else{
@@ -134,7 +135,7 @@ public class ViewTUI implements View {
                         p[i]="-";
                 String formatted = String.format(
                         "║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║\n",
-                        r.getGameId(), r.isGameStarted() ? "started" : "waiting",
+                        r.getGameId()+1, r.isGameStarted() ? "started" : "waiting",
                         p[0], p[1], p[2], p[3], r.getPlayers().size() +"/"+ r.getnPlayersTarget()
                 );
                 for (int i = 0; i < r.getPlayers().size(); i++)
@@ -159,7 +160,7 @@ public class ViewTUI implements View {
      * @param player Player who joined the room
      */
     @Override
-    public void showPlayerJoinedRoom(PlayerLobby player) {
+    public synchronized void showPlayerJoinedRoom(PlayerLobby player) {
         if(thisPlayer==null) {
             // I joined a room
             thisPlayer = player;
@@ -179,7 +180,7 @@ public class ViewTUI implements View {
      * @param player Player who left the room
      */
     @Override
-    public void showPlayerLeftRoom(PlayerLobby player) {
+    public synchronized void showPlayerLeftRoom(PlayerLobby player) {
         // TODO se lo chiamo quando il gioco è avviato, mi perdo l'informazione su thisPlayer e mando a quel paese il menu.
         //  E' una situazione da gestire?
 
@@ -202,7 +203,7 @@ public class ViewTUI implements View {
      * @param gameState Reference to the game's state which is kept up to date
      */
     @Override
-    public void showStartGame(GameState gameState) {
+    public synchronized void showStartGame(GameState gameState) {
         // TODO cosa fare se gameState è già impostato? (sarebbe stato già chiamato startgame...)
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
@@ -221,20 +222,24 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
-        this.gameState = state;
+    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
-
-        // re-initialize view
-        this.viewTUIMatch = new ViewTUIMatch(this, this.gameState, this.thisPlayer);
+        this.gameState = state;
 
         // re-initialize log
         this.logs = new Log(gameState);
-        this.viewTUIMatch.setLogs(this.logs);
         this.logs.logReconnect(thisPlayer);
 
-        viewTUIMatch.setDisplayPlayer(this.thisPlayer);
-        viewTUIMatch.printMatch();
+        if(gameState.getGameStatus()==GameStatus.INIT || gameState.getGameStatus()==null) {
+            System.out.println("You reconnected successfully, wait for the other players to complete the initialization phase");
+            //TODO sistema usando i log
+        } else {
+            // re-initialize view for match as we are in game
+            this.viewTUIMatch = new ViewTUIMatch(this, this.gameState, this.thisPlayer);
+            this.viewTUIMatch.setLogs(this.logs);
+            viewTUIMatch.setDisplayPlayer(this.thisPlayer);
+            viewTUIMatch.printMatch();
+        }
     }
 
     /**
@@ -244,7 +249,7 @@ public class ViewTUI implements View {
      * @param player Player who played their starter card
      */
     @Override
-    public void showPlayedStarter(PlayerLobby player) {
+    public synchronized void showPlayedStarter(PlayerLobby player) {
         this.logs.logPlayedStarter(player);
 
         if(thisPlayer.equals(player)) {
@@ -269,8 +274,9 @@ public class ViewTUI implements View {
      * @param player Player who chose their personal objective card
      */
     @Override
-    public void showChosenPersonalObjective(PlayerLobby player) {
+    public synchronized void showChosenPersonalObjective(PlayerLobby player) {
         this.logs.logChosenPersonalObjective(player);
+
 
         if(thisPlayer.equals(player)) {
             this.currentMenu = new MenuTUI("Wait for the other player to finish their initialization.");
@@ -286,31 +292,30 @@ public class ViewTUI implements View {
      * In particular sets the {@link ViewTUIMatch} and uses that to handle this phase.
      */
     @Override
-    public void showInGame() {
+    public synchronized void showInGame() {
         // TODO non mi dovrebbero arrivare + showInGame, ma se succedesse?
         viewTUIMatch = new ViewTUIMatch(this, gameState, thisPlayer);
         this.viewTUIMatch.setLogs(this.logs);
-
         viewTUIMatch.setDisplayPlayer(thisPlayer);
         viewTUIMatch.printMatch();
     }
 
     @Override
-    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+    public synchronized void showPlayedCard(PlayerLobby player, Coordinates coord) {
         this.logs.logPlayedCard(player, coord);
         viewTUIMatch.setFlowCardPlaced(true);
         viewTUIMatch.printMatch();
     }
 
     @Override
-    public void showPickedCard(PlayerLobby player) {
+    public synchronized void showPickedCard(PlayerLobby player) {
         this.logs.logPickedCard(player);
         viewTUIMatch.setFlowCardPlaced(false);
         viewTUIMatch.printMatch();
     }
 
     @Override
-    public void showNextTurn() {
+    public synchronized void showNextTurn() {
         System.out.println("Now it the turn of " + gameState.getCurrentPlayer());
         if(thisPlayer.equals(gameState.getCurrentPlayer()))
             viewTUIMatch.setDisplayPlayer(thisPlayer);
@@ -318,13 +323,13 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showFinalPhase() {
+    public synchronized void showFinalPhase() {
         this.logs.logFinalPhase();
         viewTUIMatch.printMatch();
     }
 
     @Override
-    public void showUpdatePoints() {
+    public synchronized void showUpdatePoints() {
         System.out.println("Final points:");
         for(PlayerLobby p : gameState.getPlayers()) {
             System.out.println("\t" + p.getNickname() + "\t- " +
@@ -333,13 +338,13 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public void showWinner() {
+    public synchronized void showWinner() {
         this.logs.logWinner();
         System.out.println(gameState.getWinner() + " has won!!!");
     }
 
     @Override
-    public void showEndGame() {
+    public synchronized void showEndGame() {
         System.out.println("The game has ended");
         // TODO aggiungi networkHandler che chiama getRooms
     }
@@ -347,20 +352,28 @@ public class ViewTUI implements View {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         this.logs.logDisconnect(player);
-        viewTUIMatch.printMatch();
+        if(viewTUIMatch != null)
+            viewTUIMatch.printMatch();
+        else
+            System.out.println("player " + player.getNickname() + " has disconnected");
+            //TODO sistema con i log
     }
 
     @Override
-    public void showPlayerReconnected(PlayerLobby player) {
+    public synchronized void showPlayerReconnected(PlayerLobby player) {
         this.logs.logReconnect(player);
-        viewTUIMatch.printMatch();
+        if(viewTUIMatch != null)
+            viewTUIMatch.printMatch();
+        else
+            System.out.println("player " + player.getNickname() + " has reconnected");
+            //TODO sistema con i log
     }
 
-    public MenuTUI getCurrentMenu() {
+    public synchronized MenuTUI getCurrentMenu() {
         return currentMenu;
     }
 
-    void setCurrentMenu(MenuTUI currentMenu) {
+    synchronized void setCurrentMenu(MenuTUI currentMenu) {
         this.currentMenu = currentMenu;
     }
 }

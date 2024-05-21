@@ -56,18 +56,19 @@ public class NetworkHandlerSocket implements NetworkHandler {
     @Override
     public void createRoom(String chosenNickname, Token token, int players) {
         sendMessage(new MsgCommandCreateRoom(chosenNickname,token,players));
-        latestPlayer=new PlayerLobby(chosenNickname,token);
+        latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
     @Override
     public void joinRoom(String chosenNickname, Token token, int gameId) {
         sendMessage(new MsgCommandJoinRoom(chosenNickname,token,gameId));
-        latestPlayer=new PlayerLobby(chosenNickname,token);
+        latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
     @Override
     public void reconnect(String nickname, Token token) {
-
+        sendMessage(new MsgCommandReconnectGame(nickname, token));
+        latestPlayer = new PlayerLobby(nickname, token);
     }
 
     @Override

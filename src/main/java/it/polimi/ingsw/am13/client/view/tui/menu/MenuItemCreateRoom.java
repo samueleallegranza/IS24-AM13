@@ -26,6 +26,8 @@ public class MenuItemCreateRoom extends MenuItem {
             throw new InvalidTUICommandException("Invalid arguments. Please specify the room ID.");
         }
         String[] arg = args.split(" ");
+        if(arg.length!=3)
+            throw new InvalidTUICommandException("Arguments must be 3: <your nickname> <your token color (red/blue/green/yellow)> <number of players (2/3/4)>");
         String nickname = arg[0];
         ColorToken token;
         try {

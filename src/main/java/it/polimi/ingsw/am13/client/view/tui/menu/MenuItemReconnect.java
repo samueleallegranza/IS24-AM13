@@ -9,7 +9,7 @@ public class MenuItemReconnect extends MenuItem{
 
         public MenuItemReconnect() {
             super("reconnect",
-                    "Reconnect to a game: ‘reconnect <your nickname before disconnecting> " +
+                    "Reconnect to a game: ‘reconnect <your nickname before disconnecting> <your token before disconnecting> " +
                             "<your token color (red/blue/green/yellow) before disconnecting>’");
         }
 
@@ -19,6 +19,8 @@ public class MenuItemReconnect extends MenuItem{
                 throw new InvalidTUICommandException("Invalid arguments. Please specify the room ID.");
             }
             String[] arg = args.split(" ");
+            if(arg.length!=2)
+                throw new InvalidTUICommandException("Arguments must be 2: <your nickname before disconnecting> <your token before disconnecting>");
             String nickname = arg[0];
             ColorToken token;
             try {

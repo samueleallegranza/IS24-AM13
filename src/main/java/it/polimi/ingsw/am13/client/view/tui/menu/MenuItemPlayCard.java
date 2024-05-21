@@ -54,7 +54,7 @@ public class MenuItemPlayCard extends MenuItem {
         Side side;
 
         try {
-            cardIdx = Integer.parseInt(args.getFirst());
+            cardIdx = Integer.parseInt(args.getFirst()) - 1;
         } catch (NumberFormatException e) {
             throw new InvalidTUICommandException("First parameter must be an integer indicating the card to play");
         }
@@ -70,7 +70,6 @@ public class MenuItemPlayCard extends MenuItem {
         else
             throw new InvalidTUICommandException("Third parameter must be the side on which to play the card (F for front, B for back");
 
-        //TODO forse è da sistemare la numerazione (non so se parte da 1 o da 0)
         PlayerLobby player = networkHandler.getPlayer();
         try {
             networkHandler.playCard(

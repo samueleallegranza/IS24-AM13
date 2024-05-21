@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model;
 
+import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
@@ -249,7 +250,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException {
+    public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException, LobbyException {
         testGameSetupWithDisconnection();
         match.reconnectPlayer(player2.getPlayerLobby());
         Player currentPlayer=match.getCurrentPlayer();
@@ -274,7 +275,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException {
+    public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, LobbyException {
         testGameSetupWithDisconnection();
         match.reconnectPlayer(player2.getPlayerLobby());
         boolean hasNextTurn;    // Set to true by default

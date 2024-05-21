@@ -27,6 +27,8 @@ public class MenuItemJoinRoom extends MenuItem {
                 throw new InvalidTUICommandException("Invalid arguments. Please specify the room ID.");
             }
             String[] arg = args.split(" ");
+            if(arg.length!=3)
+                throw new InvalidTUICommandException("Arguments must be 3: <your nickname> <your token color (red/blue/green/yellow)> <game id of the room to join>");
             String nickname = arg[0];
             ColorToken token;
             try {
@@ -34,7 +36,7 @@ public class MenuItemJoinRoom extends MenuItem {
             } catch (IllegalArgumentException e) {
                 throw new InvalidTUICommandException("Invalid token color. Please choose one of the following: red, blue, green, yellow");
             }
-            int roomID = Integer.parseInt(arg[2]);
+            int roomID = Integer.parseInt(arg[2]) - 1;
             if (roomID < 0) {
                 throw new InvalidTUICommandException("Invalid room ID. Please choose a positive number");
             }

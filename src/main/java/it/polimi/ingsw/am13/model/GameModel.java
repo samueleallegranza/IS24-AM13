@@ -66,6 +66,7 @@ public class GameModel implements GameModelIF {
      * @throws ConnectionException if the player was already disconnected when this method was called
      */
     public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException {
+        GameStatus initStatus = match.getGameStatus();
         match.disconnectPlayer(player);
         try {
             listenerHandler.leaveRoom(player);
@@ -73,6 +74,21 @@ public class GameModel implements GameModelIF {
             // Should not happen
             throw new RuntimeException(e);
         }
+
+//        switch (res) {
+//            case 1 -> listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
+//            case 2 -> listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
+//            case 3 -> {
+//                listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
+//                listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
+//            }
+//            case 4 -> {}
+//            default -> throw new RuntimeException();
+//        }
+
+        // Disconnection can make me move towards IN_GAME, a notify could be necessary
+        if(initStatus!=GameStatus.IN_GAME && match.getGameStatus()==GameStatus.IN_GAME)
+            listenerHandler.notifyInGame();
     }
 
     /**

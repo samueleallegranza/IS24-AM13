@@ -67,18 +67,24 @@ public class GameStateHandler {
     }
 
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Coordinates coords, int points, List<Coordinates> availableCoords) {
-        PlayerState playerState = state.getPlayerState(player);
-        FieldState fieldState = playerState.getField();
+        // If card == null, it implies this is a 'ghost' move for disconnected player, and I don't have to update anything in gamestate
+        if(card != null) {
+            PlayerState playerState = state.getPlayerState(player);
+            FieldState fieldState = playerState.getField();
 
-        playerState.removeCardPlayed(card);
-        playerState.setPoints(points);
-        fieldState.placeCardSideAtCoord(coords, card.getPlayedCardSide());
-        fieldState.setAvailableCoords(availableCoords);
+            playerState.removeCardPlayed(card);
+            playerState.setPoints(points);
+            fieldState.placeCardSideAtCoord(coords, card.getPlayedCardSide());
+            fieldState.setAvailableCoords(availableCoords);
+        }
     }
 
     public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
-        state.getPlayerState(player).addCardPicked(pickedCard);
-        state.setPickables(updatedVisibleCards);
+        // If pickedCard == null, it implies this is a 'ghost' move for disconnected player, and I don't have to update anything in gamestate
+        if(pickedCard!=null) {
+            state.getPlayerState(player).addCardPicked(pickedCard);
+            state.setPickables(updatedVisibleCards);
+        }
     }
 
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
