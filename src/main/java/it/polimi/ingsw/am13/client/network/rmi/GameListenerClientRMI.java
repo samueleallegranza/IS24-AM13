@@ -10,7 +10,6 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Map;
  * It is a remote object, and it should be exposed by the client by passing it when it connects to the room/game.
  * It handles the updates the server sends to the clients, by modifying the view and updating the internal game's state
  */
-public class GameListenerClientRMI extends UnicastRemoteObject implements Remote {
+public class GameListenerClientRMI extends UnicastRemoteObject implements GameListenerClientRMIIF {
 
     /**
      * Player associated to this listener
@@ -231,7 +230,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements Remote
      * (reconstructing the current situation in game).
      * @param model The updated game model.
      */
-    public void updateGameModel(GameModelIF model, PlayerLobby player) throws RemoteException, InvalidPlayerException {
+    public void updateGameModel(GameModelIF model, PlayerLobby player) throws RemoteException {
         stateHandler = new GameStateHandler(model);
         view.showStartGameReconnected(stateHandler.getState(), player);
     }

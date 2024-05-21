@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.network.rmi;
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
+import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMIIF;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
 import it.polimi.ingsw.am13.model.GameModelIF;
@@ -36,7 +37,7 @@ public class GameListenerServerRMI implements GameListener {
      * Client-side listener, on which to call the RMI methods (to send the updates).
      * It the class that will receive the updates.
      */
-    private transient final GameListenerClientRMI clientLis;
+    private transient final GameListenerClientRMIIF clientLis;
 
     /**
      * Players associated to this game listener
@@ -47,7 +48,7 @@ public class GameListenerServerRMI implements GameListener {
      * Creates a new server-side game listener wrapping the client-side listener
      * @param clientLis Client-side listener, which will receive the updates.
      */
-    public GameListenerServerRMI(GameListenerClientRMI clientLis, PlayerLobby player) {
+    public GameListenerServerRMI(GameListenerClientRMIIF clientLis, PlayerLobby player) {
         this.clientLis = clientLis;
         ping = System.currentTimeMillis();
         this.player = player;
@@ -108,6 +109,7 @@ public class GameListenerServerRMI implements GameListener {
                     cnt++;
                 }
             }
+            //TODO: disconnetti il player se la chiamata non va a buon fine
         }).start();
     }
 
@@ -275,12 +277,12 @@ public class GameListenerServerRMI implements GameListener {
     @Override
     public void updateGameModel(GameModelIF model, PlayerLobby player) {
         tryRMICall(() -> {
-            try {
+//            try {
                 clientLis.updateGameModel(model, player);
-            } catch (InvalidPlayerException e) {
-                throw new RuntimeException(e);
-                //TODO: pensaci meglio: può succedere?
-            }
+//            } catch (InvalidPlayerException e) {
+//                throw new RuntimeException(e);
+//                //TODO: pensaci meglio: può succedere?
+//            }
         });
     }
 }

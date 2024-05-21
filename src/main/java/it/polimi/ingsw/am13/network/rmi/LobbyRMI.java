@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.network.rmi;
 
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
+import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMIIF;
 import it.polimi.ingsw.am13.controller.*;
 import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.GameStatusException;
@@ -71,7 +72,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
-    public synchronized void createRoom(GameListenerClientRMI playerListener, int nPlayers) throws LobbyException, RemoteException {
+    public synchronized void createRoom(GameListenerClientRMIIF playerListener, int nPlayers) throws LobbyException, RemoteException {
         GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.createRoom(lis, nPlayers);
         mapLis.put(playerListener.getPlayer(), lis);
@@ -87,7 +88,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * or if the room with the given gameId does not exist,
      * or if it exists but the room is already full
      */
-    public synchronized void joinRoom(int gameId, GameListenerClientRMI playerListener) throws LobbyException, RemoteException {
+    public synchronized void joinRoom(int gameId, GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException {
         GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.joinRoom(gameId, lis);
         mapLis.put(playerListener.getPlayer(), lis);
@@ -117,7 +118,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      * (generic error, should not happen)
      */
-    public synchronized void reconnectPlayer(GameListenerClientRMI playerListener) throws LobbyException, RemoteException, ConnectionException, GameStatusException {
+    public synchronized void reconnectPlayer(GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException, ConnectionException, GameStatusException {
         GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
         lobby.reconnectPlayer(lis);
         mapLis.put(playerListener.getPlayer(), lis);

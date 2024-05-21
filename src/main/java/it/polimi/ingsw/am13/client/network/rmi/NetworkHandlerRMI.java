@@ -12,14 +12,14 @@ import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
-import it.polimi.ingsw.am13.network.rmi.LobbyRMI;
+import it.polimi.ingsw.am13.network.rmi.LobbyRMIIF;
 
 import java.rmi.RemoteException;
 import java.util.List;
 
 public class NetworkHandlerRMI implements NetworkHandler {
 
-    private final LobbyRMI lobby;
+    private final LobbyRMIIF lobby;
 
     private PlayerLobby player;
 
@@ -27,7 +27,7 @@ public class NetworkHandlerRMI implements NetworkHandler {
 
     private final View view;
 
-    public NetworkHandlerRMI(LobbyRMI lobby, View view) {
+    public NetworkHandlerRMI(LobbyRMIIF lobby, View view) {
         this.lobby = lobby;
         this.view = view;
         this.controller = null;
@@ -110,6 +110,9 @@ public class NetworkHandlerRMI implements NetworkHandler {
         } catch (LobbyException | RemoteException | ConnectionException | GameStatusException e) {
             view.showException(e);
 //            throw new RuntimeException(e);
+        } catch (InvalidPlayerException e) {
+            //TODO pensa a questa gestione
+            throw new RuntimeException(e);
         }
     }
 

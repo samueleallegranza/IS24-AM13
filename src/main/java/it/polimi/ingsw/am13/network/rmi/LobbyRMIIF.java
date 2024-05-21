@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.network.rmi;
 
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
+import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMIIF;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.controller.RoomIF;
@@ -46,7 +47,7 @@ public interface LobbyRMIIF extends Remote {
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
-    void createRoom(GameListenerClientRMI playerListener, int nPlayers) throws LobbyException, RemoteException;
+    void createRoom(GameListenerClientRMIIF playerListener, int nPlayers) throws LobbyException, RemoteException;
 
     /**
      * Adds a players to an existing room, specified by the given gameId.
@@ -58,7 +59,7 @@ public interface LobbyRMIIF extends Remote {
      * or if the room with the given gameId does not exist,
      * or if it exists but the room is already full
      */
-    void joinRoom(int gameId, GameListenerClientRMI playerListener) throws LobbyException, RemoteException;
+    void joinRoom(int gameId,  GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException;
 
     /**
      * Removes a players from the existing room (specified by the given gameId) they joined.
@@ -79,7 +80,7 @@ public interface LobbyRMIIF extends Remote {
      * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      * (generic error, should not happen)
      */
-    void reconnectPlayer(GameListenerClientRMI playerListener) throws LobbyException, RemoteException,
+    void reconnectPlayer(GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException,
             ConnectionException, GameStatusException, InvalidPlayerException;
     
 }

@@ -7,10 +7,8 @@ import it.polimi.ingsw.am13.client.network.socket.NetworkHandlerSocket;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.gui.ViewGUI;
 import it.polimi.ingsw.am13.client.view.tui.ViewTUI;
-import it.polimi.ingsw.am13.model.player.Player;
-import it.polimi.ingsw.am13.network.rmi.LobbyRMI;
+import it.polimi.ingsw.am13.network.rmi.LobbyRMIIF;
 import javafx.application.Application;
-import javafx.application.Platform;
 
 import java.io.IOException;
 import java.net.*;
@@ -30,14 +28,14 @@ public class ClientMain {
     public static final String  SOCKET_DEFAULT_IP = "localhost";
     public static final String RMI_DEFAULT_IP = "localhost";
 
-    public static final String LOBBY_RMI_NAME = "lobby_rmi";
+//    public static final String LOBBY_RMI_NAME = "lobby_rmi";
 
 
     public static void main(String[] args) {
 
         // Parse args given
 
-        Boolean isSocket = true;
+        boolean isSocket = true;
         boolean isTUI = true;
         String ip = null;
         Integer port = null;
@@ -85,7 +83,7 @@ public class ClientMain {
             networkHandler.getRooms();
         }
         else{
-            Application.launch(ViewGUI.class, isSocket.toString() , ip, port.toString());
+            Application.launch(ViewGUI.class, Boolean.toString(isSocket), ip, port.toString());
         }
 
     }
@@ -110,7 +108,7 @@ public class ClientMain {
             try {
                 //TODO: rivedi meglio questo setup x rmi
                 registry = LocateRegistry.getRegistry(ServerMain.RMI_DEFAULT_PORT);
-                LobbyRMI lobby = (LobbyRMI) registry.lookup(ServerMain.LOBBY_RMI_NAME);
+                LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ServerMain.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);
             } catch (RemoteException | NotBoundException e) {
                 throw new RuntimeException(e);

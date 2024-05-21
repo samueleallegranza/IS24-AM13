@@ -14,8 +14,15 @@ module it.polimi.ingsw.am13 {
 //    opens it.polimi.ingsw.am13.controller to javafx.base;
     opens it.polimi.ingsw.am13.model.player to javafx.base;
 
+    exports it.polimi.ingsw.am13.client.network.rmi to java.rmi;
     exports it.polimi.ingsw.am13.network.rmi to java.rmi;
     exports it.polimi.ingsw.am13;
+    exports it.polimi.ingsw.am13.model.card;
+    exports it.polimi.ingsw.am13.model.exceptions;
+    exports it.polimi.ingsw.am13.model.player;
+    exports it.polimi.ingsw.am13.controller;
+    exports it.polimi.ingsw.am13.model;
+    exports it.polimi.ingsw.am13.client.view;
 
     exports it.polimi.ingsw.am13.client.view.gui to javafx.graphics;
 }
