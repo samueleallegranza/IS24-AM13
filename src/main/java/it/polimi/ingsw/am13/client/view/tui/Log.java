@@ -87,6 +87,7 @@ public class Log {
         String log = String.format(
                 "[%s][%s] Hurry up, %s has reached %d points! The next game round will be the last one",
                 this.currentTimeString(),
+                "Server",
                 player.getNickname(),
                 maxpoints
         );
@@ -94,18 +95,6 @@ public class Log {
         this.addToLog(log);
     }
 
-
-
-    /*
-        TODO:   For the first implementation we could just display the winner in the logs (?)
-                This could be changed later with a better alternative...
-     */
-    public void logWinner() {}
-
-
-    /*
-        TODO:   The following methods are not essential for the logs.
-     */
     public void logDisconnect(PlayerLobby player) {
         String log = String.format(
                 "[%s][%s] Left the game",

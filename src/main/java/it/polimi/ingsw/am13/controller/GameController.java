@@ -180,7 +180,7 @@ public class GameController implements Runnable {
                     try {
                         if(numberConnectedPlayers == 0)
                             Lobby.getInstance().endGame(getGameId());
-                        else if(numberConnectedPlayers == 1)
+                        else if(numberConnectedPlayers == 1 && gameModel.fetchGameStatus()!=GameStatus.ENDED)
                             gameModel.calcWinner();
                         else
                             reconnectionThread = null;

@@ -50,6 +50,10 @@ public class MenuInputReader extends Thread {
         while (!Thread.interrupted()) {
             String input = scanner.nextLine();
 
+            // check if thread has been interrupted. This happens when game is finished and we're waiting
+            // for the player to close the application
+            if(Thread.interrupted()) System.exit(0);
+
             synchronized (view) {
                 // Get commandKey from input
                 int endCommandKey = input.indexOf(" ");

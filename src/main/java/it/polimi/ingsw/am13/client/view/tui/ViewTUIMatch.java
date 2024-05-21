@@ -188,7 +188,7 @@ public class ViewTUIMatch {
 
 
         return String.format(
-                """
+                       """
                         ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═════════[▽ HAND ▽]════════╗
                         ║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───%c───┬───┐     ║
                         ║   ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐ ║ │ %c │    %3s    │ %c │     ║
@@ -210,8 +210,7 @@ public class ViewTUIMatch {
                         ║   │%s│  │%s│  │%s│ ║ ├───┐           ┌───┤     ║
                         ║   │%s│  │%s│  │%s│ ║ │ %c │   %5s   │ %c │     ║
                         ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘     ║
-                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════════╝
-                        """,
+                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════════╝""",
                 hand.get(0).type, hand.get(0).side,
                 deckRes.get(0).type, deckRes.get(0).side, deckRes.get(1).type, deckRes.get(1).side, deckRes.get(2).type, deckRes.get(2).side, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
                 deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,
@@ -262,7 +261,7 @@ public class ViewTUIMatch {
         List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
 
         return String.format(
-                """
+                       """
                         ╔═══════════════════════════[▽ DRAWABLE CARDS ▽]════════════════════════╦═════════[▽ HAND ▽]════════╗
                         ║           DECKS                 OPTION 1               OPTION 2       ║ ┌───┬───%c───%c───┬───┐     ║
                         ║   ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐ ║ │ %c │    %3s    │ %c │     ║
@@ -284,8 +283,7 @@ public class ViewTUIMatch {
                         ║   │%s│  │%s│  │░░░░░░░░░░░░░░░░░░░│ ║ ├───┐           ┌───┤     ║
                         ║   │%s│  │%s│  │░░░░░░░░░░░░░░░░░░░│ ║ │ %c │   %5s   │ %c │     ║
                         ║   └───────────────────┘  └───────────────────┘  └───────────────────┘ ║ └───┴───────────┴───┘     ║
-                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════════╝
-                        """,
+                        ╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════════╝""",
                 hand.get(0).type, hand.get(0).side,
                 deckRes.get(0).type, deckRes.get(0).side, deckRes.get(1).type, deckRes.get(1).side, deckRes.get(2).type, deckRes.get(2).side, hand.get(0).corners[0], hand.get(0).points, hand.get(0).corners[1],
                 deckRes.get(0).corners[0], deckRes.get(0).points, deckRes.get(0).corners[1], deckRes.get(1).corners[0], deckRes.get(1).points, deckRes.get(1).corners[1], deckRes.get(2).corners[0], deckRes.get(2).points, deckRes.get(2).corners[1], hand.get(0).color,

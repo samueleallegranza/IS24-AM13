@@ -50,6 +50,11 @@ public class ViewTUI implements View {
     private Log logs;
 
     /**
+     * Thread which reads user input for menu selection
+     */
+    private MenuInputReader inputReader;
+
+    /**
      * Builds a new TUI view, setting an empty menu and all state attributes to null (not yet set)
      */
     public ViewTUI() {
@@ -58,6 +63,7 @@ public class ViewTUI implements View {
         this.gameState = null;
         this.viewTUIMatch = null;
         this.logs = null;
+        this.inputReader = null;
     }
 
     /**
@@ -75,8 +81,8 @@ public class ViewTUI implements View {
      */
     @Override
     public void setNetworkHandler(NetworkHandler networkHandler) {
-        MenuInputReader inputReader = new MenuInputReader(this, networkHandler);
-        inputReader.start();
+        this.inputReader = new MenuInputReader(this, networkHandler);
+        this.inputReader.start();
     }
 
     /**
@@ -231,8 +237,8 @@ public class ViewTUI implements View {
         this.logs.logReconnect(thisPlayer);
 
         if(gameState.getGameStatus()==GameStatus.INIT || gameState.getGameStatus()==null) {
+            for(String log: this.logs.getLogMessages()) System.out.println(log);
             System.out.println("You reconnected successfully, wait for the other players to complete the initialization phase");
-            //TODO sistema usando i log
         } else {
             // re-initialize view for match as we are in game
             this.viewTUIMatch = new ViewTUIMatch(this, this.gameState, this.thisPlayer);
@@ -330,17 +336,22 @@ public class ViewTUI implements View {
 
     @Override
     public synchronized void showUpdatePoints() {
+        this.inputReader.interrupt();
+        this.viewTUIMatch = null; // prevents reprint of match visual when a player disconnects before us
+
+        ViewTUIConstants.clearScreen();
         System.out.println("Final points:");
         for(PlayerLobby p : gameState.getPlayers()) {
-            System.out.println("\t" + p.getNickname() + "\t- " +
+            System.out.println("\t" + p.getNickname() + "\t  " +
                     gameState.getPlayerState(p).getPoints() + " points");
         }
+        System.out.print("\n");
     }
 
     @Override
     public synchronized void showWinner() {
-        this.logs.logWinner();
-        System.out.println(gameState.getWinner() + " has won!!!");
+        System.out.println("⇒ " + gameState.getWinner() + " has won the match!");
+        System.out.println("\n\n\n\nPress enter to quit the game\n");
     }
 
     @Override
