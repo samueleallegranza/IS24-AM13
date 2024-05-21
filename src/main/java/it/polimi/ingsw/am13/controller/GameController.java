@@ -220,6 +220,14 @@ public class GameController implements Runnable {
      */
     public synchronized void playStarter(PlayerLobby player, Side side) throws InvalidPlayerException, InvalidPlayCardException, GameStatusException {
         gameModel.playStarter(player,side);
+        if(gameModel.fetchGameStatus()==GameStatus.IN_GAME && !gameModel.fetchIsConnected(gameModel.fetchFirstPlayer())) {
+            // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
+            try {
+                nextTurn();
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -236,6 +244,14 @@ public class GameController implements Runnable {
     public synchronized void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         gameModel.choosePersonalObjective(player, cardObj);
+        if(gameModel.fetchGameStatus()==GameStatus.IN_GAME && !gameModel.fetchIsConnected(gameModel.fetchFirstPlayer())) {
+            // Match forces the pick actions, but no one but the controller can move the game on via nextTurn
+            try {
+                nextTurn();
+            } catch (GameStatusException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**

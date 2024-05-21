@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Player;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ public class TestMatch {
     private Player player1;
     private Player player2;
     private Match match;
+    private PlayerLobby disPlayer;
     @Test
     public void testGameSetup() throws InvalidPlayCardException {
         List<Player> players;
@@ -44,7 +46,7 @@ public class TestMatch {
         for(Player player : players){
             //CardStarter cardStarter=match.fetchStarter(player);
             try {
-                match.playStarter(player.getPlayerLobby(), Side.SIDEFRONT);
+                match.playStarter(player.getPlayerLobby(), Side.SIDEBACK);
             } catch (GameStatusException | InvalidPlayerException e){
                 throw new RuntimeException(e);
             }
@@ -76,7 +78,7 @@ public class TestMatch {
     public void testPickAndPlay() throws RequirementsNotMetException, InvalidPlayCardException {
         testGameSetup();
         Player currentPlayer=match.getCurrentPlayer();
-        assertEquals(currentPlayer,player0);
+        assertEquals(currentPlayer,match.getFirstPlayer());
         List<CardPlayable> handCards=currentPlayer.getHandCards();
         Coordinates coordinates=null;
         try{
@@ -109,7 +111,7 @@ public class TestMatch {
             throw new RuntimeException(e);
         }
         Player currentPlayer=match.getCurrentPlayer();
-        assertEquals(currentPlayer,player1);
+        assertNotEquals(currentPlayer,match.getFirstPlayer());
     }
 
     @Test
@@ -162,7 +164,7 @@ public class TestMatch {
             }
             ////System.out.println(currentPlayer.getPoints());
             assertEquals(currentPlayer.getHandCards().size(),3);
-            if(currentPlayer==player1)
+            if(currentPlayer!=match.getFirstPlayer())
                 i++;
             try {
                 hasNextTurn=match.nextTurn();
@@ -206,13 +208,16 @@ public class TestMatch {
             throw new RuntimeException(e);
         }
         assertEquals(match.getGameStatus(),GameStatus.INIT);
+        disPlayer = player0.getPlayerLobby();
+        if(player0.equals(match.getFirstPlayer()))
+            disPlayer = player1.getPlayerLobby();
         try {
-            match.disconnectPlayer(player2.getPlayerLobby());
+            match.disconnectPlayer(disPlayer);
         } catch (ConnectionException | InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
         try {
-            assertFalse(match.fetchIsConnected(player2.getPlayerLobby()));
+            assertFalse(match.fetchIsConnected(disPlayer));
         } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
@@ -246,19 +251,18 @@ public class TestMatch {
             }
         }
         assertEquals(match.getGameStatus(),GameStatus.IN_GAME);
-
     }
 
     @Test
     public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException, LobbyException {
         testGameSetupWithDisconnection();
-        match.reconnectPlayer(player2.getPlayerLobby());
-        Player currentPlayer=match.getCurrentPlayer();
-        assertEquals(currentPlayer,player0);
-        List<CardPlayable> handCards=currentPlayer.getHandCards();
-        Coordinates coordinates=null;
+        match.reconnectPlayer(disPlayer);
+        Player currentPlayer = match.getCurrentPlayer();
+        assertEquals(currentPlayer, match.getFirstPlayer());
+        List<CardPlayable> handCards = currentPlayer.getHandCards();
+        Coordinates coordinates = null;
         try{
-            coordinates=new Coordinates(1,1);
+            coordinates = new Coordinates(1,1);
         } catch (InvalidCoordinatesException e){
             //System.out.println("Invalid Coordinates");
         }
@@ -268,16 +272,16 @@ public class TestMatch {
             throw new RuntimeException(e);
         }
         assertEquals(currentPlayer.getHandCards().size(),2);
-        match.disconnectPlayer(player0.getPlayerLobby());
+        match.disconnectPlayer(match.getFirstPlayer().getPlayerLobby());
         assertEquals(currentPlayer.getHandCards().size(),3);
         match.nextTurn();
-        assertEquals(match.getCurrentPlayer(),player1);
+        assertNotEquals(match.getCurrentPlayer(),match.getFirstPlayer());
     }
 
     @Test
     public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, LobbyException {
         testGameSetupWithDisconnection();
-        match.reconnectPlayer(player2.getPlayerLobby());
+        match.reconnectPlayer(disPlayer);
         boolean hasNextTurn;    // Set to true by default
         int i=1;
         do{
@@ -323,7 +327,8 @@ public class TestMatch {
             ////System.out.println(currentPlayer.getPoints());
             if(match.getGameStatus()==GameStatus.IN_GAME)
                 assertEquals(currentPlayer.getHandCards().size(),3);
-            if(currentPlayer==player2)
+            Player lastPlayer=match.getPlayers().get((match.getPlayers().indexOf(match.getFirstPlayer())-1+3)%3);
+            if(currentPlayer==lastPlayer)
                 i++;
             try {
                 hasNextTurn=match.nextTurn();

@@ -361,7 +361,8 @@ public class GameModel implements GameModelIF {
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
         CardPlayableIF playedCard = match.playCard(card, side, coord);
         try {
-            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), playedCard, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
+            if(match.fetchIsConnected(match.getCurrentPlayer().getPlayerLobby()))
+                listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), playedCard, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
         } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
@@ -375,7 +376,12 @@ public class GameModel implements GameModelIF {
      */
     public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
         match.pickCard(card);
-        listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables(), card);
+        try {
+            if(match.fetchIsConnected(match.getCurrentPlayer().getPlayerLobby()))
+                listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables(), card);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

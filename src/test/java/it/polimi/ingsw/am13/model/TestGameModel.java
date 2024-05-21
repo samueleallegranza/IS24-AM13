@@ -181,6 +181,7 @@ public class TestGameModel {
         assertThrows(GameStatusException.class, ()->game.nextTurn());
         assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
         PlayerLobby currPlayer = game.fetchCurrentPlayer();
+        System.out.println(currPlayer);
         CardObjectiveIF personalObjective = game.fetchHandObjective(currPlayer);
 
         // Test for RequirementsNotMet: now requirements of the only cardGold in hand are surely not met
@@ -244,9 +245,7 @@ public class TestGameModel {
         assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
 
         game.nextTurn();
-        for(PlayerLobby p : players)
-            if(p != currPlayer)
-                currPlayer = p;
+        currPlayer = currPlayer.equals(players.get(0)) ? players.get(1) : players.get(0);   // This thing works only if the players are 2
         assertEquals(currPlayer, game.fetchCurrentPlayer());
         assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());

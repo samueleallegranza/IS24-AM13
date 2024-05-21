@@ -435,7 +435,7 @@ public class TestGameController {
             for(LisForTest l : liss)
                 assertNotEquals(ControlAction.WINNER, l.actions.getLast());
             controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
-            controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
+            controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null));
             count++;
         }
 
@@ -606,6 +606,7 @@ public class TestGameController {
 
         // Game has started, and now a player disconnects for network crash
         liss.getLast().stopPing = true;
+        System.out.println(model.fetchFirstPlayer());
         Thread.sleep(5000);
         assertEquals(ControlAction.DISCONNECTED, liss.get(0).actions.getLast());
         assertEquals(ControlAction.DISCONNECTED, liss.get(1).actions.getLast());
@@ -618,7 +619,7 @@ public class TestGameController {
         // Now the turn-based phase has starter, and player who must play crashes
         LisForTest lissRemain = liss.get(0);
         LisForTest lissCrash = liss.get(1);
-        if(lissRemain.getPlayer() == model.fetchCurrentPlayer()) {
+        if(lissRemain.getPlayer().equals(model.fetchCurrentPlayer())) {
             lissRemain = liss.get(1);
             lissCrash = liss.get(0);
         }
@@ -627,6 +628,7 @@ public class TestGameController {
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
 
         PlayerLobby playerRemain = lissRemain.getPlayer();
+        //TODO: sistema questo test
         assertEquals(playerRemain, model.fetchCurrentPlayer());
         controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
         controller.pickCard(playerRemain, model.fetchPickables().getFirst());

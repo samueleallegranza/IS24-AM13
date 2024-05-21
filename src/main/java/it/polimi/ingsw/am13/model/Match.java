@@ -27,7 +27,8 @@ import java.util.*;
 //TODO: Pensa se gestire il caso in cui availableCoord è empty (giocatore non piò fare più niente)
 public class Match {
 
-    private static final int POINTS_FOR_FINAL_PHASE = 20;
+    private static final int POINTS_FOR_FINAL_PHASE = 5;
+    //TODO: cambia valore x debug/test
     private final DeckHandler<CardResource> deckResources;
     private final DeckHandler<CardGold> deckGold;
     private final DeckHandler<CardObjective> deckObjective;
@@ -103,8 +104,8 @@ public class Match {
         }
 
         gameStatus = null;
-        Random rnd = new Random(1000000009);
-        firstPlayerIndex = rnd.nextInt(players.size()-1);
+        Random rnd = new Random(System.currentTimeMillis());
+        firstPlayerIndex = rnd.nextInt(players.size());
         firstPlayer = players.get(firstPlayerIndex);
         currentPlayer = null;
 
@@ -127,6 +128,7 @@ public class Match {
         deckGold = new DeckHandler<>(cardsGold);
         deckObjective = new DeckHandler<>(cardsObjective);
         deckStarter = new Deck<>(cardsStarter);
+        deckStarter.shuffle();
 
         countSetup=0;
     }
@@ -162,7 +164,7 @@ public class Match {
         if(gameStatus==GameStatus.INIT){
             try {
                 if(playersMap.get(player).getField().getCardSideAtCoord(Coordinates.origin())==null) {
-                    playStarter(player, Side.SIDEFRONT);
+                    playStarter(player, Side.SIDEBACK);
                 }
                 if(playersMap.get(player).getPersonalObjective()==null) {
                     CardObjective choosenObj = playersMap.get(player).getPossiblePersonalObjectives().getFirst();
@@ -366,14 +368,12 @@ public class Match {
             throw new GameStatusException(gameStatus,GameStatus.INIT);
         if(!playersMap.containsKey(playerLobby))
             throw new InvalidPlayerException("The passed player is not one of the players of the match");
-//        if(playersMap.get(playerLobby).isConnected()) {
         try {
             playersMap.get(playerLobby).playStarter(side);
         } catch (InvalidChoiceException e) {
             System.out.println("The passed side does not belong to the starter card assigned to the given player");
             throw new RuntimeException(e);
         }
-//        }
         countSetup++;
         checkInGamePhase();
     }
@@ -436,6 +436,17 @@ public class Match {
             gameStatus = GameStatus.IN_GAME;
             currentPlayer = firstPlayer;
             turnActionsCounter = 0;
+
+            // If first player is not connected, I force the 'ghost' moves play-pick
+            if(!currentPlayer.isConnected()) {
+                try {
+                    playCard(null, null, null);
+                    pickCard(null);
+                } catch (GameStatusException | InvalidDrawCardException | InvalidPlayCardException |
+                         RequirementsNotMetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
