@@ -285,7 +285,7 @@ public class ViewTUI implements View {
 
 
         if(thisPlayer.equals(player)) {
-            this.currentMenu = new MenuTUI("Wait for the other player to finish their initialization.");
+            this.currentMenu = new MenuTUI("Wait for the other players to finish their initialization.");
         }
 
         ViewTUIConstants.clearScreen();

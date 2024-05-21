@@ -1,4 +1,5 @@
 package it.polimi.ingsw.am13.network.rmi;
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMIIF;
 import it.polimi.ingsw.am13.controller.GameController;
@@ -22,11 +23,12 @@ public class GameListenerServerRMI implements GameListener {
 
     //TODO: per ora problema di latenza è gestito chiamando i metodi RMI in modo asincrono con thread,
     // ma è da rivedere se veramente questo aiuta...
+    // RISOLVI IL PRIMA POSSIBILE
 
-    /**
-     * Number of attempts the server tries to call the RMI method, before stopping
-     */
-    private static final int NTRIES = 3;
+    // TODO: sistema sistema di log di server, come x Socket (guarda ClientRequestHandler e GameListenerServerSocket)
+
+    // TODO (possibile problema): ad ora se il server crasha, i client non se ne accorgono
+    //  Forse basta gestire meglio le RemoteException di NetworkHandlerRMI...
 
     /**
      * Long representing the last time the ping was updated
@@ -100,16 +102,12 @@ public class GameListenerServerRMI implements GameListener {
      */
     private void tryRMICall(RunnableRMI fun) {
         new Thread(() -> {
-            int cnt = 0;
-            while (cnt < NTRIES) {
-                try {
-                    fun.run();
-                    break;
-                } catch (RemoteException e) {
-                    cnt++;
-                }
+            try {
+                fun.run();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
-            //TODO: disconnetti il player se la chiamata non va a buon fine
+            //TODO: disconnetti il player se la chiamata non va a buon fine...
         }).start();
     }
 
@@ -140,10 +138,33 @@ public class GameListenerServerRMI implements GameListener {
     public void updateStartGame(GameModelIF model, GameController controller) {
         tryRMICall(() -> {
             try {
-                clientLis.updateStartGame(model, controller);
+                clientLis.updateStartGame(
+                        new GameState(model),
+                        new GameControllerRMI(controller, player));
             } catch (InvalidPlayerException e) {
                 throw new RuntimeException(e);
                 //TODO pensaci meglio: può succedere?
+            }
+        });
+    }
+
+    /**
+     * This method should be called ONLY when a player reconnects to the game.
+     * Updates the client of the reconnected player with the updated game model and corresponding player.
+     * @param model The updated game model.
+     */
+    @Override
+    public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
+        tryRMICall(() -> {
+//            try {
+            try {
+                clientLis.updateGameModel(
+                        new GameState(model),
+                        new GameControllerRMI(controller, player),
+                        player);
+            } catch (InvalidPlayerException e) {
+//                //TODO: pensaci meglio: può succedere?
+                throw new RuntimeException(e);
             }
         });
     }
@@ -268,21 +289,4 @@ public class GameListenerServerRMI implements GameListener {
         tryRMICall(clientLis::updateInGame);
     }
 
-    /**
-     * This method should be called ONLY when a player reconnects to the game.
-     * Updates the client of the reconnected player with the updated game model and corresponding player.
-     * @param model The updated game model.
-     * @param player The updated player who is reconnecting.
-     */
-    @Override
-    public void updateGameModel(GameModelIF model, PlayerLobby player) {
-        tryRMICall(() -> {
-//            try {
-                clientLis.updateGameModel(model, player);
-//            } catch (InvalidPlayerException e) {
-//                throw new RuntimeException(e);
-//                //TODO: pensaci meglio: può succedere?
-//            }
-        });
-    }
 }

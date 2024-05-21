@@ -94,13 +94,14 @@ public class GameModel implements GameModelIF {
     /**
      * Reconnects the given player. It also notifies the players of this
      * @param gameListener New listener of the player who want to reconnect
+     * @param controller Controller of the game
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
-     * @throws ConnectionException if the player was already connected when this method was called
+     * @throws ConnectionException    if the player was already connected when this method was called
      */
-    public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+    public void reconnectPlayer(GameListener gameListener, GameController controller) throws InvalidPlayerException, ConnectionException {
         match.reconnectPlayer(gameListener.getPlayer());
         try {
-            listenerHandler.reconnectToRoom(gameListener, this);
+            listenerHandler.reconnectToRoom(gameListener, this, controller);
         } catch (LobbyException e) {
             //Should not happen
             throw new RuntimeException(e);

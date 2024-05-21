@@ -132,7 +132,7 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateGameModel(GameModelIF model, PlayerLobby player) {
+    public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
         sendMessage(new MsgResponseUpdateGameState(model, player));
     }
 

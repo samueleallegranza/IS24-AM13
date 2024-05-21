@@ -158,7 +158,7 @@ public class LisForTest implements GameListener {
 
     // NOTA: uso messaggio per joined room
     @Override
-    public void updateGameModel(GameModelIF model, PlayerLobby player) {
+    public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
         actions.add(ControlAction.UPDATE_GAMEMODEL);
         updates.add(new MsgResponsePlayerJoinedRooom(player));
     }

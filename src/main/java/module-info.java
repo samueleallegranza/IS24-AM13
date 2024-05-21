@@ -23,6 +23,7 @@ module it.polimi.ingsw.am13 {
     exports it.polimi.ingsw.am13.controller;
     exports it.polimi.ingsw.am13.model;
     exports it.polimi.ingsw.am13.client.view;
+    exports it.polimi.ingsw.am13.client.gamestate;
 
     exports it.polimi.ingsw.am13.client.view.gui to javafx.graphics;
 }

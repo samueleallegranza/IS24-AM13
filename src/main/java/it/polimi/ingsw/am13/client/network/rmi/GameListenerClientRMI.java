@@ -1,14 +1,12 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
-import it.polimi.ingsw.am13.controller.GameController;
-import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
+import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -61,10 +59,6 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         stateHandler = null;
     }
 
-
-    //TODO: implementazione da finire con le chiamate ai metodi di view
-
-
     /**
      * @return Player associated to this listener
      */
@@ -77,7 +71,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      * @param player player who joined
      */
     public void updatePlayerJoinedRoom(PlayerLobby player) throws RemoteException {
-        if(this.player.equals(player))
+//        if(this.player.equals(player))
             view.showPlayerJoinedRoom(player);
     }
 
@@ -86,7 +80,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      * @param player Player who left
      */
     public void updatePlayerLeftRoom(PlayerLobby player) throws RemoteException {
-        if(this.player.equals(player))
+//        if(this.player.equals(player))
             view.showPlayerLeftRoom(player);
     }
 
@@ -94,16 +88,29 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      * The game has started: starter cards and initial cards have been given to the players.
      * The specified model contains the initial set up for the started game.
      * This triggers also the beginning of the thread for sending pings
-     * @param model The game model containing the game status set to INIT.
+     * @param state The current game state when the method is called
+     * @param controller Controller of the newly started game
      */
-    public void updateStartGame(GameModelIF model, GameController controller)
-            throws RemoteException, InvalidPlayerException {
-        GameControllerRMI controllerRMI = new GameControllerRMI(controller, player);
-        networkHandler.setController(controllerRMI);
-        stateHandler = new GameStateHandler(model);
+    public void updateStartGame(GameState state, GameControllerRMIIF controller)
+            throws RemoteException {
+        networkHandler.setController(controller);
+        stateHandler = new GameStateHandler(state);
         view.showStartGame(stateHandler.getState());
-
         ping = new PingThread(networkHandler);      // It starts automatically
+    }
+
+    /**
+     * This method should be called once the player has reconnected an already started game.
+     * It updates the entire game's state, i.e. it creates a new game's state starting from the specified model
+     * (reconstructing the current situation in game).
+     * @param state The current game state when the method is called
+     * @param player Player for whom the update of game model is send
+     */
+    public void updateGameModel(GameState state, GameControllerRMIIF controller, PlayerLobby player) throws RemoteException {
+        stateHandler = new GameStateHandler(state);
+        networkHandler.setController(controller);
+        ping = new PingThread(networkHandler);
+        view.showStartGameReconnected(stateHandler.getState(), player);
     }
 
     /**
@@ -204,6 +211,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
     public void updateEndGame() throws RemoteException {
         view.showEndGame();
         ping.stopPing();
+        // TODO: devo chiudere anche altro?
     }
 
     /**
@@ -224,14 +232,4 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         view.showPlayerReconnected(player);
     }
 
-    /**
-     * This method should be called once the player has reconnected an already started game.
-     * It updates the entire game's state, i.e. it creates a new game's state starting from the specified model
-     * (reconstructing the current situation in game).
-     * @param model The updated game model.
-     */
-    public void updateGameModel(GameModelIF model, PlayerLobby player) throws RemoteException {
-        stateHandler = new GameStateHandler(model);
-        view.showStartGameReconnected(stateHandler.getState(), player);
-    }
 }

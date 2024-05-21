@@ -1,13 +1,13 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
-import it.polimi.ingsw.am13.controller.GameController;
-import it.polimi.ingsw.am13.model.GameModelIF;
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -43,10 +43,18 @@ public interface GameListenerClientRMIIF extends Remote {
      * The game has started: starter cards and initial cards have been given to the players.
      * The specified model contains the initial set up for the started game.
      * This triggers also the beginning of the thread for sending pings
-     * @param model The game model containing the game status set to INIT.
+     * @param state The current game state when the method is called
      */
-    void updateStartGame(GameModelIF model, GameController controller)
+    void updateStartGame(GameState state, GameControllerRMIIF controller)
             throws RemoteException, InvalidPlayerException;
+
+    /**
+     * This method should be called once the player has reconnected an already started game.
+     * It updates the entire game's state, i.e. it creates a new game's state starting from the specified model
+     * (reconstructing the current situation in game).
+     * @param state The current game state when the method is called
+     */
+    void updateGameModel(GameState state, GameControllerRMIIF controller, PlayerLobby player) throws RemoteException;
 
     /**
      * A player has played their starter card.
@@ -129,13 +137,5 @@ public interface GameListenerClientRMIIF extends Remote {
      * @param player The player that has reconnected.
      */
     void updatePlayerReconnected(PlayerLobby player) throws RemoteException;
-
-    /**
-     * This method should be called once the player has reconnected an already started game.
-     * It updates the entire game's state, i.e. it creates a new game's state starting from the specified model
-     * (reconstructing the current situation in game).
-     * @param model The updated game model.
-     */
-    void updateGameModel(GameModelIF model, PlayerLobby player) throws RemoteException;
 
 }

@@ -782,7 +782,7 @@ public class TestGameModel {
         }
 
         //Now player reconnects, and will disconnect after playing a card but before drawing
-        game.reconnectPlayer(disPlayer);
+        game.reconnectPlayer(disPlayer, null);
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();

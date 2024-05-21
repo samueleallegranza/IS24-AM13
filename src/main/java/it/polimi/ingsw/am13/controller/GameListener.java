@@ -46,9 +46,19 @@ public interface GameListener extends Serializable {
     /**
      * Updates the client that the game has started: starter cards and initial cards have been given to the players.
      * The client is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
-     * @param model The game model containing the game status set to INIT.
+     * @param model The game model containing current game's state for the newly started game
+     * @param controller The controller of the newly started game
      */
     void updateStartGame(GameModelIF model, GameController controller);
+
+    /**
+     * This method should be called ONLY when a player reconnects to the game.
+     * Updates the client of the reconnected player with the updated game model and corresponding player.
+     * @param model The updated game model
+     * @param controller The controller of the game
+     * @param player The updated player who is reconnecting.
+     */
+    void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player);
 
     /**
      * Updates the client that a player has played their starter card.
@@ -133,14 +143,6 @@ public interface GameListener extends Serializable {
      * Updates the client that the game has begun the turn-based phase.
      */
     void updateInGame();
-
-    /**
-     * This method should be called ONLY when a player reconnects to the game.
-     * Updates the client of the reconnected player with the updated game model and corresponding player.
-     * @param model The updated game model.
-     * @param player The updated player who is reconnecting.
-     */
-    void updateGameModel(GameModelIF model, PlayerLobby player);
 
     /**
      * Updates last ping received, and sends the update to the client

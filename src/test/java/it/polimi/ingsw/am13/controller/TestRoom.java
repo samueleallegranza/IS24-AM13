@@ -31,7 +31,7 @@ public class TestRoom {
         Room room = new Room(1,
                 new LisForTest("1", ColorToken.BLUE),
                 3);
-        assertThrows(LobbyException.class, ()->room.reconnectToRoom(new LisForTest("2", ColorToken.RED), null));
+        assertThrows(LobbyException.class, ()->room.reconnectToRoom(new LisForTest("2", ColorToken.RED), null,null));
         room.joinRoom(new LisForTest("2", ColorToken.RED));
         assertEquals(2, room.getPlayers().size());
         assertEquals(new PlayerLobby("2", ColorToken.RED), room.getPlayers().get(1));
@@ -78,7 +78,7 @@ public class TestRoom {
 
         //TODO: sistema il parametro null di reconnect che dovrebbe essere il game model...
         assertThrows(LobbyException.class, ()->room.joinRoom(liss.getFirst()));
-        room.reconnectToRoom(liss.getFirst(), null);
+        room.reconnectToRoom(liss.getFirst(), null,null);
         assertEquals(3, room.getPlayers().size());
         assertTrue(room.getPlayers().containsAll(liss.stream().map(LisForTest::getPlayer).toList()));
         assertTrue(room.isGameStarted());

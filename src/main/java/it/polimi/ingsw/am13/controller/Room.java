@@ -106,13 +106,13 @@ public class Room extends ListenerHandler implements RoomIF {
      * @param model Model representing the current situation to give to the reconnected player
      * @throws LobbyException If the room is already full, or if the game has not started yet
      */
-    public void reconnectToRoom(GameListener player, GameModelIF model) throws LobbyException {
+    public void reconnectToRoom(GameListener player, GameModelIF model, GameController controller) throws LobbyException {
         if(!gameStarted)
             throw new LobbyException("The game has not started");
         if(getListeners().size() == nPlayersTarget)
             throw new LobbyException("This room is already full");
         addListener(player);
-        notifyPlayerReconnected(player.getPlayer(), model);
+        notifyPlayerReconnected(player.getPlayer(), controller, model);
     }
 
     /**
@@ -186,10 +186,10 @@ public class Room extends ListenerHandler implements RoomIF {
      * @param player The player that has reconnected to the game.
      * @param model The {@link GameModelIF} containing the updated version of the game.
      */
-    private void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
+    private void notifyPlayerReconnected(PlayerLobby player, GameController controller, GameModelIF model){
         for (GameListener listener : getListeners()){
             if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model, player);
+                listener.updateGameModel(model, controller, player);
             else
                 listener.updatePlayerReconnected(player);
         }

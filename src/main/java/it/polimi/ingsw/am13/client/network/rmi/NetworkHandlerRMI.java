@@ -11,7 +11,7 @@ import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
-import it.polimi.ingsw.am13.network.rmi.GameControllerRMI;
+import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 import it.polimi.ingsw.am13.network.rmi.LobbyRMIIF;
 
 import java.rmi.RemoteException;
@@ -23,7 +23,7 @@ public class NetworkHandlerRMI implements NetworkHandler {
 
     private PlayerLobby player;
 
-    private GameControllerRMI controller;
+    private GameControllerRMIIF controller;
 
     private final View view;
 
@@ -42,7 +42,7 @@ public class NetworkHandlerRMI implements NetworkHandler {
         return view;
     }
 
-    public void setController(GameControllerRMI controller) {
+    public void setController(GameControllerRMIIF controller) {
         this.controller = controller;
     }
 
