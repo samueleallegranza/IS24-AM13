@@ -11,6 +11,8 @@ module it.polimi.ingsw.am13 {
     opens it.polimi.ingsw.am13 to javafx.fxml;
     opens it.polimi.ingsw.am13.controller to javafx.base;
     opens it.polimi.ingsw.am13.client.view.gui to javafx.fxml;
+//    opens it.polimi.ingsw.am13.controller to javafx.base;
+    opens it.polimi.ingsw.am13.model.player to javafx.base;
 
     exports it.polimi.ingsw.am13.network.rmi to java.rmi;
     exports it.polimi.ingsw.am13;
