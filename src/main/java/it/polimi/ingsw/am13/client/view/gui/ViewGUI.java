@@ -64,8 +64,9 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void showException(Exception e) {
-        //TODO this doesn't work
-        viewGUIController.showException(e);
+        Platform.runLater(() -> {
+            viewGUIController.showException(e);
+        });
     }
 
     @Override
