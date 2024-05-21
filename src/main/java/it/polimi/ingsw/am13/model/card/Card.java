@@ -69,12 +69,12 @@ public abstract class Card implements CardIF {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Card card = (Card) o;
-        return Objects.equals(id, card.id) && visibleSide == card.visibleSide;
+        return Objects.equals(id, card.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, visibleSide);
+        return Objects.hash(id);
     }
 
     @Override

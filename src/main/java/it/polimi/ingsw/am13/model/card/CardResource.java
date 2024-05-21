@@ -48,5 +48,7 @@ public class CardResource extends CardPlayable {
                         color
                 )
         );
+        if(color.correspondingResource() == Resource.NO_RESOURCE)
+            throw new InvalidCardCreationException("The color is not valid");
     }
 }

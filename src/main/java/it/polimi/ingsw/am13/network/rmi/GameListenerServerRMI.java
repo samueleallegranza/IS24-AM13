@@ -1,0 +1,286 @@
+package it.polimi.ingsw.am13.network.rmi;
+import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
+import it.polimi.ingsw.am13.controller.GameController;
+import it.polimi.ingsw.am13.controller.GameListener;
+import it.polimi.ingsw.am13.model.GameModelIF;
+import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
+import it.polimi.ingsw.am13.model.player.PlayerLobby;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Implementation of a game listener for RMI connection.
+ * For each type of update, it tries asynchronously to call the corresponding method of {@link GameListenerClientRMI},
+ * which is in the client (RMI remote call), for a fixed maximum number of times
+ */
+public class GameListenerServerRMI implements GameListener {
+
+    //TODO: per ora problema di latenza è gestito chiamando i metodi RMI in modo asincrono con thread,
+    // ma è da rivedere se veramente questo aiuta...
+
+    /**
+     * Number of attempts the server tries to call the RMI method, before stopping
+     */
+    private static final int NTRIES = 3;
+
+    /**
+     * Long representing the last time the ping was updated
+     */
+    private long ping;
+
+    /**
+     * Client-side listener, on which to call the RMI methods (to send the updates).
+     * It the class that will receive the updates.
+     */
+    private transient final GameListenerClientRMI clientLis;
+
+    /**
+     * Players associated to this game listener
+     */
+    private final PlayerLobby player;
+
+    /**
+     * Creates a new server-side game listener wrapping the client-side listener
+     * @param clientLis Client-side listener, which will receive the updates.
+     */
+    public GameListenerServerRMI(GameListenerClientRMI clientLis, PlayerLobby player) {
+        this.clientLis = clientLis;
+        ping = System.currentTimeMillis();
+        this.player = player;
+    }
+
+    /**
+     * @return Player corresponding to this listener
+     */
+    @Override
+    public PlayerLobby getPlayer() {
+        return player;
+    }
+
+    /**
+     * @return Last updated ping
+     */
+    @Override
+    public Long getPing() {
+        return ping;
+    }
+
+    /**
+     * Updates last ping received, and sends the update to the client
+     */
+    @Override
+    public void updatePing() {
+        ping = System.currentTimeMillis();
+    }
+
+
+    /**
+     * Functional interface representing a generic call to a RMI method, hence it throws {@link RemoteException}
+     */
+    private interface RunnableRMI {
+        void run() throws RemoteException;
+    }
+
+
+
+    //TODO: gestione di RemoteException da rivedere. Tipo, può succedere che  anche se mi arrivano i ping
+    // (non disconnetto il player), non riesco a inviare l'update?
+
+
+    /**
+     * Tries to execute a generic RMI call for a fixed number of attempts, that it stops and do nothing.
+     * This is done asynchronously via a new thread.
+     * This method should be called for each RMI call in this class
+     * @param fun RMI function to be called
+     */
+    private void tryRMICall(RunnableRMI fun) {
+        new Thread(() -> {
+            int cnt = 0;
+            while (cnt < NTRIES) {
+                try {
+                    fun.run();
+                    break;
+                } catch (RemoteException e) {
+                    cnt++;
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Updates the client that a player has joined a lobby (waiting for a game)
+     * @param player player who joined
+     */
+    @Override
+    public void updatePlayerJoinedRoom(PlayerLobby player) {
+        tryRMICall(() -> clientLis.updatePlayerJoinedRoom(player));
+    }
+
+    /**
+     * Updates the client that a player has left a lobby (waiting for a game)
+     * @param player player who left
+     */
+    @Override
+    public void updatePlayerLeftRoom(PlayerLobby player) {
+        tryRMICall(() -> clientLis.updatePlayerLeftRoom(player));
+    }
+
+    /**
+     * Updates the client that the game has started: starter cards and initial cards have been given to the players.
+     * The client is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
+     * @param model The game model containing the game status set to INIT.
+     */
+    @Override
+    public void updateStartGame(GameModelIF model, GameController controller) {
+        tryRMICall(() -> {
+            try {
+                clientLis.updateStartGame(model, controller);
+            } catch (InvalidPlayerException e) {
+                throw new RuntimeException(e);
+                //TODO pensaci meglio: può succedere?
+            }
+        });
+    }
+
+    /**
+     * Updates the client that a player has played their starter card.
+     * @param player The player that played the starter card.
+     * @param cardStarter The starter card played.
+     * @param availableCoords The list of coordinates that are available to play a card
+     */
+    @Override
+    public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
+        tryRMICall(() -> clientLis.updatePlayedStarter(player, cardStarter, availableCoords));
+    }
+
+    /**
+     * Updates the client that a player has chosen their personal objective card.
+     * @param player The player that chose the personal objective card.
+     * @param chosenObj Objective card chosen by the player
+     */
+    @Override
+    public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
+        tryRMICall(() -> clientLis.updateChosenPersonalObjective(player, chosenObj));
+    }
+
+    /**
+     * Updates the client that the turn has passed to another player.
+     * @param player The player that is going to play the next turn.
+     */
+    @Override
+    public void updateNextTurn(PlayerLobby player) {
+        tryRMICall(() -> clientLis.updateNextTurn(player));
+    }
+
+    /**
+     * Updates the client when a player plays a card.
+     * @param player The player that played the card.
+     * @param cardPlayed The card played.
+     * @param coord The coordinates where the card has been placed, relative to the player's field.
+     * @param points The points given by the card.
+     * @param availableCoords The list of coordinates that are available to play a card
+     */
+    @Override
+    public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
+        tryRMICall(() -> clientLis.updatePlayedCard(player, cardPlayed, coord, points, availableCoords));
+    }
+
+    /**
+     * Updates the client when a player picks a card from the common visible cards.
+     * @param player The player that picked the card.
+     * @param updatedVisibleCards The updated list of visible cards in the common field.
+     * @param pickedCard The card picked by the player
+     */
+    @Override
+    public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
+        tryRMICall(() -> clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards), pickedCard));
+    }
+
+    /**
+     * Updates the client when the points given by Objective cards (common and personal) have been calculated.
+     * @param pointsMap A map containing the points of each player.
+     */
+    @Override
+    public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
+        tryRMICall(() -> clientLis.updatePoints(pointsMap));
+    }
+
+    /**
+     * Updates the client with the winner
+     * @param winner The player that has won the game.
+     */
+    @Override
+    public void updateWinner(PlayerLobby winner) {
+        tryRMICall(() -> clientLis.updateWinner(winner));
+    }
+
+    /**
+     * Updates the client about ending of game.
+     * After this update, the server should not respond to any other request from the clients
+     */
+    @Override
+    public void updateEndGame() {
+        tryRMICall(clientLis::updateEndGame);
+    }
+
+    /**
+     * Updates the client with the player that has disconnected from the game.
+     * @param player The player that has disconnected.
+     */
+    @Override
+    public void updatePlayerDisconnected(PlayerLobby player) {
+        tryRMICall(() -> clientLis.updatePlayerDisconnected(player));
+    }
+
+    @Override
+    public void updateCloseSocket() {
+        //TODO: lato socket lo uso per chiudere il socket del client, qua valuta se serve fare qualcosa.
+    }
+
+    /**
+     * Updates the client with the player that has reconnected to the game.
+     * @param player The player that has reconnected.
+     */
+    @Override
+    public void updatePlayerReconnected(PlayerLobby player) {
+        tryRMICall(() -> clientLis.updatePlayerReconnected(player));
+    }
+
+    /**
+     * Updates the client that the game is in the final phase.
+     */
+    @Override
+    public void updateFinalPhase() {
+        tryRMICall(clientLis::updateFinalPhase);
+    }
+
+    /**
+     * Updates the client that the game has begun the turn-based phase.
+     */
+    @Override
+    public void updateInGame() {
+        tryRMICall(clientLis::updateInGame);
+    }
+
+    /**
+     * This method should be called ONLY when a player reconnects to the game.
+     * Updates the client of the reconnected player with the updated game model and corresponding player.
+     * @param model The updated game model.
+     * @param player The updated player who is reconnecting.
+     */
+    @Override
+    public void updateGameModel(GameModelIF model, PlayerLobby player) {
+        tryRMICall(() -> {
+            try {
+                clientLis.updateGameModel(model, player);
+            } catch (InvalidPlayerException e) {
+                throw new RuntimeException(e);
+                //TODO: pensaci meglio: può succedere?
+            }
+        });
+    }
+}

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model.card;
 
+import it.polimi.ingsw.am13.model.card.points.PointsObjective;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
@@ -63,11 +64,16 @@ public class CardObjective extends Card implements CardObjectiveIF {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CardObjective that = (CardObjective) o;
-        return Objects.equals(front, that.front);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), front);
+        return Objects.hash(super.hashCode(), getId());
+    }
+
+    @Override
+    public PointsObjective getPoints() {
+        return front.getPoints();
     }
 }

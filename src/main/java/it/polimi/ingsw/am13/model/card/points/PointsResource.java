@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ import java.util.Objects;
  * "x points for each resource of type y present on the field immediately after you play it"
  */
 public class PointsResource implements PointsPlayable {
+
     /**
      * This variable represents the number of points this card gives for each resource
      */
@@ -42,6 +44,21 @@ public class PointsResource implements PointsPlayable {
     public int calcPoints(CardSidePlayableIF cardSidePlayable, FieldIF field) {
         Map<Resource,Integer> freqs=field.getResourcesInField();
         return freqs.get(resource)*points;
+    }
+
+    @Override
+    public int getPointsMultiplier() {
+        return this.points;
+    }
+
+    @Override
+    public Resource getPointsResource() {
+        return this.resource;
+    }
+
+    @Override
+    public boolean isCornerTypePoints() {
+        return false;
     }
 
     @Override

@@ -42,10 +42,10 @@ public class TestDeckHandler {
         top = handler.getDeckTop();
         CardResource expectedCard = handler.showFromTable(0);
         CardResource actualCard = handler.drawFromTable(0);
-        assertEquals(expectedCard.getFront(), actualCard.getFront());
-        assertEquals(expectedCard.getBack(), actualCard.getBack());
+        assertEquals(expectedCard.getSide(Side.SIDEFRONT), actualCard.getSide(Side.SIDEFRONT));
+        assertEquals(expectedCard.getSide(Side.SIDEBACK), actualCard.getSide(Side.SIDEBACK));
         assert(actualCard.getVisibleSide() == null);
-        assertEquals(top.getFront(), handler.showFromTable(0).getFront());
+        assertEquals(top.getSide(Side.SIDEFRONT), handler.showFromTable(0).getSide(Side.SIDEFRONT));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class TestDeckHandler {
         assertTrue(handler.isDeckEmpty());
         CardResource expected = handler.getPickables().get(1);
         CardResource cardResource = handler.drawFromTable(0);
-        assertSame(expected.getFront(), cardResource.getFront());
+        assertSame(expected.getSide(Side.SIDEFRONT), cardResource.getSide(Side.SIDEFRONT));
 //        assertThrows(IndexOutOfBoundsException.class, () -> handler.drawFromTable(1));
         assertThrows(IndexOutOfBoundsException.class, () -> handler.drawFromTable(2));
         assertThrows(InvalidDrawCardException.class, () -> handler.drawFromTable(0));

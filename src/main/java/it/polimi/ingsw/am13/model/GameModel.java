@@ -1,14 +1,19 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.controller.GameListener;
-import it.polimi.ingsw.am13.controller.ListenerHandler;
-import it.polimi.ingsw.am13.controller.LobbyException;
+import it.polimi.ingsw.am13.controller.*;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.*;
 
 import java.util.*;
 
+/**
+ * Model of the entire game.
+ * It can be used as an interface to handle the entire game, starting from its creation with a full room, till the
+ * natural end of the game.
+ * It handles also disconnections and reconnections, and is responsible of triggering all the notifies about game
+ * actions to the listeners
+ */
 public class GameModel implements GameModelIF {
 
     /**
@@ -23,18 +28,21 @@ public class GameModel implements GameModelIF {
     /**
      * This is used to notify the view when a change occurs in the GameModel after a game event happens.
      */
-    private final ListenerHandler listenerHandler;
+    private final Room listenerHandler;
 
     /**
      * Creates a new instance of <code>GameModel</code> with the specified players.
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
-     * @param gameId Class match with all the information regarding the match itself and how to precess it
-     * @param listenerHandler Handler of the GameListeners corresponding to the players who will take part in the game
-     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4, or one of the colors is black,
+     * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
+     *                        handler of their listeners
+     * @throws InvalidPlayersNumberException If the list of players has size <2 or >4,
+     * the room did not reach the set number of players (the game for the room is not set as started),
      * or there are duplicate chosen colors
      */
-    public GameModel(int gameId, ListenerHandler listenerHandler) throws InvalidPlayersNumberException {
-        this.gameId = gameId;
+    public GameModel(Room listenerHandler) throws InvalidPlayersNumberException {
+        if(!listenerHandler.isGameStarted() || listenerHandler.getListeners().size()!=listenerHandler.getnPlayersTarget())
+            throw new InvalidPlayersNumberException("The room must be full to start the game");
+        this.gameId = listenerHandler.getGameId();
         List<Player> players = listenerHandler.getListeners().stream().map(GameListener::getPlayer).map(Player::new).toList();
         this.match = new Match(players);
         this.listenerHandler = listenerHandler;
@@ -53,27 +61,50 @@ public class GameModel implements GameModelIF {
     /**
      * Disconnects the given player, by calling the corresponding method in match, removing the listener and
      * notifying the listeners
-     * @param gameListener one of the listeners in ListenerHandler
+     * @param player Player to disconnect
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already disconnected when this method was called
-     * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
-    public void disconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, LobbyException {
-        match.disconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerDisconnected(gameListener.getPlayer());
-        listenerHandler.removeListener(gameListener);
+    public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException {
+        GameStatus initStatus = match.getGameStatus();
+        match.disconnectPlayer(player);
+        try {
+            listenerHandler.leaveRoom(player);
+        } catch (LobbyException e) {
+            // Should not happen
+            throw new RuntimeException(e);
+        }
+
+//        switch (res) {
+//            case 1 -> listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
+//            case 2 -> listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
+//            case 3 -> {
+//                listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
+//                listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
+//            }
+//            case 4 -> {}
+//            default -> throw new RuntimeException();
+//        }
+
+        // Disconnection can make me move towards IN_GAME, a notify could be necessary
+        if(initStatus!=GameStatus.IN_GAME && match.getGameStatus()==GameStatus.IN_GAME)
+            listenerHandler.notifyInGame();
     }
 
     /**
      * Reconnects the given player. It also notifies the players of this
-     * @param gameListener one of the listeners in ListenerHandler
+     * @param gameListener New listener of the player who want to reconnect
      * @throws InvalidPlayerException if the player associated to the GameListener is not a player of the match
      * @throws ConnectionException if the player was already connected when this method was called
      */
     public void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
-        listenerHandler.addListener(gameListener);
         match.reconnectPlayer(gameListener.getPlayer());
-        listenerHandler.notifyPlayerReconnected(gameListener.getPlayer(), this);
+        try {
+            listenerHandler.reconnectToRoom(gameListener, this);
+        } catch (LobbyException e) {
+            //Should not happen
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean fetchIsConnected(PlayerLobby player) throws InvalidPlayerException {
@@ -97,8 +128,15 @@ public class GameModel implements GameModelIF {
     /**
      * @return List of players, decontextualized from game (their nicknames/tokens, nothing else)
      */
-    public List<PlayerLobby> fetchPlayers() {
+    public List<PlayerLobby> fetchPlayersLobby() {
         return match.getPlayers().stream().map(Player::getPlayerLobby).toList();
+    }
+
+    /**
+     * @return List of players
+     */
+    public List<PlayerIF> fetchPlayers() {
+        return new ArrayList<>(match.getPlayers());
     }
 
     /**
@@ -160,9 +198,6 @@ public class GameModel implements GameModelIF {
     public List<Optional<? extends CardPlayableIF>> fetchPickablesOptional() {
         return new ArrayList<>(match.fetchPickablesOptional().stream()
                 .map(c -> (Optional<? extends CardPlayableIF>)c).toList());
-//        return match.fetchPickablesOptional().stream()
-//                .map(cardOptional -> (Optional<? extends CardObjectiveIF>)cardOptional).toList();
-//        return null;
     }
 
     /**
@@ -233,13 +268,14 @@ public class GameModel implements GameModelIF {
      * Can be called only if the match has not started yet (<code>gamePhase==null</code>) and sets game phase to INIT.
      * @throws GameStatusException if this method is called when game has already started (<code>gamePhase!=null</code>)
      */
-    public void startGame() throws GameStatusException {
+    public void startGame(GameController controller) throws GameStatusException {
         match.startGame();
-        listenerHandler.notifyStartGame(this);
+        listenerHandler.notifyStartGame(this, controller);
     }
 
 
     // METHODS CALLABLE IN PHASE INIT
+
 
     /**
      * Method callable only once per player during INIT phase.
@@ -253,7 +289,7 @@ public class GameModel implements GameModelIF {
     public void playStarter(PlayerLobby player, Side side)
             throws InvalidPlayerException, GameStatusException, InvalidPlayCardException {
         match.playStarter(player, side);
-        listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player));
+        listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
         if(match.getGameStatus() == GameStatus.IN_GAME)
             listenerHandler.notifyInGame();
     }
@@ -286,7 +322,7 @@ public class GameModel implements GameModelIF {
     public void choosePersonalObjective(PlayerLobby player, CardObjectiveIF cardObj)
             throws InvalidPlayerException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
         match.choosePersonalObjective(player, cardObj);
-        listenerHandler.notifyChosenPersonalObjective(player);
+        listenerHandler.notifyChosenPersonalObjective(player, cardObj);
         if(match.getGameStatus() == GameStatus.IN_GAME)
             listenerHandler.notifyInGame();
     }
@@ -323,9 +359,10 @@ public class GameModel implements GameModelIF {
      */
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
-        match.playCard(card, side, coord);
+        CardPlayableIF playedCard = match.playCard(card, side, coord);
         try {
-            listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), card, side, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
+            if(match.fetchIsConnected(match.getCurrentPlayer().getPlayerLobby()))
+                listenerHandler.notifyPlayedCard(match.getCurrentPlayer().getPlayerLobby(), playedCard, coord, match.getCurrentPlayer().getPoints(), fetchAvailableCoord(match.getCurrentPlayer().getPlayerLobby()));
         } catch (InvalidPlayerException e) {
             throw new RuntimeException(e);
         }
@@ -333,13 +370,18 @@ public class GameModel implements GameModelIF {
 
     /**
      * Picks one of the 6 cards on the table
-     * @param card A playable card that should be in the field
+     * @param card The playable card to pick (that should be in the common field)
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
      */
     public void pickCard(CardPlayableIF card) throws InvalidDrawCardException, GameStatusException {
         match.pickCard(card);
-        listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables());
+        try {
+            if(match.fetchIsConnected(match.getCurrentPlayer().getPlayerLobby()))
+                listenerHandler.notifyPickedCard(match.getCurrentPlayer().getPlayerLobby(), fetchPickables(), card);
+        } catch (InvalidPlayerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

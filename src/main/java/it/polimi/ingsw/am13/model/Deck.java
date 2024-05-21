@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * This class represent a physical deck of cards
@@ -28,7 +29,7 @@ public class Deck<T extends Card>{
      * Shuffles this deck randomly, and sets visibility of the new top card
      */
     public void shuffle(){
-        Collections.shuffle(deck);
+        Collections.shuffle(deck, new Random(System.currentTimeMillis()));
     }
 
     /**

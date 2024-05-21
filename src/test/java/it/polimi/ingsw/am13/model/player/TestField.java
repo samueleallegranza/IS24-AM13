@@ -120,7 +120,7 @@ public class TestField {
         f.playCardSide(resource1, new Coordinates(1, 1));
         f.playCardSide(resource2, new Coordinates(1, -1));
 
-        List<Coordinates> avbCoords = f.getAvailableCoord();
+        List<Coordinates> avbCoords = f.getAvailableCoords();
 
 //        List<Coordinates> correctCoords = new ArrayList<>();
 //        correctCoords.add(new Coordinates(0, 2));

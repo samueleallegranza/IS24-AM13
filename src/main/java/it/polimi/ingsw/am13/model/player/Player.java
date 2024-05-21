@@ -3,10 +3,11 @@ package it.polimi.ingsw.am13.model.player;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable, PlayerIF {
 
     /**
      * Player decontextualized from game. It stores nickname and token chosen by the player
@@ -27,11 +28,13 @@ public class Player {
      * Player's personal objective. It affects only player's points when the game ends.
      */
     private CardObjective personalObjective;
+
     /**
      * The two objective cards among which the player can choose his personal objective.
      * They can't change once they have been set.
      */
     private final List<CardObjective> possiblePersonalObjectives;
+
     /**
      * Player's starter card which has been drawn to him. It can't change once it has been set.
      */
@@ -128,14 +131,6 @@ public class Player {
     }
 
     /**
-     *
-     * @return the two objective cards among which the player can choose his personal objective
-     */
-    public List<CardObjective> getPossiblePersonalObjectives() {
-        return possiblePersonalObjectives;
-    }
-
-    /**
      * Sets the player's personal objective. Once set, it can't be modified!
      * @param cardObj Objective card which will be set as personal objective.
      * @throws VariableAlreadySetException Exception is thrown if this method has been called before.
@@ -146,7 +141,7 @@ public class Player {
             throw new VariableAlreadySetException();
         CardObjective objChosen = null;
         for(CardObjective obj : possiblePersonalObjectives)
-            if(obj == cardObj) {
+            if(obj.equals(cardObj)) {
                 objChosen = obj;
                 break;
             }
@@ -165,15 +160,14 @@ public class Player {
         // check if the starter card has been already set
         if(this.startCard == null)
             throw new InvalidPlayCardException("Starter card has not been drawn yet");
-        
+
         // get the proper side of the starter card
-        startCard.placeCardInField(side);
         CardSidePlayable starterSide;
         if(side.equals(Side.SIDEBACK))
-            starterSide = this.startCard.getBack();
+            starterSide = this.startCard.getSide(Side.SIDEBACK);
         else {
             if(side.equals(Side.SIDEFRONT))
-                starterSide = this.startCard.getFront();
+                starterSide = this.startCard.getSide(Side.SIDEFRONT);
             else
                 throw new InvalidChoiceException();
         }
@@ -181,6 +175,7 @@ public class Player {
         // play the starter card on the field at coords (0,0)
         try {
             this.field.playCardSide(starterSide, Coordinates.origin());
+            startCard.placeCardInField(side);
         } catch (RequirementsNotMetException ignored) {} // No requirements for starter card.
 
     }
@@ -194,13 +189,13 @@ public class Player {
      * initialized.
      * @throws RequirementsNotMetException At least one Requirement is not satisfied for the given card.
      */
-    public void playCard(CardSidePlayable sideToPlay, Coordinates coordToPlay) throws InvalidPlayCardException, RequirementsNotMetException {
+    public void playCard(CardSidePlayableIF sideToPlay, Coordinates coordToPlay) throws InvalidPlayCardException, RequirementsNotMetException {
         // check that the player has the side's card on his hand
         CardPlayable cardToPlay = null;
         for(CardPlayable currCard: this.handCards) {
-            if(currCard.getFront().equals(sideToPlay) || currCard.getBack().equals(sideToPlay)) {
+            if(currCard.getSide(Side.SIDEFRONT).equals(sideToPlay) || currCard.getSide(Side.SIDEBACK).equals(sideToPlay)) {
                 cardToPlay = currCard;
-                if(currCard.getFront().equals(sideToPlay))
+                if(currCard.getSide(Side.SIDEFRONT).equals(sideToPlay))
                     cardToPlay.placeCardInField(Side.SIDEFRONT);
                 else
                     cardToPlay.placeCardInField(Side.SIDEBACK);
@@ -210,13 +205,13 @@ public class Player {
 
         if(cardToPlay == null) throw new InvalidPlayCardException("card not in the player's hand");
         // play the card on the field (exceptions will be thrown if action is not valid)
-        this.field.playCardSide(sideToPlay, coordToPlay);
+        this.field.playCardSide(cardToPlay.getPlayedCardSide(), coordToPlay);
 
         // remove the card from the player's hand
         this.handCards.remove(cardToPlay);
 
         // add points to player for card positioning
-        this.addPoints(sideToPlay.calcPoints(this.field));
+        this.addPoints(cardToPlay.getPlayedCardSide().calcPoints(this.field));
     }
 
 
@@ -281,7 +276,7 @@ public class Player {
      * @return Player's hand of cards, which could be Gold cards or Resource cards.
      */
     public List<CardPlayable> getHandCards() {
-        return handCards;
+        return new ArrayList<>(handCards);
     }
 
     /**
@@ -293,13 +288,24 @@ public class Player {
     }
 
     /**
+     * @return the two objective cards among which the player can choose his personal objective.
+     * Null if they have not been set yet
+     */
+    public List<CardObjective> getPossiblePersonalObjectives() {
+        return new ArrayList<>(possiblePersonalObjectives);
+    }
+
+    /**
      * @return The list of coordinates in which new cards can be played.
      * If game has not started yet, the list is empty
      */
     public List<Coordinates> getAvailableCoord(){
-        return field.getAvailableCoord();
+        return field.getAvailableCoords();
     }
 
+    /**
+     * @return Player's field
+     */
     public FieldIF getField() {
         return field;
     }

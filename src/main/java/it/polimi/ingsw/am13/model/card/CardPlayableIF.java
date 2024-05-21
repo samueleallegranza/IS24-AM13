@@ -13,4 +13,10 @@ public interface CardPlayableIF extends CardIF {
      */
     CardSidePlayableIF getPlayedCardSide();
 
+    /**
+     * @param side Side whose card side is to be retrieved
+     * @return Card side corresponding to specified side
+     */
+    CardSidePlayableIF getSide(Side side);
+
 }

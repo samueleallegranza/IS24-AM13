@@ -8,10 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestColor {
 
     @Test
-    public void testCorrespondingResource() throws InvalidCardCreationException {
+    public void testCorrespondingResource() {
         Color c = Color.NO_COLOR;
-        assertThrows(InvalidCardCreationException.class, c::correspondingResource);
-
+        assertEquals(Resource.NO_RESOURCE, c.correspondingResource());
         c = Color.INSECT;
         assertEquals(Resource.INSECT, c.correspondingResource());
         c = Color.ANIMAL;

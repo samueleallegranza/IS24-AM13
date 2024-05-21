@@ -1,14 +1,17 @@
 package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
+import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Representation of points of a playable card side of the type "x points when you play this card on this side"
  */
 public class PointsInstant implements PointsPlayable {
+
     /**
      * This variable represents how many points the card gives
      */
@@ -31,6 +34,21 @@ public class PointsInstant implements PointsPlayable {
     @Override
     public int calcPoints(CardSidePlayableIF cardSide, FieldIF field) {
         return points;
+    }
+
+    @Override
+    public int getPointsMultiplier() {
+        return this.points;
+    }
+
+    @Override
+    public Resource getPointsResource() {
+        return Resource.NO_RESOURCE;
+    }
+
+    @Override
+    public boolean isCornerTypePoints() {
+        return false;
     }
 
     @Override

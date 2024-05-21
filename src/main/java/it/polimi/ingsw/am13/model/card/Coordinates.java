@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.model.card;
 
 import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -9,7 +10,7 @@ import java.util.*;
  * For how game works, coordinates (x, y) are valid only if (x+y)%2=0 (their sum must be a multiple of 2).
  * The object, once instantiated, is immutable.
  */
-public class Coordinates {
+public class Coordinates implements Serializable {
 
     /**
      * Coordinate x of point/vector (horizontal axis)

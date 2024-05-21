@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.player;
 
-public enum ColorToken {
-    GREEN,YELLOW,RED,BLUE,BLACK
+import java.io.Serializable;
+
+public enum ColorToken implements Serializable {
+    GREEN,YELLOW,RED,BLUE
 }

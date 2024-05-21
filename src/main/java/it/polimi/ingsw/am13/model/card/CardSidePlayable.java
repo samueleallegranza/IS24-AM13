@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +13,8 @@ import java.util.Objects;
  * This class represents one of the two sides of a playable card
  */
 public class CardSidePlayable implements CardSidePlayableIF {
+
+    //TODO: transient in corners dovrebbe andare bene, ma potrebbe dare problemi per calcCornersCovered...
 
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
@@ -58,7 +61,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
         this.corners = corners;
         this.centerResources = centerResources;
         this.points = points;
-        this.color=color;
+        this.color = color;
     }
 
     /**
@@ -96,6 +99,37 @@ public class CardSidePlayable implements CardSidePlayableIF {
     public int calcCornersCovered() {
         return corners.stream().filter(c -> c.getLink()!=null).toList().size();
     }
+
+    /**
+     * Get the list of resources present in the 4 angles of the card (clockwise order)
+     * @return A list of card's corner resources
+     */
+    @Override
+    public ArrayList<Resource> getCornerResources() {
+        ArrayList<Resource> resourceList = new ArrayList<>(4);
+        List<Corner> corners = this.getCorners();
+        for(Corner c: corners) resourceList.add(c.getResource());
+        return resourceList;
+    }
+
+    @Override
+    public List<Boolean> getCoveredCorners() {
+        List<Boolean> isCovered=new ArrayList<>(4);
+        for (int i = 0; i < 4; i++) {
+            isCovered.add(i,corners.get(i).isCovered());
+        }
+        return isCovered;
+    }
+
+    @Override
+    public PointsPlayable getPoints() {
+        return this.points;
+    }
+//
+//    @Override
+//    public List<boolean> getLinkableCorners() {
+//        this.getCorners().
+//    }
 
     /**
      *

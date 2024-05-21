@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.model.card;
 
-import java.util.Objects;
 
 /**
  * Represents a card that can be played in player's field sometime during the game.
@@ -32,7 +31,11 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
         this.back = back;
     }
 
-    private CardSidePlayable getCorrespondingSide(Side side) {
+    /**
+     * @param side Side whose card side is to be retrieved
+     * @return Card side corresponding to specified side
+     */
+    public CardSidePlayable getSide(Side side) {
         return side==Side.SIDEFRONT ? front : back;
     }
 
@@ -43,33 +46,7 @@ public abstract class CardPlayable extends Card implements CardPlayableIF {
     public CardSidePlayable getPlayedCardSide() {
         if(getVisibleSide()==null)
             return null;
-        return getCorrespondingSide(getVisibleSide());
+        return getSide(getVisibleSide());
     }
 
-    /**
-     * @return Front side of the card
-     */
-    public CardSidePlayable getFront() {
-        return front;
-    }
-
-    /**
-     * @return Back side of the card
-     */
-    public CardSidePlayable getBack() {
-        return back;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CardPlayable that = (CardPlayable) o;
-        return Objects.equals(front, that.front) && Objects.equals(back, that.back);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(front, back);
-    }
 }

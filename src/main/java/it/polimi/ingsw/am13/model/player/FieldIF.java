@@ -37,5 +37,12 @@ public interface FieldIF {
      */
     Map<Resource, Integer> getResourcesInField();
 
+    /**
+     * Retrieves the List of coordinates in which new cards can be placed. It returns all and only the coordinates
+     * for which cardIsPlaceableAtCoord() returns true for the actual Field situation.
+     * @return A list of coordinates in which a card can be placed.
+     */
+    List<Coordinates> getAvailableCoords();
+
 
 }

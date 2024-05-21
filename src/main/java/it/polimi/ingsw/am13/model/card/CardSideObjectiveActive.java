@@ -6,6 +6,7 @@ import it.polimi.ingsw.am13.model.card.points.PointsSet;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
  * Represents the active side (front) of an objective card.
  * It stores the information about the points guaranteed by the card.
  */
-public class CardSideObjectiveActive {
+public class CardSideObjectiveActive implements Serializable {
 
     /**
      * Information about the points guaranteed by the card this side is part of.
@@ -44,6 +45,10 @@ public class CardSideObjectiveActive {
     public CardSideObjectiveActive(int points, Color color1, Color color2, Color color3, int pos12, int pos23)
             throws InvalidCardCreationException {
         this.points = new PointsPattern(color1, color2, color3, pos12, pos23, points);
+    }
+
+    public PointsObjective getPoints() {
+        return points;
     }
 
     /**

@@ -1,13 +1,13 @@
 package it.polimi.ingsw.am13.model.player;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Represents token present in game.
  * It could be a token representing the color chosen by the player, the token of that color in the scoreboard,
- * or the black token indicating the first player
  */
-public class Token {
+public class Token implements Serializable {
 
     /**
      * Color of the token
@@ -39,5 +39,11 @@ public class Token {
     @Override
     public int hashCode() {
         return Objects.hash(color);
+    }
+
+    @Override
+    public String toString() {
+        String colorName = color.name();
+        return colorName.substring(0,1).toUpperCase() + colorName.substring(1).toLowerCase();
     }
 }

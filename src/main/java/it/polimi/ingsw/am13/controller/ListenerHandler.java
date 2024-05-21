@@ -1,12 +1,11 @@
 package it.polimi.ingsw.am13.controller;
 import it.polimi.ingsw.am13.model.GameModel;
 import it.polimi.ingsw.am13.model.GameModelIF;
-import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
+import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
  * and notifying the view when a change occurs in the {@link GameModel} after a game event happens.
  * Depending on the event, the view is notified passing the appropriate parameters.
  */
-public class ListenerHandler {
+public class ListenerHandler implements Serializable {
 
     //TODO: Non dovrebbe, ma potrebbero servire delle synchronized...
 
@@ -32,27 +31,27 @@ public class ListenerHandler {
         listeners = new ArrayList<>();
     }
 
-    public ListenerHandler(List<GameListener> listeners) {
-        this.listeners = listeners;
-    }
-
-
     /**
      * Adds a {@link GameListener} to the list of GameListener.
      * @param listener The listener to be added.
      */
-    public void addListener(GameListener listener) {
+    protected void addListener(GameListener listener) {
         listeners.add(listener);
     }
 
     /**
      * Removes a {@link GameListener} from the list of GameListener.
-     * @param listener The listener to be removed
-     * @throws LobbyException if the GameListener was not part of the listeners list.
+     * @param player Player to disconnect
+     * @throws InvalidPlayerException if the player was not part of the listeners list.
+     * @return Listener removed
      */
-    public void removeListener(GameListener listener) throws LobbyException{
-        if(!listeners.remove(listener))
-            throw new LobbyException();
+    protected GameListener removeListener(PlayerLobby player) throws InvalidPlayerException {
+        for(GameListener l : listeners)
+            if(l.getPlayer().equals(player)) {
+                listeners.remove(l);
+                return l;
+            }
+        throw new InvalidPlayerException("Player " + player + " is not among current listeners of the game");
     }
 
     /**
@@ -60,50 +59,22 @@ public class ListenerHandler {
      * @return the list of GameListener.
      */
     public List<GameListener> getListeners() {
-        return listeners;
+        return new ArrayList<>(listeners);
     }
 
-    // METHODS TO BE CALLED BY LOBBY TO MANAGE ROOMS
-    /**
-     * Notifies the view that the game is beginning and that the Room has been moved to startedGames
-     */
-    public void notifyGameBegins(){
-        for (GameListener listener : listeners) {
-            listener.updateGameBegins();
-        }
-    }
 
-    /**
-     * Notify the view that a Player has entered a Room.
-     * This method is to be used only when the game hasn't started yet.
-     * @param player The player that entered the room
-     */
-    public void notifyPlayerJoinedRoom(PlayerLobby player){
-        for (GameListener listener : listeners) {
-            listener.updatePlayerJoinedRoom(player);
-        }
-    }
 
-    /**
-     * Notify the view that a Player has left a Room.
-     * This method is to be used only when the game hasn't started yet.
-     * @param player The player that left the room
-     */
-    public void notifyPlayerLeftRoom(PlayerLobby player){
-        for (GameListener listener : listeners) {
-            listener.updatePlayerLeftRoom(player);
-        }
-    }
+    // NOTIFIES HANDLED BY GAME MODEL
 
-    // METHODS TO BE CALLED BY GAMEMODEL
+
     /**
      * Notifies the view that the game has started: starter cards and initial cards have been given to the players. <br>
      * The view is notified passing the {@link GameModelIF} containing a GameModel with GameStatus set to INIT.
-     * @param model The {@link GameModelIF} containing the immutable version of a GameModel.
+     * @param model The interface {@link GameModelIF} representing a version of the GameModel.
      */
-    public void notifyStartGame(GameModelIF model){
+    public void notifyStartGame(GameModelIF model, GameController controller){
         for (GameListener listener : listeners) {
-            listener.updateStartGame(model);
+            listener.updateStartGame(model, controller);
         }
     }
 
@@ -111,20 +82,22 @@ public class ListenerHandler {
      * Notifies the view that a starter card has been played by a player. <br>
      * @param player The player that played the starter card.
      * @param cardStarter The starter card played by the player.
+     * @param availableCoords The list of coordinates that are available to play a card
      */
-    public void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter){
+    public void notifyPlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
-            listener.updatePlayedStarter(player, cardStarter);
+            listener.updatePlayedStarter(player, cardStarter, availableCoords);
         }
     }
 
     /**
      * Notifies the view that a player has chosen a personal objective card. <br>
      * @param player The player that has chosen a personal objective card.
+     * @param chosenObj Objective card chosen by the player
      */
-    public void notifyChosenPersonalObjective(PlayerLobby player){
+    public void notifyChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj){
         for (GameListener listener : listeners) {
-            listener.updateChosenPersonalObjective(player);
+            listener.updateChosenPersonalObjective(player, chosenObj);
         }
     }
 
@@ -143,25 +116,26 @@ public class ListenerHandler {
      * Also notifies the updated list of coordinates where the player can play a card.
      * @param player The player that played the card.
      * @param cardPlayable The card played by the player.
-     * @param side The side of the card that has been placed.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
      * @param points The points given by the card.
      * @param availableCoords The list of updated coordinates where the player can play a card.
      */
-    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords){
+    public void notifyPlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Coordinates coord,
+                                 int points, List<Coordinates> availableCoords){
         for (GameListener listener : listeners) {
-            listener.updatePlayedCard(player, cardPlayable, side, coord, points,availableCoords);
+            listener.updatePlayedCard(player, cardPlayable, coord, points,availableCoords);
         }
     }
 
     /**
      * Notifies the view that a card has been picked by a player. <br>
      * @param player The player that picked the card.
-     * @param updatedVisibleCards The updated list of visible cards in the common field.
+     * @param updatedVisibleCards The updated list of visible cards in the common field (size 6).
+     * @param pickedCard The card picked by the player
      */
-    public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards){
+    public void notifyPickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard){
         for (GameListener listener : listeners) {
-            listener.updatePickedCard(player, updatedVisibleCards);
+            listener.updatePickedCard(player, updatedVisibleCards, pickedCard);
         }
     }
 
@@ -189,35 +163,13 @@ public class ListenerHandler {
      * Notifies the listeners about ending of game.
      * After this notify, the server should not respond to any other request from the clients
      */
-    public void notifyEndGame() {
+    protected void notifyEndGame() {
         for (GameListener listener : listeners){
             listener.updateEndGame();
         }
     }
 
-    /**
-     * Notifies the view that a player has disconnected from the game. <br>
-     * @param player The player that has disconnected from the game.
-     */
-    public void notifyPlayerDisconnected(PlayerLobby player){
-        for (GameListener listener : listeners){
-            listener.updatePlayerDisconnected(player);
-        }
-    }
 
-    /**
-     * Notifies the view that a player has reconnected to the game. <br>
-     * @param player The player that has reconnected to the game.
-     * @param model The {@link GameModelIF} containing the updated version of the game.
-     */
-    public void notifyPlayerReconnected(PlayerLobby player, GameModelIF model){
-        for (GameListener listener : listeners){
-            if(listener.getPlayer().equals(player))
-                listener.updateGameModel(model);
-            else
-                listener.updatePlayerReconnected(player);
-        }
-    }
 
     /**
      * Notifies the view that the game is in the playing phase. <br>

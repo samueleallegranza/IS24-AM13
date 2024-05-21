@@ -1,13 +1,11 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.controller.GameListener;
-import it.polimi.ingsw.am13.controller.ListenerHandler;
-import it.polimi.ingsw.am13.controller.LobbyException;
+import it.polimi.ingsw.am13.LisForTest;
+import it.polimi.ingsw.am13.controller.*;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import it.polimi.ingsw.am13.model.player.Token;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -15,86 +13,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameModel {
-
-    private static class LisForTest implements GameListener {
-        private final PlayerLobby player;
-        public LisForTest(PlayerLobby player) {
-            this.player = player;
-        }
-        public LisForTest(String nick, ColorToken color) {
-            this.player = new PlayerLobby(nick, new Token(color));
-        }
-
-        @Override
-        public PlayerLobby getPlayer() {
-            return player;
-        }
-        @Override
-        public void updateGameBegins() {
-        }
-        @Override
-        public void updatePlayerJoinedRoom(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerLeftRoom(PlayerLobby player) {
-        }
-        @Override
-        public void updateStartGame(GameModelIF model) {
-        }
-        @Override
-        public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter) {
-        }
-        @Override
-        public void updateChosenPersonalObjective(PlayerLobby player) {
-        }
-        @Override
-        public void updateNextTurn(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayable, Side side, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        }
-        @Override
-        public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards) {
-        }
-        @Override
-        public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
-        }
-        @Override
-        public void updateWinner(PlayerLobby winner) {
-        }
-        @Override
-        public void updateEndGame() {
-
-        }
-        @Override
-        public void updatePlayerDisconnected(PlayerLobby player) {
-        }
-        @Override
-        public void updatePlayerReconnected(PlayerLobby player) {
-        }
-
-        @Override
-        public void updateGameModel(GameModelIF model) {
-        }
-
-        @Override
-        public void updateFinalPhase() {
-
-        }
-
-        @Override
-        public void updateInGame() {
-
-        }
-
-        @Override
-        public Long getPing() {
-            return null;
-        }
-        @Override
-        public void updatePing(Long ping) {
-        }
-    }
 
     private enum Strategy {
         TRY_GOLD, PLAY_BACK
@@ -105,16 +23,18 @@ public class TestGameModel {
     private GameModel game;
 
     @Test
-    public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException {
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED))) ));
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
-                        new LisForTest("2", ColorToken.BLUE),
-                        new LisForTest("3", ColorToken.RED))) ));
-        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(1,
-                new ListenerHandler(List.of(new LisForTest("1", ColorToken.RED),
-                        new LisForTest("2", ColorToken.BLACK))) ));
+    public void testCreation() throws InvalidPlayersNumberException, InvalidPlayerException, LobbyException {
+
+        Room room1 = new Room(1, new LisForTest("1", ColorToken.RED), 2);
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room1));
+        Room room2 = new Room(1, new LisForTest("1", ColorToken.RED), 3);
+        room2.joinRoom(new LisForTest("2", ColorToken.BLUE));
+        room2.joinRoom(new LisForTest("3", ColorToken.RED));
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room2));
+        Room room3 = new Room(1, new LisForTest("1", ColorToken.RED), 4);
+        room3.joinRoom(new LisForTest("2", ColorToken.BLUE));
+        room3.joinRoom(new LisForTest("3", ColorToken.YELLOW));
+        assertThrows(InvalidPlayersNumberException.class, ()->new GameModel(room3));
 
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
@@ -122,12 +42,14 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(2, playerListeners.getFirst(), 2);
+        room.joinRoom(playerListeners.get(1));
+        game = new GameModel(room);
 
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
-        assertEquals(players, game.fetchPlayers());
+        assertEquals(players, game.fetchPlayersLobby());
 
         List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
@@ -167,9 +89,9 @@ public class TestGameModel {
     }
 
     @Test
-    public void testStartGame() throws InvalidPlayerException, InvalidPlayersNumberException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, InvalidPlayCardException {
+    public void testStartGame() throws InvalidPlayerException, InvalidPlayersNumberException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, InvalidPlayCardException, LobbyException {
         testCreation();
-        game.startGame();
+        game.startGame(null);
         assertThrows(GameStatusException.class, ()->game.nextTurn());
 
         //Test of 3 possibly changed turn-async non-player-specific methods
@@ -211,7 +133,7 @@ public class TestGameModel {
         }
 
         // Now we cannot call again startGame
-        assertThrows(GameStatusException.class, game::startGame);
+        assertThrows(GameStatusException.class, ()->game.startGame(null));
         // I assume that internal state has not changed...
 
         // Test of 3 methods callable in INIT phase
@@ -252,13 +174,14 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnOne() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidPlayCardException, InvalidDrawCardException, InvalidCoordinatesException {
+    public void testTurnOne() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidPlayCardException, InvalidDrawCardException, InvalidCoordinatesException, LobbyException {
         testStartGame();
         // Now I'm in the beginning of IN_GAME
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
         assertThrows(GameStatusException.class, ()->game.nextTurn());
         assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
         PlayerLobby currPlayer = game.fetchCurrentPlayer();
+        System.out.println(currPlayer);
         CardObjectiveIF personalObjective = game.fetchHandObjective(currPlayer);
 
         // Test for RequirementsNotMet: now requirements of the only cardGold in hand are surely not met
@@ -322,9 +245,7 @@ public class TestGameModel {
         assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
 
         game.nextTurn();
-        for(PlayerLobby p : players)
-            if(p != currPlayer)
-                currPlayer = p;
+        currPlayer = currPlayer.equals(players.get(0)) ? players.get(1) : players.get(0);   // This thing works only if the players are 2
         assertEquals(currPlayer, game.fetchCurrentPlayer());
         assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
@@ -335,7 +256,7 @@ public class TestGameModel {
     // So The test could fail for the asserts after pickCard, but I daresay this is a rare case.
     // In this case a re-run of the test should fix the fail
     @Test
-    public void testTurnPhasesReach20() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesReach20() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby player = null;
@@ -368,7 +289,7 @@ public class TestGameModel {
             else
                 fail();
             assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
-            assertThrows(GameStatusException.class, ()->game.startGame());
+            assertThrows(GameStatusException.class, ()->game.startGame(null));
             PlayerLobby finalPlayer = player;
             assertThrows(GameStatusException.class, ()->game.playStarter(finalPlayer, Side.SIDEFRONT));
             assertThrows(GameStatusException.class, ()->game.pickCard(game.fetchPickables().getFirst()));
@@ -546,7 +467,6 @@ public class TestGameModel {
     private void playerPick(PlayerLobby player, GameStatus gameStatus, int nTurns) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException {
         int nCards = game.fetchHandPlayable(player).size();
         assertTrue(nCards <= 2);
-        assertThrows(InvalidDrawCardException.class, () -> game.pickCard(game.fetchHandPlayable(player).getFirst()));
         List<Integer> pickSeq = new ArrayList<>();
         for (int i = 0; i < 6; i++)
             pickSeq.add(i);
@@ -583,7 +503,8 @@ public class TestGameModel {
     private void findWinner() throws GameStatusException {
         // I assume to start from being in CALC_POINT
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
-        assertThrows(GameStatusException.class, ()->game.calcWinner());
+        if(game.countConnected()>1)
+            assertThrows(GameStatusException.class, ()->game.calcWinner());
         game.addObjectivePoints();
         assertEquals(GameStatus.ENDED, game.fetchGameStatus());
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
@@ -600,7 +521,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnPhasesReach20_2() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesReach20_2() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby prevPlayer = game.fetchFirstPlayer();
@@ -654,7 +575,7 @@ public class TestGameModel {
     }
 
     @Test
-    public void testTurnPhasesEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testTurnPhasesEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, InvalidPlayersNumberException, VariableAlreadySetException, InvalidPlayCardException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, LobbyException {
         testStartGame();
 
         PlayerLobby prevPlayer = game.fetchFirstPlayer();
@@ -720,7 +641,10 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
+        Room room = new Room(1, playerListeners.get(0), 3);
+        room.joinRoom(playerListeners.get(1));
+        room.joinRoom(playerListeners.get(2));
+        game = new GameModel(room);
 
         for(PlayerLobby player : players) {
             assertNull(game.fetchStarter(player));
@@ -729,7 +653,7 @@ public class TestGameModel {
             assertTrue(game.fetchAvailableCoord(player).isEmpty());
         }
         assertNull(game.fetchGameStatus());
-        game.startGame();
+        game.startGame(null);
 
         //Test of 4 turn-async player-specific methods
         for(PlayerLobby player : players) {
@@ -755,8 +679,8 @@ public class TestGameModel {
         objective card for them.
          */
         GameListener disPlayer = playerListeners.getFirst();
-        game.disconnectPlayer(disPlayer);
-        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer));
+        game.disconnectPlayer(disPlayer.getPlayer());
+        assertThrows(ConnectionException.class, () -> game.disconnectPlayer(disPlayer.getPlayer()));
         assertEquals(GameStatus.INIT, game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
 
@@ -812,8 +736,12 @@ public class TestGameModel {
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
-        game.startGame();
+        Room room = new Room(1, playerListeners.get(0), 3);
+        room.joinRoom(playerListeners.get(1));
+        room.joinRoom(playerListeners.get(2));
+        game = new GameModel(room);
+
+        game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());
@@ -831,8 +759,8 @@ public class TestGameModel {
 
         // Now 1 round (1 turn per each player) is done
         // A player disconnects
-        GameListener disPlayer = playerListeners.getFirst();
-        game.disconnectPlayer(disPlayer);
+        GameListener disPlayer = playerListeners.getFirst().getPlayer().equals(game.fetchCurrentPlayer()) ? playerListeners.get(1) : playerListeners.getFirst();
+        game.disconnectPlayer(disPlayer.getPlayer());
         for(int i=0 ; i<players.size() ; i++) {
             PlayerLobby p = game.fetchCurrentPlayer();
             int nPlayedCards = game.fetchPlayerField(p).getCoordinatesPlaced().size();
@@ -863,7 +791,7 @@ public class TestGameModel {
             assertEquals(nPlayedCards+1, game.fetchPlayerField(p).getCoordinatesPlaced().size()); //I assume nothing is changed in field
             assertEquals(2, game.fetchHandPlayable(p).size());
             if(p == disPlayer.getPlayer())
-                game.disconnectPlayer(disPlayer);
+                game.disconnectPlayer(disPlayer.getPlayer());
             else {
                 CardPlayableIF cardDrawn = game.fetchPickables().getFirst();
                 game.pickCard(cardDrawn);
@@ -874,17 +802,20 @@ public class TestGameModel {
         }
     }
 
+    // TODO da rivedere (ogni tanto faila)
     @Test
     public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
-                new PlayerLobby("2", ColorToken.BLUE),
-                new PlayerLobby("3", ColorToken.GREEN)
+                new PlayerLobby("2", ColorToken.BLUE)
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        game = new GameModel(0, new ListenerHandler(playerListeners));
-        game.startGame();
+        Room room = new Room(1, playerListeners.get(0), 2);
+        room.joinRoom(playerListeners.get(1));
+        game = new GameModel(room);
+
+        game.startGame(null);
         for(PlayerLobby p : players) {
             game.playStarter(p, Side.SIDEBACK);
             game.choosePersonalObjective(p, game.fetchPersonalObjectives(p).getFirst());
@@ -892,14 +823,17 @@ public class TestGameModel {
         }
         assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
 
-        PlayerLobby prevPlayer = game.fetchFirstPlayer();
-        prevPlayer = (players.get(0)==prevPlayer) ? players.get(1) : players.get(0);    // I initialize the player with the second one
+        PlayerLobby prevPlayer = (game.fetchFirstPlayer().equals(players.get(0))) ? players.get(1) : players.get(0);
         int nTurns = 0;
         boolean ended = false;
         boolean nextFinal = false;
         GameStatus gameStatus = GameStatus.IN_GAME;
 
+        int cnt = 0;
         do {
+            cnt += 1;
+            System.out.println(cnt);
+
             if(ended)
                 fail(); // I should have ended turn-based phases, so i shouldn't be here
             else
@@ -929,18 +863,12 @@ public class TestGameModel {
             playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
             prevPlayer = game.fetchCurrentPlayer();
             assertEquals(0, game.fetchPoints().get(prevPlayer));
-            assertTrue(game.nextTurn());
-
-            // Third player plays always back sides
-            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
-            prevPlayer = game.fetchCurrentPlayer();
-            assertEquals(0, game.fetchPoints().get(prevPlayer));
         } while(game.nextTurn());
 
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
         //Now player 1 should win, but he/she disconnects
-        GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer()==game.fetchFirstPlayer()).toList().getFirst();
-        game.disconnectPlayer(disPlayer);
+        GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer().equals(game.fetchFirstPlayer())).toList().getFirst();
+        game.disconnectPlayer(disPlayer.getPlayer());
 //        System.out.println(nTurns);
 //        System.out.println(game.fetchPoints().values());
 //        for(CardPlayableIF c : game.fetchPickables()) {

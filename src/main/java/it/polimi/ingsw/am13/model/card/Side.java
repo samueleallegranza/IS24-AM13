@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am13.model.card;
 
-public enum Side {
+import java.io.Serializable;
+
+public enum Side implements Serializable {
     SIDEFRONT,
     SIDEBACK
 }
