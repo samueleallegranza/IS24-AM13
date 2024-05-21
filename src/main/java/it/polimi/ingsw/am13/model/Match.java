@@ -27,7 +27,7 @@ import java.util.*;
 //TODO: Pensa se gestire il caso in cui availableCoord è empty (giocatore non piò fare più niente)
 public class Match {
 
-    private static final int POINTS_FOR_FINAL_PHASE = 5;
+    private static final int POINTS_FOR_FINAL_PHASE = 20;
     //TODO: cambia valore x debug/test
     private final DeckHandler<CardResource> deckResources;
     private final DeckHandler<CardGold> deckGold;
