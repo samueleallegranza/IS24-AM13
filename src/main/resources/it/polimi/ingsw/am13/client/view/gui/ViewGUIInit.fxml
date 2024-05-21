@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerInit"
+            prefHeight="500.0" prefWidth="800.0">
+    <Label fx:id="chooseStarterLabel" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER">
+        <font>
+            <Font size="20.0" />
+        </font>
+    </Label>
+    <ImageView fx:id="frontStarterImage" layoutX="50" layoutY="50" fitWidth="300" fitHeight="200"/>
+    <ImageView fx:id="backStarterImage" layoutX="400" layoutY="50" fitWidth="300" fitHeight="200"/>
+</AnchorPane>
