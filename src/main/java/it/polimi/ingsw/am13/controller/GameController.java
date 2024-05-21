@@ -291,7 +291,8 @@ public class GameController implements Runnable {
         if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
             throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.pickCard(card);
-        if(gameModel.countConnected()>1)
+        if(gameModel.countConnected()>=1)
+            //TODO: si potrebbe anche usare >...
             nextTurn();
     }
 

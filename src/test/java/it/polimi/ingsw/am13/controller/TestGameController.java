@@ -356,8 +356,6 @@ public class TestGameController {
         int id = model.getGameId();
         assertEquals(1, Lobby.getInstance().getRooms().stream().filter(r -> r.getGameId()==id).toList().size());
         for(LisForTest l : liss) {
-//            if(l.getPlayer().equals(model.fetchCurrentPlayer()))
-//                System.out.println("ciao");
             controller.disconnectPlayer(l.getPlayer(), 2000);
         }
         Thread.sleep(3000);
@@ -585,7 +583,7 @@ public class TestGameController {
                 nNonNull--;
             }
             else {
-                System.out.println(nNonNull);
+//                System.out.println(nNonNull);
                 assertEquals(2, model.fetchHandPlayable(currPlayer).size());
                 for(CardPlayableIF c : model.fetchPickables())
                     assertNull(c);
@@ -602,27 +600,26 @@ public class TestGameController {
     @Test
     public void testDisconnectionPing() throws LobbyException, InterruptedException, InvalidPlayerException, InvalidPlayCardException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
         testCreation();
-        List<PlayerLobby> ps = liss.stream().map(LisForTest::getPlayer).toList();
 
         // Game has started, and now a player disconnects for network crash
-        liss.getLast().stopPing = true;
-        System.out.println(model.fetchFirstPlayer());
+//        liss.getLast().stopPing = true;
+        LisForTest lisFirstCrash = liss.get(
+                (liss.stream().map(LisForTest::getPlayer).toList().indexOf(model.fetchFirstPlayer()) + 1) % 3);
+        List<LisForTest> lissOthers = liss.stream().filter(l->l!=lisFirstCrash).toList();
+        lisFirstCrash.stopPing = true;
+//        System.out.println(model.fetchFirstPlayer());
         Thread.sleep(5000);
-        assertEquals(ControlAction.DISCONNECTED, liss.get(0).actions.getLast());
-        assertEquals(ControlAction.DISCONNECTED, liss.get(1).actions.getLast());
+        for(LisForTest l : lissOthers)
+            assertEquals(ControlAction.DISCONNECTED, l.actions.getLast());
 
-        for(int i=0 ; i<2 ; i++) {
-            controller.playStarter(ps.get(i), Side.SIDEBACK);
-            controller.choosePersonalObjective(ps.get(i), model.fetchPersonalObjectives(ps.get(i)).getFirst());
+        for(LisForTest l : lissOthers) {
+            controller.playStarter(l.getPlayer(), Side.SIDEBACK);
+            controller.choosePersonalObjective(l.getPlayer(), model.fetchPersonalObjectives(l.getPlayer()).getFirst());
         }
 
-        // Now the turn-based phase has starter, and player who must play crashes
-        LisForTest lissRemain = liss.get(0);
-        LisForTest lissCrash = liss.get(1);
-        if(lissRemain.getPlayer().equals(model.fetchCurrentPlayer())) {
-            lissRemain = liss.get(1);
-            lissCrash = liss.get(0);
-        }
+        // Now the turn-based phase has starter, and player who must play (first player) crashes
+        LisForTest lissCrash = liss.stream().filter(l->l.getPlayer().equals(model.fetchFirstPlayer())).findFirst().orElseThrow();
+        LisForTest lissRemain = liss.stream().filter(l->l!= lissCrash && l!=lisFirstCrash).findFirst().orElseThrow();
         lissCrash.stopPing = true;
         Thread.sleep(5000);
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());

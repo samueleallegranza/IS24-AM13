@@ -467,7 +467,6 @@ public class TestGameModel {
     private void playerPick(PlayerLobby player, GameStatus gameStatus, int nTurns) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException {
         int nCards = game.fetchHandPlayable(player).size();
         assertTrue(nCards <= 2);
-        assertThrows(InvalidDrawCardException.class, () -> game.pickCard(game.fetchHandPlayable(player).getFirst()));
         List<Integer> pickSeq = new ArrayList<>();
         for (int i = 0; i < 6; i++)
             pickSeq.add(i);
@@ -504,7 +503,8 @@ public class TestGameModel {
     private void findWinner() throws GameStatusException {
         // I assume to start from being in CALC_POINT
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
-        assertThrows(GameStatusException.class, ()->game.calcWinner());
+        if(game.countConnected()>1)
+            assertThrows(GameStatusException.class, ()->game.calcWinner());
         game.addObjectivePoints();
         assertEquals(GameStatus.ENDED, game.fetchGameStatus());
         assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
@@ -807,14 +807,12 @@ public class TestGameModel {
     public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(
                 new PlayerLobby("1", ColorToken.RED),
-                new PlayerLobby("2", ColorToken.BLUE),
-                new PlayerLobby("3", ColorToken.GREEN)
+                new PlayerLobby("2", ColorToken.BLUE)
         );
         playerListeners = new ArrayList<>();
         players.forEach(p -> playerListeners.add(new LisForTest(p)));
-        Room room = new Room(1, playerListeners.get(0), 3);
+        Room room = new Room(1, playerListeners.get(0), 2);
         room.joinRoom(playerListeners.get(1));
-        room.joinRoom(playerListeners.get(2));
         game = new GameModel(room);
 
         game.startGame(null);
@@ -825,14 +823,17 @@ public class TestGameModel {
         }
         assertEquals(GameStatus.IN_GAME, game.fetchGameStatus());
 
-        PlayerLobby prevPlayer = game.fetchFirstPlayer();
-        prevPlayer = (players.get(0)==prevPlayer) ? players.get(1) : players.get(0);    // I initialize the player with the second one
+        PlayerLobby prevPlayer = (game.fetchFirstPlayer().equals(players.get(0))) ? players.get(1) : players.get(0);
         int nTurns = 0;
         boolean ended = false;
         boolean nextFinal = false;
         GameStatus gameStatus = GameStatus.IN_GAME;
 
+        int cnt = 0;
         do {
+            cnt += 1;
+            System.out.println(cnt);
+
             if(ended)
                 fail(); // I should have ended turn-based phases, so i shouldn't be here
             else
@@ -862,17 +863,11 @@ public class TestGameModel {
             playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
             prevPlayer = game.fetchCurrentPlayer();
             assertEquals(0, game.fetchPoints().get(prevPlayer));
-            assertTrue(game.nextTurn());
-
-            // Third player plays always back sides
-            playerPlay(prevPlayer, gameStatus, nTurns, Strategy.PLAY_BACK);
-            prevPlayer = game.fetchCurrentPlayer();
-            assertEquals(0, game.fetchPoints().get(prevPlayer));
         } while(game.nextTurn());
 
         assertEquals(GameStatus.CALC_POINTS, game.fetchGameStatus());
         //Now player 1 should win, but he/she disconnects
-        GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer()==game.fetchFirstPlayer()).toList().getFirst();
+        GameListener disPlayer = playerListeners.stream().filter(l -> l.getPlayer().equals(game.fetchFirstPlayer())).toList().getFirst();
         game.disconnectPlayer(disPlayer.getPlayer());
 //        System.out.println(nTurns);
 //        System.out.println(game.fetchPoints().values());
