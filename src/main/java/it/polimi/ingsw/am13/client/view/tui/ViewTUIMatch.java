@@ -314,15 +314,27 @@ public class ViewTUIMatch {
         for (int i = 0; i < 3; i++) {
             strCard.add(i,new ArrayList<>(3));
         }
-        strCard.getFirst().addFirst(ViewTUIConstants.resourceToSymbol(cornerResources.get(0)).charAt(0));
+
+        List<Resource> cornerRes = cardSidePlayableIF.getCornerResources();
+        List<Corner> cornerList = cardSidePlayableIF.getCorners();
+
+        Character[] cornerSymb = new Character[4];
+        for (int i = 0; i < 4; i++) {
+            if(cornerList.get(i).isPlaceable())
+                cornerSymb[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
+            else
+                cornerSymb[i] = ViewTUIConstants.ANGLE_NOTLINKABLE_SYMBOL.charAt(0);
+        }
+
+        strCard.getFirst().addFirst(cornerSymb[0]);
         strCard.get(0).add(1,'─');
-        strCard.get(0).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(1)).charAt(0));
+        strCard.get(0).add(2,cornerSymb[1]);
         strCard.get(1).add(0,'│');
         strCard.get(1).add(1,' ');
         strCard.get(1).add(2,'│');
-        strCard.get(2).add(0,ViewTUIConstants.resourceToSymbol(cornerResources.get(3)).charAt(0));
+        strCard.get(2).add(0,cornerSymb[3]);
         strCard.get(2).add(1,'─');
-        strCard.get(2).add(2,ViewTUIConstants.resourceToSymbol(cornerResources.get(2)).charAt(0));
+        strCard.get(2).add(2,cornerSymb[2]);
         int startInd;
         if(centerResources.size()<3)
             startInd=1;
@@ -378,7 +390,7 @@ public class ViewTUIMatch {
                 for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
                     CardSidePlayableIF cardSidePlayableIF=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(coord);
                     List<List<Character>> strCard=cardToStr(cardSidePlayableIF);
-                    int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
+                    int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
                     for (int i = 0; i < 3; i++) {
                         for (int j = 0; j < 3; j++) {
                             if(fieldMatrix[curY+j][curX+i]==' ')
@@ -397,11 +409,11 @@ public class ViewTUIMatch {
                 for(int i=0; i<gameState.getPlayerState(playerLobby).getField().getAvailableCoords().size();i++){
                     List<List<Character>> strCard=availableStr(i);
                     Coordinates coord=gameState.getPlayerState(playerLobby).getField().getAvailableCoords().get(i);
-                    int curY=2*(coord.getPosY()-minY+1),curX=2*(coord.getPosX()-minX+1);
-                    for (int j = 0; j < 3; j++) {
-                        for (int k = 0; k < 3; k++) {
-                            if(fieldMatrix[curY+k][curX+j]==' ')
-                                fieldMatrix[curY+k][curX+j]=strCard.get(k).get(j);
+                    int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
+                    for (int x = 0; x < 3; x++) {
+                        for (int y = 0; y < 3; y++) {
+                            if(fieldMatrix[curY+y][curX+x]==' ')
+                                fieldMatrix[curY+y][curX+x]=strCard.get(y).get(x);
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -42,6 +43,11 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     private Button joinRoomButton;
     @FXML
     private Button refreshRoomButton;
+
+    @Override
+    public void setPlayer(PlayerLobby player) {
+
+    }
 
     public void showStartupScreen(boolean isSocket, String ip, int port) {
         if(isSocket)
@@ -103,6 +109,11 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
     @Override
     public void showPlayerJoinedRoom(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showStartGame(GameState state) {
 
     }
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.collections.FXCollections;
@@ -28,12 +29,22 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     }
 
     @Override
+    public void showStartGame(GameState state) {
+
+    }
+
+    @Override
     public void showException(Exception e) {
 
     }
 
     public void onLeaveRoomClick(ActionEvent actionEvent) {
         networkHandler.leaveRoom();
+    }
+
+    @Override
+    public void setPlayer(PlayerLobby player) {
+
     }
 
     @Override

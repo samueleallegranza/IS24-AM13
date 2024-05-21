@@ -6,7 +6,7 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
 
-public class ViewGUIControllerMatch extends ViewGUIController {
+public class ViewGUIControllerFinalPhase extends ViewGUIController{
     @Override
     public void setPlayer(PlayerLobby player) {
 

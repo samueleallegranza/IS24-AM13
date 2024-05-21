@@ -3,13 +3,11 @@ package it.polimi.ingsw.am13.client.view.tui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.LocalTime;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Vector;
 
 

@@ -5,15 +5,24 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.controller.RoomIF;
+import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -36,7 +45,7 @@ public class ViewGUI extends Application implements View{
         player=null;
         networkHandler = ClientMain.initConnection(isSocket, ip, port, this);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGuiRooms.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setTitle("Codex");
         stage.setScene(scene);
@@ -91,7 +100,7 @@ public class ViewGUI extends Application implements View{
         Platform.runLater(() -> {
             if (this.player == null) {
                 this.player = player;
-                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGuiJoinedRoom.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIJoinedRoom.fxml"));
                 Scene scene = null;
                 try {
                     scene = new Scene(fxmlLoader.load(), 1280, 720);
@@ -116,7 +125,7 @@ public class ViewGUI extends Application implements View{
     public void showPlayerLeftRoom(PlayerLobby player) {
         if(this.player.equals(player)){
             Platform.runLater(() -> {
-                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGuiRooms.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
                 Scene scene = null;
                 try {
                     scene = new Scene(fxmlLoader.load(), 1280, 720);
@@ -144,25 +153,22 @@ public class ViewGUI extends Application implements View{
     @Override
     public void showStartGame(GameState state) {
         Platform.runLater(() -> {
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGuiMatch.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
             Scene scene = null;
             try {
                 scene = new Scene(fxmlLoader.load(), 1280, 720);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            stage.setTitle("Codex");
+            stage.setTitle("Choose side of the starter card");
             stage.setScene(scene);
             stage.show();
 
             viewGUIController = fxmlLoader.getController();
             viewGUIController.setStage(stage);
-
             setNetworkHandler(networkHandler);
-            Popup popup = new Popup();
-            popup.getContent().add(new javafx.scene.control.Label("How do you want to play the starter card?"));
-            popup.show(scene.getWindow());
-
+            viewGUIController.setPlayer(player);
+            viewGUIController.showStartGame(state);
         });
     }
 
@@ -173,7 +179,25 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void showPlayedStarter(PlayerLobby player) {
+        if(this.player.equals(player)) {
+            Platform.runLater(() -> {
+                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
+                Scene scene = null;
+                try {
+                    scene = new Scene(fxmlLoader.load(), 1280, 720);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                stage.setTitle("Choose the personal objective");
+                stage.setScene(scene);
+                stage.show();
 
+                viewGUIController = fxmlLoader.getController();
+                viewGUIController.setStage(stage);
+                setNetworkHandler(networkHandler);
+                //TODO (completo io) mostra carta obiettivo...
+            });
+        }
     }
 
     @Override
