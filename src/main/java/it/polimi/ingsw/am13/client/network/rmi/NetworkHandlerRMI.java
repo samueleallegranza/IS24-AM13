@@ -46,9 +46,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
         this.controller = controller;
     }
 
-    //TODO: come gestire le remote exception ???
-    // Potrei gestirle come le altre eccezioni e notificare semplicementente alla view che qualcosa è andato storto
-
     @Override
     public void getRooms() {
         try {

@@ -18,6 +18,12 @@ public interface RoomIF extends Serializable {
     List<PlayerLobby> getPlayers();
 
     /**
+     * @return List of players that are in the game.
+     * If the game has not started yet, it corresponds to the players currently in the room
+     */
+    List<PlayerLobby> getPlayersInGame();
+
+    /**
      * @return GameId for the room
      */
     int getGameId();

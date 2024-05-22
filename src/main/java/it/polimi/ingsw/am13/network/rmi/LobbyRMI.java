@@ -61,6 +61,8 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @return List of all rooms in the lobby, both the ones with game starter and not already started
      */
     public synchronized List<RoomIF> getRooms() throws RemoteException {
+        System.out.print("[RMI][] Received Command getRooms()\n");
+        System.out.print("[RMI][] Sent Response getRooms()\n");
         return lobby.getRooms();
     }
 
@@ -73,9 +75,11 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby
      */
     public synchronized void createRoom(GameListenerClientRMIIF playerListener, int nPlayers) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
+        PlayerLobby player = playerListener.getPlayer();
+        System.out.printf("[RMI][%s] Received Command %s\n", player.getNickname(), "createRoom");
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, player);
         lobby.createRoom(lis, nPlayers);
-        mapLis.put(playerListener.getPlayer(), lis);
+        mapLis.put(player, lis);
     }
 
     /**
@@ -89,9 +93,11 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * or if it exists but the room is already full
      */
     public synchronized void joinRoom(int gameId, GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
+        PlayerLobby player = playerListener.getPlayer();
+        System.out.printf("[RMI][%s] Received Command %s\n", player.getNickname(), "joinRoom");
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, player);
         lobby.joinRoom(gameId, lis);
-        mapLis.put(playerListener.getPlayer(), lis);
+        mapLis.put(player, lis);
     }
 
     /**
@@ -102,6 +108,7 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * @throws LobbyException If the specified player is not in any existing rooms
      */
     public synchronized void leaveRoom(PlayerLobby player) throws LobbyException, RemoteException {
+        System.out.printf("[RMI][%s] Received Command %s\n", player.getNickname(), "leaveRoom");
         GameListenerServerRMI lis = mapLis.get(player);
         if(lis == null)
             throw new LobbyException("Player doesn't exist in lobby");
@@ -119,9 +126,11 @@ public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
      * (generic error, should not happen)
      */
     public synchronized void reconnectPlayer(GameListenerClientRMIIF playerListener) throws LobbyException, RemoteException, ConnectionException, GameStatusException {
-        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, playerListener.getPlayer());
+        PlayerLobby player = playerListener.getPlayer();
+        System.out.printf("[RMI][%s] Received Command %s\n", player.getNickname(), "reconnectGame");
+        GameListenerServerRMI lis = new GameListenerServerRMI(playerListener, player);
         lobby.reconnectPlayer(lis);
-        mapLis.put(playerListener.getPlayer(), lis);
+        mapLis.put(player, lis);
     }
 
 }

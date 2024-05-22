@@ -4,8 +4,10 @@ import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMI;
 import it.polimi.ingsw.am13.client.network.rmi.GameListenerClientRMIIF;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.GameListener;
+import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.ConnectionException;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -47,6 +49,11 @@ public class GameListenerServerRMI implements GameListener {
     private final PlayerLobby player;
 
     /**
+     * Controller of the game, null until the startGaame / reconnectGame update is received
+     */
+    private transient GameController controller;
+
+    /**
      * Creates a new server-side game listener wrapping the client-side listener
      * @param clientLis Client-side listener, which will receive the updates.
      */
@@ -54,6 +61,7 @@ public class GameListenerServerRMI implements GameListener {
         this.clientLis = clientLis;
         ping = System.currentTimeMillis();
         this.player = player;
+        this.controller = null;
     }
 
     /**
@@ -100,15 +108,33 @@ public class GameListenerServerRMI implements GameListener {
      * This method should be called for each RMI call in this class
      * @param fun RMI function to be called
      */
-    private void tryRMICall(RunnableRMI fun) {
+    private void tryRMICall(RunnableRMI fun, String res) {
         new Thread(() -> {
             try {
                 fun.run();
+                logResponse(res);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+//                throw new RuntimeException(e);
+                System.out.printf("[RMI][%s] Unable to contact the client\n", player.getNickname());
+                if(controller!=null) {
+                    try {
+                        controller.disconnectPlayer(player);
+                    } catch (InvalidPlayerException | LobbyException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ConnectionException ignore) {
+                    }
+                }
             }
             //TODO: disconnetti il player se la chiamata non va a buon fine...
         }).start();
+    }
+
+    /**
+     * Logging function which notifies the response which has been sent on the server console .
+     * @param res Response name
+     */
+    private void logResponse(String res) {
+        System.out.printf("[RMI][%s] Sent Response %s\n", player.getNickname(), res);
     }
 
     /**
@@ -117,7 +143,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayerJoinedRoom(PlayerLobby player) {
-        tryRMICall(() -> clientLis.updatePlayerJoinedRoom(player));
+        tryRMICall(() -> clientLis.updatePlayerJoinedRoom(player), "joinedRoom");
     }
 
     /**
@@ -126,7 +152,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayerLeftRoom(PlayerLobby player) {
-        tryRMICall(() -> clientLis.updatePlayerLeftRoom(player));
+        tryRMICall(() -> clientLis.updatePlayerLeftRoom(player),
+                "leftRoom");
     }
 
     /**
@@ -136,6 +163,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateStartGame(GameModelIF model, GameController controller) {
+        this.controller = controller;
         tryRMICall(() -> {
             try {
                 clientLis.updateStartGame(
@@ -145,7 +173,7 @@ public class GameListenerServerRMI implements GameListener {
                 throw new RuntimeException(e);
                 //TODO pensaci meglio: può succedere?
             }
-        });
+        }, "startedGame");
     }
 
     /**
@@ -155,6 +183,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
+        this.controller = controller;
         tryRMICall(() -> {
 //            try {
             try {
@@ -166,7 +195,7 @@ public class GameListenerServerRMI implements GameListener {
 //                //TODO: pensaci meglio: può succedere?
                 throw new RuntimeException(e);
             }
-        });
+        }, "updatedGameState");
     }
 
     /**
@@ -177,7 +206,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
-        tryRMICall(() -> clientLis.updatePlayedStarter(player, cardStarter, availableCoords));
+        tryRMICall(() -> clientLis.updatePlayedStarter(player, cardStarter, availableCoords),
+                "playedStarter");
     }
 
     /**
@@ -187,7 +217,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
-        tryRMICall(() -> clientLis.updateChosenPersonalObjective(player, chosenObj));
+        tryRMICall(() -> clientLis.updateChosenPersonalObjective(player, chosenObj),
+                "chosenObjective");
     }
 
     /**
@@ -196,7 +227,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateNextTurn(PlayerLobby player) {
-        tryRMICall(() -> clientLis.updateNextTurn(player));
+        tryRMICall(() -> clientLis.updateNextTurn(player),
+                "nextTurn");
     }
 
     /**
@@ -209,7 +241,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF cardPlayed, Coordinates coord, int points, List<Coordinates> availableCoords) {
-        tryRMICall(() -> clientLis.updatePlayedCard(player, cardPlayed, coord, points, availableCoords));
+        tryRMICall(() -> clientLis.updatePlayedCard(player, cardPlayed, coord, points, availableCoords),
+                "playedCard");
     }
 
     /**
@@ -220,7 +253,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
-        tryRMICall(() -> clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards), pickedCard));
+        tryRMICall(() -> clientLis.updatePickedCard(player, new ArrayList<>(updatedVisibleCards), pickedCard),
+                "pickedCard");
     }
 
     /**
@@ -229,7 +263,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
-        tryRMICall(() -> clientLis.updatePoints(pointsMap));
+        tryRMICall(() -> clientLis.updatePoints(pointsMap),
+                "updatedPoints");
     }
 
     /**
@@ -238,7 +273,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateWinner(PlayerLobby winner) {
-        tryRMICall(() -> clientLis.updateWinner(winner));
+        tryRMICall(() -> clientLis.updateWinner(winner),
+                "winner");
     }
 
     /**
@@ -247,7 +283,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateEndGame() {
-        tryRMICall(clientLis::updateEndGame);
+        tryRMICall(clientLis::updateEndGame, "endGame");
     }
 
     /**
@@ -256,7 +292,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayerDisconnected(PlayerLobby player) {
-        tryRMICall(() -> clientLis.updatePlayerDisconnected(player));
+        tryRMICall(() -> clientLis.updatePlayerDisconnected(player),
+                "playerDisconnected");
     }
 
     @Override
@@ -270,7 +307,8 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updatePlayerReconnected(PlayerLobby player) {
-        tryRMICall(() -> clientLis.updatePlayerReconnected(player));
+        tryRMICall(() -> clientLis.updatePlayerReconnected(player),
+                "playerReconnected");
     }
 
     /**
@@ -278,7 +316,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateFinalPhase() {
-        tryRMICall(clientLis::updateFinalPhase);
+        tryRMICall(clientLis::updateFinalPhase, "finalPhase");
     }
 
     /**
@@ -286,7 +324,7 @@ public class GameListenerServerRMI implements GameListener {
      */
     @Override
     public void updateInGame() {
-        tryRMICall(clientLis::updateInGame);
+        tryRMICall(clientLis::updateInGame, "inGame");
     }
 
 }

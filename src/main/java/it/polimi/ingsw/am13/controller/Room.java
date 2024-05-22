@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +34,11 @@ public class Room extends ListenerHandler implements RoomIF {
     private boolean gameStarted;
 
     /**
+     * List of players that are in the game, null if the game has not started yet
+     */
+    private List<PlayerLobby> playersInGame;
+
+    /**
      * Creates a nuw room with only the specified player, and sets the target number of players.
      * The handler of listener is created in this moment.
      * It also notifies the player who created the room that he has jointed successfully.
@@ -48,6 +54,7 @@ public class Room extends ListenerHandler implements RoomIF {
             throw new LobbyException("The target number of players must be between 2 and 4");
         this.nPlayersTarget = nPlayersTarget;
         gameStarted = false;
+        playersInGame = null;
         joinRoom(player);
     }
 
@@ -56,6 +63,15 @@ public class Room extends ListenerHandler implements RoomIF {
      */
     public List<PlayerLobby> getPlayers() {
         return getListeners().stream().map(GameListener::getPlayer).toList();
+    }
+
+    /**
+     * @return List of players that are in the game.
+     * If the game has not started yet, it corresponds to the players currently in the room
+     */
+    @Override
+    public List<PlayerLobby> getPlayersInGame() {
+        return playersInGame==null ? getPlayers() : new ArrayList<>(playersInGame);
     }
 
     /**
@@ -93,8 +109,10 @@ public class Room extends ListenerHandler implements RoomIF {
             throw new LobbyException("This room is already full");
         addListener(player);
         notifyPlayerJoinedRoom(player.getPlayer());
-        if(getListeners().size() == nPlayersTarget)
+        if(getListeners().size() == nPlayersTarget) {
             this.gameStarted = true;
+            this.playersInGame = getPlayers();
+        }
     }
 
 
@@ -131,6 +149,12 @@ public class Room extends ListenerHandler implements RoomIF {
         } catch (InvalidPlayerException e) {
             throw new LobbyException("The listener of the player in not in the listener list");
         }
+
+        System.out.println("\n");
+        getListeners().forEach(System.out::println);
+        System.out.println("\n");
+
+
         if(!gameStarted) {
             notifyPlayerLeftRoom(player);
             lis.updatePlayerLeftRoom(player);

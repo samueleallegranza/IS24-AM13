@@ -45,6 +45,14 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
     // In this way all methods cannot throw InvalidException (I'm sure this controller is associated to a player present in the game)
 
     /**
+     * Logging function which notifies the command which has been received on the server console .
+     * @param cmd Command name
+     */
+    private void logCommand(String cmd) {
+        System.out.printf("[RMI][%s] Received Command %s\n", player.getNickname(), cmd);
+    }
+
+    /**
      * Updates the ping of the player's listener by setting it to the current time
      */
     public synchronized void updatePing() throws RemoteException {
@@ -60,6 +68,7 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
      */
     public synchronized void playStarter(Side side) throws RemoteException,
             InvalidPlayCardException, GameStatusException {
+        logCommand("playStarter");
         try {
             gameController.playStarter(player, side);
         } catch (InvalidPlayerException e) {
@@ -78,6 +87,7 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
      */
     public synchronized void choosePersonalObjective(CardObjectiveIF cardObj)
             throws RemoteException, InvalidChoiceException, VariableAlreadySetException, GameStatusException {
+        logCommand("chooseObj");
         try {
             gameController.choosePersonalObjective(player, cardObj);
         } catch (InvalidPlayerException e) {
@@ -96,6 +106,7 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
      */
     public void playCard(CardPlayableIF card, Side side, Coordinates coord)
             throws RemoteException, RequirementsNotMetException, InvalidPlayCardException, GameStatusException {
+        logCommand("playCard");
         try {
             gameController.playCard(player, card, side, coord);
         } catch (InvalidPlayerException e) {
@@ -112,6 +123,7 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
      */
     public void pickCard(CardPlayableIF card)
             throws RemoteException, InvalidDrawCardException, GameStatusException {
+        logCommand("pickCard");
         try {
             gameController.pickCard(player, card);
         } catch (InvalidPlayerException e) {
