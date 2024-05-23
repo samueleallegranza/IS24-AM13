@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
+import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.util.List;
@@ -9,6 +10,11 @@ import java.util.List;
 public class ViewGUIControllerFinalPhase extends ViewGUIController{
     @Override
     public void setPlayer(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void setGameState(GameState gameState) {
 
     }
 
@@ -39,6 +45,36 @@ public class ViewGUIControllerFinalPhase extends ViewGUIController{
 
     @Override
     public void setGameId(int gameId) {
+
+    }
+
+    @Override
+    public void showPlayedStarter(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showChosenPersonalObjective(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showInGame() {
+
+    }
+
+    @Override
+    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+
+    }
+
+    @Override
+    public void showPickedCard(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showNextTurn() {
 
     }
 }

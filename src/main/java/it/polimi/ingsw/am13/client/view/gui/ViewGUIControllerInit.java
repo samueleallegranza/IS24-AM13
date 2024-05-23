@@ -3,25 +3,33 @@ package it.polimi.ingsw.am13.client.view.gui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardIF;
+import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
+import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import javafx.event.EventHandler;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 
 import java.util.List;
 
 public class ViewGUIControllerInit extends ViewGUIController{
-    public Label chooseStarterLabel;
-    public ImageView frontStarterImage;
-    public ImageView backStarterImage;
+    public Label descriptionLabel;
+    public ImageView firstChoiceImage;
+    public ImageView secondChoiceImage;
     private PlayerLobby player;
+    private GameState state;
 
     @Override
     public void setPlayer(PlayerLobby player) {
         this.player=player;
+    }
+
+    @Override
+    public void setGameState(GameState gameState) {
+
     }
 
     @Override
@@ -41,17 +49,18 @@ public class ViewGUIControllerInit extends ViewGUIController{
 
     @Override
     public void showStartGame(GameState state) {
-        chooseStarterLabel.setText("How do you want to play the starter card(front/back)?");
+        descriptionLabel.setText("How do you want to play the starter card(front/back)?");
         CardIF starterCard=null;
+        this.state=state;
         for(PlayerLobby playerLobby : state.getPlayers())
             if(playerLobby.equals(player))
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
         Image imageFront=new Image(getClass().getResourceAsStream("/img/cards/fronts/"+starterCard.getId()+".png"));
-        frontStarterImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEFRONT));
-        frontStarterImage.setImage(imageFront);
+        firstChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEFRONT));
+        firstChoiceImage.setImage(imageFront);
         Image imageBack=new Image(getClass().getResourceAsStream("/img/cards/backs/"+starterCard.getId()+".png"));
-        backStarterImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEBACK));
-        backStarterImage.setImage(imageBack);
+        secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEBACK));
+        secondChoiceImage.setImage(imageBack);
     }
 
     @Override
@@ -61,6 +70,71 @@ public class ViewGUIControllerInit extends ViewGUIController{
 
     @Override
     public void setGameId(int gameId) {
+
+    }
+
+    @Override
+    public void showPlayedStarter(PlayerLobby player) {
+        if(this.player.equals(player)) {
+            descriptionLabel.setText("Which personal objective do you want to choose?");
+            List<CardObjectiveIF> possibleHandObjectives = null;
+            for (PlayerLobby playerLobby : state.getPlayers())
+                if (playerLobby.equals(player))
+                    possibleHandObjectives = state.getPlayerState(playerLobby).getPossibleHandObjectives();
+            Image imageFront = new Image(getClass().getResourceAsStream("/img/cards/fronts/" + possibleHandObjectives.get(0).getId() + ".png"));
+            List<CardObjectiveIF> finalPossibleHandObjectives = possibleHandObjectives;
+            firstChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(0)));
+            firstChoiceImage.setImage(imageFront);
+            Image imageBack = new Image(getClass().getResourceAsStream("/img/cards/fronts/" + possibleHandObjectives.get(1).getId() + ".png"));
+            secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(1)));
+            secondChoiceImage.setImage(imageBack);
+        }
+        else{
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Another player has chosen the side of his starter card");
+                alert.setContentText("Player " + player.getNickname() + " has chosen a side for his starter card");
+                alert.showAndWait();
+            });
+        }
+    }
+
+    @Override
+    public void showChosenPersonalObjective(PlayerLobby player) {
+        if(this.player.equals(player)) {
+            Platform.runLater(() -> {
+                descriptionLabel.setText("You have chosen your personal objective.\n Now wait for the others to finish their initial phase");
+                firstChoiceImage.setImage(null);
+                secondChoiceImage.setImage(null);
+            });
+        }
+        else{
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Another player has chosen his personal objective");
+                alert.setContentText("Player " + player.getNickname() + " has chosen his personal objective");
+                alert.showAndWait();
+            });
+        }
+    }
+
+    @Override
+    public void showInGame() {
+
+    }
+
+    @Override
+    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+
+    }
+
+    @Override
+    public void showPickedCard(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showNextTurn() {
 
     }
 }

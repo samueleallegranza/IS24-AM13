@@ -15,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,9 +32,11 @@ public class ViewGUI extends Application implements View{
     private NetworkHandler networkHandler;
     private List<RoomIF> rooms;
 
-
+    private GameState state;
     private PlayerLobby player;
     private Stage stage;
+    private final static int sceneWidth=1820;
+    private final static int sceneHeight=980;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -46,7 +49,7 @@ public class ViewGUI extends Application implements View{
         networkHandler = ClientMain.initConnection(isSocket, ip, port, this);
 
         FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        Scene scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
         stage.setTitle("Codex");
         stage.setScene(scene);
         stage.show();
@@ -85,7 +88,7 @@ public class ViewGUI extends Application implements View{
     @Override
     public void showRooms(List<RoomIF> rooms) {
         this.rooms=rooms;
-        Boolean found=false;
+        boolean found=false;
         for(RoomIF room : rooms)
             if(room.getPlayers().contains(player)) {
                 found=true;
@@ -103,7 +106,7 @@ public class ViewGUI extends Application implements View{
                 FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIJoinedRoom.fxml"));
                 Scene scene = null;
                 try {
-                    scene = new Scene(fxmlLoader.load(), 1280, 720);
+                    scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -128,7 +131,7 @@ public class ViewGUI extends Application implements View{
                 FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
                 Scene scene = null;
                 try {
-                    scene = new Scene(fxmlLoader.load(), 1280, 720);
+                    scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -138,13 +141,14 @@ public class ViewGUI extends Application implements View{
 
                 viewGUIController = fxmlLoader.getController();
                 viewGUIController.setStage(stage);
-
+                viewGUIController.setGameState(state);
                 setNetworkHandler(networkHandler);
 
                 showStartupScreen(true, "localhost", 25566);
+                this.player=null;
                 networkHandler.getRooms();
             });
-            this.player=null;
+
         }
         else
             networkHandler.getRooms();
@@ -156,13 +160,15 @@ public class ViewGUI extends Application implements View{
             FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
             Scene scene = null;
             try {
-                scene = new Scene(fxmlLoader.load(), 1280, 720);
+                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            stage.setTitle("Choose side of the starter card");
+            stage.setTitle("Choose a side of the starter card");
             stage.setScene(scene);
             stage.show();
+
+            this.state=state;
 
             viewGUIController = fxmlLoader.getController();
             viewGUIController.setStage(stage);
@@ -181,33 +187,39 @@ public class ViewGUI extends Application implements View{
     public void showPlayedStarter(PlayerLobby player) {
         if(this.player.equals(player)) {
             Platform.runLater(() -> {
-                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
-                Scene scene = null;
-                try {
-                    scene = new Scene(fxmlLoader.load(), 1280, 720);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                stage.setTitle("Choose the personal objective");
-                stage.setScene(scene);
+                stage.setTitle("Choose your personal objective");
                 stage.show();
-
-                viewGUIController = fxmlLoader.getController();
-                viewGUIController.setStage(stage);
-                setNetworkHandler(networkHandler);
-                //TODO (completo io) mostra carta obiettivo...
+                viewGUIController.showPlayedStarter(player);
             });
+        }
+        else {
+            viewGUIController.showPlayedStarter(player);
         }
     }
 
     @Override
     public void showChosenPersonalObjective(PlayerLobby player) {
-
+        viewGUIController.showChosenPersonalObjective(player);
     }
 
     @Override
     public void showInGame() {
+        Platform.runLater(() -> {
+            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIMatch.fxml"));
+            Scene scene = null;
+            try {
+                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            stage.setTitle("Turn based phase");
+            stage.setScene(scene);
+            stage.show();
 
+            viewGUIController = fxmlLoader.getController();
+            viewGUIController.setStage(stage);
+            setNetworkHandler(networkHandler);
+        });
     }
 
     @Override

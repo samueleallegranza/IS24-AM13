@@ -13,11 +13,11 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerInit"
             prefHeight="500.0" prefWidth="800.0">
-    <Label fx:id="chooseStarterLabel" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER">
+    <Label fx:id="descriptionLabel" contentDisplay="CENTER" prefHeight="50.0" prefWidth="650.0" textAlignment="CENTER">
         <font>
             <Font size="20.0" />
         </font>
     </Label>
-    <ImageView fx:id="frontStarterImage" layoutX="50" layoutY="50" fitWidth="300" fitHeight="200"/>
-    <ImageView fx:id="backStarterImage" layoutX="400" layoutY="50" fitWidth="300" fitHeight="200"/>
+    <ImageView fx:id="firstChoiceImage" layoutX="50" layoutY="50" fitWidth="300" fitHeight="200"/>
+    <ImageView fx:id="secondChoiceImage" layoutX="400" layoutY="50" fitWidth="300" fitHeight="200"/>
 </AnchorPane>
