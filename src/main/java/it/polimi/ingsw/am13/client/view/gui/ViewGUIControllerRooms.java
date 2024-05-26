@@ -10,8 +10,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ViewGUIControllerRooms extends ViewGUIController {
     @FXML
@@ -71,7 +73,20 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         }
         roomId.setCellValueFactory(new PropertyValueFactory<>("gameId"));
         roomStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isGameStarted() ? "started" : "waiting"));
+
         roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().get(0).getNickname()));
+        roomP1.setCellFactory(column -> new TableCell<RoomIF, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                if (!(item == null || empty) && getTableView().getItems().get(getIndex()).getPlayers().size() > 0) {
+                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(0).getToken().getColor().name());
+                    Label label = new Label(item);
+                    label.setTextFill(color);
+                    setGraphic(label);
+                }
+            }
+        });
+
         roomP2.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getPlayers().get(1).getNickname());
@@ -79,6 +94,23 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
+        roomP2.setCellFactory(column -> new TableCell<RoomIF, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 1) {
+                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(1).getToken().getColor().name());
+                        setTextFill(color);
+                    }
+                }
+            }
+        });
+
         roomP3.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getPlayers().get(2).getNickname());
@@ -86,6 +118,23 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
+        roomP3.setCellFactory(column -> new TableCell<RoomIF, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 2) {
+                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(2).getToken().getColor().name());
+                        setTextFill(color);
+                    }
+                }
+            }
+        });
+
         roomP4.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(cellData.getValue().getPlayers().get(3).getNickname());
@@ -93,24 +142,24 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
-        roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
-
-        nicknameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Enable the submit button only if the text field is not empty
-            createRoomButton.setDisable(newValue.trim().isEmpty());
-            joinRoomButton.setDisable(newValue.trim().isEmpty());
+        roomP4.setCellFactory(column -> new TableCell<RoomIF, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 3) {
+                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(3).getToken().getColor().name());
+                        setTextFill(color);
+                    }
+                }
+            }
         });
-//        for(RoomIF room : rooms){
-//            roomsTable.setRowFactory(roomButton -> {
-//                TableRow<RoomIF> row = new TableRow<>();
-//                row.setOnMouseClicked(mouseEvent -> {
-//                    String nickname = nicknameField.getText();
-//                    ColorToken color = colorBox.getValue();
-//                    networkHandler.joinRoom(nickname, new Token(color), room.getGameId());
-//                });
-//                return row;
-//            });
-//        }
+
+        roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
     }
 
     @Override
@@ -159,7 +208,6 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
 
     public void showException(Exception e) {
-        //TODO this doesn't work
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("An error occurred");
@@ -209,7 +257,4 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-
-    // TODO create the view after a player has joined/created a room
 }
