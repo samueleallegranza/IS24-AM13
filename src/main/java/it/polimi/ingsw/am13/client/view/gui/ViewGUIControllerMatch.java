@@ -43,6 +43,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private ImageView attemptedToPlayCardHand;
     private ImageView attemptedToPlayCardField;
     private Rectangle attemptedToPlayCardBox;
+    private List<CardPlayableIF> handPlayable;
+    private int playedCardIndex;
     private static final Integer imageW=150,imageH=100,cornerX=35,cornerY=40;
 
     @Override
@@ -78,11 +80,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showException(Exception e) {
         //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
+        //use istance of? (requirementsNotMetException)
         if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
             Platform.runLater(() -> {
                 handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                 fieldContainer.getChildren().remove(attemptedToPlayCardField);
                 fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                playedCardIndex=-1;
                 for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
                     if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
                         int finalI = i;
@@ -132,7 +136,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         Image cardImage;
         if(side==Side.SIDEBACK && id.charAt(0)!='s')
             id=id.substring(0,3)+'0';
-//        System.out.println(id);
         if(side==Side.SIDEFRONT)
             cardImage = new Image(getClass().getResourceAsStream("/img/cards/fronts/" + id + ".png"));
         else
@@ -171,7 +174,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     private void addCardBox(Coordinates coordinates, List<CardPlayableIF> finalHandPlayable){
         Rectangle box1 = new Rectangle(imageW, imageH, Color.BLUE);
-        int posX=(-imageW+cornerX)*coordinates.getPosX();
+        int posX=(imageW-cornerX)*coordinates.getPosX();
         int posY=(-imageH+cornerY)*coordinates.getPosY();
         box1.setTranslateX(posX);
         box1.setTranslateY(posY);
@@ -200,6 +203,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 String cardId=finalHandPlayable.get(handIndex).getId();
                 if(handCardSides.get(handIndex)==Side.SIDEBACK && cardId.charAt(0)!='s')
                     cardId=cardId.substring(0,3)+'0';
+                playedCardIndex=handIndex;
                 if(handCardSides.get(handIndex)==Side.SIDEFRONT)
                     imageHandCard= new Image(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png"));
                 else
@@ -213,7 +217,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 attemptedToPlayCardBox=box1;
                 fieldContainer.getChildren().remove(box1);
                 fieldContainer.getChildren().add(newCardImg);
-
+                event.setDropCompleted(true);
                 event.consume();
             }
         });
@@ -223,11 +227,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showInGame() {
         flowCardPlaced=false;
         CardPlayableIF starterCard=null;
-        List<CardPlayableIF> handPlayable=null;
+        handPlayable=null;
+        playedCardIndex=-1;
         for(PlayerLobby playerLobby : state.getPlayers())
             if(playerLobby.equals(player)) {
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
-                handPlayable=state.getPlayerState(playerLobby).getHandPlayable();
+                handPlayable=List.copyOf(state.getPlayerState(playerLobby).getHandPlayable());
             }
         Image imageStarterSide;
         if(starterCard.getPlayedCardSide().equals(starterCard.getSide(Side.SIDEFRONT)))
@@ -256,13 +261,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             flipHandCard.setTranslateY(0);
             int finalI = i;
             flipHandCard.setOnMouseClicked(mouseEvent -> {
-                if(handCardSides.get(finalI)==Side.SIDEFRONT) {
-                    handCardSides.set(finalI,Side.SIDEBACK);
-                    displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEBACK, handCard);
-                }
-                else {
-                    displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEFRONT, handCard);
-                    handCardSides.set(finalI,Side.SIDEFRONT);
+                if (finalI != playedCardIndex) {
+                    if (handCardSides.get(finalI) == Side.SIDEFRONT) {
+                        handCardSides.set(finalI, Side.SIDEBACK);
+                        displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEBACK, handCard);
+                    } else {
+                        displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEFRONT, handCard);
+                        handCardSides.set(finalI, Side.SIDEFRONT);
+                    }
                 }
             });
             if(state.getFirstPlayer().equals(player)) {
@@ -273,22 +279,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         for(Coordinates coordinates : state.getPlayerState(player).getField().getAvailableCoords()) {
             addCardBox(coordinates,finalHandPlayable);
         }
-
+//        imageContainer.setScaleX(0.5);
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         if(this.player.equals(player)) {
             flowCardPlaced = true;
-            List<CardPlayableIF> handPlayable=null;
-            for(PlayerLobby playerLobby : state.getPlayers())
-                if(playerLobby.equals(player)) {
-                    handPlayable=state.getPlayerState(playerLobby).getHandPlayable();
-                }
             List<CardPlayableIF> finalHandPlayable=handPlayable;
             Platform.runLater(() -> {
                 for (Coordinates coordinates : state.getPlayerState(player).getField().getAvailableCoords()) {
-                    int posX = (-imageW + cornerX) * coordinates.getPosX();
+                    int posX = (imageW - cornerX) * coordinates.getPosX();
                     int posY = (-imageH + cornerY) * coordinates.getPosY();
                     boolean alreadyPresent=false;
                     for (int i = 0; i < fieldContainer.getChildren().size() && !alreadyPresent; i++) {
