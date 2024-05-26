@@ -7,11 +7,15 @@ import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Screen;
+import javafx.util.Duration;
 
 import java.util.List;
 
@@ -94,7 +98,13 @@ public class ViewGUIControllerInit extends ViewGUIController{
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Another player has chosen the side of his starter card");
                 alert.setContentText("Player " + player.getNickname() + " has chosen a side for his starter card");
-                alert.showAndWait();
+                alert.setX(Screen.getPrimary().getVisualBounds().getWidth()-alert.getDialogPane().getPrefWidth());
+                alert.setY(0);
+                alert.show();
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+                    alert.close();
+                }));
+                timeline.play();
             });
         }
     }
@@ -113,7 +123,13 @@ public class ViewGUIControllerInit extends ViewGUIController{
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Another player has chosen his personal objective");
                 alert.setContentText("Player " + player.getNickname() + " has chosen his personal objective");
-                alert.showAndWait();
+                alert.setX(Screen.getPrimary().getVisualBounds().getWidth()-alert.getDialogPane().getPrefWidth());
+                alert.setY(0);
+                alert.show();
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+                    alert.close();
+                }));
+                timeline.play();
             });
         }
     }

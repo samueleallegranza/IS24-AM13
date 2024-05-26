@@ -6,9 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.image.ImageView?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch"
-            prefHeight="600.0" prefWidth="800.0">
+            prefHeight="980" prefWidth="1820">
+    <StackPane fx:id="imageContainer" prefHeight="680" prefWidth="1520"/>
+    <Pane fx:id="handCards" layoutX="50" layoutY="800" prefHeight="150" prefWidth="650"/>
 
 </AnchorPane>

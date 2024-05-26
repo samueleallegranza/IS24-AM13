@@ -218,13 +218,16 @@ public class ViewGUI extends Application implements View{
 
             viewGUIController = fxmlLoader.getController();
             viewGUIController.setStage(stage);
+            viewGUIController.setPlayer(player);
+            viewGUIController.setGameState(state);
             setNetworkHandler(networkHandler);
+            viewGUIController.showInGame();
         });
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-
+        viewGUIController.showPlayedCard(player,coord);
     }
 
     @Override
