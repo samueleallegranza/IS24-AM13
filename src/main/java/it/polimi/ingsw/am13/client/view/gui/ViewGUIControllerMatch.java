@@ -3,7 +3,6 @@ package it.polimi.ingsw.am13.client.view.gui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -16,21 +15,29 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
-    public Pane handCards;
+    @FXML
+    private StackPane fieldContainer;
+
+    @FXML
+    private Pane handCardsContainer;
+
+    @FXML
+    private Pane playersContainer;
+
+    @FXML
+    private Pane pickablesContainer;
+
+
     private GameState state;
     private PlayerLobby player;
-    @FXML
-    private StackPane imageContainer;
     private List<Side> handCardSides;
     private boolean flowCardPlaced;
     private ImageView attemptedToPlayCardHand;
@@ -73,17 +80,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
         if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
             Platform.runLater(() -> {
-                handCards.getChildren().add(attemptedToPlayCardHand);
-                imageContainer.getChildren().remove(attemptedToPlayCardField);
-                imageContainer.getChildren().add(attemptedToPlayCardBox);
-                for (int i = 0; i < handCards.getChildren().size(); i++) {
-                    if (handCards.getChildren().get(i).getOnMouseClicked() == null) {
+                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+                fieldContainer.getChildren().remove(attemptedToPlayCardField);
+                fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
+                    if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
                         int finalI = i;
-                        handCards.getChildren().get(i).setOnDragDetected(new EventHandler<MouseEvent>() {
+                        handCardsContainer.getChildren().get(i).setOnDragDetected(new EventHandler<MouseEvent>() {
                             public void handle(MouseEvent event) {
-                                Dragboard db = handCards.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
+                                Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
                                 ClipboardContent content = new ClipboardContent();
-                                content.putString(handCards.getChildren().get(finalI).getId());
+                                content.putString(handCardsContainer.getChildren().get(finalI).getId());
                                 db.setContent(content);
                                 event.consume();
                             }
@@ -151,10 +158,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if (event.getTransferMode() == TransferMode.MOVE) {
                     //imageView.setImage(null);
                     attemptedToPlayCardHand=imageView;
-                    handCards.getChildren().remove(imageView);
-                    for (int i = 0; i < handCards.getChildren().size(); i++) {
-                        if(handCards.getChildren().get(i).getOnDragDetected()!=null)
-                            handCards.getChildren().get(i).setOnDragDetected(null);
+                    handCardsContainer.getChildren().remove(imageView);
+                    for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
+                        if(handCardsContainer.getChildren().get(i).getOnDragDetected()!=null)
+                            handCardsContainer.getChildren().get(i).setOnDragDetected(null);
                     }
                 }
                 event.consume();
@@ -204,13 +211,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 newCardImg.setTranslateY(posY);
                 attemptedToPlayCardField=newCardImg;
                 attemptedToPlayCardBox=box1;
-                imageContainer.getChildren().remove(box1);
-                imageContainer.getChildren().add(newCardImg);
+                fieldContainer.getChildren().remove(box1);
+                fieldContainer.getChildren().add(newCardImg);
 
                 event.consume();
             }
         });
-        imageContainer.getChildren().add(box1);
+        fieldContainer.getChildren().add(box1);
     }
     @Override
     public void showInGame() {
@@ -232,8 +239,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         imageStarterSideView.setFitHeight(imageH);
         imageStarterSideView.setX(0);
         imageStarterSideView.setY(0);
-        imageContainer.setAlignment(Pos.CENTER);
-        imageContainer.getChildren().add(imageStarterSideView);
+        fieldContainer.setAlignment(Pos.CENTER);
+        fieldContainer.getChildren().add(imageStarterSideView);
         handCardSides=new ArrayList<>();
         List<CardPlayableIF> finalHandPlayable = handPlayable;
         for (int i = 0; i < 4; i++) {
@@ -261,7 +268,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             if(state.getFirstPlayer().equals(player)) {
                 makeDraggable(i, handCard);
             }
-            handCards.getChildren().addAll(handCard,flipHandCard);
+            handCardsContainer.getChildren().addAll(handCard,flipHandCard);
         }
         for(Coordinates coordinates : state.getPlayerState(player).getField().getAvailableCoords()) {
             addCardBox(coordinates,finalHandPlayable);
@@ -284,8 +291,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     int posX = (-imageW + cornerX) * coordinates.getPosX();
                     int posY = (-imageH + cornerY) * coordinates.getPosY();
                     boolean alreadyPresent=false;
-                    for (int i = 0; i < imageContainer.getChildren().size() && !alreadyPresent; i++) {
-                        if(imageContainer.getChildren().get(i).getTranslateX()==posX && imageContainer.getChildren().get(i).getTranslateY()==posY)
+                    for (int i = 0; i < fieldContainer.getChildren().size() && !alreadyPresent; i++) {
+                        if(fieldContainer.getChildren().get(i).getTranslateX()==posX && fieldContainer.getChildren().get(i).getTranslateY()==posY)
                             alreadyPresent=true;
                     }
                     if (!alreadyPresent)
