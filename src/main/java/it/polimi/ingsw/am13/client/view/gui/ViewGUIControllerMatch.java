@@ -90,6 +90,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<Button> flipButtons;
     private List<StackPane> sideFields;
     private List<Pane> sideHands;
+
+
+    //this is a list that saves for each player index in state.getPlayers() its position in the sideFields/sideHands (-1 if it's currently being displayed)
+    private List<Integer> playerIndexToSidePos;
     private static final Integer imageW=150,imageH=100,cornerX=35,cornerY=40;
 
     // ----------------------------------------------------------------
@@ -122,7 +126,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if (e instanceof RequirementsNotMetException){
             if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
                 Platform.runLater(() -> {
-                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+//                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+                    attemptedToPlayCardHand.setVisible(true);
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
                     fieldContainer.getChildren().add(attemptedToPlayCardBox);
                     playedCardIndex=-1;
@@ -176,6 +181,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         sideFields=Stream.of(sideField0,sideField1,sideField2).toList();
         handCards=Stream.of(handCard0,handCard1,handCard2).toList();
         flipButtons=Stream.of(flipButton0,flipButton1,flipButton2).toList();
+        playerIndexToSidePos=new ArrayList<>();
 
         for (int i = 0; i < state.getPlayers().size(); i++) {
             PlayerLobby playerLobby=state.getPlayers().get(i);
@@ -183,9 +189,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
                 handPlayable=List.copyOf(state.getPlayerState(playerLobby).getHandPlayable());
                 foundThisPlayer=true;
+                playerIndexToSidePos.add(-1);
             }
-            else
+            else{
                 showOtherPlayer(i,foundThisPlayer);
+            }
+
         }
 
         //display the starter card
@@ -250,8 +259,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if (this.thisPlayer.equals(player)){
             //System.out.println("Client player: " + thisPlayer.getNickname() + ". Player who picked a card: " + player.getNickname());
             Platform.runLater(() -> {
-                clearHandPlayable();
-                displayHandPlayable();
+//                clearHandPlayable();
+//                displayHandPlayable();
+                updateHandPlayable();
             });
             // After a card has been picked, the pickable cards should not be clickable
             pickablesContainer.setMouseTransparent(true);
@@ -261,8 +271,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showNextTurn() {
+        //todo Samuele aggiorna le label
         if (state.getCurrentPlayer().equals(thisPlayer)) {
-            // TODO: fare in modo che le hand cards del nuovo giocatore siano draggabili @Lorenzo
+            for (int i = 0; i < handPlayable.size(); i++) {
+                ImageView handCard=handCards.get(i);
+                if(state.getCurrentPlayer().equals(thisPlayer)) {
+                    makeDraggable(i, handCard);
+                }
+            }
         }
     }
 
@@ -291,8 +307,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private void displayHandPlayable(){
         handPlayable=List.copyOf(state.getPlayerState(thisPlayer).getHandPlayable());
         for (int i = 0; i < handPlayable.size(); i++) {
-            //System.out.println("card displayed id: "+ handPlayable.get(i).getId());
             ImageView handCard=handCards.get(i);
+            handCard.setVisible(true);
+//            if(handCard)
             displayCard(handPlayable.get(i).getId(),Side.SIDEFRONT,handCard);
             Button flipHandCard=flipButtons.get(i);
             int finalI = i;
@@ -309,6 +326,45 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             });
             if(state.getCurrentPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
+            }
+        }
+    }
+
+    private void updateHandPlayable(){
+        CardPlayableIF lastPlayedCard=handPlayable.get(playedCardIndex);
+        List<CardPlayableIF> remainingHandCards=new ArrayList<>();
+        for (int i = 0; i < handPlayable.size(); i++){
+            if(i!=playedCardIndex)
+                remainingHandCards.add(handPlayable.get(i));
+        }
+        handPlayable=List.copyOf(state.getPlayerState(thisPlayer).getHandPlayable());
+        ImageView handCard=null;
+        for (int i = 0; i < handPlayable.size(); i++){
+            if(!handCards.get(i).isVisible()){
+                handCard=handCards.get(i);
+            }
+        }
+        handCard.setVisible(true);
+        for (int i = 0; i < handPlayable.size(); i++) {
+            if(!handPlayable.get(i).getId().equals(remainingHandCards.get(0).getId()) && !handPlayable.get(i).getId().equals(remainingHandCards.get(1).getId())) {
+                displayCard(handPlayable.get(i).getId(), Side.SIDEFRONT, handCard);
+                Button flipHandCard = flipButtons.get(i);
+                int finalI = i;
+                ImageView finalHandCard = handCard;
+                flipHandCard.setOnMouseClicked(mouseEvent -> {
+                    if (finalI != playedCardIndex) {
+                        if (handCardSides.get(finalI) == Side.SIDEFRONT) {
+                            handCardSides.set(finalI, Side.SIDEBACK);
+                            displayCard(handPlayable.get(finalI).getId(), Side.SIDEBACK, finalHandCard);
+                        } else {
+                            displayCard(handPlayable.get(finalI).getId(), Side.SIDEFRONT, finalHandCard);
+                            handCardSides.set(finalI, Side.SIDEFRONT);
+                        }
+                    }
+                });
+                if (state.getCurrentPlayer().equals(thisPlayer)) {
+                    makeDraggable(i, handCard);
+                }
             }
         }
     }
@@ -361,6 +417,26 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // TODO: implement switching
         Platform.runLater(() -> {
             System.out.println(this.state.getPlayers().get(playerIdx).getNickname());
+            if(!thisPlayer.equals(state.getCurrentPlayer()) && !state.getPlayers().get(playerIdx).equals(displayPlayer)) {
+                int sideIndex=playerIndexToSidePos.get(playerIdx);
+                for (int i = 0; i < playerIndexToSidePos.size(); i++) {
+                    if(playerIndexToSidePos.get(i)==-1)
+                        playerIndexToSidePos.set(i,sideIndex);
+                }
+                playerIndexToSidePos.set(playerIdx,-1);
+                List<Node> tmp = List.copyOf(sideFields.get(sideIndex).getChildren());
+                sideFields.get(sideIndex).getChildren().removeAll(sideFields.get(sideIndex).getChildren());
+                sideFields.get(sideIndex).getChildren().addAll(fieldContainer.getChildren());
+                fieldContainer.getChildren().removeAll(fieldContainer.getChildren());
+                fieldContainer.getChildren().addAll(tmp);
+
+                tmp = List.copyOf(sideHands.get(sideIndex).getChildren());
+                sideHands.get(sideIndex).getChildren().removeAll(sideHands.get(sideIndex).getChildren());
+                sideHands.get(sideIndex).getChildren().addAll(handCardsContainer.getChildren());
+                handCardsContainer.getChildren().removeAll(handCardsContainer.getChildren());
+                handCardsContainer.getChildren().addAll(tmp);
+                displayPlayer=state.getPlayers().get(playerIdx);
+            }
         });
     }
     private void clearHandPlayable(){
@@ -425,9 +501,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         imageView.setOnDragDone(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 if (event.getTransferMode() == TransferMode.MOVE) {
-                    //imageView.setImage(null);
+//                    imageView.setImage(null);
+                    imageView.setVisible(false);
                     attemptedToPlayCardHand=imageView;
-                    handCardsContainer.getChildren().remove(imageView);
+//                    handCardsContainer.getChildren().remove(imageView);
                     for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
                         if(handCardsContainer.getChildren().get(i).getOnDragDetected()!=null)
                             handCardsContainer.getChildren().get(i).setOnDragDetected(null);
@@ -526,9 +603,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             shiftPos=1;
         else
             shiftPos=0;
-//        sideFields.get(index-shiftPos).setOnMouseClicked(mouseEvent -> {
-//
-//        });
+        if(playerIndexToSidePos.size()<=index)
+            playerIndexToSidePos.add(index-shiftPos);
+        else
+            playerIndexToSidePos.set(index,index-shiftPos);
         sideFields.get(index-shiftPos).setScaleX(0.5);
         sideFields.get(index-shiftPos).setScaleY(0.5);
         sideHands.get(index-shiftPos).setScaleX(0.5);
