@@ -18,36 +18,36 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <VBox prefHeight="200.0" prefWidth="100.0">
+                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="0">
                     <children>
-                        <Label prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="online" />
+                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
                     </children>
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
                     <children>
-                        <Label prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="online" />
+                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
                     </children>
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
                     <children>
-                        <Label prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="online" />
+                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
                     </children>
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
                     <children>
-                        <Label prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label prefHeight="22.0" prefWidth="129.0" text="online" />
+                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
                     </children>
                 </VBox>
             </children>
