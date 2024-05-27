@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ViewGUIControllerFinalPhase extends ViewGUIController{
     @Override
-    public void setPlayer(PlayerLobby player) {
+    public void setThisPlayer(PlayerLobby thisPlayer) {
 
     }
 

@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -55,7 +55,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @FXML
     private GridPane playersContainer;
-//    private Map<String, Node> playerNodes; TODO: implement! ~Samu
+    private Map<String, Node> playerNodes;
 
     @FXML
     private Pane pickablesContainer;
@@ -79,7 +79,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private ImageView commonObj2;
 
     private GameState state;
-    private PlayerLobby player;
+    private PlayerLobby thisPlayer;
+    private PlayerLobby displayPlayer;
     private List<Side> handCardSides;
     private boolean flowCardPlaced;
     private ImageView attemptedToPlayCardHand;
@@ -99,8 +100,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
 
     @Override
-    public void setPlayer(PlayerLobby player) {
-        this.player=player;
+    public void setThisPlayer(PlayerLobby thisPlayer) {
+        this.thisPlayer = thisPlayer;
     }
 
     @Override
@@ -122,7 +123,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
         //use instance of? (requirementsNotMetException)
         if (e instanceof RequirementsNotMetException){
-            if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
+            if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
                 Platform.runLater(() -> {
                     handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
@@ -181,7 +182,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         for (int i = 0; i < state.getPlayers().size(); i++) {
             PlayerLobby playerLobby=state.getPlayers().get(i);
-            if(playerLobby.equals(player)) {
+            if(playerLobby.equals(thisPlayer)) {
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
                 handPlayable=List.copyOf(state.getPlayerState(playerLobby).getHandPlayable());
                 foundThisPlayer=true;
@@ -207,37 +208,20 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         displayHandPlayable();
 
         //add the boxes in which cards can be played
-        for(Coordinates coordinates : state.getPlayerState(player).getField().getAvailableCoords()) {
+        for(Coordinates coordinates : state.getPlayerState(thisPlayer).getField().getAvailableCoords()) {
             addCardBox(coordinates,handPlayable);
         }
         createZoomDeZoomButtons();
 
-        // [Samu] Players container
-        int playerCount = this.state.getPlayers().size();
-        for(Node node: playersContainer.getChildren()) {
-            int currPlayerIdx = GridPane.getRowIndex(node);
-            VBox vBox = (VBox) node;
-            if(currPlayerIdx < playerCount) {
-                PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
-                for(Node labelNode: vBox.getChildren()) {
-                    Label label = (Label) labelNode;
-                    switch (label.getId()) {
-                        case "player" -> label.setText(currPlayer.getNickname());
-                        case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
-                        case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "waiting" : "TURN");
-                        case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
-                        default -> throw new RuntimeException("Error while labeling in playerContainer");
-                    }
-                }
-            } else {
-                for(Node labelNode: vBox.getChildren()) ((Label) labelNode).setText("");
-            }
-        }
+        // Players container
+        this.playerNodes = new HashMap<>();
+        this.displayPlayer = this.thisPlayer;
+        initPlayerContainer();
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-        if(this.player.equals(player)) {
+        if(this.thisPlayer.equals(player)) {
             flowCardPlaced = true;
             List<CardPlayableIF> finalHandPlayable=handPlayable;
             Platform.runLater(() -> {
@@ -256,8 +240,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             // After a card has been played, the pickable cards should be clickable
             pickablesContainer.setMouseTransparent(false);
-
         }
+
+        // TODO: update points displayed on player container
+        // playersContainerUpdatePoints(n);
+
     }
 
     @Override
@@ -311,12 +298,45 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     }
                 }
             });
-            if(state.getFirstPlayer().equals(player)) {
+            if(state.getFirstPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
             }
         }
     }
 
+    void initPlayerContainer() {
+        int playerCount = this.state.getPlayers().size();
+        for(Node node: playersContainer.getChildren()) {
+            int currPlayerIdx = GridPane.getRowIndex(node);
+            VBox vBox = (VBox) node;
+            if(currPlayerIdx < playerCount) {
+                PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
+                this.playerNodes.put(currPlayer.getNickname(), node); // save node association with nickname
+                vBox.setOnMouseClicked((MouseEvent event) -> {
+                    switchToPlayer(currPlayerIdx);
+                });
+                for(Node labelNode: vBox.getChildren()) {
+                    Label label = (Label) labelNode;
+                    switch (label.getId()) {
+                        case "player" -> label.setText(currPlayer.getNickname());
+                        case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
+                        case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "waiting" : "TURN");
+                        case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
+                        default -> throw new RuntimeException("Error while labeling in playerContainer");
+                    }
+                }
+            } else {
+                for(Node labelNode: vBox.getChildren()) ((Label) labelNode).setText("");
+            }
+        }
+    }
+
+    void switchToPlayer(int playerIdx) {
+        // TODO: implement switching
+        Platform.runLater(() -> {
+            System.out.println(this.state.getPlayers().get(playerIdx).getNickname());
+        });
+    }
 
     // ----------------------------------------------------------------
     //      UTILS: PICKABLES CONTAINER

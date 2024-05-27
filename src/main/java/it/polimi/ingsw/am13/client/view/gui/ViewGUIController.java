@@ -18,7 +18,7 @@ public abstract class ViewGUIController {
     public void setNetworkHandler(NetworkHandler networkHandler) {
         this.networkHandler = networkHandler;
     }
-    public abstract void setPlayer(PlayerLobby player);
+    public abstract void setThisPlayer(PlayerLobby thisPlayer);
     public abstract void setGameState(GameState gameState);
     public abstract void showStartupScreen(boolean isSocket, String ip, int port);
     public abstract void showRooms(List<RoomIF> rooms);

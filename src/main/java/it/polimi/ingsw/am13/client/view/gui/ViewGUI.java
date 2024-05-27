@@ -5,25 +5,14 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.controller.RoomIF;
-import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -174,7 +163,7 @@ public class ViewGUI extends Application implements View{
             viewGUIController = fxmlLoader.getController();
             viewGUIController.setStage(stage);
             setNetworkHandler(networkHandler);
-            viewGUIController.setPlayer(player);
+            viewGUIController.setThisPlayer(player);
             viewGUIController.showStartGame(state);
         });
     }
@@ -219,7 +208,7 @@ public class ViewGUI extends Application implements View{
 
             viewGUIController = fxmlLoader.getController();
             viewGUIController.setStage(stage);
-            viewGUIController.setPlayer(player);
+            viewGUIController.setThisPlayer(player);
             viewGUIController.setGameState(state);
             setNetworkHandler(networkHandler);
             viewGUIController.showInGame();

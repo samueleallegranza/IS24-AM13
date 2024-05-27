@@ -48,7 +48,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     private Button refreshRoomButton;
 
     @Override
-    public void setPlayer(PlayerLobby player) {
+    public void setThisPlayer(PlayerLobby thisPlayer) {
 
     }
 

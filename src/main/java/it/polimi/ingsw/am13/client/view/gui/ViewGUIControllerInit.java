@@ -27,8 +27,8 @@ public class ViewGUIControllerInit extends ViewGUIController{
     private GameState state;
 
     @Override
-    public void setPlayer(PlayerLobby player) {
-        this.player=player;
+    public void setThisPlayer(PlayerLobby thisPlayer) {
+        this.player= thisPlayer;
     }
 
     @Override
@@ -119,18 +119,18 @@ public class ViewGUIControllerInit extends ViewGUIController{
             });
         }
         else{
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Another player has chosen his personal objective");
-                alert.setContentText("Player " + player.getNickname() + " has chosen his personal objective");
-                alert.setX(Screen.getPrimary().getVisualBounds().getWidth()-alert.getDialogPane().getPrefWidth());
-                alert.setY(0);
-                alert.show();
-                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
-                    alert.close();
-                }));
-                timeline.play();
-            });
+//            Platform.runLater(() -> {
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("Another player has chosen his personal objective");
+//                alert.setContentText("Player " + player.getNickname() + " has chosen his personal objective");
+//                alert.setX(Screen.getPrimary().getVisualBounds().getWidth()-alert.getDialogPane().getPrefWidth());
+//                alert.setY(0);
+//                alert.show();
+//                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+//                    alert.close();
+//                }));
+//                timeline.play();
+//            });
         }
     }
 

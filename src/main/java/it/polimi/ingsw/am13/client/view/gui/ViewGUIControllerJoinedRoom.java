@@ -73,7 +73,7 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     }
 
     @Override
-    public void setPlayer(PlayerLobby player) {
+    public void setThisPlayer(PlayerLobby thisPlayer) {
 
     }
 
