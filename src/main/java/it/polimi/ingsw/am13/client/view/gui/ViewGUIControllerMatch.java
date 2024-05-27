@@ -24,10 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class ViewGUIControllerMatch extends ViewGUIController {
@@ -260,10 +257,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     // >>> Following methods are ghosts <<<
+    //TODO pensa meglio a questa cosa
     @Override
     public void showStartupScreen(boolean isSocket, String ip, int port) {}
     @Override
-    public void setGameId(int gameId) {}
+    public void setRoom(RoomIF room) {}
     @Override
     public void showPlayedStarter(PlayerLobby player) {}
     @Override
@@ -455,9 +453,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     cardId=cardId.substring(0,3)+'0';
                 playedCardIndex=handIndex;
                 if(handCardSides.get(handIndex)==Side.SIDEFRONT)
-                    imageHandCard= new Image(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png"));
+                    imageHandCard= new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png")));
                 else
-                    imageHandCard= new Image(getClass().getResourceAsStream("/img/cards/backs/" + cardId + ".png"));
+                    imageHandCard= new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + cardId + ".png")));
                 ImageView newCardImg = new ImageView(imageHandCard);
                 newCardImg.setFitWidth(imageW);
                 newCardImg.setFitHeight(imageH);
@@ -529,9 +527,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             else
                 id=id.substring(0,3)+'0';
         if(side==Side.SIDEFRONT)
-            cardImage = new Image(getClass().getResourceAsStream("/img/cards/fronts/" + id + ".png"));
+            cardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + id + ".png")));
         else
-            cardImage = new Image(getClass().getResourceAsStream("/img/cards/backs/" + id + ".png"));
+            cardImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + id + ".png")));
         imageView.setImage(cardImage);
         imageView.setFitHeight(imageH);
         imageView.setFitWidth(imageW);

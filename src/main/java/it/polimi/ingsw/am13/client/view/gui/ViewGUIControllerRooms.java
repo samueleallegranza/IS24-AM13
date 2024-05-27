@@ -13,7 +13,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ViewGUIControllerRooms extends ViewGUIController {
     @FXML
@@ -66,6 +65,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         colorBox.getItems().addAll(ColorToken.values());
 
     }
+
     public void showRooms(List<RoomIF> rooms) {
         roomsTable.getItems().clear();
         for (RoomIF room : rooms) {
@@ -216,8 +216,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
 
     @Override
-    public void setGameId(int gameId) {
-
+    public void setRoom(RoomIF room) {
     }
 
     @Override

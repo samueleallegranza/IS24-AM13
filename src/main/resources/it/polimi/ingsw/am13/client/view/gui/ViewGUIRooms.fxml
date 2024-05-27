@@ -7,47 +7,41 @@
 
 <VBox alignment="CENTER" prefHeight="420.0" prefWidth="690.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerRooms">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="40.0" left="20.0" right="20.0" top="40.0" />
     </padding>
 
     <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER">
       <font>
          <Font size="20.0" />
       </font></Label>
-    <TableView fx:id="roomsTable" prefHeight="200.0" prefWidth="600.0">
-        <columns>
-            <TableColumn fx:id="roomId" prefWidth="75.0" text="GAME ID" />
-            <TableColumn fx:id="roomStatus" prefWidth="100.0" text="STATUS" />
-            <TableColumn fx:id="roomP1" prefWidth="100.0" text="Player1" />
-            <TableColumn fx:id="roomP2" prefWidth="100.0" text="Player2" />
-            <TableColumn fx:id="roomP3" prefWidth="100.0" text="Player3" />
-            <TableColumn fx:id="roomP4" prefWidth="100.0" text="Player4" />
-            <TableColumn fx:id="roomNP" prefWidth="75.0" text="#NP" />
-        </columns>
-    </TableView>
-   <HBox spacing="30.0">
-      <children>
-            <TextField fx:id="nicknameField" prefHeight="25.0" prefWidth="220.0" promptText="Nickname" />
-         <HBox alignment="CENTER" prefHeight="25.0" prefWidth="245.0" spacing="10.0">
-            <children>
-                <Label prefHeight="17.0" prefWidth="75.0" text="Token Color:" />
-                <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" />
-            </children>
-         </HBox>
-         <Button fx:id="refreshRoomButton" mnemonicParsing="false" onAction="#onRefreshRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms" />
-      </children>
-   </HBox>
-    <HBox spacing="50.0">
-        <children>
-         <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="300.0" spacing="10.0">
-            <children>
-               <Label prefHeight="17.0" prefWidth="138.0" text="Target number of players:" />
-                  <Spinner fx:id="nPlayersSpinner" prefHeight="25.0" prefWidth="130.0" />
-            </children></HBox>
-            <Button fx:id="createRoomButton" mnemonicParsing="false" onAction="#onCreateRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Create Room" />
-         <Button fx:id="joinRoomButton" mnemonicParsing="false" onAction="#onJoinRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Join Room" />
-        </children>
+    <HBox alignment="CENTER" prefHeight="500.0" prefWidth="200.0">
+        <TableView fx:id="roomsTable">
+            <columns>
+                <TableColumn fx:id="roomId" prefWidth="75.0" text="GAME ID" />
+                <TableColumn fx:id="roomStatus" prefWidth="100.0" text="STATUS" />
+                <TableColumn fx:id="roomP1" prefWidth="100.0" text="Player1" />
+                <TableColumn fx:id="roomP2" prefWidth="100.0" text="Player2" />
+                <TableColumn fx:id="roomP3" prefWidth="100.0" text="Player3" />
+                <TableColumn fx:id="roomP4" prefWidth="100.0" text="Player4" />
+                <TableColumn fx:id="roomNP" prefWidth="75.0" text="#NP" />
+            </columns>
+        </TableView>
     </HBox>
-   <Label fx:id="errorText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER" textFill="#e40000" />
+    <HBox alignment="CENTER" spacing="30.0">
+        <TextField fx:id="nicknameField" prefHeight="25.0" prefWidth="220.0" promptText="Nickname" />
+        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="245.0" spacing="10.0">
+            <Label prefHeight="17.0" prefWidth="75.0" text="Token Color:" />
+            <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" />
+        </HBox>
+        <Button fx:id="refreshRoomButton" mnemonicParsing="false" onAction="#onRefreshRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms" />
+    </HBox>
+    <HBox alignment="CENTER" spacing="50.0">
+        <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="300.0" spacing="10.0">
+            <Label prefHeight="17.0" prefWidth="138.0" text="Target number of players:" />
+            <Spinner fx:id="nPlayersSpinner" prefHeight="25.0" prefWidth="130.0" />
+        </HBox>
+        <Button fx:id="createRoomButton" mnemonicParsing="false" onAction="#onCreateRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Create Room" />
+        <Button fx:id="joinRoomButton" mnemonicParsing="false" onAction="#onJoinRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Join Room" />
+    </HBox>
 
 </VBox>

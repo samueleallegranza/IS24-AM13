@@ -44,7 +44,7 @@ public class ViewGUIControllerFinalPhase extends ViewGUIController{
     }
 
     @Override
-    public void setGameId(int gameId) {
+    public void setRoom(RoomIF room) {
 
     }
 

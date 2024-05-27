@@ -7,6 +7,8 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -17,9 +19,20 @@ import java.util.List;
 public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     public TableColumn<PlayerLobby,String> joinedRoomPlayersColumn;
     public TableView<PlayerLobby> joinedRoomTable;
-    private int gameId;
-    public void setGameId(int gameId) {
-        this.gameId = gameId;
+    private RoomIF thisRoom;
+
+    @FXML
+    private Label roomLabel;
+
+    private void updateRoomLabel() {
+        roomLabel.setText(String.format("Room %05d - %d/%d", thisRoom.getGameId(),
+                thisRoom.getPlayers().size(), thisRoom.getnPlayersTarget()));
+    }
+
+    @Override
+    public void setRoom(RoomIF room) {
+        this.thisRoom = room;
+        updateRoomLabel();
     }
 
     @Override
@@ -55,7 +68,8 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     public void showPlayerJoinedRoom(PlayerLobby player){
         //joinedRoomPlayersColumn.setCellValueFactory(new PropertyValueFactory<PlayerLobby,String>("Nickname"));
         ObservableList<PlayerLobby> observablePlayer=FXCollections.observableList(new ArrayList<>(List.of(player)));
-        joinedRoomTable.getItems().add(observablePlayer.get(0));
+        joinedRoomTable.getItems().add(observablePlayer.getFirst());
+        updateRoomLabel();
     }
 
     @Override
@@ -90,10 +104,10 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     @Override
     public void showRooms(List<RoomIF> rooms) {
         joinedRoomTable.getItems().clear();
-        joinedRoomPlayersColumn.setCellValueFactory(new PropertyValueFactory<PlayerLobby,String>("Nickname"));
+        joinedRoomPlayersColumn.setCellValueFactory(new PropertyValueFactory<>("Nickname"));
         RoomIF myRoom=null;
         for(RoomIF room : rooms)
-            if(room.getGameId()==gameId)
+            if(room.getGameId() == thisRoom.getGameId())
                 myRoom=room;
         if(myRoom!=null) {
             ObservableList<PlayerLobby> observablePlayers = FXCollections.observableList(myRoom.getPlayers());

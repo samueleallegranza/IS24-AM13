@@ -93,12 +93,12 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void showRooms(List<RoomIF> rooms) {
-        this.rooms=rooms;
-        boolean found=false;
+        this.rooms = rooms;
+//        boolean found=false;
         for(RoomIF room : rooms)
             if(room.getPlayers().contains(player)) {
-                found=true;
-                viewGUIController.setGameId(room.getGameId());
+//                found=true;
+                viewGUIController.setRoom(room);
             }
         //if(found)
         viewGUIController.showRooms(rooms);
@@ -110,7 +110,7 @@ public class ViewGUI extends Application implements View{
             if (this.player == null) {
                 this.player = player;
                 FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIJoinedRoom.fxml"));
-                Scene scene = null;
+                Scene scene;
                 try {
                     scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
                 } catch (IOException e) {

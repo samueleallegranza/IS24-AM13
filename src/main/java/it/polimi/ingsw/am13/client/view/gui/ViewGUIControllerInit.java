@@ -74,7 +74,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
     }
 
     @Override
-    public void setGameId(int gameId) {
+    public void setRoom(RoomIF room) {
 
     }
 

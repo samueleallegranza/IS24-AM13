@@ -20,14 +20,14 @@ public abstract class ViewGUIController {
     }
     public abstract void setThisPlayer(PlayerLobby thisPlayer);
     public abstract void setGameState(GameState gameState);
+    public abstract void setRoom(RoomIF room);
     public abstract void showStartupScreen(boolean isSocket, String ip, int port);
     public abstract void showRooms(List<RoomIF> rooms);
+
     public abstract void showPlayerJoinedRoom(PlayerLobby player);
 
     public abstract void showStartGame(GameState state);
-
     public abstract void showException(Exception e);
-    public abstract void setGameId(int gameId);
 
     public abstract void showPlayedStarter(PlayerLobby player);
 
