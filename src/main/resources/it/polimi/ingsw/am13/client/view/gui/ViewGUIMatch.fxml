@@ -77,9 +77,29 @@
          </children>
       </GridPane>
 
-        <StackPane fx:id="fieldContainer" layoutX="259.0" prefHeight="621.0" prefWidth="1561.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+        <StackPane fx:id="fieldContainer" layoutX="259.0" prefHeight="621.0" prefWidth="1261.0" AnchorPane.topAnchor="0.0" />
 
-        <Pane fx:id="handCardsContainer" layoutX="1045.0" layoutY="614.0" prefHeight="366.0" prefWidth="775.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-
+        <Pane fx:id="handCardsContainer" layoutX="1045.0" layoutY="614.0" prefHeight="366.0" prefWidth="775.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+          <children>
+              <ImageView fx:id="handCard0" layoutX="10" layoutY="25" fitWidth="150" fitHeight="100"/>
+              <Button fx:id="flipButton0" layoutX="10" prefWidth="25" prefHeight="25" />
+              <ImageView fx:id="handCard1" layoutX="170" layoutY="25" fitWidth="150" fitHeight="100"/>
+              <Button fx:id="flipButton1" layoutX="170" prefWidth="25" prefHeight="25" />
+              <ImageView fx:id="handCard2" layoutX="330" layoutY="25" fitWidth="150" fitHeight="100"/>
+              <Button fx:id="flipButton2" layoutX="330" prefWidth="25" prefHeight="25" />
+          </children>
+        </Pane>
+        <Button fx:id="zoom" layoutX="260" layoutY="700" prefHeight="25" prefWidth="25" />
+        <Button fx:id="deZoom" layoutX="285" layoutY="700" prefHeight="25" prefWidth="25" />
+        <VBox fx:id="sidePlayers" layoutX="1520" layoutY="614" prefHeight="980" prefWidth="300" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <StackPane fx:id="sideField0" prefHeight="270.0" prefWidth="300.0" />
+                <Pane fx:id="sideHand0" prefHeight="50.0" prefWidth="300.0" />
+                <StackPane fx:id="sideField1" prefHeight="270.0" prefWidth="300.0" />
+                <Pane fx:id="sideHand1" prefHeight="50.0" prefWidth="300.0" />
+                <StackPane fx:id="sideField2" prefHeight="270.0" prefWidth="300.0" />
+                <Pane fx:id="sideHand2" prefHeight="50.0" prefWidth="300.0" />
+            </children>
+        </VBox>
     </children>
 </AnchorPane>

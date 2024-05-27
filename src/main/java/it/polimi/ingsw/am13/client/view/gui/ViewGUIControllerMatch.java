@@ -4,14 +4,13 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
-import it.polimi.ingsw.am13.model.player.Player;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -33,6 +32,21 @@ import java.util.stream.Stream;
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
+    public Button zoom;
+    public Button deZoom;
+    public VBox sidePlayers;
+    public StackPane sideField0;
+    public Pane sideHand0;
+    public StackPane sideField1;
+    public Pane sideHand1;
+    public StackPane sideField2;
+    public Pane sideHand2;
+    public ImageView handCard0;
+    public Button flipButton0;
+    public ImageView handCard1;
+    public Button flipButton1;
+    public ImageView handCard2;
+    public Button flipButton2;
     @FXML
     private StackPane fieldContainer;
 
@@ -73,6 +87,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private Rectangle attemptedToPlayCardBox;
     private List<CardPlayableIF> handPlayable;
     private int playedCardIndex;
+
+    private List<ImageView> handCards;
+    private List<Button> flipButtons;
+    private List<StackPane> sideFields;
+    private List<Pane> sideHands;
     private static final Integer imageW=150,imageH=100,cornerX=35,cornerY=40;
 
     // ----------------------------------------------------------------
@@ -101,7 +120,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
 
         //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
-        //use istance of? (requirementsNotMetException)
+        //use instance of? (requirementsNotMetException)
         if (e instanceof RequirementsNotMetException){
             if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
                 Platform.runLater(() -> {
@@ -140,6 +159,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+
+
     @Override
     public void showInGame() {
         // Displaying the pickable cards and the common objectives
@@ -147,61 +168,49 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // At the beginning of the game, the pickable cards shouldn't be clickable
         pickablesContainer.setMouseTransparent(true);
 
+        Image imageStarterSide;
         flowCardPlaced=false;
         CardPlayableIF starterCard=null;
         handPlayable=null;
         playedCardIndex=-1;
-        for(PlayerLobby playerLobby : state.getPlayers())
+        boolean foundThisPlayer=false;
+        sideHands=Stream.of(sideHand0,sideHand1,sideHand2).toList();
+        sideFields=Stream.of(sideField0,sideField1,sideField2).toList();
+        handCards=Stream.of(handCard0,handCard1,handCard2).toList();
+        flipButtons=Stream.of(flipButton0,flipButton1,flipButton2).toList();
+
+        for (int i = 0; i < state.getPlayers().size(); i++) {
+            PlayerLobby playerLobby=state.getPlayers().get(i);
             if(playerLobby.equals(player)) {
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
                 handPlayable=List.copyOf(state.getPlayerState(playerLobby).getHandPlayable());
+                foundThisPlayer=true;
             }
-        Image imageStarterSide;
+            else
+                showOtherPlayer(i,foundThisPlayer);
+        }
+
+        //display the starter card
+        ImageView imageStarterSideView=new ImageView();
         if(starterCard.getPlayedCardSide().equals(starterCard.getSide(Side.SIDEFRONT)))
-            imageStarterSide=new Image(getClass().getResourceAsStream("/img/cards/fronts/"+starterCard.getId()+".png"));
+            displayCard(starterCard.getId(),Side.SIDEFRONT,imageStarterSideView);
         else
-            imageStarterSide=new Image(getClass().getResourceAsStream("/img/cards/backs/"+starterCard.getId()+".png"));
-        ImageView imageStarterSideView=new ImageView(imageStarterSide);
-        imageStarterSideView.setFitWidth(imageW);
-        imageStarterSideView.setFitHeight(imageH);
-        imageStarterSideView.setX(0);
-        imageStarterSideView.setY(0);
+            displayCard(starterCard.getId(),Side.SIDEFRONT,imageStarterSideView);
         fieldContainer.setAlignment(Pos.CENTER);
         fieldContainer.getChildren().add(imageStarterSideView);
         handCardSides=new ArrayList<>();
-        List<CardPlayableIF> finalHandPlayable = handPlayable;
-        for (int i = 0; i < 4; i++) {
+
+        //display hand playable, set the initial side of the hand cards to front
+        for (int i = 0; i < 3; i++) {
             handCardSides.add(Side.SIDEFRONT);
         }
-        for (int i = 0; i < handPlayable.size(); i++) {
-            ImageView handCard=new ImageView();
-            displayCard(handPlayable.get(i).getId(),Side.SIDEFRONT,handCard);
-            handCard.setX((imageW+10)*i);
-            handCard.setY(50);
-            Button flipHandCard=new Button();
-            flipHandCard.setTranslateX((imageW+10)*i);
-            flipHandCard.setTranslateY(0);
-            int finalI = i;
-            flipHandCard.setOnMouseClicked(mouseEvent -> {
-                if (finalI != playedCardIndex) {
-                    if (handCardSides.get(finalI) == Side.SIDEFRONT) {
-                        handCardSides.set(finalI, Side.SIDEBACK);
-                        displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEBACK, handCard);
-                    } else {
-                        displayCard(finalHandPlayable.get(finalI).getId(), Side.SIDEFRONT, handCard);
-                        handCardSides.set(finalI, Side.SIDEFRONT);
-                    }
-                }
-            });
-            if(state.getFirstPlayer().equals(player)) {
-                makeDraggable(i, handCard);
-            }
-            handCardsContainer.getChildren().addAll(handCard,flipHandCard);
-        }
+        displayHandPlayable();
+
+        //add the boxes in which cards can be played
         for(Coordinates coordinates : state.getPlayerState(player).getField().getAvailableCoords()) {
-            addCardBox(coordinates,finalHandPlayable);
+            addCardBox(coordinates,handPlayable);
         }
-//        imageContainer.setScaleX(0.5);
+        createZoomDeZoomButtons();
 
         // [Samu] Players container
         int playerCount = this.state.getPlayers().size();
@@ -285,7 +294,28 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
     // ----------------------------------------------------------------
-
+    private void displayHandPlayable(){
+        for (int i = 0; i < handPlayable.size(); i++) {
+            ImageView handCard=handCards.get(i);
+            displayCard(handPlayable.get(i).getId(),Side.SIDEFRONT,handCard);
+            Button flipHandCard=flipButtons.get(i);
+            int finalI = i;
+            flipHandCard.setOnMouseClicked(mouseEvent -> {
+                if (finalI != playedCardIndex) {
+                    if (handCardSides.get(finalI) == Side.SIDEFRONT) {
+                        handCardSides.set(finalI, Side.SIDEBACK);
+                        displayCard(handPlayable.get(finalI).getId(), Side.SIDEBACK, handCard);
+                    } else {
+                        displayCard(handPlayable.get(finalI).getId(), Side.SIDEFRONT, handCard);
+                        handCardSides.set(finalI, Side.SIDEFRONT);
+                    }
+                }
+            });
+            if(state.getFirstPlayer().equals(player)) {
+                makeDraggable(i, handCard);
+            }
+        }
+    }
 
 
     // ----------------------------------------------------------------
@@ -345,6 +375,22 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     //      UTILS: FIELD CONTAINER
     // ----------------------------------------------------------------
 
+    private void createZoomDeZoomButtons(){
+        zoom.setText("+");
+        zoom.setOnMouseClicked(mouseEvent -> {
+            if(fieldContainer.getScaleX()<3) {
+                fieldContainer.setScaleX(fieldContainer.getScaleX() + 0.1);
+                fieldContainer.setScaleY(fieldContainer.getScaleY() + 0.1);
+            }
+        });
+        deZoom.setText("-");
+        deZoom.setOnMouseClicked(mouseEvent -> {
+            if(fieldContainer.getScaleX()>0.1) {
+                fieldContainer.setScaleX(fieldContainer.getScaleY() - 0.1);
+                fieldContainer.setScaleY(fieldContainer.getScaleY() - 0.1);
+            }
+        });
+    }
     private void addCardBox(Coordinates coordinates, List<CardPlayableIF> finalHandPlayable){
         Rectangle box1 = new Rectangle(imageW, imageH, Color.BLUE);
         int posX=(imageW-cornerX)*coordinates.getPosX();
@@ -395,6 +441,47 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
         fieldContainer.getChildren().add(box1);
     }
+
+    private void showOtherPlayer(int index, boolean afterThisPlayer){
+        PlayerLobby otherPlayer=state.getPlayers().get(index);
+        CardPlayableIF starterCard=state.getPlayerState(otherPlayer).getStarterCard();
+        List<CardPlayableIF> finalHandPlayable=List.copyOf(state.getPlayerState(otherPlayer).getHandPlayable());
+        ImageView imageStarterSideView=new ImageView();
+        int shiftPos;
+        if(starterCard.getPlayedCardSide().equals(starterCard.getSide(Side.SIDEFRONT)))
+            displayCard(starterCard.getId(),Side.SIDEFRONT,imageStarterSideView);
+        else
+            displayCard(starterCard.getId(),Side.SIDEBACK,imageStarterSideView);
+//        sidePlayers.setAlignment(Pos.CENTER);
+        if(afterThisPlayer)
+            shiftPos=1;
+        else
+            shiftPos=0;
+//        sideFields.get(index-shiftPos).setOnMouseClicked(mouseEvent -> {
+//
+//        });
+        sideFields.get(index-shiftPos).setScaleX(0.5);
+        sideFields.get(index-shiftPos).setScaleY(0.5);
+        sideHands.get(index-shiftPos).setScaleX(0.5);
+        sideHands.get(index-shiftPos).setScaleY(0.5);
+        sideFields.get(index-shiftPos).getChildren().add(imageStarterSideView);
+        for(Coordinates coordinates : state.getPlayerState(otherPlayer).getField().getAvailableCoords()) {
+            Rectangle box = new Rectangle(imageW, imageH, Color.BLUE);
+            int posX=(imageW-cornerX)*coordinates.getPosX();
+            int posY=(-imageH+cornerY)*coordinates.getPosY();
+            box.setTranslateX(posX);
+            box.setTranslateY(posY);
+            sideFields.get(index-shiftPos).getChildren().add(box);
+        }
+        for (int i = 0; i < finalHandPlayable.size(); i++) {
+            ImageView handCard = new ImageView();
+            displayCard(finalHandPlayable.get(i).getId(), Side.SIDEBACK, handCard);
+            handCard.setTranslateX((imageW + 10) * i);
+            handCard.setTranslateY(50);
+            sideHands.get(index-shiftPos).getChildren().add(handCard);
+        }
+    }
+
 
 
 
