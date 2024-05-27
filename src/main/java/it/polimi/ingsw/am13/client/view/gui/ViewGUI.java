@@ -11,6 +11,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class ViewGUI extends Application implements View{
     private Stage stage;
     private final static int sceneWidth=1820;
     private final static int sceneHeight=980;
+    private final static boolean FULLSCREEN_MODE = false;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -41,6 +43,20 @@ public class ViewGUI extends Application implements View{
         Scene scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
         stage.setTitle("Codex");
         stage.setScene(scene);
+
+        // full-screen mode
+        if(FULLSCREEN_MODE)
+            // real full-screen mode
+            stage.setFullScreen(true);
+        else {
+            // windowed full-screen mode (for testing purposes)
+            javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX(screenBounds.getMinX());
+            stage.setY(screenBounds.getMinY());
+            stage.setWidth(screenBounds.getWidth());
+            stage.setHeight(screenBounds.getHeight());
+        }
+
         stage.show();
 
         viewGUIController = fxmlLoader.getController();

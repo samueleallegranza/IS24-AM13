@@ -242,8 +242,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             pickablesContainer.setMouseTransparent(false);
         }
 
-        // TODO: update points displayed on player container
-        // playersContainerUpdatePoints(n);
+         playersContainerUpdatePoints(player, this.state.getPlayerState(player).getPoints());
 
     }
 
@@ -318,7 +317,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 for(Node labelNode: vBox.getChildren()) {
                     Label label = (Label) labelNode;
                     switch (label.getId()) {
-                        case "player" -> label.setText(currPlayer.getNickname());
+                        case "player" -> {
+                            String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
+                            label.setText(currPlayer.getNickname() + isYouPostfix);
+                        }
                         case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
                         case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "waiting" : "TURN");
                         case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
@@ -328,6 +330,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             } else {
                 for(Node labelNode: vBox.getChildren()) ((Label) labelNode).setText("");
             }
+        }
+    }
+
+    void playersContainerUpdatePoints(PlayerLobby player, int points) {
+        // get node corresponding to player
+        VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
+        for(Node labelNode: vBox.getChildren()) {
+            Label label = (Label) labelNode;
+            if(label.getId().equals("points"))
+                label.setText(this.state.getPlayerState(player).getPoints() + " pts");
         }
     }
 
