@@ -218,6 +218,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+        // TODO: mostrare la carta giocata anche sui sidefields @Lorenzo
         if(this.thisPlayer.equals(player)) {
             flowCardPlaced = true;
             List<CardPlayableIF> finalHandPlayable=handPlayable;
@@ -245,15 +246,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-        // TODO: Display the card that the player has picked in its hand
+        // TODO: mostrare la carta pescata in mano @Lorenzo
+        if (this.thisPlayer.equals(player)){
+            //System.out.println("Client player: " + thisPlayer.getNickname() + ". Player who picked a card: " + player.getNickname());
+            Platform.runLater(() -> {
+                clearHandPlayable();
+                displayHandPlayable();
+            });
+            // After a card has been picked, the pickable cards should not be clickable
+            pickablesContainer.setMouseTransparent(true);
+        }
         displayPickablesAndCommonObjs();
-        pickablesContainer.setMouseTransparent(true);
     }
 
     @Override
     public void showNextTurn() {
-        // After a turn has ended, the pickable cards should not be clickable
-
+        if (state.getCurrentPlayer().equals(thisPlayer)) {
+            // TODO: fare in modo che le hand cards del nuovo giocatore siano draggabili @Lorenzo
+        }
     }
 
     // >>> Following methods are ghosts <<<
@@ -279,7 +289,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     //      UTILS: PLAYER CONTAINER
     // ----------------------------------------------------------------
     private void displayHandPlayable(){
+        handPlayable=List.copyOf(state.getPlayerState(thisPlayer).getHandPlayable());
         for (int i = 0; i < handPlayable.size(); i++) {
+            //System.out.println("card displayed id: "+ handPlayable.get(i).getId());
             ImageView handCard=handCards.get(i);
             displayCard(handPlayable.get(i).getId(),Side.SIDEFRONT,handCard);
             Button flipHandCard=flipButtons.get(i);
@@ -295,7 +307,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     }
                 }
             });
-            if(state.getFirstPlayer().equals(thisPlayer)) {
+            if(state.getCurrentPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
             }
         }
@@ -320,7 +332,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                             label.setText(currPlayer.getNickname() + isYouPostfix);
                         }
                         case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
-                        case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "waiting" : "TURN");
+                        case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
                         case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
                         default -> throw new RuntimeException("Error while labeling in playerContainer");
                     }
@@ -332,13 +344,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     void playersContainerUpdatePoints(PlayerLobby player, int points) {
-        // get node corresponding to player
-        VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
-        for(Node labelNode: vBox.getChildren()) {
-            Label label = (Label) labelNode;
-            if(label.getId().equals("points"))
-                label.setText(this.state.getPlayerState(player).getPoints() + " pts");
-        }
+        Platform.runLater(() -> {
+            // get node corresponding to player
+            VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
+            for(Node labelNode: vBox.getChildren()) {
+                Label label = (Label) labelNode;
+                if(label.getId().equals("points"))
+                    label.setText(this.state.getPlayerState(player).getPoints() + " pts");
+            }
+        });
+
+
     }
 
     void switchToPlayer(int playerIdx) {
@@ -347,6 +363,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             System.out.println(this.state.getPlayers().get(playerIdx).getNickname());
         });
     }
+    private void clearHandPlayable(){
+        for (ImageView handCard : handCards) {
+            handCard.setImage(null);
+        }
+    }
+
 
     // ----------------------------------------------------------------
     //      UTILS: PICKABLES CONTAINER
@@ -356,20 +378,37 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Display the pickable cards and the common objectives
      */
     private void displayPickablesAndCommonObjs(){
-        List<CardPlayableIF> pickables=state.getPickables();
-        List<ImageView> pickablesViews= Stream.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2).toList();
-        for (int i = 0; i < pickables.size(); i++) {
-            displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
-            int finalI = i;
-            pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
-                networkHandler.pickCard(pickables.get(finalI));
-            });
-        }
+        Platform.runLater(() -> {
+            clearPickables();
 
-        List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
-        displayCard(commonObjectives.get(0).getId(),Side.SIDEBACK,objDeck);
-        displayCard(commonObjectives.get(0).getId(),Side.SIDEFRONT,commonObj1);
-        displayCard(commonObjectives.get(1).getId(),Side.SIDEFRONT,commonObj2);
+            List<CardPlayableIF> pickables=state.getPickables();
+            List<ImageView> pickablesViews= Stream.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2).toList();
+            for (int i = 0; i < pickables.size(); i++) {
+                displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
+                int finalI = i;
+                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
+                    networkHandler.pickCard(pickables.get(finalI));
+                });
+            }
+
+            List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
+            displayCard(commonObjectives.get(0).getId(),Side.SIDEBACK,objDeck);
+            displayCard(commonObjectives.get(0).getId(),Side.SIDEFRONT,commonObj1);
+            displayCard(commonObjectives.get(1).getId(),Side.SIDEFRONT,commonObj2);
+        });
+
+    }
+
+    private void clearPickables(){
+        resDeck.setImage(null);
+        resPick1.setImage(null);
+        resPick2.setImage(null);
+        gldDeck.setImage(null);
+        gldPick1.setImage(null);
+        gldPick2.setImage(null);
+        objDeck.setImage(null);
+        commonObj1.setImage(null);
+        commonObj2.setImage(null);
     }
 
     private void makeDraggable(int handPlayableIndex, ImageView imageView){

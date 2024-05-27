@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,8 +26,10 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     private Label roomLabel;
 
     private void updateRoomLabel() {
-        roomLabel.setText(String.format("Room %05d - %d/%d", thisRoom.getGameId(),
-                thisRoom.getPlayers().size(), thisRoom.getnPlayersTarget()));
+        Platform.runLater(() -> {
+            roomLabel.setText(String.format("Room %05d - %d/%d", thisRoom.getGameId(),
+                    thisRoom.getPlayers().size(), thisRoom.getnPlayersTarget()));
+        });
     }
 
     @Override

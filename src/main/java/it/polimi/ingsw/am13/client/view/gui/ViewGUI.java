@@ -238,12 +238,12 @@ public class ViewGUI extends Application implements View{
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-
+        viewGUIController.showPickedCard(player);
     }
 
     @Override
     public void showNextTurn() {
-
+        viewGUIController.showNextTurn();
     }
 
     @Override
