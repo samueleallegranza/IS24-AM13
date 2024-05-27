@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerRooms">
+<VBox alignment="CENTER" prefHeight="420.0" prefWidth="690.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerRooms">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -34,7 +34,7 @@
                 <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" />
             </children>
          </HBox>
-         <Button fx:id="refreshRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms" onAction="#onRefreshRoomButtonClick" />
+         <Button fx:id="refreshRoomButton" mnemonicParsing="false" onAction="#onRefreshRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms" />
       </children>
    </HBox>
     <HBox spacing="50.0">
@@ -44,8 +44,8 @@
                <Label prefHeight="17.0" prefWidth="138.0" text="Target number of players:" />
                   <Spinner fx:id="nPlayersSpinner" prefHeight="25.0" prefWidth="130.0" />
             </children></HBox>
-            <Button fx:id="createRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Create Room" onAction="#onCreateRoomButtonClick"/>
-         <Button fx:id="joinRoomButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Join Room" onAction="#onJoinRoomButtonClick" />
+            <Button fx:id="createRoomButton" mnemonicParsing="false" onAction="#onCreateRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Create Room" />
+         <Button fx:id="joinRoomButton" mnemonicParsing="false" onAction="#onJoinRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Join Room" />
         </children>
     </HBox>
    <Label fx:id="errorText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER" textFill="#e40000" />

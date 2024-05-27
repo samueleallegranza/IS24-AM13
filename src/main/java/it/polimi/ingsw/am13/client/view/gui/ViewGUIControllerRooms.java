@@ -250,7 +250,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
     }
 
-    public void errorAlert(String message){
+    private void errorAlert(String message){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("An error occurred");

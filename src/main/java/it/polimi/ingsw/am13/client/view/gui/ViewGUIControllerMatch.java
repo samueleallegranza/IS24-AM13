@@ -3,11 +3,13 @@ package it.polimi.ingsw.am13.client.view.gui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 
@@ -19,7 +21,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
@@ -34,7 +38,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @FXML
     private Pane pickablesContainer;
-
+    @FXML
+    private ImageView resDeck;
+    @FXML
+    private ImageView resPick1;
+    @FXML
+    private ImageView resPick2;
+    @FXML
+    private ImageView gldDeck;
+    @FXML
+    private ImageView gldPick1;
+    @FXML
+    private ImageView gldPick2;
+    @FXML
+    private ImageView objDeck;
+    @FXML
+    private ImageView commonObj1;
+    @FXML
+    private ImageView commonObj2;
 
     private GameState state;
     private PlayerLobby player;
@@ -79,41 +100,52 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showException(Exception e) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        });
+
+
         //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
         //use istance of? (requirementsNotMetException)
-        if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
-            Platform.runLater(() -> {
-                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
-                fieldContainer.getChildren().remove(attemptedToPlayCardField);
-                fieldContainer.getChildren().add(attemptedToPlayCardBox);
-                playedCardIndex=-1;
-                for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
-                    if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
-                        int finalI = i;
-                        handCardsContainer.getChildren().get(i).setOnDragDetected(new EventHandler<MouseEvent>() {
-                            public void handle(MouseEvent event) {
-                                Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
-                                ClipboardContent content = new ClipboardContent();
-                                content.putString(handCardsContainer.getChildren().get(finalI).getId());
-                                db.setContent(content);
-                                event.consume();
-                            }
-                        });
+        if (e instanceof RequirementsNotMetException){
+            if(state.getCurrentPlayer().equals(player) && !flowCardPlaced) {
+                Platform.runLater(() -> {
+                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+                    fieldContainer.getChildren().remove(attemptedToPlayCardField);
+                    fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                    playedCardIndex=-1;
+                    for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
+                        if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
+                            int finalI = i;
+                            handCardsContainer.getChildren().get(i).setOnDragDetected(new EventHandler<MouseEvent>() {
+                                public void handle(MouseEvent event) {
+                                    Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
+                                    ClipboardContent content = new ClipboardContent();
+                                    content.putString(handCardsContainer.getChildren().get(finalI).getId());
+                                    db.setContent(content);
+                                    event.consume();
+                                }
+                            });
+                        }
                     }
-                }
-//            List<CardPlayableIF> handPlayable=null;
-//            for(PlayerLobby playerLobby : state.getPlayers())
-//                if(playerLobby.equals(player)) {
-//                    handPlayable=state.getPlayerState(playerLobby).getHandPlayable();
-//                }
-//            for (int i = 0; i < handPlayable.size(); i++) {
-//                int posX=(imageW+10)*i,posY=50;
-//                ImageView handCard=handCards.;
-//
-//                makeDraggable(i, handCard);
-//            }
+    //            List<CardPlayableIF> handPlayable=null;
+    //            for(PlayerLobby playerLobby : state.getPlayers())
+    //                if(playerLobby.equals(player)) {
+    //                    handPlayable=state.getPlayerState(playerLobby).getHandPlayable();
+    //                }
+    //            for (int i = 0; i < handPlayable.size(); i++) {
+    //                int posX=(imageW+10)*i,posY=50;
+    //                ImageView handCard=handCards.;
+    //
+    //                makeDraggable(i, handCard);
+    //            }
 
-            });
+                });
+            }
         }
     }
 
@@ -135,7 +167,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private void displayCard(String id, Side side, ImageView imageView){
         Image cardImage;
         if(side==Side.SIDEBACK && id.charAt(0)!='s')
-            id=id.substring(0,3)+'0';
+            if (id.charAt(0)=='o')
+                id="o000";
+            else
+                id=id.substring(0,3)+'0';
         if(side==Side.SIDEFRONT)
             cardImage = new Image(getClass().getResourceAsStream("/img/cards/fronts/" + id + ".png"));
         else
@@ -225,6 +260,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
     @Override
     public void showInGame() {
+        // Displaying the pickable cards and the common objectives
+        displayPickablesAndCommonObjs();
+        // At the beginning of the game, the pickable cards shouldn't be clickable
+        pickablesContainer.setMouseTransparent(true);
+
         flowCardPlaced=false;
         CardPlayableIF starterCard=null;
         handPlayable=null;
@@ -300,16 +340,43 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         addCardBox(coordinates, finalHandPlayable);
                 }
             });
+
+            // After a card has been played, the pickable cards should be clickable
+            pickablesContainer.setMouseTransparent(false);
+
         }
+    }
+
+    /**
+     * Display the pickable cards and the common objectives
+     */
+    private void displayPickablesAndCommonObjs(){
+        List<CardPlayableIF> pickables=state.getPickables();
+        List<ImageView> pickablesViews= Stream.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2).toList();
+        for (int i = 0; i < pickables.size(); i++) {
+            displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
+            int finalI = i;
+            pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
+                networkHandler.pickCard(pickables.get(finalI));
+            });
+        }
+
+        List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
+        displayCard(commonObjectives.get(0).getId(),Side.SIDEBACK,objDeck);
+        displayCard(commonObjectives.get(0).getId(),Side.SIDEFRONT,commonObj1);
+        displayCard(commonObjectives.get(1).getId(),Side.SIDEFRONT,commonObj2);
     }
 
     @Override
     public void showPickedCard(PlayerLobby player) {
-
+        // TODO: Display the card that the player has picked in its hand
+        displayPickablesAndCommonObjs();
+        pickablesContainer.setMouseTransparent(true);
     }
 
     @Override
     public void showNextTurn() {
+        // After a turn has ended, the pickable cards should not be clickable
 
     }
 }
