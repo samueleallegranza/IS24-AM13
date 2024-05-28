@@ -158,9 +158,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
 
 
-        //todo for now I assume that if it's the moment for the player to play, that's what caused the exception
-        //use instance of? (requirementsNotMetException)
-        if (e instanceof RequirementsNotMetException){
+        //todo sometimes we get a player doesn't have this card exception, even if should be a req not met exception
+//        if (e instanceof RequirementsNotMetException){
             if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
                 Platform.runLater(() -> {
 //                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
@@ -168,17 +167,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
                     fieldContainer.getChildren().add(attemptedToPlayCardBox);
                     playedCardIndex=-1;
-                    for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
-                        if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
-                            int finalI = i;
-                            handCardsContainer.getChildren().get(i).setOnDragDetected(event -> {
-                                Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
-                                ClipboardContent content = new ClipboardContent();
-                                content.putString(handCardsContainer.getChildren().get(finalI).getId());
-                                db.setContent(content);
-                                event.consume();
-                            });
-                        }
+                    for (int i = 0; i < handCards.size(); i++) {
+                        int finalI = i;
+                        handCards.get(i).setOnDragDetected(event -> {
+                            Dragboard db = handCards.get(finalI).startDragAndDrop(TransferMode.ANY);
+                            ClipboardContent content = new ClipboardContent();
+                            content.putString(handCards.get(finalI).getId());
+                            db.setContent(content);
+                            event.consume();
+                        });
                     }
     //            List<CardPlayableIF> handPlayable=null;
     //            for(PlayerLobby playerLobby : state.getPlayers())
@@ -194,7 +191,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
                 });
             }
-        }
+//        }
     }
 
 
@@ -587,7 +584,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     private void makeDraggable(int handPlayableIndex, ImageView imageView){
-        Platform.runLater(() -> {
+//        Platform.runLater(() -> {
             imageView.setId(String.valueOf(handPlayableIndex));
             imageView.setOnDragDetected(event -> {
                 Dragboard db = imageView.startDragAndDrop(TransferMode.ANY);
@@ -602,14 +599,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     imageView.setVisible(false);
                     attemptedToPlayCardHand = imageView;
 //                    handCardsContainer.getChildren().remove(imageView);
-                    for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
-                        if (handCardsContainer.getChildren().get(i).getOnDragDetected() != null)
-                            handCardsContainer.getChildren().get(i).setOnDragDetected(null);
+                    for (ImageView handCard : handCards) {
+                        handCard.setOnDragDetected(null);
                     }
                 }
                 event.consume();
             });
-        });
+//        });
     }
 
 
