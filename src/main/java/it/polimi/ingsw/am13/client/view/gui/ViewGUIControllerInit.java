@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.view.Log;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
@@ -26,8 +27,20 @@ public class ViewGUIControllerInit extends ViewGUIController {
     private PlayerLobby player;
     private GameState state;
 
+    /**
+     * Area of non-editable text for showing logs
+     */
     @FXML
     private TextArea logArea;
+
+    /**
+     * Handler of the logs
+     */
+    private Log log;
+
+    private void showLastLog() {
+        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getLast() + "\n"));
+    }
 
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -36,7 +49,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
 
     @Override
     public void setGameState(GameState gameState) {
-
+        log = new Log(gameState);
     }
 
     @Override
@@ -105,9 +118,8 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(1)));
             secondChoiceImage.setImage(imageBack);
         }
-        else{
-            Platform.runLater(() -> logArea.appendText("Player " + player.getNickname() + " has chosen a side for his starter card\n"));
-        }
+        log.logPlayedStarter(player);
+        showLastLog();
 
         if(ViewGUI.DEBUG_MODE) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
@@ -128,9 +140,8 @@ public class ViewGUIControllerInit extends ViewGUIController {
                 secondChoiceImage.setImage(null);
             });
         }
-        else{
-            Platform.runLater(() -> logArea.appendText("Player " + player.getNickname() + " has chosen his personal objective\n"));
-        }
+        log.logChosenPersonalObjective(player);
+        showLastLog();
     }
 
     @Override

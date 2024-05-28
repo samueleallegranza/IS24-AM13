@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.view.Log;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
@@ -13,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 
 import javafx.scene.image.ImageView;
@@ -92,6 +94,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<Pane> sideHands;
 
 
+    /**
+     * Area of non-editable text for showing logs
+     */
+    @FXML
+    private TextArea logArea;
+
+    /**
+     * Handler of the logs
+     */
+    private Log log;
+
+
     //this is a list that saves for each player index in state.getPlayers() its position in the sideFields/sideHands (-1 if it's currently being displayed)
     private List<Integer> playerIndexToSidePos;
     private static final Integer imageW=150,imageH=100,cornerX=35,cornerY=40;
@@ -99,6 +113,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
     // ----------------------------------------------------------------
+
+
+    private void showLastLog() {
+        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
+    }
+
+    private void showLastLog(int nLogs) {
+        Platform.runLater(() -> {
+            for(int i=nLogs-1 ; i>=0 ; i--)
+                logArea.appendText(log.getLogMessages().get(i) + "\n");
+        });
+    }
 
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -108,6 +134,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void setGameState(GameState gameState) {
         this.state=gameState;
+        log = new Log(gameState);
+
     }
 
     @Override
@@ -134,14 +162,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
                         if (handCardsContainer.getChildren().get(i).getOnMouseClicked() == null) {
                             int finalI = i;
-                            handCardsContainer.getChildren().get(i).setOnDragDetected(new EventHandler<MouseEvent>() {
-                                public void handle(MouseEvent event) {
-                                    Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
-                                    ClipboardContent content = new ClipboardContent();
-                                    content.putString(handCardsContainer.getChildren().get(finalI).getId());
-                                    db.setContent(content);
-                                    event.consume();
-                                }
+                            handCardsContainer.getChildren().get(i).setOnDragDetected(event -> {
+                                Dragboard db = handCardsContainer.getChildren().get(finalI).startDragAndDrop(TransferMode.ANY);
+                                ClipboardContent content = new ClipboardContent();
+                                content.putString(handCardsContainer.getChildren().get(finalI).getId());
+                                db.setContent(content);
+                                event.consume();
                             });
                         }
                     }
@@ -223,6 +249,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         this.playerNodes = new HashMap<>();
         this.displayPlayer = this.thisPlayer;
         initPlayerContainer();
+
+        log.logNextTurn();
+        showLastLog();
     }
 
     @Override
@@ -251,6 +280,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
          playersContainerUpdatePoints(player, this.state.getPlayerState(player).getPoints());
 
+        log.logPlayedCard(player, coord);
+        showLastLog();
     }
 
     @Override
@@ -258,15 +289,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // TODO: mostrare la carta pescata in mano @Lorenzo
         if (this.thisPlayer.equals(player)){
             //System.out.println("Client player: " + thisPlayer.getNickname() + ". Player who picked a card: " + player.getNickname());
-            Platform.runLater(() -> {
-//                clearHandPlayable();
-//                displayHandPlayable();
-                updateHandPlayable();
-            });
+            Platform.runLater(this::updateHandPlayable);
             // After a card has been picked, the pickable cards should not be clickable
             pickablesContainer.setMouseTransparent(true);
         }
         displayPickablesAndCommonObjs();
+
+        log.logPickedCard(player);
     }
 
     @Override
@@ -286,11 +315,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for(Node nodeLabel: pVbox.getChildren()) {
                 Label label = (Label) nodeLabel;
                 if(label.getId().equals("turn"))
-                    Platform.runLater(() -> {
-                        label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting");
-                    });
+                    Platform.runLater(() -> label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting"));
             }
         }
+
+        log.logNextTurn();
+        showLastLog(2);
     }
 
     // >>> Following methods are ghosts <<<
@@ -334,9 +364,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayCard(handPlayable.get(i).getId(),Side.SIDEFRONT,handCard);
             Button flipHandCard=flipButtons.get(i);
             int finalI = i;
-            flipHandCard.setOnMouseClicked(mouseEvent -> {
-                flipCard(finalI,handCard);
-            });
+            flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(finalI,handCard));
             if(state.getCurrentPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
             }
@@ -368,9 +396,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         Button flipHandCard = flipButtons.get(playedCardIndex);
         ImageView finalHandCard = handCard;
 
-        flipHandCard.setOnMouseClicked(mouseEvent -> {
-            flipCard(playedCardIndex,finalHandCard);
-        });
+        flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(playedCardIndex,finalHandCard));
         for (int i = 0; i < handPlayable.size(); i++)
             if (state.getCurrentPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
@@ -385,9 +411,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             if(currPlayerIdx < playerCount) {
                 PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
                 this.playerNodes.put(currPlayer.getNickname(), node); // save node association with nickname
-                vBox.setOnMouseClicked((MouseEvent event) -> {
-                    switchToPlayer(currPlayerIdx);
-                });
+                vBox.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayerIdx));
                 for(Node labelNode: vBox.getChildren()) {
                     Label label = (Label) labelNode;
                     switch (label.getId()) {
@@ -470,9 +494,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for (int i = 0; i < pickables.size(); i++) {
                 displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
                 int finalI = i;
-                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
-                    networkHandler.pickCard(pickables.get(finalI));
-                });
+                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> networkHandler.pickCard(pickables.get(finalI)));
             }
 
             List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
@@ -497,29 +519,25 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     private void makeDraggable(int handPlayableIndex, ImageView imageView){
         imageView.setId(String.valueOf(handPlayableIndex));
-        imageView.setOnDragDetected(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                Dragboard db = imageView.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.putString(imageView.getId());
-                db.setContent(content);
-                event.consume();
-            }
+        imageView.setOnDragDetected(event -> {
+            Dragboard db = imageView.startDragAndDrop(TransferMode.ANY);
+            ClipboardContent content = new ClipboardContent();
+            content.putString(imageView.getId());
+            db.setContent(content);
+            event.consume();
         });
-        imageView.setOnDragDone(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                if (event.getTransferMode() == TransferMode.MOVE) {
+        imageView.setOnDragDone(event -> {
+            if (event.getTransferMode() == TransferMode.MOVE) {
 //                    imageView.setImage(null);
-                    imageView.setVisible(false);
-                    attemptedToPlayCardHand=imageView;
+                imageView.setVisible(false);
+                attemptedToPlayCardHand=imageView;
 //                    handCardsContainer.getChildren().remove(imageView);
-                    for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
-                        if(handCardsContainer.getChildren().get(i).getOnDragDetected()!=null)
-                            handCardsContainer.getChildren().get(i).setOnDragDetected(null);
-                    }
+                for (int i = 0; i < handCardsContainer.getChildren().size(); i++) {
+                    if(handCardsContainer.getChildren().get(i).getOnDragDetected()!=null)
+                        handCardsContainer.getChildren().get(i).setOnDragDetected(null);
                 }
-                event.consume();
             }
+            event.consume();
         });
     }
 
@@ -552,41 +570,37 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         box1.setTranslateX(posX);
         box1.setTranslateY(posY);
 
-        box1.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                event.acceptTransferModes(TransferMode.MOVE);
-                event.consume();
-            }
+        box1.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+            event.consume();
         });
 
-        box1.setOnDragExited(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                box1.setFill(Color.BLUE);
-                event.consume();
-            }
+        box1.setOnDragExited(event -> {
+            box1.setFill(Color.BLUE);
+            event.consume();
         });
 
-        box1.setOnDragDropped(new EventHandler<DragEvent>() {
+        box1.setOnDragDropped(new EventHandler<>() {
             public void handle(DragEvent event) {
                 Dragboard db = event.getDragboard();
-                int handIndex=Integer.parseInt(db.getString());
-                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates,handCardSides.get(handIndex));
+                int handIndex = Integer.parseInt(db.getString());
+                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
                 Image imageHandCard;
-                String cardId=finalHandPlayable.get(handIndex).getId();
-                if(handCardSides.get(handIndex)==Side.SIDEBACK && cardId.charAt(0)!='s')
-                    cardId=cardId.substring(0,3)+'0';
-                playedCardIndex=handIndex;
-                if(handCardSides.get(handIndex)==Side.SIDEFRONT)
-                    imageHandCard= new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png")));
+                String cardId = finalHandPlayable.get(handIndex).getId();
+                if (handCardSides.get(handIndex) == Side.SIDEBACK && cardId.charAt(0) != 's')
+                    cardId = cardId.substring(0, 3) + '0';
+                playedCardIndex = handIndex;
+                if (handCardSides.get(handIndex) == Side.SIDEFRONT)
+                    imageHandCard = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png")));
                 else
-                    imageHandCard= new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + cardId + ".png")));
+                    imageHandCard = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + cardId + ".png")));
                 ImageView newCardImg = new ImageView(imageHandCard);
                 newCardImg.setFitWidth(imageW);
                 newCardImg.setFitHeight(imageH);
                 newCardImg.setTranslateX(posX);
                 newCardImg.setTranslateY(posY);
-                attemptedToPlayCardField=newCardImg;
-                attemptedToPlayCardBox=box1;
+                attemptedToPlayCardField = newCardImg;
+                attemptedToPlayCardBox = box1;
                 fieldContainer.getChildren().remove(box1);
                 fieldContainer.getChildren().add(newCardImg);
                 event.setDropCompleted(true);

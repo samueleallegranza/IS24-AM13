@@ -72,6 +72,16 @@ public class Log {
         this.addToLog(log);
     }
 
+    public void logNextTurn() {
+        String log = String.format(
+                "[%s][%s] Now its the turn of player %s",
+                this.currentTimeString(),
+                "Server",
+                gameState.getCurrentPlayer().getNickname()
+        );
+        this.addToLog(log);
+    }
+
     public void logFinalPhase() {
         // find who triggered the final phase
         int maxpoints = -1;

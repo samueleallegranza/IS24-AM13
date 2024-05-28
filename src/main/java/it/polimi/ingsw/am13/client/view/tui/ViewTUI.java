@@ -137,19 +137,22 @@ public class ViewTUI implements View {
                 String[] p = {"X","X","X","X"};
                 String[] pToShow = {"X","X","X","X"};
                 for(int i=0 ; i<r.getnPlayersTarget() ; i++) {
-                    PlayerLobby player = r.getPlayersInGame().get(i);
-                    p[i] = player.getNickname();
-                    if(!r.getPlayers().contains(player))     // This player is disconnected
-                        pToShow[i] = p[i] + " (⚠)";
-                    else
-                        pToShow[i] = p[i];
+                    if(i < r.getPlayersInGame().size()) {
+                        PlayerLobby player = r.getPlayersInGame().get(i);
+                        p[i] = player.getNickname();
+                        if (!r.getPlayers().contains(player))     // This player is disconnected
+                            pToShow[i] = p[i] + " (⚠)";
+                        else
+                            pToShow[i] = p[i];
+                    } else
+                        pToShow[i] = "-";
                 }
                 String formatted = String.format(
                         "║ %-7s │ %-7s │ %-15s │ %-15s │ %-15s │ %-15s │ %-3s ║\n",
                         r.getGameId()+1, r.isGameStarted() ? "started" : "waiting",
                         pToShow[0], pToShow[1], pToShow[2], pToShow[3], r.getPlayers().size() +"/"+ r.getnPlayersTarget()
                 );
-                for (int i = 0; i < r.getnPlayersTarget(); i++)
+                for (int i = 0; i < r.getPlayers().size(); i++)
                     formatted = formatted.replace(p[i], ViewTUIConstants.colorNickname(r.getPlayersInGame().get(i)));
                 System.out.print(formatted);
             }

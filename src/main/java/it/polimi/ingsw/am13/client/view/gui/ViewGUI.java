@@ -184,6 +184,7 @@ public class ViewGUI extends Application implements View {
             viewGUIController.setStage(stage);
             setNetworkHandler(networkHandler);
             viewGUIController.setThisPlayer(player);
+            viewGUIController.setGameState(state);
             viewGUIController.showStartGame(state);
         });
     }
