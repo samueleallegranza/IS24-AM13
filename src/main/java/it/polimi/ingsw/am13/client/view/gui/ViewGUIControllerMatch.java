@@ -187,7 +187,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             PlayerLobby playerLobby=state.getPlayers().get(i);
             if(playerLobby.equals(thisPlayer)) {
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
-                handPlayable=List.copyOf(state.getPlayerState(playerLobby).getHandPlayable());
+                handPlayable=new ArrayList<>(state.getPlayerState(playerLobby).getHandPlayable());
                 foundThisPlayer=true;
                 playerIndexToSidePos.add(-1);
             }
@@ -315,8 +315,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
     // ----------------------------------------------------------------
+    private void flipCard(int i, ImageView handCard){
+        //if (finalI != playedCardIndex)  this shouldn't be necessary anymore
+        if (handCardSides.get(i) == Side.SIDEFRONT) {
+            handCardSides.set(i, Side.SIDEBACK);
+            displayCard(handPlayable.get(i).getId(), Side.SIDEBACK, handCard);
+        } else {
+            displayCard(handPlayable.get(i).getId(), Side.SIDEFRONT, handCard);
+            handCardSides.set(i, Side.SIDEFRONT);
+        }
+    }
     private void displayHandPlayable(){
-        handPlayable=List.copyOf(state.getPlayerState(thisPlayer).getHandPlayable());
+//        handPlayable=new ArrayList<>(state.getPlayerState(thisPlayer).getHandPlayable()); we have the update method, and copying from state should only be done in showInGame
         for (int i = 0; i < handPlayable.size(); i++) {
             ImageView handCard=handCards.get(i);
             handCard.setVisible(true);
@@ -325,15 +335,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             Button flipHandCard=flipButtons.get(i);
             int finalI = i;
             flipHandCard.setOnMouseClicked(mouseEvent -> {
-                if (finalI != playedCardIndex) {
-                    if (handCardSides.get(finalI) == Side.SIDEFRONT) {
-                        handCardSides.set(finalI, Side.SIDEBACK);
-                        displayCard(handPlayable.get(finalI).getId(), Side.SIDEBACK, handCard);
-                    } else {
-                        displayCard(handPlayable.get(finalI).getId(), Side.SIDEFRONT, handCard);
-                        handCardSides.set(finalI, Side.SIDEFRONT);
-                    }
-                }
+                flipCard(finalI,handCard);
             });
             if(state.getCurrentPlayer().equals(thisPlayer)) {
                 makeDraggable(i, handCard);
@@ -348,7 +350,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             if(i!=playedCardIndex)
                 remainingHandCards.add(handPlayable.get(i));
         }
-        handPlayable=List.copyOf(state.getPlayerState(thisPlayer).getHandPlayable());
+        List<CardPlayableIF> updatedHandPlayable=new ArrayList<>(state.getPlayerState(thisPlayer).getHandPlayable());
         ImageView handCard=null;
         for (int i = 0; i < handPlayable.size(); i++){
             if(!handCards.get(i).isVisible()){
@@ -356,28 +358,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         }
         handCard.setVisible(true);
-        for (int i = 0; i < handPlayable.size(); i++) {
-            if(!handPlayable.get(i).getId().equals(remainingHandCards.get(0).getId()) && !handPlayable.get(i).getId().equals(remainingHandCards.get(1).getId())) {
-                displayCard(handPlayable.get(i).getId(), Side.SIDEFRONT, handCard);
-                Button flipHandCard = flipButtons.get(i);
-                int finalI = i;
-                ImageView finalHandCard = handCard;
-                flipHandCard.setOnMouseClicked(mouseEvent -> {
-                    if (finalI != playedCardIndex) {
-                        if (handCardSides.get(finalI) == Side.SIDEFRONT) {
-                            handCardSides.set(finalI, Side.SIDEBACK);
-                            displayCard(handPlayable.get(finalI).getId(), Side.SIDEBACK, finalHandCard);
-                        } else {
-                            displayCard(handPlayable.get(finalI).getId(), Side.SIDEFRONT, finalHandCard);
-                            handCardSides.set(finalI, Side.SIDEFRONT);
-                        }
-                    }
-                });
-                if (state.getCurrentPlayer().equals(thisPlayer)) {
-                    makeDraggable(i, handCard);
-                }
+        for (int i = 0; i < handPlayable.size(); i++)
+            if(!updatedHandPlayable.get(i).getId().equals(remainingHandCards.get(0).getId()) && !updatedHandPlayable.get(i).getId().equals(remainingHandCards.get(1).getId()))
+                handPlayable.set(playedCardIndex,updatedHandPlayable.get(i));
+
+
+        handPlayable.set(playedCardIndex,handPlayable.get(playedCardIndex));
+        displayCard(handPlayable.get(playedCardIndex).getId(), Side.SIDEFRONT, handCard);
+        Button flipHandCard = flipButtons.get(playedCardIndex);
+        ImageView finalHandCard = handCard;
+
+        flipHandCard.setOnMouseClicked(mouseEvent -> {
+            flipCard(playedCardIndex,finalHandCard);
+        });
+        for (int i = 0; i < handPlayable.size(); i++)
+            if (state.getCurrentPlayer().equals(thisPlayer)) {
+                makeDraggable(i, handCard);
             }
-        }
     }
 
     void initPlayerContainer() {
@@ -602,7 +599,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private void showOtherPlayer(int index, boolean afterThisPlayer){
         PlayerLobby otherPlayer=state.getPlayers().get(index);
         CardPlayableIF starterCard=state.getPlayerState(otherPlayer).getStarterCard();
-        List<CardPlayableIF> finalHandPlayable=List.copyOf(state.getPlayerState(otherPlayer).getHandPlayable());
+        List<CardPlayableIF> finalHandPlayable=new ArrayList<>(state.getPlayerState(otherPlayer).getHandPlayable());
         ImageView imageStarterSideView=new ImageView();
         int shiftPos;
         if(starterCard.getPlayedCardSide().equals(starterCard.getSide(Side.SIDEFRONT)))
