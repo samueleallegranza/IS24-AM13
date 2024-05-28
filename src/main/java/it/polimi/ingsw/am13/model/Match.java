@@ -299,7 +299,7 @@ public class Match {
 
     /**
      * @param player one of the players of the match
-     * @return the cards in the hand of the player
+     * @return The cards in the hand of the player
      * @throws InvalidPlayerException if the player is not one of the players of the match
      */
     public List<CardPlayable> fetchHandPlayable(PlayerLobby player) throws InvalidPlayerException{
@@ -338,7 +338,6 @@ public class Match {
         try {
             player.initStarter(cardStarter);
         } catch (VariableAlreadySetException e) {
-            System.out.println("The starter card had already been set for this player");
             throw new RuntimeException(e);
         }
     }

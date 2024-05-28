@@ -67,6 +67,9 @@ public class GameModel implements GameModelIF {
      */
     public void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException {
         GameStatus initStatus = match.getGameStatus();
+        boolean starterPlayed = match.getFieldByPlayer(player).isCoordPlaced(Coordinates.origin());
+        boolean objChosen = match.fetchHandObjective(player) != null;
+        List<CardPlayable> handCards = match.fetchHandPlayable(player);
         match.disconnectPlayer(player);
         try {
             listenerHandler.leaveRoom(player);
@@ -87,8 +90,20 @@ public class GameModel implements GameModelIF {
 //        }
 
         // Disconnection can make me move towards IN_GAME, a notify could be necessary
-        if(initStatus!=GameStatus.IN_GAME && match.getGameStatus()==GameStatus.IN_GAME)
-            listenerHandler.notifyInGame();
+        if(initStatus==GameStatus.INIT) {
+            if(!starterPlayed)
+                listenerHandler.notifyPlayedStarter(player,match.fetchStarter(player), match.fetchAvailableCoord(player));
+            if(!objChosen)
+                listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
+            if(match.getGameStatus()==GameStatus.IN_GAME)
+                listenerHandler.notifyInGame();
+        } else if(match.getGameStatus()!=GameStatus.IN_GAME || match.getGameStatus()!=GameStatus.FINAL_PHASE) {
+            if(handCards.size() == 2) {
+                CardPlayable pickedCard = match.fetchHandPlayable(player).stream()
+                        .filter(c -> !handCards.contains(c)).findFirst().orElseThrow();
+                listenerHandler.notifyPickedCard(player, match.fetchPickables(), pickedCard);
+            }
+        }
     }
 
     /**

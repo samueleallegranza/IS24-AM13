@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
-import it.polimi.ingsw.am13.client.view.Log;
+import it.polimi.ingsw.am13.client.view.tui.Log;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
@@ -39,7 +39,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
     private Log log;
 
     private void showLastLog() {
-        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getLast() + "\n"));
+        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
     }
 
     @Override

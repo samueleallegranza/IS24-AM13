@@ -107,7 +107,7 @@ public class ClientMain {
             Registry registry;
             try {
                 //TODO: rivedi meglio questo setup x rmi
-                registry = LocateRegistry.getRegistry(ServerMain.RMI_DEFAULT_PORT);
+                registry = LocateRegistry.getRegistry(ip, ServerMain.RMI_DEFAULT_PORT);
                 LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ServerMain.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);
             } catch (RemoteException | NotBoundException e) {

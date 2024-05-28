@@ -1,10 +1,9 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
-import it.polimi.ingsw.am13.client.view.Log;
+import it.polimi.ingsw.am13.client.view.tui.Log;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.event.EventHandler;

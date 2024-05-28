@@ -48,8 +48,8 @@ public class ServerMain {
 
         // ### 3. Binding of RMI registry
         try {
+            System.setProperty("java.rmi.server.hostname","0000");      //TODO: controlla se funziona da remoto con ip statici
             Registry registry = LocateRegistry.createRegistry(RMI_DEFAULT_PORT);
-            //TODO: capisci come prendere/creare il registro RMI su quella porta
             registry.bind(LOBBY_RMI_NAME, new LobbyRMI());
         } catch (RemoteException e) {
             //TODO: capisci come gestire

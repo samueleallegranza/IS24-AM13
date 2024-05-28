@@ -80,24 +80,24 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showStartupScreen(boolean isSocket, String ip, int port) {
+    public synchronized void showStartupScreen(boolean isSocket, String ip, int port) {
         viewGUIController.showStartupScreen(isSocket, ip, port);
     }
 
     @Override
-    public void showException(Exception e) {
+    public synchronized void showException(Exception e) {
         Platform.runLater(() -> {
             viewGUIController.showException(e);
         });
     }
 
     @Override
-    public void showGenericLogMessage(String msg) {
+    public synchronized void showGenericLogMessage(String msg) {
 
     }
 
     @Override
-    public void showRooms(List<RoomIF> rooms) {
+    public synchronized void showRooms(List<RoomIF> rooms) {
         this.rooms = rooms;
 //        boolean found=false;
         for(RoomIF room : rooms)
@@ -110,7 +110,7 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showPlayerJoinedRoom(PlayerLobby player) {
+    public synchronized void showPlayerJoinedRoom(PlayerLobby player) {
         Platform.runLater(() -> {
             if (this.player == null) {
                 this.player = player;
@@ -136,7 +136,7 @@ public class ViewGUI extends Application implements View {
 
     }
     @Override
-    public void showPlayerLeftRoom(PlayerLobby player) {
+    public synchronized void showPlayerLeftRoom(PlayerLobby player) {
         if(this.player.equals(player)){
             Platform.runLater(() -> {
                 FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
@@ -166,7 +166,7 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showStartGame(GameState state) {
+    public synchronized void showStartGame(GameState state) {
         Platform.runLater(() -> {
             FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
             Scene scene = null;
@@ -191,7 +191,7 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
+    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
         // set ViewGUI base attributes
         this.state = state;
         this.player = thisPlayer;
@@ -208,7 +208,7 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showPlayedStarter(PlayerLobby player) {
+    public synchronized void showPlayedStarter(PlayerLobby player) {
         if(this.player.equals(player)) {
             Platform.runLater(() -> {
                 stage.setTitle("Choose your personal objective");
@@ -222,12 +222,12 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showChosenPersonalObjective(PlayerLobby player) {
+    public synchronized void showChosenPersonalObjective(PlayerLobby player) {
         viewGUIController.showChosenPersonalObjective(player);
     }
 
     @Override
-    public void showInGame() {
+    public synchronized void showInGame() {
         Platform.runLater(() -> {
             FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIMatch.fxml"));
             Scene scene = null;
@@ -250,47 +250,47 @@ public class ViewGUI extends Application implements View {
     }
 
     @Override
-    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+    public synchronized void showPlayedCard(PlayerLobby player, Coordinates coord) {
         viewGUIController.showPlayedCard(player,coord);
     }
 
     @Override
-    public void showPickedCard(PlayerLobby player) {
+    public synchronized void showPickedCard(PlayerLobby player) {
         viewGUIController.showPickedCard(player);
     }
 
     @Override
-    public void showNextTurn() {
+    public synchronized void showNextTurn() {
         viewGUIController.showNextTurn();
     }
 
     @Override
-    public void showFinalPhase() {
+    public synchronized void showFinalPhase() {
 
     }
 
     @Override
-    public void showUpdatePoints() {
+    public synchronized void showUpdatePoints() {
 
     }
 
     @Override
-    public void showWinner() {
+    public synchronized void showWinner() {
 
     }
 
     @Override
-    public void showEndGame() {
+    public synchronized void showEndGame() {
 
     }
 
     @Override
-    public void showPlayerDisconnected(PlayerLobby player) {
+    public synchronized void showPlayerDisconnected(PlayerLobby player) {
         viewGUIController.showPlayerDisconnected(player);
     }
 
     @Override
-    public void showPlayerReconnected(PlayerLobby player) {
+    public synchronized void showPlayerReconnected(PlayerLobby player) {
         viewGUIController.showPlayerReconnected(player);
     }
 
