@@ -4,102 +4,105 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="980" prefWidth="1820" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
-    <children>
+<AnchorPane prefHeight="980" prefWidth="1820" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="135.0" AnchorPane.rightAnchor="300.0"
+          AnchorPane.topAnchor="0.0">
+        <StackPane fx:id="fieldContainer" prefHeight="621.0" prefWidth="1261.0"/>
+        <HBox>
+            <GridPane fx:id="pickablesContainer" prefHeight="366.0" prefWidth="786.0">
+                <columnConstraints>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints maxHeight="137.0" minHeight="10.0" percentHeight="33.3" prefHeight="114.0"
+                                    vgrow="SOMETIMES"/>
+                    <RowConstraints maxHeight="253.0" minHeight="0.0" percentHeight="33.3" prefHeight="125.0"
+                                    vgrow="SOMETIMES"/>
+                    <RowConstraints maxHeight="309.0" minHeight="10.0" percentHeight="33.3" prefHeight="157.0"
+                                    vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <children>
+                    <ImageView fx:id="resDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true"/>
+                    <ImageView fx:id="resPick1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="1"/>
+                    <ImageView fx:id="resPick2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="2"/>
+                    <ImageView fx:id="gldDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.rowIndex="1"/>
+                    <ImageView fx:id="gldPick1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <ImageView fx:id="gldPick2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <ImageView fx:id="objDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.rowIndex="2"/>
+                    <ImageView fx:id="commonObj1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <ImageView fx:id="commonObj2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true"
+                               preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                </children>
+            </GridPane>
 
-        <GridPane fx:id="playersContainer" prefHeight="980.0" prefWidth="135.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            </rowConstraints>
-            <children>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="0">
-                    <children>
-                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                    </children>
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                    <children>
-                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                    </children>
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
-                    <children>
-                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                    </children>
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
-                    <children>
-                        <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                        <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                        <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                        <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                    </children>
-                </VBox>
-            </children>
-        </GridPane>
+            <Pane fx:id="handCardsContainer" prefHeight="366.0" prefWidth="775.0">
+                <ImageView fx:id="handCard0" fitHeight="100" fitWidth="150" layoutX="10" layoutY="25"/>
+                <Button fx:id="flipButton0" layoutX="10" prefHeight="25" prefWidth="25"/>
+                <ImageView fx:id="handCard1" fitHeight="100" fitWidth="150" layoutX="170" layoutY="25"/>
+                <Button fx:id="flipButton1" layoutX="170" prefHeight="25" prefWidth="25"/>
+                <ImageView fx:id="handCard2" fitHeight="100" fitWidth="150" layoutX="330" layoutY="25"/>
+                <Button fx:id="flipButton2" layoutX="330" prefHeight="25" prefWidth="25"/>
+            </Pane>
+        </HBox>
+    </VBox>
 
-      <GridPane fx:id="pickablesContainer" layoutX="259.0" layoutY="614.0" prefHeight="366.0" prefWidth="786.0" AnchorPane.bottomAnchor="0.0">
+    <GridPane fx:id="playersContainer" prefHeight="980.0" prefWidth="135.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
-          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="137.0" minHeight="10.0" percentHeight="33.3" prefHeight="114.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="253.0" minHeight="0.0" percentHeight="33.3" prefHeight="125.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="309.0" minHeight="10.0" percentHeight="33.3" prefHeight="157.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         </rowConstraints>
-         <children>
-            <ImageView fx:id="resDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id="resPick1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" />
-            <ImageView fx:id="resPick2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" />
-            <ImageView fx:id="gldDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
-            <ImageView fx:id="gldPick1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <ImageView fx:id="gldPick2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <ImageView fx:id="objDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="2" />
-            <ImageView fx:id="commonObj1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <ImageView fx:id="commonObj2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-         </children>
-      </GridPane>
-
-        <StackPane fx:id="fieldContainer" layoutX="259.0" prefHeight="621.0" prefWidth="1261.0" AnchorPane.topAnchor="0.0" />
-
-        <Pane fx:id="handCardsContainer" layoutX="1045.0" layoutY="614.0" prefHeight="366.0" prefWidth="775.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
-          <children>
-              <ImageView fx:id="handCard0" layoutX="10" layoutY="25" fitWidth="150" fitHeight="100"/>
-              <Button fx:id="flipButton0" layoutX="10" prefWidth="25" prefHeight="25" />
-              <ImageView fx:id="handCard1" layoutX="170" layoutY="25" fitWidth="150" fitHeight="100"/>
-              <Button fx:id="flipButton1" layoutX="170" prefWidth="25" prefHeight="25" />
-              <ImageView fx:id="handCard2" layoutX="330" layoutY="25" fitWidth="150" fitHeight="100"/>
-              <Button fx:id="flipButton2" layoutX="330" prefWidth="25" prefHeight="25" />
-          </children>
-        </Pane>
-        <Button fx:id="zoom" layoutX="260" layoutY="700" prefHeight="25" prefWidth="25" />
-        <Button fx:id="deZoom" layoutX="285" layoutY="700" prefHeight="25" prefWidth="25" />
-        <VBox fx:id="sidePlayers" layoutX="1520" layoutY="614" prefHeight="980" prefWidth="300" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <StackPane fx:id="sideField0" prefHeight="270.0" prefWidth="300.0" />
-                <Pane fx:id="sideHand0" prefHeight="50.0" prefWidth="300.0" />
-                <StackPane fx:id="sideField1" prefHeight="270.0" prefWidth="300.0" />
-                <Pane fx:id="sideHand1" prefHeight="50.0" prefWidth="300.0" />
-                <StackPane fx:id="sideField2" prefHeight="270.0" prefWidth="300.0" />
-                <Pane fx:id="sideHand2" prefHeight="50.0" prefWidth="300.0" />
-            </children>
+        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="0">
+            <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1"/>
+            <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points"/>
+            <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn"/>
+            <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online"/>
         </VBox>
-    </children>
+        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+            <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1"/>
+            <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points"/>
+            <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn"/>
+            <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online"/>
+        </VBox>
+        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
+            <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1"/>
+            <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points"/>
+            <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn"/>
+            <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online"/>
+        </VBox>
+        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
+            <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1"/>
+            <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points"/>
+            <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn"/>
+            <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online"/>
+        </VBox>
+    </GridPane>
+    <Button fx:id="zoom" layoutX="260" layoutY="700" prefHeight="25" prefWidth="25"/>
+    <Button fx:id="deZoom" layoutX="285" layoutY="700" prefHeight="25" prefWidth="25"/>
+    <VBox fx:id="sidePlayers" layoutX="1520" layoutY="614" prefHeight="980" prefWidth="300" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <StackPane fx:id="sideField0" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand0" prefHeight="50.0" prefWidth="300.0"/>
+        <StackPane fx:id="sideField1" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand1" prefHeight="50.0" prefWidth="300.0"/>
+        <StackPane fx:id="sideField2" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand2" prefHeight="50.0" prefWidth="300.0"/>
+    </VBox>
 </AnchorPane>

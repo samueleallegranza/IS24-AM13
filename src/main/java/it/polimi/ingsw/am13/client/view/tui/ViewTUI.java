@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
+import it.polimi.ingsw.am13.client.view.Log;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.controller.RoomIF;

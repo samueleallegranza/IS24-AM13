@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -66,6 +68,15 @@ public class ViewGUIControllerInit extends ViewGUIController {
         Image imageBack=new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + starterCard.getId() + ".png")));
         secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEBACK));
         secondChoiceImage.setImage(imageBack);
+
+        if(ViewGUI.DEBUG_MODE) {
+            firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                    0, 0, 0, 0,
+                    MouseButton.PRIMARY,
+                    1, true, true, true, true,
+                    true, true, true, true, true, true,
+                    null));
+        }
     }
 
     @Override
@@ -96,6 +107,15 @@ public class ViewGUIControllerInit extends ViewGUIController {
         }
         else{
             Platform.runLater(() -> logArea.appendText("Player " + player.getNickname() + " has chosen a side for his starter card\n"));
+        }
+
+        if(ViewGUI.DEBUG_MODE) {
+            firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                    0, 0, 0, 0,
+                    MouseButton.PRIMARY,
+                    1, true, true, true, true,
+                    true, true, true, true, true, true,
+                    null));
         }
     }
 

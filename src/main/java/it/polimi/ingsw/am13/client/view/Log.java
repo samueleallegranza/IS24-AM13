@@ -1,6 +1,7 @@
-package it.polimi.ingsw.am13.client.view.tui;
+package it.polimi.ingsw.am13.client.view;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.view.tui.ViewTUIConstants;
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;

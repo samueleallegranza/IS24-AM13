@@ -17,7 +17,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
 
-public class ViewGUI extends Application implements View{
+public class ViewGUI extends Application implements View {
+
+    public static final boolean DEBUG_MODE = true;
+    public static final int DEBUG_NPLAYERS = 2;
+
     private ViewGUIController viewGUIController;
     private NetworkHandler networkHandler;
     private List<RoomIF> rooms;

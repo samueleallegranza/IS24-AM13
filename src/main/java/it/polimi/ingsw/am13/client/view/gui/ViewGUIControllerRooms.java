@@ -160,6 +160,20 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         });
 
         roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
+
+        if(ViewGUI.DEBUG_MODE) {
+            if(rooms.isEmpty())
+                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
+            else {
+                RoomIF room = rooms.getFirst();
+                switch (room.getPlayers().size()) {
+                    case 1 -> networkHandler.joinRoom("Hermione", new Token(ColorToken.BLUE), room.getGameId());
+                    case 2 -> networkHandler.joinRoom("Ron", new Token(ColorToken.GREEN), room.getGameId());
+                    case 3 -> networkHandler.joinRoom("Voldemort", new Token(ColorToken.YELLOW), room.getGameId());
+                    default -> throw new RuntimeException();
+                }
+            }
+        }
     }
 
     @Override
