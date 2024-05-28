@@ -117,7 +117,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     //this is a list that saves for each player index in state.getPlayers() its position in the sideFields/sideHands (-1 if it's currently being displayed)
     private List<Integer> playerIndexToSidePos;
-    private static final Integer imageW=150,imageH=100,cornerX=35,cornerY=40;
+    private static final Integer imageW=150,imageH=100,cornerX=33,cornerY=40;
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS

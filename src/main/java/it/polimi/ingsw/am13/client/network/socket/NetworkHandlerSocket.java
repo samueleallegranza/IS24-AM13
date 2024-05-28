@@ -49,55 +49,55 @@ public class NetworkHandlerSocket implements NetworkHandler {
     }
 
     @Override
-    public void getRooms() {
+    public synchronized void getRooms() {
         sendMessage(new MsgCommandGetRooms());
     }
 
     @Override
-    public void createRoom(String chosenNickname, Token token, int players) {
+    public synchronized void createRoom(String chosenNickname, Token token, int players) {
         sendMessage(new MsgCommandCreateRoom(chosenNickname,token,players));
         latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
     @Override
-    public void joinRoom(String chosenNickname, Token token, int gameId) {
+    public synchronized void joinRoom(String chosenNickname, Token token, int gameId) {
         sendMessage(new MsgCommandJoinRoom(chosenNickname,token,gameId));
         latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
     @Override
-    public void reconnect(String nickname, Token token) {
+    public synchronized void reconnect(String nickname, Token token) {
         sendMessage(new MsgCommandReconnectGame(nickname, token));
         latestPlayer = new PlayerLobby(nickname, token);
     }
 
     @Override
-    public void leaveRoom() {
+    public synchronized void leaveRoom() {
         sendMessage(new MsgCommandLeaveRoom(latestPlayer.getNickname()));
     }
 
     @Override
-    public void playStarter(Side side) {
+    public synchronized void playStarter(Side side) {
         sendMessage(new MsgCommandPlayStarter(side));
     }
 
     @Override
-    public void choosePersonalObjective(CardObjectiveIF card) {
+    public synchronized void choosePersonalObjective(CardObjectiveIF card) {
         sendMessage(new MsgCommandChoosePersonalObjective(card));
     }
 
     @Override
-    public void playCard(CardPlayableIF card, Coordinates coords, Side side) {
+    public synchronized void playCard(CardPlayableIF card, Coordinates coords, Side side) {
         sendMessage(new MsgCommandPlayCard(card,coords,side));
     }
 
     @Override
-    public void pickCard(CardPlayableIF card) {
+    public synchronized void pickCard(CardPlayableIF card) {
         sendMessage(new MsgCommandPickCard(card));
     }
 
     @Override
-    public void ping() {
+    public synchronized void ping() {
         sendMessage(new MsgCommandPing());
     }
 }

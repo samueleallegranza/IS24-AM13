@@ -164,6 +164,11 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
 
         if(ViewGUI.DEBUG_MODE) {
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
             if(rooms.isEmpty())
                 networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
             else {

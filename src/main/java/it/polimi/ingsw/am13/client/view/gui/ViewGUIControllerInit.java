@@ -83,6 +83,11 @@ public class ViewGUIControllerInit extends ViewGUIController {
         secondChoiceImage.setImage(imageBack);
 
         if(ViewGUI.DEBUG_MODE) {
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -121,7 +126,12 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logPlayedStarter(player);
         showLastLog();
 
-        if(ViewGUI.DEBUG_MODE) {
+        if(ViewGUI.DEBUG_MODE && this.player.equals(player)){
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
