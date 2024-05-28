@@ -271,13 +271,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showNextTurn() {
-        //todo Samuele aggiorna le label
         if (state.getCurrentPlayer().equals(thisPlayer)) {
             for (int i = 0; i < handPlayable.size(); i++) {
                 ImageView handCard=handCards.get(i);
                 if(state.getCurrentPlayer().equals(thisPlayer)) {
                     makeDraggable(i, handCard);
                 }
+            }
+        }
+
+        // update turn label in Player Container
+        for(PlayerLobby p: this.state.getPlayers()) {
+            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
+            for(Node nodeLabel: pVbox.getChildren()) {
+                Label label = (Label) nodeLabel;
+                if(label.getId().equals("turn"))
+                    Platform.runLater(() -> {
+                        label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting");
+                    });
             }
         }
     }
