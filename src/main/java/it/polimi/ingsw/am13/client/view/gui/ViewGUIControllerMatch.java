@@ -217,6 +217,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         sideHandCards.add(0,Stream.of(side0handCard0,side0handCard1,side0handCard2).toList());
         sideHandCards.add(1,Stream.of(side1handCard0,side1handCard1,side1handCard2).toList());
         sideHandCards.add(2,Stream.of(side2handCard0,side2handCard1,side2handCard2).toList());
+//        sidePlayers.setVisible(false);
         flipButtons=Stream.of(flipButton0,flipButton1,flipButton2).toList();
         playerIndexToSidePos=new ArrayList<>();
         handsPlayable=new ArrayList<>();
@@ -689,8 +690,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             List<CardPlayableIF> updatedHandPlayable = new ArrayList<>(state.getPlayerState(otherPlayer).getHandPlayable());
             int otherPlayedCardIndex = 0;
-            for (int i = 0; i < handsPlayable.get(index).size(); i++)
-                if (!updatedHandPlayable.contains(handsPlayable.get(index).get(i)))
+            for (int i = 0; i < handsPlayable.get(sideIndex).size(); i++)
+                if (!updatedHandPlayable.contains(handsPlayable.get(sideIndex).get(i)))
                     otherPlayedCardIndex = i;
             sideHandCards.get(sideIndex).get(otherPlayedCardIndex).setVisible(false);
             Node boxToRemove;
@@ -698,9 +699,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for (Coordinates coord : state.getPlayerState(otherPlayer).getField().getPlacedCoords()) {
                 CardSidePlayableIF cardSide = state.getPlayerState(otherPlayer).getField().getCardSideAtCoord(coord);
                 System.out.println(cardSide.getColor()+" "+cardSide.getPoints());
-                if (handsPlayable.get(index).get(otherPlayedCardIndex).getSide(Side.SIDEFRONT).equals(cardSide))
+                if (handsPlayable.get(sideIndex).get(otherPlayedCardIndex).getSide(Side.SIDEFRONT).equals(cardSide))
                     playedCardSide = Side.SIDEFRONT;
-                else if (handsPlayable.get(index).get(otherPlayedCardIndex).getSide(Side.SIDEBACK).equals(cardSide))
+                else if (handsPlayable.get(sideIndex).get(otherPlayedCardIndex).getSide(Side.SIDEBACK).equals(cardSide))
                     playedCardSide = Side.SIDEBACK;
             }
             for (int i = 0; i < sideFields.get(sideIndex).getChildren().size(); i++) {
@@ -708,7 +709,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     boxToRemove = sideFields.get(sideIndex).getChildren().get(i);
                     sideFields.get(sideIndex).getChildren().remove(boxToRemove);
                     ImageView playedCardImage = new ImageView();
-                    displayCard(handsPlayable.get(index).get(otherPlayedCardIndex).getId(), playedCardSide, playedCardImage);
+                    displayCard(handsPlayable.get(sideIndex).get(otherPlayedCardIndex).getId(), playedCardSide, playedCardImage);
                     playedCardImage.setTranslateX(posX);
                     playedCardImage.setTranslateY(posY);
                     sideFields.get(sideIndex).getChildren().add(playedCardImage);
@@ -738,15 +739,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             List<CardPlayableIF> updatedHandPlayable = new ArrayList<>(state.getPlayerState(otherPlayer).getHandPlayable());
             int otherPlayedCardIndex = 0;
-            for (int i = 0; i < handsPlayable.get(index).size(); i++)
-                if (!updatedHandPlayable.contains(handsPlayable.get(index).get(i)))
+            for (int i = 0; i < handsPlayable.get(sideIndex).size(); i++)
+                if (!updatedHandPlayable.contains(handsPlayable.get(sideIndex).get(i)))
                     otherPlayedCardIndex = i;
-            for (int i = 0; i < handsPlayable.get(index).size(); i++)
-                if (!handsPlayable.get(index).contains(updatedHandPlayable.get(i)))
-                    handsPlayable.get(index).set(otherPlayedCardIndex, updatedHandPlayable.get(i));
+            for (int i = 0; i < handsPlayable.get(sideIndex).size(); i++)
+                if (!handsPlayable.get(sideIndex).contains(updatedHandPlayable.get(i)))
+                    handsPlayable.get(sideIndex).set(otherPlayedCardIndex, updatedHandPlayable.get(i));
 
             sideHandCards.get(sideIndex).get(otherPlayedCardIndex).setVisible(true);
-            displayCard(handsPlayable.get(index).get(otherPlayedCardIndex).getId(), Side.SIDEBACK, sideHandCards.get(sideIndex).get(otherPlayedCardIndex));
+            displayCard(handsPlayable.get(sideIndex).get(otherPlayedCardIndex).getId(), Side.SIDEBACK, sideHandCards.get(sideIndex).get(otherPlayedCardIndex));
 //        for (int i = 0; i <  ; i++) {
 //
 //        }
@@ -755,16 +756,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
     private void showOtherPlayer(int index){
         Platform.runLater(() -> {
+            int sideIndex = playerIndexToSidePos.get(index);
             PlayerLobby otherPlayer = state.getPlayers().get(index);
             CardPlayableIF starterCard = state.getPlayerState(otherPlayer).getStarterCard();
-            List<CardPlayableIF> finalHandPlayable = handsPlayable.get(index);
+            List<CardPlayableIF> finalHandPlayable = handsPlayable.get(sideIndex);
             ImageView imageStarterSideView = new ImageView();
             if (starterCard.getPlayedCardSide().equals(starterCard.getSide(Side.SIDEFRONT)))
                 displayCard(starterCard.getId(), Side.SIDEFRONT, imageStarterSideView);
             else
                 displayCard(starterCard.getId(), Side.SIDEBACK, imageStarterSideView);
 //        sidePlayers.setAlignment(Pos.CENTER);
-            int sideIndex = playerIndexToSidePos.get(index);
             sideFields.get(sideIndex).setScaleX(0.5);
             sideFields.get(sideIndex).setScaleY(0.5);
             sideHands.get(sideIndex).setScaleX(0.5);
