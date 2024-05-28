@@ -45,6 +45,8 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     private Button joinRoomButton;
     @FXML
     private Button refreshRoomButton;
+    @FXML
+    private Button reconnectMatchButton;
 
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -221,6 +223,20 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         networkHandler.getRooms();
     }
 
+    @FXML
+    public void onReconnectMatchButtonClick() {
+        if (nicknameField.getText().isEmpty()){
+            errorAlert("Please insert a nickname");
+        }else if (colorBox.getValue() == null){
+            errorAlert("Please select a color");
+        }else{
+            String nickname = nicknameField.getText();
+            ColorToken color = colorBox.getValue();
+            networkHandler.reconnect(nickname, new Token(color));
+        }
+    }
+
+
     public void showException(Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -260,6 +276,16 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
     @Override
     public void showNextTurn() {
+
+    }
+
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
 
     }
 

@@ -118,4 +118,14 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
                 joinedRoomTable.getItems().add(playerLobby);
         }
     }
+
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+
+    }
 }

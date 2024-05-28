@@ -309,18 +309,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         }
 
-        // update turn label in Player Container
-        for(PlayerLobby p: this.state.getPlayers()) {
-            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
-            for(Node nodeLabel: pVbox.getChildren()) {
-                Label label = (Label) nodeLabel;
-                if(label.getId().equals("turn"))
-                    Platform.runLater(() -> label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting"));
-            }
-        }
+        playersContainerUpdateTurns();
 
         log.logNextTurn();
         showLastLog(2);
+    }
+
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+        System.out.println(player.getNickname() + " disconnected");
+        playerContainerUpdateConnection(player);
+        // TODO: Implement log for disconnection
+    }
+
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+        System.out.println(player.getNickname() + " reconnected");
+        playerContainerUpdateConnection(player);
+        // TODO: Implement log for reconnection
     }
 
     // >>> Following methods are ghosts <<<
@@ -471,6 +477,40 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         });
     }
+
+    /**
+     * Updates player container labels representing the turn of the players. Every turn label is set to "waiting"
+     * except for the player currently playing, which will be set to "TURN".
+     */
+    private void playersContainerUpdateTurns() {
+        for(PlayerLobby p: this.state.getPlayers()) {
+            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
+            for(Node nodeLabel: pVbox.getChildren()) {
+                Label label = (Label) nodeLabel;
+                if(label.getId().equals("turn"))
+                    Platform.runLater(() -> {
+                        label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting");
+                    });
+            }
+        }
+    }
+
+    /**
+     * Updates player container connection status of the player which has disconnected or reconnected.
+     * @param player Player which needs its connection status label to be updated
+     */
+    private void playerContainerUpdateConnection(PlayerLobby player) {
+        VBox pVbox = (VBox) playerNodes.get(player.getNickname());
+        for(Node labelNode: pVbox.getChildren()) {
+            Label label = (Label) labelNode;
+            if(label.getId().equals("online")) {
+                Platform.runLater(() -> {
+                    label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected");
+                });
+            }
+        }
+    }
+
     private void clearHandPlayable(){
         for (ImageView handCard : handCards) {
             handCard.setImage(null);

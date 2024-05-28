@@ -40,4 +40,6 @@ public abstract class ViewGUIController {
 
     public abstract void showNextTurn();
 
+    public abstract void showPlayerDisconnected(PlayerLobby player);
+    public abstract void showPlayerReconnected(PlayerLobby player);
 }

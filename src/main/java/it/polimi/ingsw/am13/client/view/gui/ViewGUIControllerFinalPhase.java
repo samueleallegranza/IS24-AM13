@@ -77,4 +77,15 @@ public class ViewGUIControllerFinalPhase extends ViewGUIController{
     public void showNextTurn() {
 
     }
+
+
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+
+    }
+
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+
+    }
 }

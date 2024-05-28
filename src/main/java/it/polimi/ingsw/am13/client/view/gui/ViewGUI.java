@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.controller.RoomIF;
+import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Application;
@@ -20,7 +21,7 @@ import java.util.List;
 public class ViewGUI extends Application implements View {
 
     public static final boolean DEBUG_MODE = true;
-    public static final int DEBUG_NPLAYERS = 2;
+    public static final int DEBUG_NPLAYERS = 3;
 
     private ViewGUIController viewGUIController;
     private NetworkHandler networkHandler;
@@ -191,7 +192,19 @@ public class ViewGUI extends Application implements View {
 
     @Override
     public void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
+        // set ViewGUI base attributes
+        this.state = state;
+        this.player = thisPlayer;
 
+        switch (state.getGameStatus()) {
+            case GameStatus.INIT -> {
+                showStartGame(state); // sets the init visualization screen
+                showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
+            }
+            case GameStatus.IN_GAME -> {
+                showInGame();
+            }
+        }
     }
 
     @Override
@@ -273,12 +286,12 @@ public class ViewGUI extends Application implements View {
 
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
-
+        viewGUIController.showPlayerDisconnected(player);
     }
 
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
-
+        viewGUIController.showPlayerReconnected(player);
     }
 
     public static void main(String[] args) {
