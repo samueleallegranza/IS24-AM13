@@ -19,7 +19,7 @@
     <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="0.0">
       <HBox minHeight="600.0">
          <children>
-         
+
              <GridPane fx:id="playersContainer" prefHeight="980.0" prefWidth="135.0">
                  <columnConstraints>
                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -110,7 +110,7 @@
                     <ImageView fx:id="commonObj2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                 </children>
             </GridPane>
-         <HBox minWidth="250.0" spacing="20.0">
+         <HBox fx:id="handCardsContainer" minWidth="250.0" spacing="20.0">
             <children>
                <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
                   <children>
@@ -139,17 +139,30 @@
       </padding>
     </VBox>
     <VBox fx:id="sidePlayers" layoutX="1520" layoutY="614" prefHeight="980" prefWidth="300" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <StackPane fx:id="sideField0" prefHeight="270.0" prefWidth="300.0" />
-        <Pane fx:id="sideHand0" prefHeight="50.0" prefWidth="300.0" />
-        <StackPane fx:id="sideField1" prefHeight="270.0" prefWidth="300.0" />
-        <Pane fx:id="sideHand1" prefHeight="50.0" prefWidth="300.0" />
-        <StackPane fx:id="sideField2" prefHeight="270.0" prefWidth="300.0" />
-        <Pane fx:id="sideHand2" prefHeight="50.0" prefWidth="300.0" />
+        <StackPane fx:id="sideField0" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand0" prefHeight="50.0" prefWidth="300.0">
+            <ImageView fx:id="side0handCard0" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side0handCard1" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side0handCard2" fitHeight="50" fitWidth="75"/>
+        </Pane>
+        <StackPane fx:id="sideField1" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand1" prefHeight="50.0" prefWidth="300.0">
+            <ImageView fx:id="side1handCard0" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side1handCard1" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side1handCard2" fitHeight="50" fitWidth="75"/>
+        </Pane>
+        <StackPane fx:id="sideField2" prefHeight="270.0" prefWidth="300.0"/>
+        <Pane fx:id="sideHand2" prefHeight="50.0" prefWidth="300.0">
+            <ImageView fx:id="side2handCard0" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side2handCard1" fitHeight="50" fitWidth="75"/>
+            <ImageView fx:id="side2handCard2" fitHeight="50" fitWidth="75"/>
+        </Pane>
       <padding>
          <Insets right="10.0" top="10.0" />
       </padding>
     </VBox>
-   <padding>
-      <Insets bottom="20.0" left="20.0" />
-   </padding>
+    <padding>
+        <Insets bottom="20.0" left="20.0"/>
+    </padding>
 </AnchorPane>
+
