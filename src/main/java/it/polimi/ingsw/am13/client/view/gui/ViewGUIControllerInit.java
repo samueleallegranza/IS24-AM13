@@ -166,11 +166,13 @@ public class ViewGUIControllerInit extends ViewGUIController {
 
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
-        Platform.runLater(() -> logArea.appendText("Player " + player.getNickname() + " left the game\n"));
+        log.logDisconnect(player);
+        showLastLog();
     }
 
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
-        Platform.runLater(() -> logArea.appendText("Player " + player.getNickname() + " re-joined the game\n"));
+        log.logDisconnect(player);
+        showLastLog();
     }
 }

@@ -317,16 +317,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
-        System.out.println(player.getNickname() + " disconnected");
         playerContainerUpdateConnection(player);
-        // TODO: Implement log for disconnection
+
+        log.logDisconnect(player);
+        showLastLog();
     }
 
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
-        System.out.println(player.getNickname() + " reconnected");
         playerContainerUpdateConnection(player);
-        // TODO: Implement log for reconnection
+
+        log.logReconnect(player);
+        showLastLog();
     }
 
     // >>> Following methods are ghosts <<<
