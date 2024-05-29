@@ -162,7 +162,7 @@ public class GameListenerServerSocket implements GameListener {
      * Sends a message to the client
      * @param message The message to send
      */
-    private void sendMessage(Message message) {
+    private synchronized void sendMessage(Message message) {
         try {
             out.writeObject(message);
             out.flush();

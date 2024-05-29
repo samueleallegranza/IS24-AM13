@@ -627,24 +627,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
     private void addCardBox(Coordinates coordinates, List<CardPlayableIF> finalHandPlayable) {
-        Rectangle box1 = new Rectangle(imageW, imageH, Color.BLUE);
+        Rectangle box = new Rectangle(imageW, imageH, Color.BLUE);
         int posX = (imageW - cornerX) * coordinates.getPosX();
         int posY = (-imageH + cornerY) * coordinates.getPosY();
-        box1.setTranslateX(posX);
-        box1.setTranslateY(posY);
-
+        box.setTranslateX(posX);
+        box.setTranslateY(posY);
         if(thisPlayer.equals(displayPlayer)) { //I make it possible to drag things into them even if it's not the right run, in that case the hand cards won't be draggable
-            box1.setOnDragOver(event -> {
+            box.setOnDragOver(event -> {
                 event.acceptTransferModes(TransferMode.MOVE);
                 event.consume();
             });
 
-            box1.setOnDragExited(event -> {
-                box1.setFill(Color.BLUE);
+            box.setOnDragExited(event -> {
+                box.setFill(Color.BLUE);
                 event.consume();
             });
 
-            box1.setOnDragDropped(new EventHandler<>() {
+            box.setOnDragDropped(new EventHandler<>() {
                 public void handle(DragEvent event) {
                     Dragboard db = event.getDragboard();
                     int handIndex = Integer.parseInt(db.getString());
@@ -664,15 +663,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     newCardImg.setTranslateX(posX);
                     newCardImg.setTranslateY(posY);
                     attemptedToPlayCardField = newCardImg;
-                    attemptedToPlayCardBox = box1;
-                    fieldContainer.getChildren().remove(box1);
+                    attemptedToPlayCardBox = box;
+                    fieldContainer.getChildren().remove(box);
                     fieldContainer.getChildren().add(newCardImg);
                     event.setDropCompleted(true);
                     event.consume();
                 }
             });
         }
-        fieldContainer.getChildren().add(box1);
+        fieldContainer.getChildren().add(box);
+        box.toBack();
     }
 
     //if you need methods related to other player to use as a reference, done on 28/05, before ~7pm
