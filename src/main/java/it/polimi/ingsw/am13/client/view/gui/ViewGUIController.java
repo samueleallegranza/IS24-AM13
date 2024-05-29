@@ -42,4 +42,12 @@ public abstract class ViewGUIController {
 
     public abstract void showPlayerDisconnected(PlayerLobby player);
     public abstract void showPlayerReconnected(PlayerLobby player);
+
+    public abstract void showFinalPhase();
+
+    public abstract void showUpdatePoints();
+
+    public abstract void showWinner();
+
+    public abstract void showEndGame();
 }

@@ -212,11 +212,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if(!state.getPlayerState(player).getHandPlayable().contains(handPlayable.get(i)))
                     handPlayable.set(i,null);
             }
-            displayField();
             displayHandPlayable();
+            displayField();
         }
 
-         playersContainerUpdatePoints(player, this.state.getPlayerState(player).getPoints());
+         playersContainerUpdatePoints(player);
 
         log.logPlayedCard(player, coord);
         showLastLog();
@@ -253,13 +253,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showNextTurn() {
         if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
             for (int i = 0; i < handPlayable.size(); i++) {
-                ImageView handCard=handCards.get(i);
-                if(state.getCurrentPlayer().equals(thisPlayer)) {
+//                if(handPlayable.get(i)!=null) { //this should be useless
+                    ImageView handCard = handCards.get(i);
                     makeDraggable(i, handCard);
-                }
+//                }
             }
         }
-
+        if(state.getCurrentPlayer().equals(thisPlayer))
+            flowCardPlaced=false;
         playersContainerUpdateTurns();
 
         log.logNextTurn();
@@ -270,12 +271,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showPlayerDisconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
         //if I am currently watching a player who disconnected, I automatically switch the view back to mine
-        if(player.equals(displayPlayer)){
-            displayPlayer=thisPlayer;
-            handPlayable=new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-            displayField();
-            displayHandPlayable();
-        }
+//        if(player.equals(displayPlayer)){
+//            displayPlayer=thisPlayer;
+//            handPlayable=new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
+//            displayField();
+//            displayHandPlayable();
+//        }
 
         log.logDisconnect(player);
         showLastLog();
@@ -306,7 +307,27 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showStartGame(GameState state) {}
 
+    @Override
+    public synchronized void showFinalPhase() {
+        log.logFinalPhase();
+        showLastLog();
+    }
 
+    @Override
+    public synchronized void showUpdatePoints() {
+//        for(PlayerLobby playerLobby : state.getPlayers())
+//            playersContainerUpdatePoints(playerLobby);
+    }
+
+    @Override
+    public synchronized void showWinner() {
+//        System.out.println("not good");
+    }
+
+    @Override
+    public synchronized void showEndGame() {
+
+    }
 
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
@@ -315,11 +336,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         //if (finalI != playedCardIndex)  this shouldn't be necessary anymore
         if (handCardSides.get(i) == Side.SIDEFRONT) {
             handCardSides.set(i, Side.SIDEBACK);
-            displayCard(handPlayable.get(i).getId(), Side.SIDEBACK, handCard);
+
         } else {
-            displayCard(handPlayable.get(i).getId(), Side.SIDEFRONT, handCard);
             handCardSides.set(i, Side.SIDEFRONT);
         }
+        displayCard(handPlayable.get(i).getId(), handCardSides.get(i), handCard);
     }
 
     /**
@@ -338,20 +359,21 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     Button flipHandCard = flipButtons.get(i);
                     handCard.setVisible(true);
                     if (thisPlayer.equals(displayPlayer)) {
-                        displayCard(handPlayable.get(i).getId(), Side.SIDEFRONT, handCard);
+                        handCardSides.set(i,Side.SIDEFRONT);
                         int finalI = i;
                         flipHandCard.setVisible(true);
                         flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(finalI, handCard));
-                        if (state.getCurrentPlayer().equals(thisPlayer)) {
+                        if (!flowCardPlaced && state.getCurrentPlayer().equals(thisPlayer)) {
                             makeDraggable(i, handCard);
                         }
                     }
                     else {
-                        displayCard(handPlayable.get(i).getId(), Side.SIDEBACK, handCard);
-//                        flipHandCard.setOnMouseClicked(null);
+                        handCardSides.set(i,Side.SIDEBACK);
+                        flipHandCard.setOnMouseClicked(null);
                         flipHandCard.setVisible(false);
                         handCard.setOnDragDetected(null);
                     }
+                    displayCard(handPlayable.get(i).getId(), handCardSides.get(i), handCard);
                 }
             }
         });
@@ -410,7 +432,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
-    void playersContainerUpdatePoints(PlayerLobby player, int points) {
+    void playersContainerUpdatePoints(PlayerLobby player) {
         Platform.runLater(() -> {
             // get node corresponding to player
             VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
@@ -569,15 +591,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             fieldContainer.getChildren().clear();
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getPlacedCoords()) {
                 CardSidePlayableIF curPlayedCard = state.getPlayerState(displayPlayer).getField().getCardSideAtCoord(coordinates);
-                ImageView fieldCardImg = new ImageView();
-                displayCard(curPlayedCard.getId(), curPlayedCard.getSide(), fieldCardImg);
-                int posX = (imageW - cornerX) * coordinates.getPosX();
-                int posY = (-imageH + cornerY) * coordinates.getPosY();
-                fieldCardImg.setTranslateX(posX);
-                fieldCardImg.setTranslateY(posY);
-                fieldContainer.getChildren().add(fieldCardImg);
+                if(curPlayedCard!=null) {
+                    ImageView fieldCardImg = new ImageView();
+                    displayCard(curPlayedCard.getId(), curPlayedCard.getSide(), fieldCardImg);
+//                    System.out.println(coordinates.getPosX() + " " + coordinates.getPosY() + " " + curPlayedCard.getId() + " " + curPlayedCard.getSide());
+                    int posX = (imageW - cornerX) * coordinates.getPosX();
+                    int posY = (-imageH + cornerY) * coordinates.getPosY();
+                    fieldCardImg.setTranslateX(posX);
+                    fieldCardImg.setTranslateY(posY);
+                    fieldContainer.getChildren().add(fieldCardImg);
+                }
             }
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getAvailableCoords()) {
+//                System.out.println(coordinates.getPosX()+" "+coordinates.getPosY());
                 addCardBox(coordinates, handPlayable);
             }
         });
@@ -620,6 +646,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 public void handle(DragEvent event) {
                     Dragboard db = event.getDragboard();
                     int handIndex = Integer.parseInt(db.getString());
+//                    System.out.println(finalHandPlayable.get(handIndex).getId()+" "+handCardSides.get(handIndex));
                     networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
                     Image imageHandCard;
                     String cardId = finalHandPlayable.get(handIndex).getId();

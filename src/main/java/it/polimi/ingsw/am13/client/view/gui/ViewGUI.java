@@ -21,7 +21,7 @@ import java.util.List;
 public class ViewGUI extends Application implements View {
 
     public static final boolean DEBUG_MODE = true;
-    public static final int DEBUG_NPLAYERS = 3;
+    public static final int DEBUG_NPLAYERS = 2;
 
     private ViewGUIController viewGUIController;
     private NetworkHandler networkHandler;
@@ -30,6 +30,8 @@ public class ViewGUI extends Application implements View {
     private GameState state;
     private PlayerLobby player;
     private Stage stage;
+
+    private boolean reachedWinnerPhase;
     private final static int sceneWidth=1820;
     private final static int sceneHeight=980;
     private final static boolean FULLSCREEN_MODE = false;
@@ -71,6 +73,7 @@ public class ViewGUI extends Application implements View {
 
         showStartupScreen(true, "localhost", 25566);
         networkHandler.getRooms();
+        reachedWinnerPhase=false;
     }
 
 
@@ -266,22 +269,66 @@ public class ViewGUI extends Application implements View {
 
     @Override
     public synchronized void showFinalPhase() {
-
+        viewGUIController.showFinalPhase();
     }
 
     @Override
     public synchronized void showUpdatePoints() {
 
+        Platform.runLater(() -> {
+            reachedWinnerPhase=true;
+            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIWinner.fxml"));
+            Scene scene = null;
+            try {
+                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            stage.setTitle("Winner phase");
+            stage.setScene(scene);
+            stage.show();
+
+            viewGUIController = fxmlLoader.getController();
+            viewGUIController.setStage(stage);
+            viewGUIController.setThisPlayer(player);
+            viewGUIController.setGameState(state);
+            setNetworkHandler(networkHandler);
+            viewGUIController.showUpdatePoints();
+        });
     }
 
     @Override
     public synchronized void showWinner() {
+        if(!reachedWinnerPhase) {
+            Platform.runLater(() -> {
+                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIWinner.fxml"));
+                Scene scene = null;
+                try {
+                    scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                stage.setTitle("Winner phase");
+                stage.setScene(scene);
+                stage.show();
 
+                viewGUIController = fxmlLoader.getController();
+                viewGUIController.setStage(stage);
+                viewGUIController.setThisPlayer(player);
+                viewGUIController.setGameState(state);
+                setNetworkHandler(networkHandler);
+                viewGUIController.showUpdatePoints();
+            });
+        }
+        Platform.runLater(() -> {
+            System.out.println("eeending");
+            viewGUIController.showWinner();
+        });
     }
 
     @Override
     public synchronized void showEndGame() {
-
+        viewGUIController.showEndGame();
     }
 
     @Override

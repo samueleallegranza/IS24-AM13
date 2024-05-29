@@ -160,12 +160,12 @@ public class CardSidePlayable implements CardSidePlayableIF {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CardSidePlayable that = (CardSidePlayable) o;
-        return Objects.equals(requirements, that.requirements) && Objects.equals(corners, that.corners) && Objects.equals(centerResources, that.centerResources) && Objects.equals(points, that.points) && color == that.color;
+        return Objects.equals(id, that.id) && side == that.side;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(requirements, corners, centerResources, points, color);
+        return Objects.hash(id, side);
     }
 
     @Override

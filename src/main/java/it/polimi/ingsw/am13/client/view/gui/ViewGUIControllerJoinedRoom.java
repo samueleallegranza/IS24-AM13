@@ -128,4 +128,22 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     public void showPlayerReconnected(PlayerLobby player) {
 
     }
+
+    @Override
+    public synchronized void showFinalPhase() {
+
+    }
+
+    @Override
+    public synchronized void showUpdatePoints() {}
+
+    @Override
+    public synchronized void showWinner() {
+
+    }
+
+    @Override
+    public synchronized void showEndGame() {
+
+    }
 }

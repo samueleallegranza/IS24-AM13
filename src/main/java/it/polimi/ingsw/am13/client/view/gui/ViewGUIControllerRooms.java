@@ -294,6 +294,23 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
     }
 
+    @Override
+    public synchronized void showFinalPhase() {
+
+    }
+
+    @Override
+    public synchronized void showUpdatePoints() {}
+
+    @Override
+    public synchronized void showWinner() {
+
+    }
+
+    @Override
+    public synchronized void showEndGame() {
+
+    }
     private void errorAlert(String message){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

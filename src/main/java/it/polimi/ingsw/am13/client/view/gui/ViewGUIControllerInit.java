@@ -185,4 +185,23 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logDisconnect(player);
         showLastLog();
     }
+
+
+    @Override
+    public synchronized void showFinalPhase() {
+
+    }
+
+    @Override
+    public synchronized void showUpdatePoints() {}
+
+    @Override
+    public synchronized void showWinner() {
+
+    }
+
+    @Override
+    public synchronized void showEndGame() {
+
+    }
 }
