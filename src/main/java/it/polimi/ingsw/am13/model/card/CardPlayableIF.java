@@ -18,5 +18,4 @@ public interface CardPlayableIF extends CardIF {
      * @return Card side corresponding to specified side
      */
     CardSidePlayableIF getSide(Side side);
-
 }

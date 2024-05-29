@@ -39,13 +39,17 @@ public class CardResource extends CardPlayable {
                         frontCorners,
                         new ArrayList<>(),
                         new PointsInstant(points),
-                        color
+                        color,
+                        id,
+                        Side.SIDEFRONT
                 ), new CardSidePlayable(
                         new HashMap<>(),
                         Corner.generateEmptyCorners(),
                         List.of(color.correspondingResource()),
                         new PointsInstant(0),
-                        color
+                        color,
+                        id,
+                        Side.SIDEBACK
                 )
         );
         if(color.correspondingResource() == Resource.NO_RESOURCE)

@@ -45,7 +45,7 @@ public class CardFactory {
                 List<Corner> cornersFront = getCorners(cardFront);
                 List<Resource> centerFront = new ArrayList<>();
                 PointsPlayable pointsFront = new PointsInstant(cardFront.get("points").asInt());
-                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color);
+                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color,id,Side.SIDEFRONT);
 
                 // -- SideBack construction
                 // all backside corners are empty (visibility true)
@@ -54,7 +54,7 @@ public class CardFactory {
                 centerBack.add(resourceConverter(cardBack.get("center").asText().charAt(0)));
                 // cardBacks never reward points
                 PointsPlayable pointsBack = new PointsInstant(0);
-                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsBack, color);
+                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsBack, color,id,Side.SIDEBACK);
                 deck.add(new CardResource(id, sideFront, sideBack));
             }
 
@@ -99,7 +99,7 @@ public class CardFactory {
                             new PointsResource(cardFront.get("points").asInt(), resourceConverter(cardFront.get("preq").asText().charAt(0)));
                     default -> new PointsInstant(0);
                 };
-                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color);
+                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color,id,Side.SIDEFRONT);
 
                 // -- SideBack construction
                 // all backside corners are empty (visibility true)
@@ -108,7 +108,7 @@ public class CardFactory {
                 centerBack.add(resourceConverter(cardBack.get("center").asText().charAt(0)));
                 // cardBacks never reward points
                 PointsPlayable pointsBack = new PointsInstant(0);
-                CardSidePlayable sideBack = new CardSidePlayable(new HashMap<>(), cornersBack, centerBack, pointsBack, color);
+                CardSidePlayable sideBack = new CardSidePlayable(new HashMap<>(), cornersBack, centerBack, pointsBack, color,id,Side.SIDEBACK);
                 deck.add(new CardGold(id, sideFront, sideBack));
             }
 
@@ -149,13 +149,13 @@ public class CardFactory {
                 }
                 // cardStarters never reward points
                 PointsPlayable pointsFront = new PointsInstant(0);
-                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color);
+                CardSidePlayable sideFront = new CardSidePlayable(reqs, cornersFront, centerFront, pointsFront, color,id,Side.SIDEFRONT);
 
                 // -- SideBack construction
                 List<Corner> cornersBack = getCorners(cardBack);
                 List<Resource> centerBack = new ArrayList<>();
                 // cardBacks never reward points
-                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsFront, color);
+                CardSidePlayable sideBack = new CardSidePlayable(reqs, cornersBack, centerBack, pointsFront, color,id,Side.SIDEBACK);
                 deck.add(new CardStarter(id, sideFront, sideBack));
             }
 

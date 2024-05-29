@@ -39,14 +39,18 @@ public class CardStarter extends CardPlayable implements CardStarterIF {
                         frontCorners,
                         frontCenterRes,
                         new PointsInstant(0),
-                        Color.NO_COLOR
+                        Color.NO_COLOR,
+                        id,
+                        Side.SIDEFRONT
                 ),
                 new CardSidePlayable(
                         new HashMap<>(),
                         backCorners,
                         new ArrayList<>(),
                         new PointsInstant(0),
-                        Color.NO_COLOR
+                        Color.NO_COLOR,
+                        id,
+                        Side.SIDEBACK
                 ));
     }
 

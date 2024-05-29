@@ -43,6 +43,19 @@ public class CardSidePlayable implements CardSidePlayableIF {
     final private Color color;
 
     /**
+     * The id of this card
+     */
+    final private String id;
+
+    public Side getSide() {
+        return side;
+    }
+
+    /**
+     * The side of the card this CardSide corresponds to
+     */
+    final private Side side;
+    /**
      * This is the constructor of a cardSidePlayable
      * @param requirements the resources needed to play this card side(it's empty if no resource is required)
      * @param corners the 4 corners of the card side(in order, they are: upper left, upper right, lower right, lower left)
@@ -52,7 +65,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
      * @throws InvalidCardCreationException If list of corners is not of size 4, or requirements or centerResources contain <code>Resource.NO_RESOURCE</code>
      */
     public CardSidePlayable(Map<Resource, Integer> requirements, List<Corner> corners, List<Resource> centerResources,
-                            PointsPlayable points, Color color) throws InvalidCardCreationException {
+                            PointsPlayable points, Color color, String id, Side side) throws InvalidCardCreationException {
         if(corners.size()!=4)
             throw new InvalidCardCreationException("The card side " + this + " is tried to be created with a list of corners not of size 4");
         if(requirements.containsKey(Resource.NO_RESOURCE) || centerResources.contains(Resource.NO_RESOURCE))
@@ -62,6 +75,8 @@ public class CardSidePlayable implements CardSidePlayableIF {
         this.centerResources = centerResources;
         this.points = points;
         this.color = color;
+        this.id=id;
+        this.side=side;
     }
 
     /**
@@ -162,5 +177,9 @@ public class CardSidePlayable implements CardSidePlayableIF {
                 ", points=" + points +
                 ", color=" + color +
                 '}';
+    }
+
+    public String getId() {
+        return id;
     }
 }

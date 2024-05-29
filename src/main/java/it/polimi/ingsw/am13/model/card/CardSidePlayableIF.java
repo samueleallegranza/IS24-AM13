@@ -53,6 +53,16 @@ public interface CardSidePlayableIF extends Serializable {
      * @return list of card corners
      */
     List<Corner> getCorners();
+
+    /**
+     * Returns the id of the card
+     */
+    String getId();
+
+    /**
+     * @return Side corresponding to this cardSide
+     */
+    Side getSide();
 //    /**
 //     * Returns a list of booleans corresponding to every corner clock-wise indexed which can be linked to other cards.
 //     * Please note that this methods doesn't count covered corners!

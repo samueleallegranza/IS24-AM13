@@ -43,13 +43,17 @@ public class CardGold extends CardPlayable {
                         frontCorners,
                         new ArrayList<>(),
                         points,
-                        color
+                        color,
+                        id,
+                        Side.SIDEFRONT
                 ), new CardSidePlayable(
                         new HashMap<>(),
                         Corner.generateEmptyCorners(),
                         List.of(color.correspondingResource()),
                         new PointsInstant(0),
-                        color
+                        color,
+                        id,
+                        Side.SIDEBACK
                 )
         );
     }
