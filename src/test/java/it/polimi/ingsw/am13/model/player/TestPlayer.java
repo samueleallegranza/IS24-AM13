@@ -24,16 +24,16 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(0),
-                Color.NO_COLOR
+                Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT
         );
         CardStarter starter_card = new CardStarter("starter001", starter, starter);
 
         // Initialize starter card for the player
         player.initStarter(starter_card);
 
-        assertThrows(VariableAlreadySetException.class, () -> {
-            player.initStarter(starter_card);
-        });
+        assertThrows(VariableAlreadySetException.class, () -> player.initStarter(starter_card));
     }
 
     @Test
@@ -61,9 +61,7 @@ public class TestPlayer {
         }
 
         // Attempt to initialize objective card again, should throw VariableAlreadySetException
-        assertThrows(VariableAlreadySetException.class, () -> {
-            player.initObjective(objectiveCard);
-        });
+        assertThrows(VariableAlreadySetException.class, () -> player.initObjective(objectiveCard));
     }
 
     @Test
@@ -77,7 +75,9 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(3),
-                Color.ANIMAL
+                Color.ANIMAL,
+                "",
+                Side.SIDEFRONT
         );
 
         CardSidePlayable backSide = new CardSidePlayable(
@@ -85,7 +85,9 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(2),
-                Color.FUNGUS
+                Color.FUNGUS,
+                "",
+                Side.SIDEFRONT
         );
 
         CardStarter starterCard = new CardStarter("starter001", frontSide, backSide);
@@ -100,9 +102,7 @@ public class TestPlayer {
             System.out.println("The passed side does not belong to the starter card assigned to the given player");
         }
         // Attempt to play the starter card again, should throw InvalidPlayCardException
-        assertThrows(InvalidPlayCardException.class, () -> {
-            player.playStarter(Side.SIDEBACK);
-        });
+        assertThrows(InvalidPlayCardException.class, () -> player.playStarter(Side.SIDEBACK));
     }
 
     @Test
@@ -116,7 +116,9 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(3),
-                Color.ANIMAL
+                Color.ANIMAL,
+                "",
+                Side.SIDEFRONT
         );
 
         CardSidePlayable backSide = new CardSidePlayable(
@@ -124,7 +126,9 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(2),
-                Color.FUNGUS
+                Color.FUNGUS,
+                "",
+                Side.SIDEFRONT
         );
 
         CardStarter starterCard = new CardStarter("starter001", frontSide, backSide);
@@ -144,7 +148,9 @@ public class TestPlayer {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(3),
-                Color.ANIMAL
+                Color.ANIMAL,
+                "",
+                Side.SIDEFRONT
         );
 
         // Create a card for the player's hand
@@ -160,8 +166,6 @@ public class TestPlayer {
         assertEquals(3, player.getPoints());
 
         // Attempt to play the same card again, should throw InvalidPlayCardException
-        assertThrows(InvalidPlayCardException.class, () -> {
-            player.playCard(sideToPlay, new Coordinates(1, 1));
-        });
+        assertThrows(InvalidPlayCardException.class, () -> player.playCard(sideToPlay, new Coordinates(1, 1)));
     }
 }

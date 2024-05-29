@@ -150,11 +150,6 @@ public class Room extends ListenerHandler implements RoomIF {
             throw new LobbyException("The listener of the player in not in the listener list");
         }
 
-        System.out.println("\n");
-        getListeners().forEach(System.out::println);
-        System.out.println("\n");
-
-
         if(!gameStarted) {
             notifyPlayerLeftRoom(player);
             lis.updatePlayerLeftRoom(player);

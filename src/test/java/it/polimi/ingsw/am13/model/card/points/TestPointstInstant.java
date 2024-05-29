@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.model.card.points;
 
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
-import it.polimi.ingsw.am13.model.exceptions.VariableAlreadySetException;
 import it.polimi.ingsw.am13.model.player.Field;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +23,9 @@ public class TestPointstInstant {
         List<Corner> corners = Corner.generateEmptyCorners();
         List<Resource> centerResources=new ArrayList<>();
         PointsInstant cardPoints=new PointsInstant(points);
-        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR);
-        CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
+        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT);
         Field field=new Field();
         assertEquals(Integer.valueOf(points),cardPoints.calcPoints(cardSide,field));
     }

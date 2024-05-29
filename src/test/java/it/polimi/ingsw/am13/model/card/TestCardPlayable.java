@@ -18,14 +18,18 @@ public class TestCardPlayable {
                 Corner.generateEmptyCorners(),
                 new ArrayList<>(),
                 new PointsInstant(0),
-                Color.PLANT
+                Color.PLANT,
+                "",
+                Side.SIDEFRONT
         );
         CardSidePlayable back = new CardSidePlayable(
                 new HashMap<>(),
                 Corner.generateEmptyCorners(),
                 new ArrayList<>(),
                 new PointsInstant(0),
-                Color.PLANT
+                Color.PLANT,
+                "",
+                Side.SIDEFRONT
         );
         CardPlayable card = new CardResource("bho", front, back);
 

@@ -23,8 +23,9 @@ public class TestPointsCorner {
         List<Resource> centerResources=new ArrayList<>();
         PointsInstant cardPoints=new PointsInstant(3);
         PointsCorner pointsCorner=new PointsCorner(points);
-        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR);
-        CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
+        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT);
         Field field=new Field();
         assertEquals(0,pointsCorner.calcPoints(cardSide,field));
         try {

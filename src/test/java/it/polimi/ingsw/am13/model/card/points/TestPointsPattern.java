@@ -18,7 +18,9 @@ public class TestPointsPattern {
             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
             new ArrayList<>(),
             new PointsInstant(0),
-            Color.NO_COLOR
+            Color.NO_COLOR,
+            "",
+            Side.SIDEFRONT
     );  // nothing
 
     public TestPointsPattern() throws InvalidCardCreationException {
@@ -32,7 +34,9 @@ public class TestPointsPattern {
                             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                             new ArrayList<>(),
                             new PointsInstant(0),
-                            color
+                            color,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(x, y)
             );
         } catch (InvalidPlayCardException | RequirementsNotMetException | InvalidCoordinatesException |

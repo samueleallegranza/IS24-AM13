@@ -23,7 +23,13 @@ public class TestCorner {
         corner.coverCorner();
         assertFalse(corner.isPlaceable());
         int npoints=3;
-        CardSidePlayable cardSidePlayable=new CardSidePlayable(new HashMap<>(),Corner.generateEmptyCorners(),new ArrayList<>(),new PointsInstant(npoints), Color.NO_COLOR);
+        CardSidePlayable cardSidePlayable=new CardSidePlayable(new HashMap<>(),
+                Corner.generateEmptyCorners(),
+                new ArrayList<>(),
+                new PointsInstant(npoints),
+                Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT);
         try{
             corner.addLinkToCard(cardSidePlayable);
             assertEquals(corner.getLink(),cardSidePlayable);

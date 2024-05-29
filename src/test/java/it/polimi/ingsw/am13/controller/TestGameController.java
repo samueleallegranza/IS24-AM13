@@ -328,7 +328,7 @@ public class TestGameController {
     }
 
     @Test
-    public void testDisconnectionInit() throws LobbyException, InvalidPlayerException, ConnectionException, InterruptedException {
+    public void testDisconnectionInit() throws LobbyException, InvalidPlayerException, InterruptedException {
         testCreation();
         PlayerLobby p1 = liss.getFirst().getPlayer();
         controller.disconnectPlayer(p1, 2000);
@@ -350,7 +350,7 @@ public class TestGameController {
     }
 
     @Test
-    public void testAllDisconnected() throws InvalidPlayerException, InvalidChoiceException, LobbyException, RequirementsNotMetException, InvalidDrawCardException, InvalidCoordinatesException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, ConnectionException, InterruptedException {
+    public void testAllDisconnected() throws InvalidPlayerException, InvalidChoiceException, LobbyException, RequirementsNotMetException, InvalidDrawCardException, InvalidCoordinatesException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, InterruptedException {
         testTurnOneAllOK();
 
         int id = model.getGameId();
@@ -363,7 +363,7 @@ public class TestGameController {
     }
 
     @Test
-    public void testCompleteGame20Points() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InterruptedException {
+    public void testCompleteGame20Points() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, InterruptedException {
         testPlayStarterAndChooseObj();
         Map<PlayerLobby, LisForTest> pl = new HashMap<>();
         for(LisForTest l : liss)
@@ -541,7 +541,7 @@ public class TestGameController {
     }
 
     @Test
-    public void testCompleteGameEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InterruptedException {
+    public void testCompleteGameEmptyDecks() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, RequirementsNotMetException, InvalidDrawCardException {
         testPlayStarterAndChooseObj();
         Map<PlayerLobby, LisForTest> pl = new HashMap<>();
         for(LisForTest l : liss)
@@ -609,8 +609,10 @@ public class TestGameController {
         lisFirstCrash.stopPing = true;
 //        System.out.println(model.fetchFirstPlayer());
         Thread.sleep(5000);
-        for(LisForTest l : lissOthers)
-            assertEquals(ControlAction.DISCONNECTED, l.actions.getLast());
+        for(LisForTest l : lissOthers) {
+            List<ControlAction> last3 = l.actions.stream().skip(l.actions.size()-3).toList();
+            assertTrue(last3.containsAll(List.of(ControlAction.DISCONNECTED, ControlAction.CHOOSE_OBJ, ControlAction.PLAY_STARTER)));
+        }
 
         for(LisForTest l : lissOthers) {
             controller.playStarter(l.getPlayer(), Side.SIDEBACK);
@@ -625,7 +627,6 @@ public class TestGameController {
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
 
         PlayerLobby playerRemain = lissRemain.getPlayer();
-        //TODO: sistema questo test
         assertEquals(playerRemain, model.fetchCurrentPlayer());
         controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
         controller.pickCard(playerRemain, model.fetchPickables().getFirst());

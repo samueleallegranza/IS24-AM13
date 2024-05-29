@@ -27,7 +27,9 @@ public class TestPointsSet {
                     Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                     List.of(),
                     new PointsInstant(0),
-                    Color.NO_COLOR
+                    Color.NO_COLOR,
+                    "",
+                    Side.SIDEFRONT
             );
             field.playCardSide(startSide, Coordinates.origin());
             // nothing
@@ -41,7 +43,9 @@ public class TestPointsSet {
                             Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
                             List.of(Resource.PLANT),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(1,1)
             );
             // 4 plant
@@ -55,7 +59,9 @@ public class TestPointsSet {
                             Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE), new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE)),
                             List.of(Resource.ANIMAL),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(2,2)
             );
             // 4 plant, 3 animalz
@@ -69,7 +75,9 @@ public class TestPointsSet {
                             Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
                             List.of(Resource.PLANT),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(3,3)
             );
             // 8 plant, 3 animal
@@ -83,7 +91,9 @@ public class TestPointsSet {
                             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                             List.of(),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(3,1)
             );
             // 8 plant, 2 animal

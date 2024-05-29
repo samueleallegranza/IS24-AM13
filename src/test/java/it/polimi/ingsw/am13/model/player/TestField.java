@@ -22,21 +22,27 @@ public class TestField {
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                     Arrays.asList(Resource.PLANT, Resource.PLANT),
                     new PointsInstant(0),
-                    Color.NO_COLOR
+                    Color.NO_COLOR,
+                    "",
+                    Side.SIDEFRONT
             );
             CardSidePlayable resource1 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                     emptyarr,
                     new PointsInstant(0),
-                    Color.PLANT
+                    Color.PLANT,
+                    "",
+                    Side.SIDEFRONT
             );
             CardSidePlayable resource2 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.FUNGUS), new Corner(), new Corner(Resource.FUNGUS), new Corner(Resource.FUNGUS)),
                     emptyarr,
                     new PointsInstant(1),
-                    Color.FUNGUS
+                    Color.FUNGUS,
+                    "",
+                    Side.SIDEFRONT
             );
 
             Field f = new Field();
@@ -62,21 +68,27 @@ public class TestField {
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                     Arrays.asList(Resource.PLANT, Resource.PLANT),
                     new PointsInstant(0),
-                    Color.NO_COLOR
+                    Color.NO_COLOR,
+                    "",
+                    Side.SIDEFRONT
             );
             CardSidePlayable resource1 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                     emptyarr,
                     new PointsInstant(0),
-                    Color.PLANT
+                    Color.PLANT,
+                    "",
+                    Side.SIDEFRONT
             );
             CardSidePlayable resource2 = new CardSidePlayable(
                     norequirements,
                     Arrays.asList(new Corner(Resource.FUNGUS), new Corner(), new Corner(Resource.FUNGUS), new Corner(Resource.FUNGUS)),
                     emptyarr,
                     new PointsInstant(1),
-                    Color.FUNGUS
+                    Color.FUNGUS,
+                    "",
+                    Side.SIDEFRONT
             );
 
             Field f = new Field();
@@ -98,21 +110,27 @@ public class TestField {
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 Arrays.asList(Resource.PLANT, Resource.PLANT),
                 new PointsInstant(0),
-                Color.NO_COLOR
+                Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT
         );
         CardSidePlayable resource1 = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 emptyarr,
                 new PointsInstant(0),
-                Color.PLANT
+                Color.PLANT,
+                "",
+                Side.SIDEFRONT
         );
         CardSidePlayable resource2 = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.FUNGUS), new Corner(), new Corner(Resource.FUNGUS), new Corner(Resource.FUNGUS)),
                 emptyarr,
                 new PointsInstant(1),
-                Color.FUNGUS
+                Color.FUNGUS,
+                "",
+                Side.SIDEFRONT
         );
 
         Field f = new Field();
@@ -121,15 +139,6 @@ public class TestField {
         f.playCardSide(resource2, new Coordinates(1, -1));
 
         List<Coordinates> avbCoords = f.getAvailableCoords();
-
-//        List<Coordinates> correctCoords = new ArrayList<>();
-//        correctCoords.add(new Coordinates(0, 2));
-//        correctCoords.add(new Coordinates(2, 2));
-//        correctCoords.add(new Coordinates(-1, 1));
-//        correctCoords.add(new Coordinates(-1, -1));
-//        correctCoords.add(new Coordinates(0, -2));
-//        correctCoords.add(new Coordinates(2, 0));
-//        correctCoords.add(new Coordinates(2, -2));
 
         assertEquals(6, avbCoords.size());
     }
@@ -141,14 +150,18 @@ public class TestField {
                 Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                 List.of(),
                 new PointsInstant(0),
-                Color.NO_COLOR
+                Color.NO_COLOR,
+                "",
+                Side.SIDEFRONT
         );
         CardSidePlayable resource1 = new CardSidePlayable(
                 norequirements,
                 Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
                 emptyarr,
                 new PointsInstant(0),
-                Color.PLANT
+                Color.PLANT,
+                "",
+                Side.SIDEFRONT
         );
 
 
@@ -162,7 +175,9 @@ public class TestField {
                         Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner()),
                             List.of(Resource.ANIMAL),
                         new PointsInstant(0),
-                        Color.ANIMAL
+                        Color.ANIMAL,
+                            "",
+                            Side.SIDEFRONT
                     ),
                     new Coordinates(1,1)
             );
@@ -174,7 +189,9 @@ public class TestField {
                             Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.ANIMAL), new Corner(Resource.ANIMAL), new Corner()),
                             Arrays.asList(Resource.ANIMAL, Resource.PLANT),
                             null,
-                            Color.ANIMAL
+                            Color.ANIMAL,
+                            "",
+                            Side.SIDEFRONT
                     ),
                     new Coordinates(-1,-1)
             );
@@ -214,7 +231,9 @@ public class TestField {
                     Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                     List.of(),
                     new PointsInstant(0),
-                    Color.NO_COLOR
+                    Color.NO_COLOR,
+                    "",
+                    Side.SIDEFRONT
             );
             field.playCardSide(startSide, new Coordinates(0,0)
             );
@@ -227,7 +246,9 @@ public class TestField {
                             Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
                             List.of(Resource.PLANT),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(1,1)
             );
             assertEquals(4, field. getResourcesInField().get(Resource.PLANT));
@@ -239,7 +260,9 @@ public class TestField {
                             Arrays.asList(new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE), new Corner(Resource.ANIMAL), new Corner(Resource.NO_RESOURCE)),
                             List.of(Resource.ANIMAL),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(2,2)
             );
             assertEquals(4, field. getResourcesInField().get(Resource.PLANT));
@@ -251,7 +274,9 @@ public class TestField {
                         Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE), new Corner(Resource.PLANT), new Corner(Resource.PLANT)),
                         List.of(Resource.PLANT),
                         new PointsInstant(0),
-                        Color.NO_COLOR
+                        Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(3,3)
             );
             assertEquals(8, field. getResourcesInField().get(Resource.PLANT));
@@ -263,7 +288,9 @@ public class TestField {
                             Arrays.asList(new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE)),
                             new ArrayList<>(),
                             new PointsInstant(0),
-                            Color.NO_COLOR
+                            Color.NO_COLOR,
+                            "",
+                            Side.SIDEFRONT
                     ), new Coordinates(3,1)
             );      // I should cover 1 animal
             assertEquals(8, field. getResourcesInField().get(Resource.PLANT));

@@ -19,8 +19,9 @@ public class TestPointsResource {
         List<Corner> corners=new ArrayList<>(Arrays.asList(new Corner(Resource.PLANT),new Corner(Resource.NO_RESOURCE),new Corner(),new Corner()));
         List<Resource> centerResources=new ArrayList<>(List.of(Resource.PLANT));
         PointsResource pointsResource=new PointsResource(points,Resource.PLANT);
-        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,pointsResource, Color.PLANT);
-        CardStarter cardStarter=new CardStarter("s001",cardSide,cardSide);
+        CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,pointsResource, Color.PLANT,
+                "",
+                Side.SIDEFRONT);
         Field field=new Field();
         Coordinates origin;
         try{
