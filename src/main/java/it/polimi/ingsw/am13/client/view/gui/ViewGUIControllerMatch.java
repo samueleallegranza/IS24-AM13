@@ -353,8 +353,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void displayHandPlayable(){
         Platform.runLater(() -> {
-            for (int i = 0; i < handPlayable.size(); i++) {
-                if(handPlayable.get(i)!=null) {
+            for (int i = 0; i < handCards.size(); i++) {
+                if(i<handPlayable.size() && handPlayable.get(i)!=null) {
                     ImageView handCard = handCards.get(i);
                     Button flipHandCard = flipButtons.get(i);
                     handCard.setVisible(true);
@@ -375,6 +375,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     }
                     displayCard(handPlayable.get(i).getId(), handCardSides.get(i), handCard);
                 }
+                else
+                    handCards.get(i).setVisible(false);
             }
         });
     }

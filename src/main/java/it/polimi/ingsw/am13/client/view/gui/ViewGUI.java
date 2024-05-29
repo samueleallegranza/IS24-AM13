@@ -321,7 +321,7 @@ public class ViewGUI extends Application implements View {
             });
         }
         Platform.runLater(() -> {
-            System.out.println("eeending");
+//            System.out.println("eeending");
             viewGUIController.showWinner();
         });
     }

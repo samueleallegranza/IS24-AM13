@@ -129,7 +129,7 @@ public class ViewGUIControllerWinner extends ViewGUIController{
 
     @Override
     public synchronized void showWinner() {
-        System.out.println("winner");
+//        System.out.println("winner");
         if(thisPlayer.equals(state.getWinner()))
             winnerText.setText("You have won the game");
         else
