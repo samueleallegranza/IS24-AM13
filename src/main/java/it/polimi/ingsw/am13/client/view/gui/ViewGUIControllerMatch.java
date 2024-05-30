@@ -24,16 +24,31 @@ import javafx.scene.shape.Rectangle;
 import java.util.*;
 import java.util.stream.Stream;
 
+
+//TODO: x Matteo, sistema il scrollPane, le barre di scorrimente non funzinano
+
 public class ViewGUIControllerMatch extends ViewGUIController {
 
-    public Button zoom;
-    public Button deZoom;
-    public ImageView handCard0;
-    public Button flipButton0;
-    public ImageView handCard1;
-    public Button flipButton1;
-    public ImageView handCard2;
-    public Button flipButton2;
+    @FXML
+    private Button zoom;
+    @FXML
+    private Button deZoom;
+    @FXML
+    private ImageView handCard0;
+    @FXML
+    private Button flipButton0;
+    @FXML
+    private ImageView handCard1;
+    @FXML
+    private Button flipButton1;
+    @FXML
+    private ImageView handCard2;
+    @FXML
+    private Button flipButton2;
+
+    @FXML
+    private ImageView handObjective;
+
     @FXML
     private StackPane fieldContainer;
 
@@ -136,6 +151,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     attemptedToPlayCardHand.setVisible(true);
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
                     fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                    attemptedToPlayCardBox.toBack();
                     for (int i = 0; i < handCards.size(); i++) {
                         int finalI = i;
                         handCards.get(i).setOnDragDetected(event -> {
@@ -378,6 +394,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 else
                     handCards.get(i).setVisible(false);
             }
+            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
         });
     }
 
@@ -488,9 +505,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for(Node nodeLabel: pVbox.getChildren()) {
                 Label label = (Label) nodeLabel;
                 if(label.getId().equals("turn"))
-                    Platform.runLater(() -> {
-                        label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting");
-                    });
+                    Platform.runLater(() -> label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting"));
             }
         }
     }
@@ -504,9 +519,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         for(Node labelNode: pVbox.getChildren()) {
             Label label = (Label) labelNode;
             if(label.getId().equals("online")) {
-                Platform.runLater(() -> {
-                    label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected");
-                });
+                Platform.runLater(() -> label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected"));
             }
         }
     }
@@ -628,6 +641,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
     private void addCardBox(Coordinates coordinates, List<CardPlayableIF> finalHandPlayable) {
         Rectangle box = new Rectangle(imageW, imageH, Color.BLUE);
+        box.setOpacity(0.5);
+        box.setArcHeight(15);
+        box.setArcWidth(15);
         int posX = (imageW - cornerX) * coordinates.getPosX();
         int posY = (-imageH + cornerY) * coordinates.getPosY();
         box.setTranslateX(posX);

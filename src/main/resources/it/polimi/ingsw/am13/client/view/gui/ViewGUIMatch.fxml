@@ -1,105 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
-    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="0.0">
-      <HBox minHeight="600.0">
-         <children>
-
-             <GridPane fx:id="playersContainer" prefHeight="980.0" prefWidth="135.0">
-                 <columnConstraints>
-                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                 </columnConstraints>
-                 <rowConstraints>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                 </rowConstraints>
-                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="0">
-                     <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                     <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                     <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                     <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                 </VBox>
-                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                     <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                     <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                     <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                     <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                 </VBox>
-                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
-                     <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                     <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                     <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                     <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                 </VBox>
-                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
-                     <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                     <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                     <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                     <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
-                 </VBox>
-             </GridPane>
-            <VBox spacing="5.0">
-               <children>
-                  <ScrollPane>
-                     <content>
-                          <StackPane fx:id="fieldContainer" prefHeight="621.0" prefWidth="1357.0">
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                        </StackPane>
-                     </content>
-                  </ScrollPane>
-
-                  <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0">
-                     <children>
-                         <Button fx:id="zoom" prefHeight="25" prefWidth="25" />
-                         <Button fx:id="deZoom" prefHeight="25" prefWidth="25" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-      </HBox>
-        <HBox alignment="CENTER" spacing="30.0">
-            <GridPane fx:id="pickablesContainer" alignment="CENTER" hgap="10.0" vgap="10.0">
-<!--                <columnConstraints>-->
-<!--                    <ColumnConstraints fillWidth="true" />-->
-<!--                    <ColumnConstraints fillWidth="true" />-->
-<!--                    <ColumnConstraints fillWidth="true" />-->
-<!--                </columnConstraints>-->
-<!--                <rowConstraints>-->
-<!--                    <RowConstraints fillHeight="true" />-->
-<!--                    <RowConstraints fillHeight="true" />-->
-<!--                    <RowConstraints fillHeight="true" />-->
-<!--                </rowConstraints>-->
+<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <HBox minHeight="600.0">
+            <GridPane fx:id="playersContainer" minHeight="600.0" prefWidth="135.0">
                 <columnConstraints>
-                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
-                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
-                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 </columnConstraints>
                 <rowConstraints>
-                    <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
-                <children>
+                <VBox prefHeight="130.0" prefWidth="135.0" GridPane.rowIndex="0">
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                </VBox>
+                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                </VBox>
+                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                </VBox>
+                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                </VBox>
+            </GridPane>
+            <StackPane HBox.hgrow="ALWAYS">
+                <HBox.margin>
+                    <Insets />
+                </HBox.margin>
+                <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" vbarPolicy="ALWAYS">
+                    <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                    </padding>
+                    <StackPane fx:id="fieldContainer" prefHeight="402.0" prefWidth="409.0">
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        </padding>
+                    </StackPane>
+               <StackPane.margin>
+                  <Insets right="5.0" />
+               </StackPane.margin>
+                </ScrollPane>
+
+                <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0" StackPane.alignment="BOTTOM_LEFT">
+                    <StackPane.margin>
+                        <Insets bottom="20.0" left="5.0" />
+                    </StackPane.margin>
+                    <Button fx:id="zoom" prefHeight="25" prefWidth="25" />
+                    <Button fx:id="deZoom" prefHeight="25" prefWidth="25" />
+                </HBox>
+            </StackPane>
+        </HBox>
+        <HBox alignment="CENTER_RIGHT">
+            <HBox alignment="CENTER" spacing="30.0" HBox.hgrow="ALWAYS">
+                <GridPane fx:id="pickablesContainer" alignment="CENTER" hgap="10.0" vgap="10.0">
+                    <!--                <columnConstraints>-->
+                    <!--                    <ColumnConstraints fillWidth="true" />-->
+                    <!--                    <ColumnConstraints fillWidth="true" />-->
+                    <!--                    <ColumnConstraints fillWidth="true" />-->
+                    <!--                </columnConstraints>-->
+                    <!--                <rowConstraints>-->
+                    <!--                    <RowConstraints fillHeight="true" />-->
+                    <!--                    <RowConstraints fillHeight="true" />-->
+                    <!--                    <RowConstraints fillHeight="true" />-->
+                    <!--                </rowConstraints>-->
+                    <columnConstraints>
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="33.3" prefHeight="200.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                     <ImageView fx:id="resDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" />
                     <ImageView fx:id="resPick1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" />
                     <ImageView fx:id="resPick2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" />
@@ -109,38 +102,34 @@
                     <ImageView fx:id="objDeck" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="2" />
                     <ImageView fx:id="commonObj1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                     <ImageView fx:id="commonObj2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                </children>
-            </GridPane>
-         <HBox minWidth="250.0" spacing="20.0">
-            <children>
-               <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                  <children>
-                         <Button fx:id="flipButton0" prefHeight="25" prefWidth="25" />
-                         <ImageView fx:id="handCard0" fitHeight="100" fitWidth="150" />
-                  </children>
-               </VBox>
-               <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                  <children>
-                         <Button fx:id="flipButton1" prefHeight="25" prefWidth="25" />
-                         <ImageView fx:id="handCard1" fitHeight="100" fitWidth="150" />
-                  </children>
-               </VBox>
-               <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                  <children>
-                         <Button fx:id="flipButton2" prefHeight="25" prefWidth="25" />
-                         <ImageView fx:id="handCard2" fitHeight="100" fitWidth="150" />
-                  </children>
-               </VBox>
-            </children>
-         </HBox>
-         <TextArea fx:id="logArea" editable="false" prefHeight="295.0" prefWidth="398.0" />
+                </GridPane>
+                <VBox spacing="30.0">
+                    <HBox minWidth="250.0" spacing="20.0">
+                        <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <Button fx:id="flipButton0" prefHeight="25" prefWidth="25" />
+                            <ImageView fx:id="handCard0" fitHeight="100" fitWidth="150" />
+                        </VBox>
+                        <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <Button fx:id="flipButton1" prefHeight="25" prefWidth="25" />
+                            <ImageView fx:id="handCard1" fitHeight="100" fitWidth="150" />
+                        </VBox>
+                        <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <Button fx:id="flipButton2" prefHeight="25" prefWidth="25" />
+                            <ImageView fx:id="handCard2" fitHeight="100" fitWidth="150" />
+                        </VBox>
+                    </HBox>
+                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                        <ImageView fx:id="handObjective" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" />
+                    </HBox>
+                </VBox>
+            </HBox>
+            <TextArea fx:id="logArea" editable="false" prefHeight="295.0" prefWidth="398.0" />
         </HBox>
       <padding>
          <Insets top="10.0" />
       </padding>
     </VBox>
     <padding>
-        <Insets bottom="20.0" left="20.0"/>
+        <Insets bottom="20.0" left="20.0" />
     </padding>
 </AnchorPane>
-
