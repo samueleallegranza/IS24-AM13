@@ -10,7 +10,7 @@
         <Insets bottom="40.0" left="20.0" right="20.0" top="40.0" />
     </padding>
 
-    <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="17.0" prefWidth="650.0" textAlignment="CENTER">
+    <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="60.0" prefWidth="650.0" textAlignment="CENTER" wrapText="true">
       <font>
          <Font size="20.0" />
       </font></Label>

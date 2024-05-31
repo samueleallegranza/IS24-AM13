@@ -14,9 +14,20 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+/**
+ * This is the socket implementation of {@link NetworkHandler}.
+ * For each method, it creates the corresponding {@link MsgCommand} and then sends it to the server.
+ */
 public class NetworkHandlerSocket implements NetworkHandler {
-    //private final PrintWriter out;
+    /**
+     * The output stream in which the messages are written
+      */
     private final ObjectOutputStream out;
+
+    /**
+     * It is the player corresponding to this instance of the class (the latest one, in the sense that is updated if
+     * a player leaves a room and then creates, joins or reconnects to another)
+     */
     private PlayerLobby latestPlayer;
     public NetworkHandlerSocket(Socket socket, View view) {
         try {
@@ -31,6 +42,11 @@ public class NetworkHandlerSocket implements NetworkHandler {
         out.flush();
         out.reset();
     }
+
+    /**
+     * It sends the message to the server, by writing it to out, and then flushing and resetting out.
+     * @param messageCommand the message that has to be sent to the server
+     */
     private void sendMessage(MsgCommand messageCommand){
         try {
             out.writeObject(messageCommand);
@@ -41,7 +57,7 @@ public class NetworkHandlerSocket implements NetworkHandler {
     }
 
     /**
-     * @return The current valid player this class is associated to. Null is no valid player is currently associated.
+     * @return The current valid player this class is associated to. Null if no valid player is currently associated.
      */
     @Override
     public PlayerLobby getPlayer() {

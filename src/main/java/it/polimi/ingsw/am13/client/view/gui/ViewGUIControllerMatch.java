@@ -83,6 +83,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<Side> handCardSides;
     private boolean flowCardPlaced;
     private ImageView attemptedToPlayCardHand;
+    private Button attemptedToPlayFlipButton;
     private ImageView attemptedToPlayCardField;
     private Rectangle attemptedToPlayCardBox;
     private List<CardPlayableIF> handPlayable;
@@ -149,6 +150,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 Platform.runLater(() -> {
 //                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                     attemptedToPlayCardHand.setVisible(true);
+                    attemptedToPlayFlipButton.setVisible(true);
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
                     fieldContainer.getChildren().add(attemptedToPlayCardBox);
                     attemptedToPlayCardBox.toBack();
@@ -269,10 +271,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showNextTurn() {
         if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
             for (int i = 0; i < handPlayable.size(); i++) {
-//                if(handPlayable.get(i)!=null) { //this should be useless
                     ImageView handCard = handCards.get(i);
-                    makeDraggable(i, handCard);
-//                }
+                    makeDraggable(i, handCard, flipButtons.get(i));
             }
         }
         if(state.getCurrentPlayer().equals(thisPlayer))
@@ -306,6 +306,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLog();
     }
 
+    @Override
+    public synchronized void showFinalPhase() {
+        log.logFinalPhase();
+        showLastLog();
+    }
     // >>> Following methods are ghosts <<<
     //TODO pensa meglio a questa cosa
     @Override
@@ -324,20 +329,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showStartGame(GameState state) {}
 
     @Override
-    public synchronized void showFinalPhase() {
-        log.logFinalPhase();
-        showLastLog();
-    }
-
-    @Override
     public synchronized void showUpdatePoints() {
-//        for(PlayerLobby playerLobby : state.getPlayers())
-//            playersContainerUpdatePoints(playerLobby);
     }
 
     @Override
     public synchronized void showWinner() {
-//        System.out.println("not good");
     }
 
     @Override
@@ -348,8 +344,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
     // ----------------------------------------------------------------
+
+    /**
+     * It flips the hand card by switching the corresponding value of handCardSides and
+     * then displaying the new side.
+     * @param i index of the handCard that needs to be flipped
+     * @param handCard the handCard that needs to be flipped
+     */
     private void flipCard(int i, ImageView handCard){
-        //if (finalI != playedCardIndex)  this shouldn't be necessary anymore
+        //if (i != playedCardIndex)  this shouldn't be necessary anymore
         if (handCardSides.get(i) == Side.SIDEFRONT) {
             handCardSides.set(i, Side.SIDEBACK);
 
@@ -380,7 +383,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         flipHandCard.setVisible(true);
                         flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(finalI, handCard));
                         if (!flowCardPlaced && state.getCurrentPlayer().equals(thisPlayer)) {
-                            makeDraggable(i, handCard);
+                            makeDraggable(i, handCard,flipHandCard);
                         }
                     }
                     else {
@@ -394,34 +397,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 else
                     handCards.get(i).setVisible(false);
             }
-            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
+            if(thisPlayer.equals(displayPlayer))
+                displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
+            else
+                displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEBACK, handObjective);
         });
     }
-
-    /**
-     * this method is deprecated, I leave it here just because we might want to make partial updates only
-     * of display player in the future. Remember that if you do use this, the code in it must be adapted.
-     */
-//    private void updateHandPlayable(){
-//        CardPlayableIF lastPlayedCard=handPlayable.get(playedCardIndex);
-//        List<CardPlayableIF> remainingHandCards=new ArrayList<>();
-//        for (int i = 0; i < handPlayable.size(); i++){
-//            if(i!=playedCardIndex)
-//                remainingHandCards.add(handPlayable.get(i));
-//        }
-//        List<CardPlayableIF> updatedHandPlayable=new ArrayList<>(state.getPlayerState(thisPlayer).getHandPlayable());
-//        ImageView handCard=handCards.get(playedCardIndex);
-//        handCard.setVisible(true);
-//        for (int i = 0; i < handPlayable.size(); i++)
-//            if(!updatedHandPlayable.get(i).getId().equals(remainingHandCards.get(0).getId()) && !updatedHandPlayable.get(i).getId().equals(remainingHandCards.get(1).getId()))
-//                handPlayable.set(playedCardIndex,updatedHandPlayable.get(i));
-//
-//
-//        displayCard(handPlayable.get(playedCardIndex).getId(), Side.SIDEFRONT, handCard);
-//        Button flipHandCard = flipButtons.get(playedCardIndex);
-//
-//        flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(playedCardIndex,handCard));
-//    }
 
     void initPlayerContainer() {
         int playerCount = this.state.getPlayers().size();
@@ -465,34 +446,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     }
 
+    /**
+     * This method updates displayPlayer and displays his field and playable hand
+     * @param displayPlayer the player that needs to be displayed
+     */
     void switchToPlayer(PlayerLobby displayPlayer) {
-        this.displayPlayer=displayPlayer;
-        handPlayable=new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-        displayField();
-        displayHandPlayable();
-//        Platform.runLater(() -> {
-////            System.out.println(this.state.getPlayers().get(playerIdx).getNickname());
-//            if(!thisPlayer.equals(state.getCurrentPlayer()) && !state.getPlayers().get(playerIdx).equals(displayPlayer)) {
-//                int sideIndex=playerIndexToSidePos.get(playerIdx);
-//                for (int i = 0; i < playerIndexToSidePos.size(); i++) {
-//                    if(playerIndexToSidePos.get(i)==-1)
-//                        playerIndexToSidePos.set(i,sideIndex);
-//                }
-//                playerIndexToSidePos.set(playerIdx,-1);
-//                List<Node> tmp = List.copyOf(sideFields.get(sideIndex).getChildren());
-//                sideFields.get(sideIndex).getChildren().removeAll(sideFields.get(sideIndex).getChildren());
-//                sideFields.get(sideIndex).getChildren().addAll(fieldContainer.getChildren());
-//                fieldContainer.getChildren().removeAll(fieldContainer.getChildren());
-//                fieldContainer.getChildren().addAll(tmp);
-//
-//                tmp = List.copyOf(sideHands.get(sideIndex).getChildren());
-//                sideHands.get(sideIndex).getChildren().removeAll(sideHands.get(sideIndex).getChildren());
-//                sideHands.get(sideIndex).getChildren().addAll(handCardsContainer.getChildren());
-//                handCardsContainer.getChildren().removeAll(handCardsContainer.getChildren());
-//                handCardsContainer.getChildren().addAll(tmp);
-//                displayPlayer=state.getPlayers().get(playerIdx);
-//            }
-//        });
+        if(!this.displayPlayer.equals(displayPlayer)) {
+            this.displayPlayer = displayPlayer;
+            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
+            displayField();
+            displayHandPlayable();
+        }
     }
 
     /**
@@ -570,7 +534,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         commonObj2.setImage(null);
     }
 
-    private void makeDraggable(int handPlayableIndex, ImageView imageView){
+    /**
+     * It makes the card corresponding to the parameters draggable.
+     * When the drag is completed, it makes the card not visible and removes to possibility to drag all the cards
+     * in the hand.
+     * @param handPlayableIndex the index of the card that needs to be made draggable
+     * @param imageView corresponding to the card that needs to be made draggable
+     */
+    private void makeDraggable(int handPlayableIndex, ImageView imageView, Button flipButton){
 //        Platform.runLater(() -> {
             imageView.setId(String.valueOf(handPlayableIndex));
             imageView.setOnDragDetected(event -> {
@@ -584,7 +555,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if (event.getTransferMode() == TransferMode.MOVE) {
 //                    imageView.setImage(null);
                     imageView.setVisible(false);
+                    flipButton.setVisible(false);
                     attemptedToPlayCardHand = imageView;
+                    attemptedToPlayFlipButton=flipButton;
 //                    handCardsContainer.getChildren().remove(imageView);
                     for (ImageView handCard : handCards) {
                         handCard.setOnDragDetected(null);
@@ -601,6 +574,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     //      UTILS: FIELD CONTAINER
     // ----------------------------------------------------------------
 
+    /**
+     * This method displays the field of displayPlayer, by displaying all the placed cards and adding boxes
+     * at each available coordinate.
+     */
     private void displayField(){
         Platform.runLater(() -> {
             fieldContainer.getChildren().clear();
@@ -623,6 +600,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         });
     }
+
+    /**
+     * This method sets the actions and the text of the buttons to zoom and de zoom.
+     */
     private void createZoomDeZoomButtons(){
         zoom.setText("+");
         zoom.setOnMouseClicked(mouseEvent -> {
@@ -639,6 +620,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         });
     }
+
+    /**
+     * This method adds a box at the passed coordinates.
+     * If thisPlayer is displayPlayer, I make it possible to drag objects (playable cards) into the box.
+     * If it is not the turn of thisPlayer, the cards will not be draggable, so it is not necessary to change
+     * the action executed when objects are dragged into the box depending on the current player.
+     * @param coordinates of the field (as it is stored in the state) at which the box should be added
+     * @param finalHandPlayable the playable cards of displayPlayer
+     */
     private void addCardBox(Coordinates coordinates, List<CardPlayableIF> finalHandPlayable) {
         Rectangle box = new Rectangle(imageW, imageH, Color.BLUE);
         box.setOpacity(0.5);
@@ -663,19 +653,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 public void handle(DragEvent event) {
                     Dragboard db = event.getDragboard();
                     int handIndex = Integer.parseInt(db.getString());
-//                    System.out.println(finalHandPlayable.get(handIndex).getId()+" "+handCardSides.get(handIndex));
                     networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
                     Image imageHandCard;
                     String cardId = finalHandPlayable.get(handIndex).getId();
-                    if (handCardSides.get(handIndex) == Side.SIDEBACK && cardId.charAt(0) != 's')
-                        cardId = cardId.substring(0, 3) + '0';
-                    if (handCardSides.get(handIndex) == Side.SIDEFRONT)
-                        imageHandCard = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + cardId + ".png")));
-                    else
-                        imageHandCard = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/backs/" + cardId + ".png")));
-                    ImageView newCardImg = new ImageView(imageHandCard);
-                    newCardImg.setFitWidth(imageW);
-                    newCardImg.setFitHeight(imageH);
+                    ImageView newCardImg = new ImageView();
+                    displayCard(cardId,handCardSides.get(handIndex),newCardImg);
                     newCardImg.setTranslateX(posX);
                     newCardImg.setTranslateY(posY);
                     attemptedToPlayCardField = newCardImg;
@@ -691,13 +673,22 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         box.toBack();
     }
 
-    //if you need methods related to other player to use as a reference, done on 28/05, before ~7pm
+    //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
 
 
     // ----------------------------------------------------------------
     //      COMMON
     // ----------------------------------------------------------------
 
+    /**
+     * It opens the image corresponding to the passed id and side, adds it to the passed ImageView and then
+     * sets the height and width (they will always be the same since the only images that need to be displayed are cards).
+     * If necessary, it adapts the id (since many backs are identical, and all the backs of objective cards are identical,
+     * there is not a different image for each one of them)
+     *  @param id of the card to be displayed
+     * @param side of the card to be displayed
+     * @param imageView in which the card should be displayed
+     */
     private void displayCard(String id, Side side, ImageView imageView){
         Image cardImage;
         if(side==Side.SIDEBACK && id.charAt(0)!='s')
