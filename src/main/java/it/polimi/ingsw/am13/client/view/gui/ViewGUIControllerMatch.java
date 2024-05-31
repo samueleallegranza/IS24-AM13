@@ -6,13 +6,11 @@ import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 
 import javafx.scene.image.ImageView;
@@ -20,19 +18,49 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
 
 import java.util.*;
-import java.util.stream.Stream;
 
-
-//TODO: x Matteo, sistema il scrollPane, le barre di scorrimente non funzinano
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
+    // ----------------------------------------------------------------
+    // UPPER HALF OF THE SCREEN
+    // ----------------------------------------------------------------
+
+    /**
+     * Container for the labels displaying the players in game (to the left of the screen)
+     */
     @FXML
-    private Button zoom;
+    private GridPane playersContainer;
+    /**
+     * {@link ScrollPane} containing the field.
+     * For the scroll to work, the fieldContainer contained must be bigger than this container
+     */
     @FXML
-    private Button deZoom;
+    private ScrollPane fieldScrollPane;
+    /**
+     * Container where to stack the cards to display for the player's field
+     * {@link ImageView} and {@link Rectangle} for card placed and available coords are added to this container for the field
+     */
+    @FXML
+    private StackPane fieldContainer;
+    /**
+     * Label displaying the current game action to perform
+     */
+    @FXML
+    private Label actionLabel;
+    /**
+     * Label displaying whose the current displayed field is
+     */
+    @FXML
+    private Label displayPlayerLabel;
+
+    // ----------------------------------------------------------------
+    // BOTTOM HALF OF THE SCREEN
+    // ----------------------------------------------------------------
+
     @FXML
     private ImageView handCard0;
     @FXML
@@ -45,16 +73,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private ImageView handCard2;
     @FXML
     private Button flipButton2;
-
     @FXML
     private ImageView handObjective;
 
-    @FXML
-    private StackPane fieldContainer;
-
-    @FXML
-    private GridPane playersContainer;
-    private Map<String, Node> playerNodes;
 
     @FXML
     private Pane pickablesContainer;
@@ -77,9 +98,35 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private ImageView commonObj2;
 
+    /**
+     * Area of non-editable text for showing logs
+     */
+    @FXML
+    private TextArea logArea;
+
+    // ----------------------------------------------------------------
+    // PRIVATE STATE VARIABLE FOR CONTROLLER'S LOGIC USE
+    // ----------------------------------------------------------------
+
+    /**
+     * Game's state. Information about state of game are uniquely taken from here
+     */
     private GameState state;
+    /**
+     * Player associated to the client the GUI was created by
+     */
     private PlayerLobby thisPlayer;
+    /**
+     * Player whose field and back of hand cards are currently being displayed
+     */
     private PlayerLobby displayPlayer;
+    /**
+     * Handler of the logs
+     */
+    private Log log;
+
+
+    //TODO: aggiungi documentazione per gli attributi qua sotto
     private List<Side> handCardSides;
     private boolean flowCardPlaced;
     private ImageView attemptedToPlayCardHand;
@@ -89,37 +136,38 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<CardPlayableIF> handPlayable;
     private List<ImageView> handCards;
     private List<Button> flipButtons;
+    private Map<String, Node> playerNodes;
+    /**
+     * Flag indicating if the first scroll adjustment to center the starter card has already happened
+     * Hence it is set to true each time the displayPlayer changes
+     */
+    boolean firstFieldScrollAdjustment = true;
 
+    // ----------------------------------------------------------------
+    // CONSTANTS
+    // ----------------------------------------------------------------    // ----------------------------------------------------------------
 
     /**
-     * Area of non-editable text for showing logs
+     * Entire width of the image of a card
      */
-    @FXML
-    private TextArea logArea;
-
+    private static final int imageW=150;
     /**
-     * Handler of the logs
+     * Entire height of the image of a card
      */
-    private Log log;
+    private static final int imageH=100;
+    /**
+     * Width of a visible corner of the image of a card
+     */
+    private static final int cornerX=33;
+    /**
+     * Height of a visible corner of the image of a card
+     */
+    private static final int cornerY=40;
 
-
-    private static final Integer imageW=150,imageH=100,cornerX=33,cornerY=40;
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
     // ----------------------------------------------------------------
-
-
-    private void showLastLog() {
-        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
-    }
-
-    private void showLastLog(int nLogs) {
-        Platform.runLater(() -> {
-            for(int i=nLogs-1 ; i>=0 ; i--)
-                logArea.appendText(log.getLogMessages().get(i) + "\n");
-        });
-    }
 
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -130,7 +178,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void setGameState(GameState gameState) {
         this.state=gameState;
         log = new Log(gameState);
-
     }
 
     @Override
@@ -143,87 +190,89 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             alert.showAndWait();
         });
 
-
-        //todo sometimes we get a player doesn't have this card exception, even if should be a req not met exception
-//        if (e instanceof RequirementsNotMetException){
-            if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
-                Platform.runLater(() -> {
-//                    handCardsContainer.getChildren().add(attemptedToPlayCardHand);
-                    attemptedToPlayCardHand.setVisible(true);
-                    attemptedToPlayFlipButton.setVisible(true);
-                    fieldContainer.getChildren().remove(attemptedToPlayCardField);
-                    fieldContainer.getChildren().add(attemptedToPlayCardBox);
-                    attemptedToPlayCardBox.toBack();
-                    for (int i = 0; i < handCards.size(); i++) {
-                        int finalI = i;
-                        handCards.get(i).setOnDragDetected(event -> {
-                            Dragboard db = handCards.get(finalI).startDragAndDrop(TransferMode.ANY);
-                            ClipboardContent content = new ClipboardContent();
-                            content.putString(handCards.get(finalI).getId());
-                            db.setContent(content);
-                            event.consume();
-                        });
-                    }
-    //            List<CardPlayableIF> handPlayable=null;
-    //            for(PlayerLobby playerLobby : state.getPlayers())
-    //                if(playerLobby.equals(player)) {
-    //                    handPlayable=state.getPlayerState(playerLobby).getHandPlayable();
-    //                }
-    //            for (int i = 0; i < handPlayable.size(); i++) {
-    //                int posX=(imageW+10)*i,posY=50;
-    //                ImageView handCard=handCards.;
-    //
-    //                makeDraggable(i, handCard);
-    //            }
-
-                });
-            }
-//        }
+        //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
+        if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
+            Platform.runLater(() -> {
+//                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+                attemptedToPlayCardHand.setVisible(true);
+                attemptedToPlayFlipButton.setVisible(true);
+                fieldContainer.getChildren().remove(attemptedToPlayCardField);
+                fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                attemptedToPlayCardBox.toBack();
+                for (int i = 0; i < handCards.size(); i++) {
+                    int finalI = i;
+                    handCards.get(i).setOnDragDetected( event -> {
+                        Dragboard db = handCards.get(finalI).startDragAndDrop(TransferMode.ANY);
+                        ClipboardContent content = new ClipboardContent();
+                        content.putString(handCards.get(finalI).getId());
+                        db.setContent(content);
+                        event.consume();
+                    } );
+                }
+            });
+        }
     }
-
-
 
     @Override
     public void showInGame() {
+        // Init of lists of graphical elements
+        flipButtons = List.of(flipButton0, flipButton1, flipButton2);
+        handCards = List.of(handCard0, handCard1, handCard2);
+
         // Displaying the pickable cards and the common objectives
-        displayPickablesAndCommonObjs();
         // At the beginning of the game, the pickable cards shouldn't be clickable
+        displayPickablesAndCommonObjs();
         pickablesContainer.setMouseTransparent(true);
 
-        handCards=(Stream.of(handCard0,handCard1,handCard2).toList());
-        flipButtons=Stream.of(flipButton0,flipButton1,flipButton2).toList();
+        // Set the initial side of the hand cards to front
+        handCardSides = new ArrayList<>(List.of(Side.SIDEFRONT, Side.SIDEFRONT, Side.SIDEFRONT));
 
-        handCardSides=new ArrayList<>();
+        // Set the initial condition to 'no card placed', for flow of the game
+        flowCardPlaced = false;
 
-        //display hand playable, set the initial side of the hand cards to front
-        for (int i = 0; i < 3; i++) {
-            handCardSides.add(Side.SIDEFRONT);
-        }
-
-        displayPlayer=thisPlayer;
-        handPlayable=new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-        displayField();
-        displayHandPlayable();
-        flowCardPlaced=false;
-
-        createZoomDeZoomButtons();
-
-        // Players container
-        this.playerNodes = new HashMap<>();
-        this.displayPlayer = this.thisPlayer;
+        // Init of players container
+        playerNodes = new HashMap<>();
         initPlayerContainer();
 
+        // First log
         log.logNextTurn();
         showLastLog();
+
+        // Set size of fieldScrollPane
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
+        fieldScrollPane.setPrefWidth(screenBounds.getWidth() - 130);
+
+        // Set field to show and actionLabel
+        displayPlayer = null;
+        switchToPlayer(thisPlayer);
+        updateActionLabel();
+
+        // For some reason, the first set of the scrolls to the center doesn't work if i put the line here
+        // So I execute the commands after a short delay
+        new Thread(() -> {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Platform.runLater(() -> {
+                fieldScrollPane.setHvalue(0.5);
+                fieldScrollPane.setVvalue(0.5);
+            });
+        }).start();
+        //TODO: E' molto brutto questo thread, ma non riesco a capire come fare altrimenti...
+        // + in generale, ogni tanto quando faccio switchToPlayer non setta bene lo scroll, ma non ho idea del perché
     }
 
     @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
 
-        if(this.thisPlayer.equals(player)) {
+        if(thisPlayer.equals(player)) {
             flowCardPlaced = true;
             // After a card has been played, the pickable cards should be clickable
             pickablesContainer.setMouseTransparent(false);
+            Platform.runLater(() -> actionLabel.setText("Play a card"));
         }
         if(player.equals(displayPlayer)){
             for (int i = 0; i < handPlayable.size(); i++) {
@@ -238,14 +287,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         log.logPlayedCard(player, coord);
         showLastLog();
-
+        updateActionLabel();
     }
 
     @Override
     public void showPickedCard(PlayerLobby player) {
         if (this.thisPlayer.equals(player)){
-            //System.out.println("Client player: " + thisPlayer.getNickname() + ". Player who picked a card: " + player.getNickname());
-//            Platform.runLater(this::updateHandPlayable);
             // After a card has been picked, the pickable cards should not be clickable
             pickablesContainer.setMouseTransparent(true);
         }
@@ -259,12 +306,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if(handPlayable.get(i)==null)
                     handPlayable.set(i,pickedCard);
             }
-            displayField();
             displayHandPlayable();
         }
         displayPickablesAndCommonObjs();
 
         log.logPickedCard(player);
+        updateActionLabel();
     }
 
     @Override
@@ -275,12 +322,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     makeDraggable(i, handCard, flipButtons.get(i));
             }
         }
-        if(state.getCurrentPlayer().equals(thisPlayer))
-            flowCardPlaced=false;
+        if(state.getCurrentPlayer().equals(thisPlayer)) {
+            flowCardPlaced = false;
+        }
         playersContainerUpdateTurns();
 
         log.logNextTurn();
         showLastLog(2);
+        updateActionLabel();
     }
 
     @Override
@@ -288,8 +337,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerContainerUpdateConnection(player);
         //if I am currently watching a player who disconnected, I automatically switch the view back to mine
 //        if(player.equals(displayPlayer)){
-//            displayPlayer=thisPlayer;
-//            handPlayable=new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
+//            displayPlayer = thisPlayer;
+//            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
 //            displayField();
 //            displayHandPlayable();
 //        }
@@ -311,8 +360,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         log.logFinalPhase();
         showLastLog();
     }
+
+
     // >>> Following methods are ghosts <<<
-    //TODO pensa meglio a questa cosa
+    //TODO pensa meglio a questa cosa --> fai collassare le varie classi controller4
     @Override
     public void showStartupScreen(boolean isSocket, String ip, int port) {}
     @Override
@@ -327,19 +378,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void showPlayerJoinedRoom(PlayerLobby player) {}
     @Override
     public void showStartGame(GameState state) {}
-
     @Override
-    public synchronized void showUpdatePoints() {
-    }
-
+    public synchronized void showUpdatePoints() {}
     @Override
-    public synchronized void showWinner() {
-    }
-
+    public synchronized void showWinner() {}
     @Override
-    public synchronized void showEndGame() {
+    public synchronized void showEndGame() {}
 
-    }
 
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
@@ -432,6 +477,27 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * This method updates displayPlayer and displays his field and playable hand
+     * @param displayPlayer the player that needs to be displayed
+     */
+    void switchToPlayer(PlayerLobby displayPlayer) {
+        if(!displayPlayer.equals(this.displayPlayer)) {
+            this.displayPlayer = displayPlayer;
+            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
+
+            firstFieldScrollAdjustment = true;
+            fieldContainer.setPrefSize(fieldScrollPane.getWidth(), fieldScrollPane.getHeight());
+
+
+            displayField();
+            fieldScrollPane.setHvalue(0.5);
+            fieldScrollPane.setVvalue(0.5);
+            displayHandPlayable();
+            displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
+        }
+    }
+
     void playersContainerUpdatePoints(PlayerLobby player) {
         Platform.runLater(() -> {
             // get node corresponding to player
@@ -442,21 +508,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     label.setText(this.state.getPlayerState(player).getPoints() + " pts");
             }
         });
-
-
-    }
-
-    /**
-     * This method updates displayPlayer and displays his field and playable hand
-     * @param displayPlayer the player that needs to be displayed
-     */
-    void switchToPlayer(PlayerLobby displayPlayer) {
-        if(!this.displayPlayer.equals(displayPlayer)) {
-            this.displayPlayer = displayPlayer;
-            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-            displayField();
-            displayHandPlayable();
-        }
     }
 
     /**
@@ -488,13 +539,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
-    private void clearHandPlayable(){
-        for (ImageView handCard : handCards) {
-            handCard.setImage(null);
-        }
-    }
-
-
     // ----------------------------------------------------------------
     //      UTILS: PICKABLES CONTAINER
     // ----------------------------------------------------------------
@@ -506,8 +550,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         Platform.runLater(() -> {
             clearPickables();
 
-            List<CardPlayableIF> pickables=state.getPickables();
-            List<ImageView> pickablesViews= Stream.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2).toList();
+            List<CardPlayableIF> pickables = state.getPickables();
+            List<ImageView> pickablesViews = List.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2);
             for (int i = 0; i < pickables.size(); i++) {
                 displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
                 int finalI = i;
@@ -519,7 +563,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayCard(commonObjectives.get(0).getId(),Side.SIDEFRONT,commonObj1);
             displayCard(commonObjectives.get(1).getId(),Side.SIDEFRONT,commonObj2);
         });
-
     }
 
     private void clearPickables(){
@@ -542,33 +585,27 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param imageView corresponding to the card that needs to be made draggable
      */
     private void makeDraggable(int handPlayableIndex, ImageView imageView, Button flipButton){
-//        Platform.runLater(() -> {
-            imageView.setId(String.valueOf(handPlayableIndex));
-            imageView.setOnDragDetected(event -> {
-                Dragboard db = imageView.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.putString(imageView.getId());
-                db.setContent(content);
-                event.consume();
-            });
-            imageView.setOnDragDone(event -> {
-                if (event.getTransferMode() == TransferMode.MOVE) {
-//                    imageView.setImage(null);
-                    imageView.setVisible(false);
-                    flipButton.setVisible(false);
-                    attemptedToPlayCardHand = imageView;
-                    attemptedToPlayFlipButton=flipButton;
-//                    handCardsContainer.getChildren().remove(imageView);
-                    for (ImageView handCard : handCards) {
-                        handCard.setOnDragDetected(null);
-                    }
+        imageView.setId(String.valueOf(handPlayableIndex));
+        imageView.setOnDragDetected(event -> {
+            Dragboard db = imageView.startDragAndDrop(TransferMode.ANY);
+            ClipboardContent content = new ClipboardContent();
+            content.putString(imageView.getId());
+            db.setContent(content);
+            event.consume();
+        });
+        imageView.setOnDragDone(event -> {
+            if (event.getTransferMode() == TransferMode.MOVE) {
+                imageView.setVisible(false);
+                flipButton.setVisible(false);
+                attemptedToPlayCardHand = imageView;
+                attemptedToPlayFlipButton=flipButton;
+                for (ImageView handCard : handCards) {
+                    handCard.setOnDragDetected(null);
                 }
-                event.consume();
-            });
-//        });
+            }
+            event.consume();
+        });
     }
-
-
 
     // ----------------------------------------------------------------
     //      UTILS: FIELD CONTAINER
@@ -598,26 +635,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //                System.out.println(coordinates.getPosX()+" "+coordinates.getPosY());
                 addCardBox(coordinates, handPlayable);
             }
-        });
-    }
-
-    /**
-     * This method sets the actions and the text of the buttons to zoom and de zoom.
-     */
-    private void createZoomDeZoomButtons(){
-        zoom.setText("+");
-        zoom.setOnMouseClicked(mouseEvent -> {
-            if(fieldContainer.getScaleX()<3) {
-                fieldContainer.setScaleX(fieldContainer.getScaleX() + 0.1);
-                fieldContainer.setScaleY(fieldContainer.getScaleY() + 0.1);
-            }
-        });
-        deZoom.setText("-");
-        deZoom.setOnMouseClicked(mouseEvent -> {
-            if(fieldContainer.getScaleX()>0.1) {
-                fieldContainer.setScaleX(fieldContainer.getScaleY() - 0.1);
-                fieldContainer.setScaleY(fieldContainer.getScaleY() - 0.1);
-            }
+            ajdustFieldContainerSize();
         });
     }
 
@@ -649,32 +667,117 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 event.consume();
             });
 
-            box.setOnDragDropped(new EventHandler<>() {
-                public void handle(DragEvent event) {
-                    Dragboard db = event.getDragboard();
-                    int handIndex = Integer.parseInt(db.getString());
-                    networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
-                    Image imageHandCard;
-                    String cardId = finalHandPlayable.get(handIndex).getId();
-                    ImageView newCardImg = new ImageView();
-                    displayCard(cardId,handCardSides.get(handIndex),newCardImg);
-                    newCardImg.setTranslateX(posX);
-                    newCardImg.setTranslateY(posY);
-                    attemptedToPlayCardField = newCardImg;
-                    attemptedToPlayCardBox = box;
-                    fieldContainer.getChildren().remove(box);
-                    fieldContainer.getChildren().add(newCardImg);
-                    event.setDropCompleted(true);
-                    event.consume();
-                }
+            box.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                int handIndex = Integer.parseInt(db.getString());
+                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
+                String cardId = finalHandPlayable.get(handIndex).getId();
+                ImageView newCardImg = new ImageView();
+                displayCard(cardId,handCardSides.get(handIndex),newCardImg);
+                newCardImg.setTranslateX(posX);
+                newCardImg.setTranslateY(posY);
+                attemptedToPlayCardField = newCardImg;
+                attemptedToPlayCardBox = box;
+                fieldContainer.getChildren().remove(box);
+                fieldContainer.getChildren().add(newCardImg);
+                event.setDropCompleted(true);
+                event.consume();
             });
         }
         fieldContainer.getChildren().add(box);
         box.toBack();
+
+        fieldContainer.layout();  // Force layout pass to ensure bounds are updated
+    }
+
+    /**
+     * Adjust field container size to contain all the cards displayed in it.
+     * It checks the maximum extension of the elements in it, and if it does not exceed the fieldScrollPane current
+     * size, it sets the size of the fieldContainer to the double of the fieldScrollPane.
+     * If instead it exceeds, the size if that maximum extension doubled.
+     * Also the scroll of the fieldScrollPane is adjusted, considering if it is the first time the adjustment happens
+     * for the displayed field (set to center of field) or if it must be be taken into account the old value.
+     */
+    private void ajdustFieldContainerSize() {
+        double minX = Double.POSITIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        for (javafx.scene.Node node : fieldContainer.getChildren()) {
+            Bounds bounds = node.getBoundsInParent();
+            minX = Math.min(minX, bounds.getMinX());
+            minY = Math.min(minY, bounds.getMinY());
+            maxX = Math.max(maxX, bounds.getMaxX());
+            maxY = Math.max(maxY, bounds.getMaxY());
+        }
+
+        double prefWidth = 2 * Math.max(maxX - minX, fieldScrollPane.getWidth());
+        double prefHeight = 2 * Math.max(maxY - minY, fieldScrollPane.getHeight());
+        double scrollX, scrollY;
+        if(firstFieldScrollAdjustment) {
+            scrollX = 0.5;
+            scrollY = 0.5;
+            firstFieldScrollAdjustment = false;
+        } else {
+            scrollX = fieldScrollPane.getHvalue() * prefWidth / fieldContainer.getPrefWidth()
+                    + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
+            scrollY = fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight()
+                    + 0.5 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
+        }
+
+        // Update the preferred size of the StackPane
+        fieldContainer.setPrefSize(prefWidth, prefHeight);
+        fieldScrollPane.setHvalue(scrollX);
+        fieldScrollPane.setVvalue(scrollY);
+    }
+
+    /**
+     * Update the actionLabel's text, according to the current phase of the game flow for thisPlayer
+     */
+    private void updateActionLabel() {
+        Platform.runLater(() -> {
+            if(thisPlayer.equals(state.getCurrentPlayer())) {
+                if(!flowCardPlaced)
+                    actionLabel.setText("Play a card");
+                else
+                    actionLabel.setText("Pick a card");
+            } else
+                actionLabel.setText("Wait for your turn");
+        });
+    }
+
+    /**
+     * Method associated to the button for zooming in the field
+     */
+    public void onFieldZoomButtonAction() {
+        if(fieldContainer.getScaleX()<3) {
+            fieldContainer.setScaleX(fieldContainer.getScaleX() * 1.1);
+            fieldContainer.setScaleY(fieldContainer.getScaleY() * 1.1);
+        }
+    }
+
+    /**
+     * Method associated to the button for zooming out the field
+     */
+    public void onFieldDezoomButtonAction() {
+        if(fieldContainer.getScaleX()>0.1) {
+            fieldContainer.setScaleX(fieldContainer.getScaleY() / 1.1);
+            fieldContainer.setScaleY(fieldContainer.getScaleY() / 1.1);
+        }
+    }
+
+    /**
+     * Method associated to the button for resetting the scroll/zoom of the field
+     */
+    public void onClickResetFieldScroll() {
+        fieldScrollPane.setHvalue(0.5);
+        fieldScrollPane.setVvalue(0.5);
+        fieldContainer.setScaleX(1);
+        fieldContainer.setScaleY(1);
     }
 
     //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
-
 
     // ----------------------------------------------------------------
     //      COMMON
@@ -705,5 +808,21 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         imageView.setFitWidth(imageW);
     }
 
+    /**
+     * Updates the logArea to show the very last log appended
+     */
+    private void showLastLog() {
+        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
+    }
 
+    /**
+     * Updates the logArea to show the last logs appended, in order of arrival
+     * @param nLogs Number of logs to show
+     */
+    private void showLastLog(int nLogs) {
+        Platform.runLater(() -> {
+            for(int i=nLogs-1 ; i>=0 ; i--)
+                logArea.appendText(log.getLogMessages().get(i) + "\n");
+        });
+    }
 }

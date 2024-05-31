@@ -78,17 +78,6 @@ public class GameModel implements GameModelIF {
             throw new RuntimeException(e);
         }
 
-//        switch (res) {
-//            case 1 -> listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
-//            case 2 -> listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
-//            case 3 -> {
-//                listenerHandler.notifyPlayedStarter(player, match.fetchStarter(player), match.fetchAvailableCoord(player));
-//                listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
-//            }
-//            case 4 -> {}
-//            default -> throw new RuntimeException();
-//        }
-
         // Disconnection can make me move towards IN_GAME, a notify could be necessary
         if(initStatus==GameStatus.INIT) {
             if(!starterPlayed)
@@ -411,8 +400,8 @@ public class GameModel implements GameModelIF {
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
      */
     public void addObjectivePoints() throws GameStatusException {
-        listenerHandler.notifyPointsCalculated(fetchPoints());
         match.addObjectivePoints();
+        listenerHandler.notifyPointsCalculated(fetchPoints());
     }
 
 

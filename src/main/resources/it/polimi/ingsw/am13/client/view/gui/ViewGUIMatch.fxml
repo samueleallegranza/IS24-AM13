@@ -4,11 +4,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
     <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <HBox minHeight="600.0">
-            <GridPane fx:id="playersContainer" minHeight="600.0" prefWidth="135.0">
+        <HBox minHeight="200.0">
+            <GridPane fx:id="playersContainer" minHeight="200.0" prefWidth="135.0">
                 <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 </columnConstraints>
@@ -27,7 +28,7 @@
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
                     <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
                     <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
+                    <Label id="turn" prefWidth="130.0" text="turn" />
                     <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
@@ -47,11 +48,11 @@
                 <HBox.margin>
                     <Insets />
                 </HBox.margin>
-                <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" vbarPolicy="ALWAYS">
+                <ScrollPane fx:id="fieldScrollPane" hvalue="0.5" pannable="true" prefHeight="850.0" prefWidth="1660.0" vvalue="0.5">
                     <padding>
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                     </padding>
-                    <StackPane fx:id="fieldContainer" prefHeight="402.0" prefWidth="409.0">
+                    <StackPane fx:id="fieldContainer">
                         <padding>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                         </padding>
@@ -65,9 +66,26 @@
                     <StackPane.margin>
                         <Insets bottom="20.0" left="5.0" />
                     </StackPane.margin>
-                    <Button fx:id="zoom" prefHeight="25" prefWidth="25" />
-                    <Button fx:id="deZoom" prefHeight="25" prefWidth="25" />
+                    <Button onAction="#onFieldZoomButtonAction" prefHeight="25" prefWidth="25" text="+" />
+                    <Button onAction="#onFieldDezoomButtonAction" prefHeight="25" prefWidth="25" text="-" />
+               <Button mnemonicParsing="false" onAction="#onClickResetFieldScroll" text="Reset" />
                 </HBox>
+            <Label fx:id="actionLabel" alignment="TOP_LEFT" prefHeight="86.0" prefWidth="215.0" text="Action to do" wrapText="true" StackPane.alignment="TOP_LEFT">
+               <StackPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+               </StackPane.margin>
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="322.0" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="25.0" top="5.0" />
+               </StackPane.margin>
+            </Label>
             </StackPane>
         </HBox>
         <HBox alignment="CENTER_RIGHT">
