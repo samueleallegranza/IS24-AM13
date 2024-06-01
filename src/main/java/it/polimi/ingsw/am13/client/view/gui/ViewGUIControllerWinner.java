@@ -48,7 +48,7 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     }
 
     public synchronized void showUpdatePoints() {
-        for(PlayerLobby playerLobby : state.getPlayers()){
+        for(PlayerLobby playerLobby : state.getPlayers()) {
             pointsTable.getItems().add(playerLobby);
         }
 
@@ -57,11 +57,10 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     }
 
     public synchronized void showWinner() {
-//        System.out.println("winner");
         if(thisPlayer.equals(state.getWinner()))
             winnerText.setText("You have won the game");
         else
-            winnerText.setText(state.getWinner().getNickname()+" won the game");
+            winnerText.setText(state.getWinner().getNickname() + " won the game");
     }
 
     public synchronized void showEndGame() {

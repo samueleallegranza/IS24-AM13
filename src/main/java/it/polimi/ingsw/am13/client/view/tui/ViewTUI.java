@@ -47,7 +47,7 @@ public class ViewTUI implements View {
     /**
      * Log object to store logs displayed in the Log Section of the Match visualization
      */
-    private Log logs;
+    private LogTUI logs;
 
     /**
      * Thread which reads user input for menu selection
@@ -222,7 +222,7 @@ public class ViewTUI implements View {
         this.gameState = gameState;
 
         // initialize log
-        this.logs = new Log(gameState);
+        this.logs = new LogTUI(gameState);
 
         // print
         ViewTUIConstants.clearScreen();
@@ -240,7 +240,7 @@ public class ViewTUI implements View {
         this.gameState = state;
 
         // re-initialize log
-        this.logs = new Log(gameState);
+        this.logs = new LogTUI(gameState);
         this.logs.logReconnect(thisPlayer);
 
         if(gameState.getGameStatus()==GameStatus.INIT || gameState.getGameStatus()==null) {

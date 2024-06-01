@@ -77,7 +77,7 @@ public class ViewGUI extends Application implements View {
      */
     private PlayerLobby thisPlayer;
 
-    private boolean reachedWinnerPhase;
+//    private boolean reachedWinnerPhase;
     private boolean isSocket;
     private String ip;
     private int port;
@@ -118,7 +118,7 @@ public class ViewGUI extends Application implements View {
         matchController = createScene(ViewGUIControllerMatch.class, "ViewGUIMatch.fxml");
         winnerController = createScene(ViewGUIControllerWinner.class, "ViewGUIWinner.fxml");
 
-        reachedWinnerPhase = false;
+//        reachedWinnerPhase = false;
         showStartupScreen(isSocket, ip, port);
         networkHandler.getRooms();
     }
@@ -364,9 +364,8 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showUpdatePoints() {
-
         Platform.runLater(() -> {
-            reachedWinnerPhase = true;
+//            reachedWinnerPhase = true;
             switchToScene(winnerController);
             winnerController.showUpdatePoints();
         });
@@ -379,11 +378,12 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showWinner() {
-        if(!reachedWinnerPhase) {
+//        if(!reachedWinnerPhase) {
+//            reachedWinnerPhase = true;
             //todo forse si potrebbe visualizzare in qualche modo che ha vinto perché è l'unico giocatore rimasto
             //(si dovrebbe entrare in questo if solo in quel caso)
-            showUpdatePoints();
-        }
+//            showUpdatePoints();
+//        }
         Platform.runLater(() -> winnerController.showWinner());
     }
 

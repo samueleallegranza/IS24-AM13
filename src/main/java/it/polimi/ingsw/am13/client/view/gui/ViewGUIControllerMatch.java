@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
-import it.polimi.ingsw.am13.client.view.tui.Log;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
@@ -122,8 +121,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Handler of the logs
      */
-    private Log log;
-    private boolean hasLoggedFinalPhase;
+    private LogGUI log;
 
 
     //TODO: aggiungi documentazione per gli attributi qua sotto
@@ -176,8 +174,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void setGameState(GameState gameState) {
         this.state=gameState;
-        log = new Log(gameState);
-        hasLoggedFinalPhase = false;
+        log = new LogGUI(gameState);
     }
     @Override
     public String getSceneTitle() {
@@ -228,14 +225,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //        }
 
         log.logDisconnect(player);
-        showLastLog();
+        showLastLogs();
     }
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
 
         log.logReconnect(player);
-        showLastLog();
+        showLastLogs();
     }
 
 
@@ -261,7 +258,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         // First log
         log.logNextTurn();
-        showLastLog();
+        showLastLogs();
 
         // Set size of fieldScrollPane
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
@@ -310,7 +307,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
          playersContainerUpdatePoints(player);
 
         log.logPlayedCard(player, coord);
-        showLastLog();
+        showLastLogs();
         updateActionLabel();
     }
 
@@ -349,25 +346,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         playersContainerUpdateTurns();
 
-        Platform.runLater(()-> {
-            log.logNextTurn();
-            if(!hasLoggedFinalPhase) {
-                showLastLog(2);
-                hasLoggedFinalPhase = true;
-            }
-        });
+        log.logNextTurn();
+        showLastLogs();
         updateActionLabel();
     }
 
     public synchronized void showFinalPhase() {
-        Platform.runLater(()-> {
-            log.logFinalPhase();
-            if (!hasLoggedFinalPhase)
-                showLastLog(3);
-            else
-                showLastLog();
-            hasLoggedFinalPhase = true;
-        });
+        log.logFinalPhase();
+        showLastLogs();
     }
 
     // ----------------------------------------------------------------
@@ -793,18 +779,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     /**
-     * Updates the logArea to show the very last log appended
+     * Updates the logArea to show the last non-shown log messages
      */
-    private void showLastLog() {
-        Platform.runLater(() ->logArea.appendText(log.getLogMessages().getFirst() + "\n"));
-    }
-
-    /**
-     * Updates the logArea to show the last logs appended, in order of arrival
-     * @param nLogs Number of logs to show
-     */
-    private void showLastLog(int nLogs) {
-        for(int i=nLogs-1 ; i>=0 ; i--)
-            logArea.appendText(log.getLogMessages().get(i) + "\n");
+    private void showLastLogs() {
+        Platform.runLater(() -> {
+            while(log.hasOtherLogs())
+                logArea.appendText(log.popNextLog() + "\n");
+        });
     }
 }

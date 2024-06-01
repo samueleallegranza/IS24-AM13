@@ -21,7 +21,7 @@ public class ViewTUIMatch {
     private final PlayerLobby thisPlayer;
     private PlayerLobby displayPlayer;
     private boolean flowCardPlaced;
-    private Log logs;
+    private LogTUI logs;
 
     public ViewTUIMatch(ViewTUI viewTUI, GameState gameState, PlayerLobby thisPlayer) {
         this.view = viewTUI;
@@ -45,7 +45,7 @@ public class ViewTUIMatch {
                 findFirst().orElseThrow(InvalidParameterException::new);
     }
 
-    public void setLogs(Log logs) {
+    public void setLogs(LogTUI logs) {
         this.logs = logs;
     }
 

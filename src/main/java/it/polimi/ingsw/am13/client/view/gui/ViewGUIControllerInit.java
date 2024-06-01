@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
-import it.polimi.ingsw.am13.client.view.tui.Log;
 import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.Side;
@@ -37,7 +36,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
     /**
      * Handler of the logs
      */
-    private Log log;
+    private LogGUI log;
 
 
     @Override
@@ -51,12 +50,12 @@ public class ViewGUIControllerInit extends ViewGUIController {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         log.logDisconnect(player);
-        showLastLog();
+        showLastLogs();
     }
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         log.logDisconnect(player);
-        showLastLog();
+        showLastLogs();
     }
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -66,12 +65,15 @@ public class ViewGUIControllerInit extends ViewGUIController {
     public void setGameState(GameState state) {
     }
 
-    private void showLastLog() {
-        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
+    private void showLastLogs() {
+        Platform.runLater(() -> {
+            while(log.hasOtherLogs())
+                logArea.appendText(log.popNextLog() + "\n");
+        });
     }
 
     public void showStartGame(GameState state) {
-        log = new Log(state);
+        log = new LogGUI(state);
         descriptionLabel.setText("How do you want to play the starter card(front/back)?");
         CardIF starterCard=null;
         this.state = state;
@@ -113,7 +115,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setImage(imageBack);
         }
         log.logPlayedStarter(player);
-        showLastLog();
+        showLastLogs();
 
         if(ViewGUI.DEBUG_MODE && this.thisPlayer.equals(player)){
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
@@ -132,7 +134,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setImage(null);
         }
         log.logChosenPersonalObjective(player);
-        showLastLog();
+        showLastLogs();
     }
 
 

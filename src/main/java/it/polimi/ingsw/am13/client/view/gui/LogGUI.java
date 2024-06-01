@@ -1,27 +1,30 @@
-package it.polimi.ingsw.am13.client.view.tui;
+package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.client.view.tui.ViewTUIConstants;
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.LocalTime;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Vector;
+import java.util.*;
 
+public class LogGUI {
 
-public class Log {
-    private final Deque<String> logMessages;
+    private final Queue<String> logMessages;
     private final GameState gameState;
 
-    public Log(GameState gameState) {
+    public LogGUI(GameState gameState) {
         this.gameState = gameState;
         this.logMessages = new LinkedList<>();
     }
 
-    public Vector<String> getLogMessages() {
-        return new Vector<>(this.logMessages);
+    public boolean hasOtherLogs() {
+        return !logMessages.isEmpty();
+    }
+
+    public String popNextLog() {
+        return logMessages.poll();
     }
 
     public void logPlayedStarter(PlayerLobby player) {
@@ -57,12 +60,7 @@ public class Log {
     }
 
     private void addToLog(String log) {
-        // remove the oldest log from the queue if logs to make space for the new one
-        if(logMessages.size() == ViewTUIConstants.LOG_MAXLINES) {
-            logMessages.removeLast();
-        }
-        // add new log to the queue
-        this.logMessages.addFirst(log);
+        logMessages.add(log);
     }
 
     private String currentTimeString() {
