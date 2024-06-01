@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
 
-//todo nota per Matteo: quando toglierai la gerarchia dei controller, andranno anche tolte tutte le parti in cui si aggiorna il controller (e vari setter saranno da chiamare una volta sola)
+// TODO: guarda meglio come gestire le platform.runlater()
 
 /**
  * This class is the JavaFX application, and it implements the View interface.
@@ -35,11 +35,40 @@ public class ViewGUI extends Application implements View {
     /**
      * Number of players for the debug mode
      */
-    public static final int DEBUG_NPLAYERS = 3;
+    public static final int DEBUG_NPLAYERS = 2;
+    private final static boolean FULLSCREEN_MODE = false;
+    private final static int sceneWidth = 1820;
+    private final static int sceneHeight = 980;
 
-    private ViewGUIController viewGUIController;
+    /**
+     * Controller of the 'Rooms' scene, where the rooms are lister and the user can create/join/reconnect to a room
+     */
+    private ViewGUIControllerRooms roomsController;
+    /**
+     * Controller of 'JoinedRoom' scene, where player can wait for the room to get full or can leave the room
+     */
+    private ViewGUIControllerJoinedRoom joinedRoomController;
+    /**
+     * Controller of 'Init' scene, where the player must complete the initialization part of the game
+     */
+    private ViewGUIControllerInit initController;
+    /**
+     * Controller of 'Match' scene, where player can actually play the most of the game
+     */
+    private ViewGUIControllerMatch matchController;
+    /**
+     * Controller of 'Winner' scene, where the final points and the winner are shown
+     */
+    private ViewGUIControllerWinner winnerController;
+
+    /**
+     * Controller currently active
+     */
+    private ViewGUIController currentController;
+
+
+    private Stage stage;
     private NetworkHandler networkHandler;
-
     private GameState state;
     /**
      * The player corresponding to a specific instance of {@link ViewGUI}.
@@ -47,12 +76,11 @@ public class ViewGUI extends Application implements View {
      * a room.
      */
     private PlayerLobby thisPlayer;
-    private Stage stage;
 
     private boolean reachedWinnerPhase;
-    private final static int sceneWidth=1820;
-    private final static int sceneHeight=980;
-    private final static boolean FULLSCREEN_MODE = false;
+    private boolean isSocket;
+    private String ip;
+    private int port;
 
     /**
      * This method is executed when this application is launched by {@link ClientMain}.
@@ -63,20 +91,14 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public void start(Stage stage) throws Exception {
-        boolean isSocket = Boolean.parseBoolean(getParameters().getUnnamed().get(0));
-        String ip = getParameters().getUnnamed().get(1);
-        int port = Integer.parseInt(getParameters().getUnnamed().get(2));
+        isSocket = Boolean.parseBoolean(getParameters().getUnnamed().get(0));
+        ip = getParameters().getUnnamed().get(1);
+        port = Integer.parseInt(getParameters().getUnnamed().get(2));
 
-        this.stage=stage;
-        thisPlayer =null;
+        this.stage = stage;
+        thisPlayer = null;
         networkHandler = ClientMain.initConnection(isSocket, ip, port, this);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-        stage.setTitle("Codex");
-        stage.setScene(scene);
-
-        // full-screen mode
         if(FULLSCREEN_MODE)
             // real full-screen mode
             stage.setFullScreen(true);
@@ -89,16 +111,47 @@ public class ViewGUI extends Application implements View {
             stage.setHeight(screenBounds.getHeight());
         }
 
-        stage.show();
+        // Creation/initialization of all the scenes that will be used
+        roomsController = createScene(ViewGUIControllerRooms.class, "ViewGUIRooms.fxml");
+        joinedRoomController = createScene(ViewGUIControllerJoinedRoom.class, "ViewGUIJoinedRoom.fxml");
+        initController = createScene(ViewGUIControllerInit.class, "ViewGUIInit.fxml");
+        matchController = createScene(ViewGUIControllerMatch.class, "ViewGUIMatch.fxml");
+        winnerController = createScene(ViewGUIControllerWinner.class, "ViewGUIWinner.fxml");
 
-        viewGUIController = fxmlLoader.getController();
-        viewGUIController.setStage(stage);
-
-        setNetworkHandler(networkHandler);
-
-        showStartupScreen(true, ip, port);
+        reachedWinnerPhase = false;
+        showStartupScreen(isSocket, ip, port);
         networkHandler.getRooms();
-        reachedWinnerPhase=false;
+    }
+
+    /**
+     * Utility function to load the FXML file for a scene of the game and load its controller
+     * @param controllerClass Class of the controller associated to the scene
+     * @param fxmlName Name of the FXML file for the scene
+     * @return Controller loaded to handle the scene
+     * @param <T> Class type of the controller, specified as parameter
+     * @throws IOException ???
+     */
+    private <T extends ViewGUIController> T createScene(Class<T> controllerClass, String fxmlName) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource(fxmlName));
+        Scene scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
+        T controller = fxmlLoader.getController();
+        controller.setStage(stage);
+        controller.setScene(scene);
+        controller.setNetworkHandler(networkHandler);
+        return controller;
+    }
+
+    /**
+     * Switches a scene, showing another scene based on the associated controller.
+     * It effectively shows the scene, sets the scene title, and sets some parameter who can change during the game
+     * for the controller. The current controller is updated, too.
+     * @param controller Controller associated to the scene to switch to
+     */
+    private void switchToScene(ViewGUIController controller) {
+        controller.switchToScene();
+        controller.setThisPlayer(thisPlayer);
+        controller.setGameState(state);
+        this.currentController = controller;
     }
 
     /**
@@ -107,7 +160,8 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public void setNetworkHandler(NetworkHandler networkHandler) {
-        viewGUIController.setNetworkHandler(networkHandler);
+        // TODO non dovrebbe servire x gui
+//        viewGUIController.setNetworkHandler(networkHandler);
     }
 
     /**
@@ -118,7 +172,8 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showStartupScreen(boolean isSocket, String ip, int port) {
-        viewGUIController.showStartupScreen(isSocket, ip, port);
+        switchToScene(roomsController);
+        roomsController.showStartupScreen(isSocket, ip, port);
     }
 
     /**
@@ -128,7 +183,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showException(Exception e) {
-        Platform.runLater(() -> viewGUIController.showException(e));
+        Platform.runLater(() -> currentController.showException(e));
     }
 
     /**
@@ -137,7 +192,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showGenericLogMessage(String msg) {
-
+        //TODO se non la usi magari levala
     }
 
     /**
@@ -149,10 +204,16 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showRooms(List<RoomIF> rooms) {
-        for(RoomIF room : rooms)
-            if(room.getPlayers().contains(thisPlayer))
-                viewGUIController.setRoom(room);
-        viewGUIController.showRooms(rooms);
+        if(thisPlayer == null)
+            roomsController.showRooms(rooms);
+        else {
+            // This should be the response after invocation of getRooms() for thisPlayer joining a room or
+            // one of the players in that room leaving it
+            for(RoomIF room : rooms)
+                if(room.getPlayers().contains(thisPlayer))
+                    joinedRoomController.setRoom(room);
+            joinedRoomController.showRooms(rooms);
+        }
     }
 
     /**
@@ -163,26 +224,15 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showPlayerJoinedRoom(PlayerLobby player) {
         Platform.runLater(() -> {
-            if (this.thisPlayer == null) {
-                this.thisPlayer = player;
-                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIJoinedRoom.fxml"));
-                Scene scene;
-                try {
-                    scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                viewGUIController = fxmlLoader.getController();
-                viewGUIController.setStage(stage);
-                setNetworkHandler(networkHandler);
-                networkHandler.getRooms();
+            if (thisPlayer == null) {
+                // The update is my ACK for command joinRoom --> I switch to joinedRoom view
+                thisPlayer = player;
 
-                stage.setTitle("Codex");
-                stage.setScene(scene);
-                stage.show();
+                switchToScene(joinedRoomController);
+                networkHandler.getRooms();
             }
             else
-                viewGUIController.showPlayerJoinedRoom(player);
+                joinedRoomController.showPlayerJoinedRoom(player);
         });
 
     }
@@ -194,29 +244,13 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayerLeftRoom(PlayerLobby player) {
-        if(this.thisPlayer.equals(player)){
+        if(player.equals(thisPlayer)) {
             Platform.runLater(() -> {
-                FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIRooms.fxml"));
-                Scene scene;
-                try {
-                    scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                stage.setTitle("Codex");
-                stage.setScene(scene);
-                stage.show();
-
-                viewGUIController = fxmlLoader.getController();
-                viewGUIController.setStage(stage);
-                viewGUIController.setGameState(state);
-                setNetworkHandler(networkHandler);
-
-                showStartupScreen(true, "localhost", 25566);
-                this.thisPlayer =null;
+                switchToScene(roomsController);
+                showStartupScreen(isSocket, ip, port);
+                thisPlayer = null;
                 networkHandler.getRooms();
             });
-
         }
         else
             networkHandler.getRooms();
@@ -231,25 +265,9 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showStartGame(GameState state) {
         Platform.runLater(() -> {
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIInit.fxml"));
-            Scene scene;
-            try {
-                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            stage.setTitle("Initial phase");
-            stage.setScene(scene);
-            stage.show();
-
-            this.state=state;
-
-            viewGUIController = fxmlLoader.getController();
-            viewGUIController.setStage(stage);
-            setNetworkHandler(networkHandler);
-            viewGUIController.setThisPlayer(thisPlayer);
-            viewGUIController.setGameState(state);
-            viewGUIController.showStartGame(state);
+            this.state = state;
+            switchToScene(initController);
+            initController.showStartGame(state);
         });
     }
 
@@ -271,9 +289,7 @@ public class ViewGUI extends Application implements View {
                 showStartGame(state); // sets the init visualization screen
                 showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
             }
-            case GameStatus.IN_GAME -> {
-                showInGame();
-            }
+            case GameStatus.IN_GAME -> showInGame();
         }
     }
 
@@ -285,7 +301,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayedStarter(PlayerLobby player) {
-        Platform.runLater(() -> viewGUIController.showPlayedStarter(player));
+        Platform.runLater(() -> initController.showPlayedStarter(player));
     }
 
     /**
@@ -295,7 +311,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showChosenPersonalObjective(PlayerLobby player) {
-        viewGUIController.showChosenPersonalObjective(player);
+        Platform.runLater(() -> initController.showChosenPersonalObjective(player));
     }
 
     /**
@@ -305,23 +321,8 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showInGame() {
         Platform.runLater(() -> {
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIMatch.fxml"));
-            Scene scene;
-            try {
-                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            stage.setTitle("Turn based phase");
-            stage.setScene(scene);
-            stage.show();
-
-            viewGUIController = fxmlLoader.getController();
-            viewGUIController.setStage(stage);
-            viewGUIController.setThisPlayer(thisPlayer);
-            viewGUIController.setGameState(state);
-            setNetworkHandler(networkHandler);
-            viewGUIController.showInGame();
+            switchToScene(matchController);
+            matchController.showInGame();
         });
     }
 
@@ -333,7 +334,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayedCard(PlayerLobby player, Coordinates coord) {
-        viewGUIController.showPlayedCard(player,coord);
+        matchController.showPlayedCard(player,coord);
     }
 
     /**
@@ -342,7 +343,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPickedCard(PlayerLobby player) {
-        viewGUIController.showPickedCard(player);
+        matchController.showPickedCard(player);
     }
 
     /**
@@ -350,12 +351,12 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showNextTurn() {
-        viewGUIController.showNextTurn();
+        matchController.showNextTurn();
     }
 
     @Override
     public synchronized void showFinalPhase() {
-        viewGUIController.showFinalPhase();
+        matchController.showFinalPhase();
     }
 
     /**
@@ -365,24 +366,9 @@ public class ViewGUI extends Application implements View {
     public synchronized void showUpdatePoints() {
 
         Platform.runLater(() -> {
-            reachedWinnerPhase=true;
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewGUI.class.getResource("ViewGUIWinner.fxml"));
-            Scene scene;
-            try {
-                scene = new Scene(fxmlLoader.load(), sceneWidth, sceneHeight);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            stage.setTitle("Winner phase");
-            stage.setScene(scene);
-            stage.show();
-
-            viewGUIController = fxmlLoader.getController();
-            viewGUIController.setStage(stage);
-            viewGUIController.setThisPlayer(thisPlayer);
-            viewGUIController.setGameState(state);
-            setNetworkHandler(networkHandler);
-            viewGUIController.showUpdatePoints();
+            reachedWinnerPhase = true;
+            switchToScene(winnerController);
+            winnerController.showUpdatePoints();
         });
     }
 
@@ -398,7 +384,7 @@ public class ViewGUI extends Application implements View {
             //(si dovrebbe entrare in questo if solo in quel caso)
             showUpdatePoints();
         }
-        Platform.runLater(() -> viewGUIController.showWinner());
+        Platform.runLater(() -> winnerController.showWinner());
     }
 
     /**
@@ -407,7 +393,7 @@ public class ViewGUI extends Application implements View {
     //todo potremmo voler stampare qualche messaggio (al momento in controller non viene fatto niente)
     @Override
     public synchronized void showEndGame() {
-        viewGUIController.showEndGame();
+        winnerController.showEndGame();
     }
 
     /**
@@ -416,7 +402,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayerDisconnected(PlayerLobby player) {
-        viewGUIController.showPlayerDisconnected(player);
+        currentController.showPlayerDisconnected(player);
     }
 
     /**
@@ -425,7 +411,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayerReconnected(PlayerLobby player) {
-        viewGUIController.showPlayerReconnected(player);
+        currentController.showPlayerReconnected(player);
     }
 
 

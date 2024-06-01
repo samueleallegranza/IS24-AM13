@@ -74,7 +74,7 @@ public class ClientMain {
 
         View view;
         NetworkHandler networkHandler;
-        if (isTUI){
+        if (isTUI) {
             view = new ViewTUI();
             networkHandler = initConnection(isSocket, ip, port, view);
             // Sets the network handler for the view, in order to allow it to send commands/messages to the server
@@ -88,7 +88,7 @@ public class ClientMain {
 
     }
 
-    public static NetworkHandler initConnection(boolean isSocket, String ip, int port, View view){
+    public static NetworkHandler initConnection(boolean isSocket, String ip, int port, View view) {
         NetworkHandler networkHandler;
         if(isSocket) {
             // open socket connection with ip:port

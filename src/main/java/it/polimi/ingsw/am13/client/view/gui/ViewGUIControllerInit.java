@@ -2,10 +2,8 @@ package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.Log;
-import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
@@ -21,59 +19,64 @@ import java.util.List;
 import java.util.Objects;
 
 public class ViewGUIControllerInit extends ViewGUIController {
-    public Label descriptionLabel;
-    public ImageView firstChoiceImage;
-    public ImageView secondChoiceImage;
-    private PlayerLobby player;
-    private GameState state;
 
+    @FXML
+    public Label descriptionLabel;
+    @FXML
+    public ImageView firstChoiceImage;
+    @FXML
+    public ImageView secondChoiceImage;
     /**
      * Area of non-editable text for showing logs
      */
     @FXML
     private TextArea logArea;
 
+    private PlayerLobby thisPlayer;
+    private GameState state;
     /**
      * Handler of the logs
      */
     private Log log;
 
+
+    @Override
+    public String getSceneTitle() {
+        return "Initial Phase";
+    }
+    @Override
+    public void showException(Exception e) {
+        //TODO: forse da implementare
+    }
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+        log.logDisconnect(player);
+        showLastLog();
+    }
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+        log.logDisconnect(player);
+        showLastLog();
+    }
+    @Override
+    public void setThisPlayer(PlayerLobby thisPlayer) {
+        this.thisPlayer = thisPlayer;
+    }
+    @Override
+    public void setGameState(GameState state) {
+    }
+
     private void showLastLog() {
         Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
     }
 
-    @Override
-    public void setThisPlayer(PlayerLobby thisPlayer) {
-        this.player= thisPlayer;
-    }
-
-    @Override
-    public void setGameState(GameState gameState) {
-        log = new Log(gameState);
-    }
-
-    @Override
-    public void showStartupScreen(boolean isSocket, String ip, int port) {
-
-    }
-
-    @Override
-    public void showRooms(List<RoomIF> rooms) {
-
-    }
-
-    @Override
-    public void showPlayerJoinedRoom(PlayerLobby player) {
-
-    }
-
-    @Override
     public void showStartGame(GameState state) {
+        log = new Log(state);
         descriptionLabel.setText("How do you want to play the starter card(front/back)?");
         CardIF starterCard=null;
-        this.state=state;
+        this.state = state;
         for(PlayerLobby playerLobby : state.getPlayers())
-            if(playerLobby.equals(player))
+            if(playerLobby.equals(thisPlayer))
                 starterCard=state.getPlayerState(playerLobby).getStarterCard();
         Image imageFront=new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + starterCard.getId() + ".png")));
         firstChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEFRONT));
@@ -83,11 +86,6 @@ public class ViewGUIControllerInit extends ViewGUIController {
         secondChoiceImage.setImage(imageBack);
 
         if(ViewGUI.DEBUG_MODE) {
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -97,19 +95,10 @@ public class ViewGUIControllerInit extends ViewGUIController {
         }
     }
 
-    @Override
-    public void showException(Exception e) {
 
-    }
 
-    @Override
-    public void setRoom(RoomIF room) {
-
-    }
-
-    @Override
     public void showPlayedStarter(PlayerLobby player) {
-        if(this.player.equals(player)) {
+        if(this.thisPlayer.equals(player)) {
             descriptionLabel.setText("Which personal objective do you want to choose?");
             List<CardObjectiveIF> possibleHandObjectives = null;
             for (PlayerLobby playerLobby : state.getPlayers())
@@ -126,12 +115,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logPlayedStarter(player);
         showLastLog();
 
-        if(ViewGUI.DEBUG_MODE && this.player.equals(player)){
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
+        if(ViewGUI.DEBUG_MODE && this.thisPlayer.equals(player)){
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -141,67 +125,17 @@ public class ViewGUIControllerInit extends ViewGUIController {
         }
     }
 
-    @Override
     public void showChosenPersonalObjective(PlayerLobby player) {
-        if(this.player.equals(player)) {
-            Platform.runLater(() -> {
-                descriptionLabel.setText("You have chosen your personal objective.\n Now wait for the others to finish their initial phase");
-                firstChoiceImage.setImage(null);
-                secondChoiceImage.setImage(null);
-            });
+        if(this.thisPlayer.equals(player)) {
+            descriptionLabel.setText("You have chosen your personal objective.\n Now wait for the others to finish their initial phase");
+            firstChoiceImage.setImage(null);
+            secondChoiceImage.setImage(null);
         }
         log.logChosenPersonalObjective(player);
         showLastLog();
     }
 
-    @Override
-    public void showInGame() {
-
-    }
-
-    @Override
-    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-
-    }
-
-    @Override
-    public void showPickedCard(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showNextTurn() {
-
-    }
-
-    @Override
-    public void showPlayerDisconnected(PlayerLobby player) {
-        log.logDisconnect(player);
-        showLastLog();
-    }
-
-    @Override
-    public void showPlayerReconnected(PlayerLobby player) {
-        log.logDisconnect(player);
-        showLastLog();
-    }
 
 
-    @Override
-    public synchronized void showFinalPhase() {
 
-    }
-
-    @Override
-    public synchronized void showUpdatePoints() {}
-
-    @Override
-    public synchronized void showWinner() {
-
-    }
-
-    @Override
-    public synchronized void showEndGame() {
-
-    }
 }

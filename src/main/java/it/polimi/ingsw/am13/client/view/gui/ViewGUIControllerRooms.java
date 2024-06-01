@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
-import it.polimi.ingsw.am13.model.card.Coordinates;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
@@ -15,6 +14,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 public class ViewGUIControllerRooms extends ViewGUIController {
+
     @FXML
     private Label startupText;
     @FXML
@@ -39,24 +39,35 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     private TableColumn<RoomIF, String> roomNP;
     @FXML
     private Spinner<Integer> nPlayersSpinner;
-    @FXML
-    private Button createRoomButton;
-    @FXML
-    private Button joinRoomButton;
-    @FXML
-    private Button refreshRoomButton;
-    @FXML
-    private Button reconnectMatchButton;
+
 
     @Override
-    public void setThisPlayer(PlayerLobby thisPlayer) {
-
+    public void setThisPlayer(PlayerLobby player) {
+    }
+    @Override
+    public void setGameState(GameState state) {
+    }
+    @Override
+    public String getSceneTitle() {
+        return "Codex Rooms";
     }
 
     @Override
-    public void setGameState(GameState gameState) {
-
+    public void showException(Exception e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("An error occurred");
+        alert.setContentText(e.getMessage());
+        alert.showAndWait();
     }
+
+    @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+    }
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+    }
+
 
     public void showStartupScreen(boolean isSocket, String ip, int port) {
         if(isSocket)
@@ -76,12 +87,12 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomId.setCellValueFactory(new PropertyValueFactory<>("gameId"));
         roomStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isGameStarted() ? "started" : "waiting"));
 
-        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().get(0).getNickname()));
-        roomP1.setCellFactory(column -> new TableCell<RoomIF, String>() {
+        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().getFirst().getNickname()));
+        roomP1.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
-                if (!(item == null || empty) && getTableView().getItems().get(getIndex()).getPlayers().size() > 0) {
-                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(0).getToken().getColor().name());
+                if (!(item == null || empty) && !getTableView().getItems().get(getIndex()).getPlayers().isEmpty()) {
+                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().getFirst().getToken().getColor().name());
                     Label label = new Label(item);
                     label.setTextFill(color);
                     setGraphic(label);
@@ -96,7 +107,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
-        roomP2.setCellFactory(column -> new TableCell<RoomIF, String>() {
+        roomP2.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -120,7 +131,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
-        roomP3.setCellFactory(column -> new TableCell<RoomIF, String>() {
+        roomP3.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -144,7 +155,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 return new SimpleStringProperty("-");
             }
         });
-        roomP4.setCellFactory(column -> new TableCell<RoomIF, String>() {
+        roomP4.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -181,16 +192,6 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                 }
             }
         }
-    }
-
-    @Override
-    public void showPlayerJoinedRoom(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showStartGame(GameState state) {
-
     }
 
     @FXML
@@ -241,76 +242,6 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         }
     }
 
-
-    public void showException(Exception e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("An error occurred");
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
-    }
-
-    @Override
-    public void setRoom(RoomIF room) {
-    }
-
-    @Override
-    public void showPlayedStarter(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showChosenPersonalObjective(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showInGame() {
-
-    }
-
-    @Override
-    public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-
-    }
-
-    @Override
-    public void showPickedCard(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showNextTurn() {
-
-    }
-
-    @Override
-    public void showPlayerDisconnected(PlayerLobby player) {
-
-    }
-
-    @Override
-    public void showPlayerReconnected(PlayerLobby player) {
-
-    }
-
-    @Override
-    public synchronized void showFinalPhase() {
-
-    }
-
-    @Override
-    public synchronized void showUpdatePoints() {}
-
-    @Override
-    public synchronized void showWinner() {
-
-    }
-
-    @Override
-    public synchronized void showEndGame() {
-
-    }
     private void errorAlert(String message){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

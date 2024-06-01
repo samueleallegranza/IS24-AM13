@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.Log;
-import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
@@ -124,7 +123,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Handler of the logs
      */
     private Log log;
-
     private boolean hasLoggedFinalPhase;
 
 
@@ -147,7 +145,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     // ----------------------------------------------------------------
     // CONSTANTS
-    // ----------------------------------------------------------------    // ----------------------------------------------------------------
+    // ----------------------------------------------------------------
 
     /**
      * Entire width of the image of a card
@@ -175,12 +173,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void setThisPlayer(PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
     }
-
     @Override
     public void setGameState(GameState gameState) {
         this.state=gameState;
         log = new Log(gameState);
-        hasLoggedFinalPhase=false;
+        hasLoggedFinalPhase = false;
+    }
+    @Override
+    public String getSceneTitle() {
+        return "Turn-based phase";
     }
 
     @Override
@@ -215,8 +216,29 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             });
         }
     }
-
     @Override
+    public void showPlayerDisconnected(PlayerLobby player) {
+        playerContainerUpdateConnection(player);
+        //if I am currently watching a player who disconnected, I automatically switch the view back to mine
+//        if(player.equals(displayPlayer)){
+//            displayPlayer = thisPlayer;
+//            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
+//            displayField();
+//            displayHandPlayable();
+//        }
+
+        log.logDisconnect(player);
+        showLastLog();
+    }
+    @Override
+    public void showPlayerReconnected(PlayerLobby player) {
+        playerContainerUpdateConnection(player);
+
+        log.logReconnect(player);
+        showLastLog();
+    }
+
+
     public void showInGame() {
         // Init of lists of graphical elements
         flipButtons = List.of(flipButton0, flipButton1, flipButton2);
@@ -268,7 +290,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // + in generale, ogni tanto quando faccio switchToPlayer non setta bene lo scroll, ma non ho idea del perché
     }
 
-    @Override
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
 
         if(thisPlayer.equals(player)) {
@@ -293,7 +314,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         updateActionLabel();
     }
 
-    @Override
     public void showPickedCard(PlayerLobby player) {
         if (this.thisPlayer.equals(player)){
             // After a card has been picked, the pickable cards should not be clickable
@@ -317,7 +337,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         updateActionLabel();
     }
 
-    @Override
     public void showNextTurn() {
         if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
             for (int i = 0; i < handPlayable.size(); i++) {
@@ -338,34 +357,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         });
         updateActionLabel();
-
     }
 
-    @Override
-    public void showPlayerDisconnected(PlayerLobby player) {
-        playerContainerUpdateConnection(player);
-        //if I am currently watching a player who disconnected, I automatically switch the view back to mine
-//        if(player.equals(displayPlayer)){
-//            displayPlayer = thisPlayer;
-//            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-//            displayField();
-//            displayHandPlayable();
-//        }
-
-        log.logDisconnect(player);
-        showLastLog();
-    }
-
-    @Override
-    public void showPlayerReconnected(PlayerLobby player) {
-        playerContainerUpdateConnection(player);
-        log.logReconnect(player);
-        showLastLog();
-    }
-
-    @Override
     public synchronized void showFinalPhase() {
-
         Platform.runLater(()-> {
             log.logFinalPhase();
             if (!hasLoggedFinalPhase)
@@ -375,31 +369,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             hasLoggedFinalPhase = true;
         });
     }
-
-
-    // >>> Following methods are ghosts <<<
-    //TODO pensa meglio a questa cosa --> fai collassare le varie classi controller4
-    @Override
-    public void showStartupScreen(boolean isSocket, String ip, int port) {}
-    @Override
-    public void setRoom(RoomIF room) {}
-    @Override
-    public void showPlayedStarter(PlayerLobby player) {}
-    @Override
-    public void showChosenPersonalObjective(PlayerLobby player) {}
-    @Override
-    public void showRooms(List<RoomIF> rooms) {}
-    @Override
-    public void showPlayerJoinedRoom(PlayerLobby player) {}
-    @Override
-    public void showStartGame(GameState state) {}
-    @Override
-    public synchronized void showUpdatePoints() {}
-    @Override
-    public synchronized void showWinner() {}
-    @Override
-    public synchronized void showEndGame() {}
-
 
     // ----------------------------------------------------------------
     //      UTILS: PLAYER CONTAINER
@@ -835,9 +804,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param nLogs Number of logs to show
      */
     private void showLastLog(int nLogs) {
-        //Platform.runLater(() -> {
-            for(int i=nLogs-1 ; i>=0 ; i--)
-                logArea.appendText(log.getLogMessages().get(i) + "\n");
-        //});
+        for(int i=nLogs-1 ; i>=0 ; i--)
+            logArea.appendText(log.getLogMessages().get(i) + "\n");
     }
 }
