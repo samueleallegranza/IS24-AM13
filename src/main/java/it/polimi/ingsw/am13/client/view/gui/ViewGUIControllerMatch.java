@@ -125,6 +125,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private Log log;
 
+    private boolean hasLoggedFinalPhase;
+
 
     //TODO: aggiungi documentazione per gli attributi qua sotto
     private List<Side> handCardSides;
@@ -178,6 +180,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public void setGameState(GameState gameState) {
         this.state=gameState;
         log = new Log(gameState);
+        hasLoggedFinalPhase=false;
     }
 
     @Override
@@ -327,9 +330,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         playersContainerUpdateTurns();
 
-        log.logNextTurn();
-        showLastLog(2);
+        Platform.runLater(()-> {
+            log.logNextTurn();
+            if(!hasLoggedFinalPhase) {
+                showLastLog(2);
+                hasLoggedFinalPhase = true;
+            }
+        });
         updateActionLabel();
+
     }
 
     @Override
@@ -350,15 +359,21 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
-
         log.logReconnect(player);
         showLastLog();
     }
 
     @Override
     public synchronized void showFinalPhase() {
-        log.logFinalPhase();
-        showLastLog();
+
+        Platform.runLater(()-> {
+            log.logFinalPhase();
+            if (!hasLoggedFinalPhase)
+                showLastLog(3);
+            else
+                showLastLog();
+            hasLoggedFinalPhase = true;
+        });
     }
 
 
@@ -812,7 +827,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Updates the logArea to show the very last log appended
      */
     private void showLastLog() {
-        Platform.runLater(() -> logArea.appendText(log.getLogMessages().getFirst() + "\n"));
+        Platform.runLater(() ->logArea.appendText(log.getLogMessages().getFirst() + "\n"));
     }
 
     /**
@@ -820,9 +835,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param nLogs Number of logs to show
      */
     private void showLastLog(int nLogs) {
-        Platform.runLater(() -> {
+        //Platform.runLater(() -> {
             for(int i=nLogs-1 ; i>=0 ; i--)
                 logArea.appendText(log.getLogMessages().get(i) + "\n");
-        });
+        //});
     }
 }
