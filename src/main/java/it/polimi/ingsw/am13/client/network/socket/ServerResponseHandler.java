@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
+import it.polimi.ingsw.am13.client.chat.Chat;
+import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
@@ -19,11 +21,13 @@ public class ServerResponseHandler extends Thread{
     private PingThread pingThread;
     private final NetworkHandlerSocket networkHandlerSocket;
     private final View view;
+    private Chat chat;
     public ServerResponseHandler(Socket socket, NetworkHandlerSocket networkHandlerSocket, View view){
         this.socket=socket;
         gameStateHandler=null;
         this.networkHandlerSocket=networkHandlerSocket;
         this.view = view;
+        chat=null;
     }
 
     public void run(){
@@ -69,10 +73,12 @@ public class ServerResponseHandler extends Thread{
                         }
 
                         case MsgResponseStartGame msgResponseStartGame -> {
-                            if(gameStateHandler == null)
+                            if(gameStateHandler == null) {
                                 gameStateHandler = new GameStateHandler(msgResponseStartGame.getGameState());
+                                chat=new Chat(msgResponseStartGame.getGameState().getPlayers(),networkHandlerSocket.getPlayer());
+                            }
                             pingThread = new PingThread(networkHandlerSocket);
-                            view.showStartGame(gameStateHandler.getState());
+                            view.showStartGame(gameStateHandler.getState(),chat);
                         }
 
                         case MsgResponsePlayedStarter msgResponsePlayedStarter -> {
@@ -145,8 +151,15 @@ public class ServerResponseHandler extends Thread{
 
                         case MsgResponseUpdateGameState msgResponseUpdateGameState -> {
                             gameStateHandler = new GameStateHandler(msgResponseUpdateGameState.getGameState());
+                            chat = new Chat(msgResponseUpdateGameState.getGameState().getPlayers(),networkHandlerSocket.getPlayer());
                             pingThread = new PingThread(networkHandlerSocket);
-                            view.showStartGameReconnected(msgResponseUpdateGameState.getGameState(), msgResponseUpdateGameState.getPlayer());
+                            view.showStartGameReconnected(msgResponseUpdateGameState.getGameState(), msgResponseUpdateGameState.getPlayer(),chat);
+                        }
+
+                        case MsgResponseChat msgResponseChat -> {
+
+                            chat.addMessage(msgResponseChat.getReceivers(),new ChatMessage(msgResponseChat.getSender(), msgResponseChat.getText()));
+                            view.showChatMessage(msgResponseChat.getSender(),msgResponseChat.getReceivers());
                         }
 
                         case MsgResponseError msgResponseError ->

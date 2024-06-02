@@ -143,6 +143,18 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     /**
+     * Updates the client with a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    @Override
+    public void updateChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text) {
+        sendMessage(new MsgResponseChat(sender,receivers,text));
+    }
+
+    /**
      * Sends an error message to the client
      * @param exception The exception that caused the error
      */

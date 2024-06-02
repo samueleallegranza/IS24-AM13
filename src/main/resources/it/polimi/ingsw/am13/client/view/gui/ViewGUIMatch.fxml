@@ -141,6 +141,14 @@
                     </HBox>
                 </VBox>
             </HBox>
+            <VBox prefHeight="350" prefWidth="300">
+                <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="300"/>
+                <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="300.0" />
+                <HBox prefHeight="25" prefWidth="300">
+                    <TextField fx:id="chatField"  prefWidth="250" promptText="chat message"/>
+                    <Button onMouseClicked="#onClickSendMessage" prefWidth="50" text="send"/>
+                </HBox>
+            </VBox>
             <TextArea fx:id="logArea" editable="false" prefHeight="295.0" prefWidth="398.0" />
         </HBox>
       <padding>

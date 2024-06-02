@@ -174,4 +174,19 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Send a chat message to the receivers (either a single player, or all the players)
+     *
+     * @param receivers of the chat message
+     * @param text      of the chat message
+     */
+    @Override
+    public void sendChatMessage(List<PlayerLobby> receivers, String text) {
+        try {
+            controller.transmitChatMessage(receivers,text);
+        } catch (RemoteException e) {
+            view.showException(e);
+        }
+    }
+
 }

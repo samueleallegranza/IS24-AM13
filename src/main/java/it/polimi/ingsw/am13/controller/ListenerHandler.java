@@ -189,4 +189,17 @@ public class ListenerHandler implements Serializable {
         }
     }
 
+    /**
+     * Notifies the view that a chat message was sent.
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    public void transmitChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text){
+        for(GameListener listener : listeners){
+            if(receivers.contains(listener.getPlayer()) || sender.equals(listener.getPlayer()))
+                listener.updateChatMessage(sender,receivers,text);
+        }
+    }
 }

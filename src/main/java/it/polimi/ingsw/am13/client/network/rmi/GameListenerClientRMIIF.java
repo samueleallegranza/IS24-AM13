@@ -138,4 +138,13 @@ public interface GameListenerClientRMIIF extends Remote {
      */
     void updatePlayerReconnected(PlayerLobby player) throws RemoteException;
 
+    /**
+     * Updates the client with a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+     void updateChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text) throws RemoteException;
+
 }

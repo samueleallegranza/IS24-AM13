@@ -127,6 +127,7 @@ public class ClientRequestsHandler extends Thread {
                 case MsgCommandPlayCard command ->                  handlePlayCard(command);
                 case MsgCommandPickCard command ->                  handlePickCard(command);
                 case MsgCommandReconnectGame command ->             handleReconnectGame(command);
+                case MsgCommandChat command ->                      handleChatMessage(command);
 
                 default -> System.out.printf("[Socket][Client:%d] Unexpected message received (Command type not found)\n", clientSocket.getPort());
             }
@@ -464,6 +465,20 @@ public class ClientRequestsHandler extends Thread {
             ) {
                 gameListener.sendError(exc);
             }
+        }
+    }
+
+    private void handleChatMessage(MsgCommandChat command){
+        logCommand("chatMessage");
+        if(assertGameController()){
+            if(!gameController.getPlayers().containsAll(command.getReceivers()))
+                gameListener.sendError(new InvalidReceiversException("One or more of the receivers are not in the match"));
+            else if (command.getReceivers().size()!=1 && command.getReceivers().size()!=gameController.getPlayers().size()-1) {
+                gameListener.sendError(new InvalidReceiversException("The receivers are more than one and less than all the others"));
+            } else if (command.getReceivers().contains(player)) {
+              gameListener.sendError(new InvalidReceiversException("The sender is one of the receivers"));
+            } else
+            gameController.transmitChatMessage(this.player,command.getReceivers(),command.getText());
         }
     }
 }

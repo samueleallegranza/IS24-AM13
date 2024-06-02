@@ -11,7 +11,7 @@ import java.util.*;
  * Model of the entire game.
  * It can be used as an interface to handle the entire game, starting from its creation with a full room, till the
  * natural end of the game.
- * It handles also disconnections and reconnections, and is responsible of triggering all the notifies about game
+ * It handles also disconnections and reconnections, and is responsible for triggering all the notifies about game
  * actions to the listeners
  */
 public class GameModel implements GameModelIF {
@@ -418,6 +418,19 @@ public class GameModel implements GameModelIF {
         PlayerLobby winner = match.calcWinner();
         listenerHandler.notifyWinner(winner);
         return winner;
+    }
+
+    // CHAT METHOD
+    /**
+     * Transmits a chat message (while this message will not cause any change in the model, nor will it be stored,
+     * it follows the same path as all the other messages)
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    public void transmitChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text){
+        listenerHandler.transmitChatMessage(sender,receivers,text);
     }
 
 }

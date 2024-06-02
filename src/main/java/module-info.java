@@ -24,6 +24,7 @@ module it.polimi.ingsw.am13 {
     exports it.polimi.ingsw.am13.model;
     exports it.polimi.ingsw.am13.client.view;
     exports it.polimi.ingsw.am13.client.gamestate;
+    exports it.polimi.ingsw.am13.client.chat;
     exports it.polimi.ingsw.am13.client.network;
     exports it.polimi.ingsw.am13.client.view.tui.menu;
 

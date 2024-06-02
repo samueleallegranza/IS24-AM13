@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view;
 
+import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.controller.RoomIF;
@@ -61,14 +62,14 @@ public interface View {
      * Shows the game starting. It gives the view the reference for the {@link GameState} which is kept up to date
      * @param state Reference to the game's state which is kept up to date
      */
-    void showStartGame(GameState state);
+    void showStartGame(GameState state, Chat chat);
 
     /**
      * Shows the already started game to the player who has reconnected mid-game
      * @param state GameState of the started match
      * @param thisPlayer Player linked to this client which is reconnecting to the match
      */
-   void showStartGameReconnected(GameState state, PlayerLobby thisPlayer);
+   void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat);
 
 
     /**
@@ -137,5 +138,12 @@ public interface View {
      * @param player Player who reconnected
      */
     void showPlayerReconnected(PlayerLobby player);
+
+    /**
+     * Shows a chat message
+     * @param sender of the message
+     * @param receivers of the message
+     */
+    void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers);
 
 }

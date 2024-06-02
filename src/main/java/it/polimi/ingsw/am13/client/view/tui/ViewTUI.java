@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
@@ -23,6 +24,8 @@ public class ViewTUI implements View {
 
     // TODO non mi faceva giocare una carta con requisiti, anche se i requisiti erano soddisfatti.
     //  Indaga meglio...
+
+    //TODO implementa showChatMessage
 
     /**
      * Current menu, which defines the possible actions to perform
@@ -216,7 +219,7 @@ public class ViewTUI implements View {
      * @param gameState Reference to the game's state which is kept up to date
      */
     @Override
-    public synchronized void showStartGame(GameState gameState) {
+    public synchronized void showStartGame(GameState gameState, Chat chat) {
         // TODO cosa fare se gameState è già impostato? (sarebbe stato già chiamato startgame...)
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
@@ -235,7 +238,7 @@ public class ViewTUI implements View {
     }
 
     @Override
-    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
+    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat) {
         this.thisPlayer = thisPlayer;
         this.gameState = state;
 
@@ -385,6 +388,17 @@ public class ViewTUI implements View {
         else
             System.out.println("player " + player.getNickname() + " has reconnected");
             //TODO sistema con i log
+    }
+
+    /**
+     * Shows a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     */
+    @Override
+    public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
+
     }
 
     public synchronized MenuTUI getCurrentMenu() {

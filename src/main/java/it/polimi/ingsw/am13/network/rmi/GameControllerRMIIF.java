@@ -78,4 +78,12 @@ public interface GameControllerRMIIF extends Remote {
      * @return the players of the match
      */
     List<PlayerLobby> getPlayers() throws RemoteException;
+    /**
+     * Transmits a chat message (while this message will not cause any change in the model, nor will it be stored,
+     * it follows the same path as all the other messages)
+     *
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    public void transmitChatMessage(List<PlayerLobby> receivers, String text) throws RemoteException;
 }

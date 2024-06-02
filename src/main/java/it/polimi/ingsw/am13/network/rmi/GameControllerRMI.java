@@ -145,4 +145,19 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
     public List<PlayerLobby> getPlayers() throws RemoteException {
         return gameController.getPlayers();
     }
+
+    /**
+     * Transmits a chat message (while this message will not cause any change in the model, nor will it be stored,
+     * it follows the same path as all the other messages)
+     *
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    @Override
+    public void transmitChatMessage(List<PlayerLobby> receivers, String text) throws RemoteException{
+        if((receivers.size()!=1 && receivers.size()!=gameController.getPlayers().size()-1)
+        || (!gameController.getPlayers().containsAll(receivers)) || receivers.contains(player))
+            throw new RuntimeException();
+        gameController.transmitChatMessage(player,receivers,text);
+    }
 }

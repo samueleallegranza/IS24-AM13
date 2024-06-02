@@ -7,6 +7,8 @@ import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 
+import java.util.List;
+
 /**
  * This is the interface used by the client to send messages to the server
  */
@@ -28,4 +30,10 @@ public interface NetworkHandler {
     void pickCard(CardPlayableIF card);
     void ping();
 
+    /**
+     * Send a chat message to the receivers (either a single player, or all the other players)
+     * @param receivers of the chat message
+     * @param text of the chat message
+     */
+    void sendChatMessage(List<PlayerLobby> receivers, String text);
 }

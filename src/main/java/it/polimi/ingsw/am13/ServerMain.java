@@ -54,7 +54,7 @@ public class ServerMain {
         }
 
         // ### 3. Binding of RMI registry
-        try {
+       try {
             System.setProperty("java.rmi.server.hostname", server_ip);
             Registry registry = LocateRegistry.createRegistry(RMI_DEFAULT_PORT);
             registry.bind(LOBBY_RMI_NAME, new LobbyRMI());

@@ -148,4 +148,12 @@ public interface GameListener extends Serializable {
      * Updates last ping received, and sends the update to the client
      */
     void updatePing();
+
+    /**
+     * Updates the client with a chat message
+     * @param sender of the message
+     * @param receivers of the message
+     * @param text content of the message
+     */
+    void updateChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text);
 }

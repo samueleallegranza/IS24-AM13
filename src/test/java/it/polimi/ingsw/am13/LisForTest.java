@@ -168,4 +168,17 @@ public class LisForTest implements GameListener {
         actions.add(ControlAction.UPDATE_PING);
         updates.add(new MsgResponsePing());
     }
+
+    /**
+     * Updates the client with a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    @Override
+    public void updateChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text) {
+        actions.add(ControlAction.CHAT_MESSAGE);
+        updates.add(new MsgResponseChat(sender,receivers,text));
+    }
 }

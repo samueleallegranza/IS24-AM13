@@ -13,6 +13,7 @@ import it.polimi.ingsw.am13.network.socket.message.command.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * This is the socket implementation of {@link NetworkHandler}.
@@ -115,5 +116,16 @@ public class NetworkHandlerSocket implements NetworkHandler {
     @Override
     public synchronized void ping() {
         sendMessage(new MsgCommandPing());
+    }
+
+    /**
+     * Send a chat message to the receivers (either a single player, or all the players)
+     *
+     * @param receivers of the chat message
+     * @param text      of the chat message
+     */
+    @Override
+    public void sendChatMessage(List<PlayerLobby> receivers, String text) {
+        sendMessage(new MsgCommandChat(receivers,text));
     }
 }

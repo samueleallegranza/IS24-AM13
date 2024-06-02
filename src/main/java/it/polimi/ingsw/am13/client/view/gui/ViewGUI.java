@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.client.ClientMain;
+import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
@@ -27,6 +28,7 @@ import java.util.List;
  * necessary, and it calls the corresponding method on the controller.
  */
 public class ViewGUI extends Application implements View {
+    //TODO implementa showChatMessage
 
     /**
      * If true, execute in debug mode
@@ -35,7 +37,7 @@ public class ViewGUI extends Application implements View {
     /**
      * Number of players for the debug mode
      */
-    public static final int DEBUG_NPLAYERS = 2;
+    public static final int DEBUG_NPLAYERS = 3;
     private final static boolean FULLSCREEN_MODE = false;
     private final static int sceneWidth = 1820;
     private final static int sceneHeight = 980;
@@ -69,6 +71,8 @@ public class ViewGUI extends Application implements View {
 
     private Stage stage;
     private NetworkHandler networkHandler;
+
+
     private GameState state;
     /**
      * The player corresponding to a specific instance of {@link ViewGUI}.
@@ -81,6 +85,8 @@ public class ViewGUI extends Application implements View {
     private boolean isSocket;
     private String ip;
     private int port;
+
+    private Chat chat;
 
     /**
      * This method is executed when this application is launched by {@link ClientMain}.
@@ -263,9 +269,10 @@ public class ViewGUI extends Application implements View {
      * @param state Reference to the game's state which is kept up to date
      */
     @Override
-    public synchronized void showStartGame(GameState state) {
+    public synchronized void showStartGame(GameState state, Chat chat) {
         Platform.runLater(() -> {
             this.state = state;
+            this.chat=chat;
             switchToScene(initController);
             initController.showStartGame(state);
         });
@@ -279,14 +286,14 @@ public class ViewGUI extends Application implements View {
      */
     //todo pensare meglio a come gestire le eccezioni per reconnect, al momento se clicco reconnect e il player non era in una room prima dà eccezione il server, il server si blocca e il client non vede nulla
     @Override
-    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer) {
+    public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat) {
         // set ViewGUI base attributes
         this.state = state;
         this.thisPlayer = thisPlayer;
 
         switch (state.getGameStatus()) {
             case GameStatus.INIT -> {
-                showStartGame(state); // sets the init visualization screen
+                showStartGame(state,chat); // sets the init visualization screen
                 showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
             }
             case GameStatus.IN_GAME -> showInGame();
@@ -322,6 +329,7 @@ public class ViewGUI extends Application implements View {
     public synchronized void showInGame() {
         Platform.runLater(() -> {
             switchToScene(matchController);
+            matchController.setChat(chat);
             matchController.showInGame();
         });
     }
@@ -412,6 +420,18 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showPlayerReconnected(PlayerLobby player) {
         currentController.showPlayerReconnected(player);
+    }
+
+    /**
+     * Shows a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     */
+    //todo remove the text parameter (it's useless)
+    @Override
+    public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
+        matchController.showChatMessage(sender,receivers);
     }
 
 

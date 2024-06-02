@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.client.chat.Chat;
+import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -17,6 +19,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+import javafx.util.StringConverter;
 
 import java.util.*;
 
@@ -96,6 +99,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private ImageView commonObj2;
 
+
+    //CHAT
+
+    public ChoiceBox<List<PlayerLobby>> chatChoice;
+    public TextArea chatArea;
+    public TextField chatField;
+
     /**
      * Area of non-editable text for showing logs
      */
@@ -106,6 +116,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // PRIVATE STATE VARIABLE FOR CONTROLLER'S LOGIC USE
     // ----------------------------------------------------------------
 
+
+    //Chat (all the chat messages)
+    private Chat chat;
     /**
      * Game's state. Information about state of game are uniquely taken from here
      */
@@ -787,4 +800,75 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 logArea.appendText(log.popNextLog() + "\n");
         });
     }
+
+    //CHAT METHODS
+
+    public void setChat(Chat chat){
+
+        List<PlayerLobby> otherPlayers=new ArrayList<>();
+        for(PlayerLobby player : state.getPlayers())
+            if(!player.equals(thisPlayer)) {
+                List<PlayerLobby> onePlayerList=new ArrayList<>(List.of(player));
+                chatChoice.getItems().add(onePlayerList);
+                otherPlayers.add(player);
+            }
+        if(otherPlayers.size()>1)
+            chatChoice.getItems().add(otherPlayers);
+        chatChoice.setOnAction(actionEvent -> showChatWith(chatChoice.getValue()));
+        //this does not work, I don't know why...
+//        chatChoice.setConverter(new StringConverter<List<PlayerLobby>>() {
+//            //I assume that this is called on a valid choice (either 1 or all the others)
+//            @Override
+//            public String toString(List<PlayerLobby> playerLobbies) {
+//                if(playerLobbies.size()==1)
+//                    return playerLobbies.get(0).getNickname();
+//                return "all";
+//            }
+//
+//            @Override
+//            public List<PlayerLobby> fromString(String s) {
+//                if(s.equals("all")){
+//                    return otherPlayers;
+//                }
+//                else{
+//                    for(PlayerLobby player : state.getPlayers())
+//                        if(player.getNickname().equals(s))
+//                            return new ArrayList<>(List.of(player));
+//                }
+//                return null;
+//            }
+//        });
+        this.chat=chat;
+    }
+
+    @FXML
+    public void onClickSendMessage(){
+        if(!chatField.getText().isEmpty() && chatChoice.getValue()!=null) {
+            networkHandler.sendChatMessage(chatChoice.getValue(), chatField.getText());
+        }
+    }
+
+    public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
+        if(chatChoice.getValue()!=null) {
+            if (sender.equals(thisPlayer)) {
+                chatField.clear();
+                if (receivers.equals(chatChoice.getValue()))
+                    showChatWith(chatChoice.getValue());
+            } else if (receivers.contains(thisPlayer)) {
+                if (receivers.size() == 1 && chatChoice.getValue().size() == 1 && chatChoice.getValue().get(0).equals(sender))
+                    showChatWith(chatChoice.getValue());
+                else if (receivers.size() > 1 && chatChoice.getValue().size() > 1) {
+                    showChatWith(chatChoice.getValue());
+                }
+            }
+        }
+
+    }
+
+    private void showChatWith(List<PlayerLobby> receivers){
+        chatArea.clear();
+        for(ChatMessage chatMessage : chat.getChatWith(receivers))
+            chatArea.appendText(chatMessage.getSender().getNickname()+": "+chatMessage.getText()+"\n");
+    }
+
 }

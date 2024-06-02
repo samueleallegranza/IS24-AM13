@@ -18,7 +18,8 @@ public enum ControlAction {
     DISCONNECTED,
     RECONNECTED,
     UPDATE_GAMEMODEL,
-    UPDATE_PING
+    UPDATE_PING,
+    CHAT_MESSAGE
 
 
 }

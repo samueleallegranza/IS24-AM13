@@ -330,4 +330,17 @@ public class GameController implements Runnable {
     public List<PlayerLobby> getPlayers(){
         return gameModel.fetchPlayersLobby();
     }
+
+    /**
+     * Transmits a chat message (while this message will not cause any change in the model, nor will it be stored,
+     * it follows the same path as all the other messages)
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    public void transmitChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text){
+        gameModel.transmitChatMessage(sender,receivers,text);
+    }
+
 }

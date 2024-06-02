@@ -1,10 +1,13 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
+import it.polimi.ingsw.am13.client.chat.Chat;
+import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
@@ -46,6 +49,8 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      */
     private PingThread ping;
 
+    private Chat chat;
+
     /**
      * Creates a new client-side listener, setting the player it represents and the network's handler which created it
      * @param player Player associated to the listener
@@ -57,6 +62,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         this.networkHandler = networkHandler;
         this.view = networkHandler.getView();
         stateHandler = null;
+        chat=null;
     }
 
     /**
@@ -95,12 +101,13 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
             throws RemoteException {
         networkHandler.setController(controller);
         stateHandler = new GameStateHandler(state);
-        view.showStartGame(stateHandler.getState());
+        chat=new Chat(state.getPlayers(),player);
+        view.showStartGame(stateHandler.getState(),chat);
         ping = new PingThread(networkHandler);      // It starts automatically
     }
 
     /**
-     * This method should be called once the player has reconnected an already started game.
+     * This method should be called once the player has reconnected to an already started game.
      * It updates the entire game's state, i.e. it creates a new game's state starting from the specified model
      * (reconstructing the current situation in game).
      * @param state The current game state when the method is called
@@ -108,9 +115,10 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      */
     public void updateGameModel(GameState state, GameControllerRMIIF controller, PlayerLobby player) throws RemoteException {
         stateHandler = new GameStateHandler(state);
+        chat = new Chat(state.getPlayers(),player);
         networkHandler.setController(controller);
         ping = new PingThread(networkHandler);
-        view.showStartGameReconnected(stateHandler.getState(), player);
+        view.showStartGameReconnected(stateHandler.getState(), player,chat);
     }
 
     /**
@@ -232,4 +240,16 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         view.showPlayerReconnected(player);
     }
 
+    /**
+     * Updates the client with a chat message
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     * @param text      content of the message
+     */
+    @Override
+    public void updateChatMessage(PlayerLobby sender, List<PlayerLobby> receivers, String text) throws RemoteException{
+        chat.addMessage(receivers,new ChatMessage(sender,text));
+        view.showChatMessage(sender,receivers);
+    }
 }
