@@ -45,6 +45,10 @@ public class MenuInputReader extends Thread {
         this.scanner = new Scanner(System.in);
     }
 
+    public NetworkHandler getNetworkHandler() {
+        return networkHandler;
+    }
+
     @Override
     public void run() {
         while (!Thread.interrupted()) {

@@ -1,15 +1,21 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
 import it.polimi.ingsw.am13.client.chat.Chat;
+import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
+import it.polimi.ingsw.am13.client.view.gui.ViewGUI;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import it.polimi.ingsw.am13.model.player.Token;
 
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,12 +24,7 @@ import java.util.List;
  */
 public class ViewTUI implements View {
 
-    //TODO finisci di implementare (da showPlayedCard in giù)
-
     //TODO finisci di documentare
-
-    // TODO non mi faceva giocare una carta con requisiti, anche se i requisiti erano soddisfatti.
-    //  Indaga meglio...
 
     //TODO implementa showChatMessage
 
@@ -58,6 +59,16 @@ public class ViewTUI implements View {
     private MenuInputReader inputReader;
 
     /**
+     * Chat. As gameState, it is handled outside of this class, and shouldn't be updated here
+     */
+    private Chat chat;
+
+    /**
+     * List of receivers defining the current shown chat room. Null is no chat room is currently shown
+     */
+    private List<PlayerLobby> currentChatRoom;
+
+    /**
      * Builds a new TUI view, setting an empty menu and all state attributes to null (not yet set)
      */
     public ViewTUI() {
@@ -67,6 +78,7 @@ public class ViewTUI implements View {
         this.viewTUIMatch = null;
         this.logs = null;
         this.inputReader = null;
+        this.currentChatRoom = null;
     }
 
     /**
@@ -167,6 +179,21 @@ public class ViewTUI implements View {
                 new MenuItemJoinRoom(),
                 new MenuItemReconnect()
         );
+
+        if(ViewGUI.DEBUG_MODE) {
+            NetworkHandler networkHandler = inputReader.getNetworkHandler();
+            if(rooms.isEmpty())
+                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
+            else {
+                RoomIF room = rooms.getFirst();
+                switch (room.getPlayers().size()) {
+                    case 1 -> networkHandler.joinRoom("Hermione", new Token(ColorToken.BLUE), room.getGameId());
+                    case 2 -> networkHandler.joinRoom("Ron", new Token(ColorToken.GREEN), room.getGameId());
+                    case 3 -> networkHandler.joinRoom("Voldemort", new Token(ColorToken.YELLOW), room.getGameId());
+                    default -> throw new RuntimeException();
+                }
+            }
+        }
     }
 
     /**
@@ -223,6 +250,7 @@ public class ViewTUI implements View {
         // TODO cosa fare se gameState è già impostato? (sarebbe stato già chiamato startgame...)
         //  E' una situazione da gestire (tipo player left room)?
         this.gameState = gameState;
+        this.chat = chat;
 
         // initialize log
         this.logs = new LogTUI(gameState);
@@ -235,12 +263,17 @@ public class ViewTUI implements View {
                 "\nPlease choose the side of your starter card:",
                 new MenuItemPlayStarter()
         );
+
+        if(ViewGUI.DEBUG_MODE){
+            inputReader.getNetworkHandler().playStarter(Side.SIDEBACK);
+        }
     }
 
     @Override
     public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat) {
         this.thisPlayer = thisPlayer;
         this.gameState = state;
+        this.chat = chat;
 
         // re-initialize log
         this.logs = new LogTUI(gameState);
@@ -282,6 +315,11 @@ public class ViewTUI implements View {
         ViewTUIConstants.clearScreen();
         for(String log: this.logs.getLogMessages()) System.out.println(log);
         currentMenu.printMenu();
+
+        if(ViewGUI.DEBUG_MODE && thisPlayer.equals(player)){
+            inputReader.getNetworkHandler().choosePersonalObjective(
+                    gameState.getPlayerState(thisPlayer).getPossibleHandObjectives().getFirst());
+        }
     }
 
     /**
@@ -320,28 +358,36 @@ public class ViewTUI implements View {
     public synchronized void showPlayedCard(PlayerLobby player, Coordinates coord) {
         this.logs.logPlayedCard(player, coord);
         viewTUIMatch.setFlowCardPlaced(true);
-        viewTUIMatch.printMatch();
+        if(currentChatRoom == null)
+            viewTUIMatch.printMatch();
     }
 
     @Override
     public synchronized void showPickedCard(PlayerLobby player) {
         this.logs.logPickedCard(player);
         viewTUIMatch.setFlowCardPlaced(false);
-        viewTUIMatch.printMatch();
+        if(currentChatRoom == null)
+            viewTUIMatch.printMatch();
     }
 
     @Override
     public synchronized void showNextTurn() {
-        System.out.println("Now it the turn of " + gameState.getCurrentPlayer());
+        logs.logNextTurn();
         if(thisPlayer.equals(gameState.getCurrentPlayer()))
             viewTUIMatch.setDisplayPlayer(thisPlayer);
-        viewTUIMatch.printMatch();
+        if(currentChatRoom == null)     //TODO: magari si può forzare la comparsa del field in questo caso...
+            viewTUIMatch.printMatch();
+        else if(thisPlayer.equals(gameState.getCurrentPlayer()))
+            printCurrentChat("Now it's your turn");
     }
 
     @Override
     public synchronized void showFinalPhase() {
-        this.logs.logFinalPhase();
-        viewTUIMatch.printMatch();
+        logs.logFinalPhase();
+        if(currentChatRoom == null)
+            viewTUIMatch.printMatch();
+        else
+            printCurrentChat("The final phase has arrived, hurry up!");
     }
 
     @Override
@@ -392,13 +438,73 @@ public class ViewTUI implements View {
 
     /**
      * Shows a chat message
-     *
      * @param sender    of the message
      * @param receivers of the message
      */
     @Override
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
+        // TODO: questa condizione potrebbe essere ricontrollata, se sono su all e un giocatore mi manda un messaggio
+        //  privato, ci entro comunque anche se non dovrei entrarci...
+        if((currentChatRoom!=null && currentChatRoom.contains(sender)) || receivers.equals(currentChatRoom)) {
+            printCurrentChat("");
+        }
+    }
 
+    /**
+     * Prints all the messages for the currently active chat room (assuming a chatroom is active)
+     * It can print a message before the chat room.
+     * It prints always the menu, too
+     * @param messageUp Message to show before the chat room (it appears at the top of the screen).
+     *                  Use "" or null string to show nothing
+     */
+    private void printCurrentChat(String messageUp) {
+        ViewTUIConstants.clearScreen();
+        if(messageUp!=null && !messageUp.isEmpty())
+            System.out.println(messageUp + "\n");
+        System.out.printf("Chat room with %s:\n", currentChatRoom.size()>1 ? "all" : currentChatRoom.getFirst());
+        for(ChatMessage msg : chat.getChatWith(currentChatRoom)) {
+            System.out.println("\t" + msg.getSender() + " " + msg.getText());
+        }
+        currentMenu.printMenu();
+    }
+
+    /**
+     * Enters the chatroom associated to the specified receivers' nicknames
+     * @param receiverNicks Receivers' nickname of the players associated to the chatroom to enter
+     * @throws InvalidParameterException If the nicknames don't correspond to any player, or are invalid for the chatroom
+     */
+    public void enterChatRoom(List<String> receiverNicks) throws InvalidParameterException {
+        List<PlayerLobby> receivers = new ArrayList<>();
+        for(String nick : receiverNicks) {
+            PlayerLobby player = gameState.getPlayers().stream().filter(p -> p.getNickname().equals(nick))
+                    .findFirst().orElseThrow(InvalidParameterException::new);
+            receivers.add(player);
+        }
+        if(chat.getChatWith(receivers) == null)
+            throw new InvalidParameterException();
+        currentChatRoom = receivers;
+
+        currentMenu = new MenuTUI("",
+                new MenuItemLeaveChat(this),
+                new MenuItemSendChatMessage(currentChatRoom)
+        );
+        showChatMessage(thisPlayer, currentChatRoom);       // I force the chatroom to appear immediately
+    }
+
+    /**
+     * Leaves the chatroom currently active, and reprints the match
+     */
+    public void leaveChatRoom() {
+        currentChatRoom = null;
+        viewTUIMatch.printMatch();
+    }
+
+    public PlayerLobby getThisPlayer() {
+        return thisPlayer;
+    }
+
+    public GameState getGameState() {
+        return gameState;
     }
 
     public synchronized MenuTUI getCurrentMenu() {

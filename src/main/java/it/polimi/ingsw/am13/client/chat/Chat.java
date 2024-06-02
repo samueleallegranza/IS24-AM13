@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.client.chat;
 
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
-import java.io.Serializable;
 import java.util.*;
 
 public class Chat  {
@@ -32,6 +31,10 @@ public class Chat  {
         }
     }
 
+    /**
+     * @param receivers Receivers indicating the specific chatroom whose messages are to be retrieved
+     * @return The list of messages of the chatroom with the specified receivers, or null if no chat with those receivers is present
+     */
     public List<ChatMessage> getChatWith(List<PlayerLobby> receivers){
         return chat.get(receivers);
     }

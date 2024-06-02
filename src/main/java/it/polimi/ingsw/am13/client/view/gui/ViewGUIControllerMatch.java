@@ -249,10 +249,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
 
-    public void showInGame() {
+    public void showInGame(Chat chat) {
         // Init of lists of graphical elements
         flipButtons = List.of(flipButton0, flipButton1, flipButton2);
         handCards = List.of(handCard0, handCard1, handCard2);
+        setChat(chat);
 
         // Displaying the pickable cards and the common objectives
         // At the beginning of the game, the pickable cards shouldn't be clickable
@@ -801,50 +802,56 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
 
+    // ----------------------------------------------------------------
     //CHAT METHODS
+    // ----------------------------------------------------------------
 
-    public void setChat(Chat chat){
-
-        List<PlayerLobby> otherPlayers=new ArrayList<>();
+    public void setChat(Chat chat) {
+        List<PlayerLobby> otherPlayers = new ArrayList<>();
         for(PlayerLobby player : state.getPlayers())
             if(!player.equals(thisPlayer)) {
-                List<PlayerLobby> onePlayerList=new ArrayList<>(List.of(player));
+                List<PlayerLobby> onePlayerList = new ArrayList<>(List.of(player));
                 chatChoice.getItems().add(onePlayerList);
                 otherPlayers.add(player);
             }
         if(otherPlayers.size()>1)
             chatChoice.getItems().add(otherPlayers);
         chatChoice.setOnAction(actionEvent -> showChatWith(chatChoice.getValue()));
-        //this does not work, I don't know why...
-//        chatChoice.setConverter(new StringConverter<List<PlayerLobby>>() {
-//            //I assume that this is called on a valid choice (either 1 or all the others)
-//            @Override
-//            public String toString(List<PlayerLobby> playerLobbies) {
-//                if(playerLobbies.size()==1)
-//                    return playerLobbies.get(0).getNickname();
-//                return "all";
-//            }
-//
-//            @Override
-//            public List<PlayerLobby> fromString(String s) {
-//                if(s.equals("all")){
-//                    return otherPlayers;
-//                }
-//                else{
-//                    for(PlayerLobby player : state.getPlayers())
-//                        if(player.getNickname().equals(s))
-//                            return new ArrayList<>(List.of(player));
-//                }
-//                return null;
-//            }
-//        });
-        this.chat=chat;
+        chatChoice.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(List<PlayerLobby> playerLobbies) {
+                if (playerLobbies == null)
+                    return "";
+                if (playerLobbies.size() == 1)
+                    return playerLobbies.getFirst().getNickname();
+                return "All";
+            }
+
+            @Override
+            public List<PlayerLobby> fromString(String s) {
+                if (s.equals("All"))
+                    return otherPlayers;
+                else
+                    for (PlayerLobby player : state.getPlayers())
+                        if (player.getNickname().equals(s))
+                            return new ArrayList<>(List.of(player));
+                return null;
+            }
+        });
+        this.chat = chat;
     }
 
     @FXML
     public void onClickSendMessage(){
         if(!chatField.getText().isEmpty() && chatChoice.getValue()!=null) {
             networkHandler.sendChatMessage(chatChoice.getValue(), chatField.getText());
+        }
+    }
+
+    @FXML
+    public void onChatTextFieldKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            onClickSendMessage();
         }
     }
 
@@ -855,20 +862,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if (receivers.equals(chatChoice.getValue()))
                     showChatWith(chatChoice.getValue());
             } else if (receivers.contains(thisPlayer)) {
-                if (receivers.size() == 1 && chatChoice.getValue().size() == 1 && chatChoice.getValue().get(0).equals(sender))
+                if (receivers.size() == 1 && chatChoice.getValue().size() == 1 && chatChoice.getValue().getFirst().equals(sender))
                     showChatWith(chatChoice.getValue());
-                else if (receivers.size() > 1 && chatChoice.getValue().size() > 1) {
+                else if (receivers.size() > 1 && chatChoice.getValue().size() > 1)
                     showChatWith(chatChoice.getValue());
-                }
             }
         }
 
     }
 
-    private void showChatWith(List<PlayerLobby> receivers){
+    private void showChatWith(List<PlayerLobby> receivers) {
         chatArea.clear();
         for(ChatMessage chatMessage : chat.getChatWith(receivers))
-            chatArea.appendText(chatMessage.getSender().getNickname()+": "+chatMessage.getText()+"\n");
+            chatArea.appendText(chatMessage.getSender().getNickname() + ": " + chatMessage.getText() + "\n");
     }
 
 }

@@ -72,20 +72,23 @@ public class ViewTUIMatch {
             // it's this player's turn. Force game flow: (1) place, (2) pick
             if (!flowCardPlaced) {
                 // player has to place a card first
-                view.setCurrentMenu(new MenuTUI( "",
-                        new MenuItemPlayCard(this.gameState)
+                view.setCurrentMenu(new MenuTUI( "Play a card on the field",
+                        new MenuItemPlayCard(this.gameState),
+                        new MenuItemEnterChat(view)
                 ));
             } else {
                 // player has to pick a new card from drawable ones
-                view.setCurrentMenu(new MenuTUI( "",
-                        new MenuItemPickCard(this.gameState)
+                view.setCurrentMenu(new MenuTUI( "Pick a card from the common field",
+                        new MenuItemPickCard(this.gameState),
+                        new MenuItemEnterChat(view)
                 ));
             }
         } else {
             // not this player's turn, can move around until its turn.
-            view.setCurrentMenu(new MenuTUI( "",
-                    new MenuItemChangeField(this)
-            ));    // FIXME: sistema visualizzazione di hidden / non hidden
+            view.setCurrentMenu(new MenuTUI( "Wait for your turn",
+                    new MenuItemChangeField(this),
+                    new MenuItemEnterChat(view)
+            ));
         }
 
         view.getCurrentMenu().printMenu();

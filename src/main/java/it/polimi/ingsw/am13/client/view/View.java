@@ -17,6 +17,15 @@ import java.util.List;
 public interface View {
 
     /**
+     * If true, execute in debug mode
+     */
+    boolean DEBUG_MODE = true;
+    /**
+     * Number of players for the debug mode
+     */
+    int DEBUG_NPLAYERS = 3;
+
+    /**
      * Sets the handler of the network, which the view can use to send its command actions to the server
      * @param networkHandler Handler of the network
      */

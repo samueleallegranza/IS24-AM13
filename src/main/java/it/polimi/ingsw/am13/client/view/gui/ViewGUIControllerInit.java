@@ -117,7 +117,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logPlayedStarter(player);
         showLastLogs();
 
-        if(ViewGUI.DEBUG_MODE && this.thisPlayer.equals(player)){
+        if(ViewGUI.DEBUG_MODE && thisPlayer.equals(player)) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,

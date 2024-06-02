@@ -28,16 +28,7 @@ import java.util.List;
  * necessary, and it calls the corresponding method on the controller.
  */
 public class ViewGUI extends Application implements View {
-    //TODO implementa showChatMessage
 
-    /**
-     * If true, execute in debug mode
-     */
-    public static final boolean DEBUG_MODE = true;
-    /**
-     * Number of players for the debug mode
-     */
-    public static final int DEBUG_NPLAYERS = 3;
     private final static boolean FULLSCREEN_MODE = false;
     private final static int sceneWidth = 1820;
     private final static int sceneHeight = 980;
@@ -272,7 +263,7 @@ public class ViewGUI extends Application implements View {
     public synchronized void showStartGame(GameState state, Chat chat) {
         Platform.runLater(() -> {
             this.state = state;
-            this.chat=chat;
+            this.chat = chat;
             switchToScene(initController);
             initController.showStartGame(state);
         });
@@ -329,8 +320,7 @@ public class ViewGUI extends Application implements View {
     public synchronized void showInGame() {
         Platform.runLater(() -> {
             switchToScene(matchController);
-            matchController.setChat(chat);
-            matchController.showInGame();
+            matchController.showInGame(chat);
         });
     }
 
@@ -428,7 +418,6 @@ public class ViewGUI extends Application implements View {
      * @param sender    of the message
      * @param receivers of the message
      */
-    //todo remove the text parameter (it's useless)
     @Override
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
         matchController.showChatMessage(sender,receivers);

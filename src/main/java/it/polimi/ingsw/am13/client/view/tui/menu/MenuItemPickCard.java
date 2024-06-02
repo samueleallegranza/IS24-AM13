@@ -7,12 +7,11 @@ import java.util.List;
 
 /**
  * Menu item for picking a card off the common field during a turn-based game phase.
- * It expects 2 or 3 arguments:
+ * It expects 2:
  * <li>
- *     <ul> Type of card to pick (resource / gold) </ul>
- *     <ul> Type of pick, referred to the chosen type of cards
- *     (draw for drawing from the deck, pick for picking one ot the 2 visible cards) </ul>
- *     <ul> If pick was chosen, which card to pick (1 for the visible card to the left, 2 for the visible card to the right) </ul>
+ *     <ul> Type of card to pick (res / gold) </ul>
+ *     <ul> What card of that type to pick (draw for drawing from the deck, 1 or 2 to pick the first or the
+ *     second visible card starting from left)</ul>
  * </li>
  * And then it sends the command to the server
  */
