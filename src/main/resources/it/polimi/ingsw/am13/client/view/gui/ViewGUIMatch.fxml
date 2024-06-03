@@ -157,13 +157,13 @@
              </Tab>
              <Tab text="Chat">
                <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="500.0">
                         <children>
                               <VBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                  <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="300" />
-                                  <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="300.0" />
-                                  <HBox prefHeight="25" prefWidth="300" spacing="5.0">
-                                      <TextField fx:id="chatField" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="318.0" promptText="chat message" />
+                                  <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="500" />
+                                  <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="500.0" wrapText="true"/>
+                                  <HBox prefHeight="25" prefWidth="500" spacing="5.0">
+                                      <TextField fx:id="chatField" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="451.0" promptText="chat message" />
                                       <Button onMouseClicked="#onClickSendMessage" prefWidth="50" text="send" />
                                   </HBox>
                               </VBox>
@@ -171,7 +171,7 @@
                         <padding>
                            <Insets top="5.0" />
                         </padding>
-                     </AnchorPane>
+                 </AnchorPane>
                </content>
              </Tab>
            </tabs>

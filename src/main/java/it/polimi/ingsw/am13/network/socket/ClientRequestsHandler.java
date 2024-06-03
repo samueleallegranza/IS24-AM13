@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.util.List;
 
 // TODO: Discuss about Exceptions. Should we add a new one for this class?
-
+// TODO: complete missing documentation
 public class ClientRequestsHandler extends Thread {
 
     /**
@@ -308,8 +308,8 @@ public class ClientRequestsHandler extends Thread {
 
     /**
      * Command handler for "createRoom" command. The client sends its chosen nickname and token color. If the given
-     * information are valid for the creation of a new Room, it gets created. Otherwise, an error is sent back to client.
-     * @param command
+     * information is valid for the creation of a new Room, it gets created. Otherwise, an error is sent back to client.
+     * @param command a MsgCommandCreateRoom command
      */
     private void handleCreateRoom(MsgCommandCreateRoom command) {
         logCommand("createRoom");
@@ -468,6 +468,12 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * It handles a chat command. First, if verifies that the command is valid (the receivers are all player of the
+     * match, the size of the receivers is either 1 or number of players-1, and the receivers do not contain this player).
+     * If it is not, it sends an error. Otherwise, it transmits to message to the {@link GameController}
+     * @param command a MsgCommandChat command
+     */
     private void handleChatMessage(MsgCommandChat command){
         logCommand("chatMessage");
         if(assertGameController()){

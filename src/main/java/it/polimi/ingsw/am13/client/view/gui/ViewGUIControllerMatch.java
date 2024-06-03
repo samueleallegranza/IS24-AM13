@@ -806,8 +806,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     //CHAT METHODS
     // ----------------------------------------------------------------
 
-    public void setChat(Chat chat) {
-        List<PlayerLobby> otherPlayers = new ArrayList<>();
+    /**
+     * Sets the chat, and initializes chatChoices with the valid choices.
+     * @param chat of thisPlayer in this match
+     */
+    public void setChat(Chat chat){
+
+        List<PlayerLobby> otherPlayers=new ArrayList<>();
         for(PlayerLobby player : state.getPlayers())
             if(!player.equals(thisPlayer)) {
                 List<PlayerLobby> onePlayerList = new ArrayList<>(List.of(player));
@@ -841,6 +846,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         this.chat = chat;
     }
 
+    /**
+     * When the button is clicked, if there is a message and a receiver has been selected, a chat message is sent.
+     */
     @FXML
     public void onClickSendMessage(){
         if(!chatField.getText().isEmpty() && chatChoice.getValue()!=null) {
@@ -848,6 +856,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * When enter is pressed on the keyboard, the message is sent
+     * @param event a key is pressed on the keyboard
+     */
     @FXML
     public void onChatTextFieldKeyPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
@@ -855,6 +867,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * If the message belongs to the chat that is currently being selected, it shows it.
+     *
+     * @param sender    of the message
+     * @param receivers of the message
+     */
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
         if(chatChoice.getValue()!=null) {
             if (sender.equals(thisPlayer)) {
@@ -871,6 +889,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     }
 
+    /**
+     * Clears the chat area and replaces it with all the messages between thisPlayer and the passed parameter
+     * @param receivers list of players that thisPlayer is chatting with
+     */
     private void showChatWith(List<PlayerLobby> receivers) {
         chatArea.clear();
         for(ChatMessage chatMessage : chat.getChatWith(receivers))
