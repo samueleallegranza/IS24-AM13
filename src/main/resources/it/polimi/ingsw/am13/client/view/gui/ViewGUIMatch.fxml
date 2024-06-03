@@ -83,24 +83,60 @@
                   <Font size="18.0" />
                </font>
                <StackPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="25.0" top="5.0" />
+                  <Insets bottom="10.0" left="10.0" right="30.0" top="5.0" />
                </StackPane.margin>
             </Label>
+                 <GridPane alignment="CENTER" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" vgap="5.0" StackPane.alignment="BOTTOM_RIGHT">
+                     <columnConstraints>
+                         <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" />
+                         <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="20.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <ImageView fx:id="plantCounterImage" fitHeight="41.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
+<!--                         <Image url="@/img/symbols/plant.png" />-->
+                     </ImageView>
+                     <Label fx:id="plantCounterLabel" prefHeight="17.0" text="Plant" GridPane.columnIndex="1" />
+                     <ImageView fx:id="animalCounterImage" fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
+<!--                         <Image url="@/img/symbols/animal.png" />-->
+                     </ImageView>
+                     <Label fx:id="animalCounterLabel" prefHeight="17.0" text="Animal" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     <ImageView fx:id="fungusCounterImage" fitHeight="39.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="2">
+<!--                         <Image url="@/img/symbols/fungus.png" />-->
+                     </ImageView>
+                     <Label fx:id="fungusCounterLabel" prefHeight="17.0" text="Fungus" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     <ImageView fx:id="insectCounterImage" fitHeight="42.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="3">
+<!--                         <Image url="@/img/symbols/insect.png" />-->
+                     </ImageView>
+                     <Label fx:id="insectCounterLabel" prefHeight="17.0" text="Insect" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     <ImageView fx:id="inkwellCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="4">
+<!--                         <Image url="@/img/symbols/inkwell.png" />-->
+                     </ImageView>
+                     <Label fx:id="inkwellCounterLabel" prefHeight="17.0" text="Inkwell" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     <ImageView fx:id="quillCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="5">
+<!--                         <Image url="@/img/symbols/quill.png" />-->
+                     </ImageView>
+                     <Label fx:id="quillCounterLabel" prefHeight="17.0" text="Quill" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                     <ImageView fx:id="manuscriptCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="6">
+<!--                         <Image url="@/img/symbols/manuscript.png" />-->
+                     </ImageView>
+                     <Label fx:id="manuscriptCounterLabel" prefHeight="17.0" text="Manuscript" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+               <StackPane.margin>
+                  <Insets bottom="30.0" right="30.0" />
+               </StackPane.margin>
+                 </GridPane>
             </StackPane>
         </HBox>
         <HBox alignment="CENTER_RIGHT">
             <HBox alignment="CENTER" prefWidth="1406.0" spacing="30.0" HBox.hgrow="ALWAYS">
                 <GridPane fx:id="pickablesContainer" alignment="CENTER" hgap="10.0" vgap="10.0">
-                    <!--                <columnConstraints>-->
-                    <!--                    <ColumnConstraints fillWidth="true" />-->
-                    <!--                    <ColumnConstraints fillWidth="true" />-->
-                    <!--                    <ColumnConstraints fillWidth="true" />-->
-                    <!--                </columnConstraints>-->
-                    <!--                <rowConstraints>-->
-                    <!--                    <RowConstraints fillHeight="true" />-->
-                    <!--                    <RowConstraints fillHeight="true" />-->
-                    <!--                    <RowConstraints fillHeight="true" />-->
-                    <!--                </rowConstraints>-->
                     <columnConstraints>
                         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
                         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
@@ -141,44 +177,34 @@
                     </HBox>
                 </VBox>
             </HBox>
-         <TabPane prefHeight="350.0" prefWidth="527.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
-           <tabs>
-             <Tab text="Log">
-               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0">
-                        <children>
-                              <TextArea fx:id="logArea" editable="false" prefHeight="197.0" prefWidth="478.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                        </children>
+            <TabPane prefHeight="350.0" prefWidth="527.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
+                <HBox.margin>
+                    <Insets right="10.0" />
+                </HBox.margin>
+                <Tab text="Log">
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
                         <padding>
-                           <Insets top="5.0" />
+                            <Insets top="5.0" />
                         </padding>
-                     </AnchorPane>
-               </content>
-             </Tab>
-             <Tab text="Chat">
-               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="500.0">
-                        <children>
-                              <VBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                  <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="500" />
-                                  <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="500.0" wrapText="true"/>
-                                  <HBox prefHeight="25" prefWidth="500" spacing="5.0">
-                                      <TextField fx:id="chatField" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="451.0" promptText="chat message" />
-                                      <Button onMouseClicked="#onClickSendMessage" prefWidth="50" text="send" />
-                                  </HBox>
-                              </VBox>
-                        </children>
+                        <TextArea fx:id="logArea" editable="false" prefHeight="197.0" prefWidth="478.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </AnchorPane>
+                </Tab>
+                <Tab text="Chat">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="500.0">
                         <padding>
-                           <Insets top="5.0" />
+                            <Insets top="5.0" />
                         </padding>
-                 </AnchorPane>
-               </content>
-             </Tab>
-           </tabs>
-            <HBox.margin>
-               <Insets right="10.0" />
-            </HBox.margin>
-         </TabPane>
+                        <VBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="500" />
+                            <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="500.0" wrapText="true" />
+                            <HBox prefHeight="25" prefWidth="500" spacing="5.0">
+                                <TextField fx:id="chatField" minWidth="200.0" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="451.0" promptText="chat message" />
+                                <Button onMouseClicked="#onClickSendMessage" prefWidth="50" text="send" />
+                            </HBox>
+                        </VBox>
+                    </AnchorPane>
+                </Tab>
+            </TabPane>
         </HBox>
       <padding>
          <Insets top="10.0" />

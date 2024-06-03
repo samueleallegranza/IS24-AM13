@@ -829,10 +829,10 @@ public class TestGameModel {
         boolean nextFinal = false;
         GameStatus gameStatus = GameStatus.IN_GAME;
 
-        int cnt = 0;
+//        int cnt = 0;
         do {
-            cnt += 1;
-            System.out.println(cnt);
+//            cnt += 1;
+//            System.out.println(cnt);
 
             if(ended)
                 fail(); // I should have ended turn-based phases, so i shouldn't be here

@@ -2,6 +2,8 @@ package it.polimi.ingsw.am13.client.gamestate;
 
 import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
+import it.polimi.ingsw.am13.model.card.Corner;
+import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.io.Serializable;
@@ -76,5 +78,21 @@ public class FieldState implements Serializable {
      */
     void setAvailableCoords(List<Coordinates> availableCoords) {
         this.availableCoords = availableCoords;
+    }
+
+    public Map<Resource, Integer> getResourcesInField() {
+        Map<Resource, Integer> resources = new HashMap<>();
+        for(Resource r : Resource.values())
+            if(r != Resource.NO_RESOURCE)
+                resources.put(r, 0);
+
+        for(CardSidePlayableIF card : field.values()) {
+            for(Resource r : card.getCenterResources())
+                resources.replace(r, resources.get(r)+1);
+            for(Corner c : card.getCorners())
+                if(c.getResource()!=Resource.NO_RESOURCE && !c.isCovered())
+                    resources.replace(c.getResource(), resources.get(c.getResource())+1);
+        }
+        return resources;
     }
 }

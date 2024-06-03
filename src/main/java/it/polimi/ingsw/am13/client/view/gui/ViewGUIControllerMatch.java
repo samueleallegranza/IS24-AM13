@@ -58,6 +58,36 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private Label displayPlayerLabel;
 
+    @FXML
+    private Label plantCounterLabel;
+    @FXML
+    public Label animalCounterLabel;
+    @FXML
+    private Label fungusCounterLabel;
+    @FXML
+    public Label manuscriptCounterLabel;
+    @FXML
+    public Label insectCounterLabel;
+    @FXML
+    public Label quillCounterLabel;
+    @FXML
+    public Label inkwellCounterLabel;
+    @FXML
+    public ImageView plantCounterImage;
+    @FXML
+    public ImageView animalCounterImage;
+    @FXML
+    public ImageView fungusCounterImage;
+    @FXML
+    public ImageView insectCounterImage;
+    @FXML
+    public ImageView inkwellCounterImage;
+    @FXML
+    public ImageView quillCounterImage;
+    @FXML
+    public ImageView manuscriptCounterImage;
+
+
     // ----------------------------------------------------------------
     // BOTTOM HALF OF THE SCREEN
     // ----------------------------------------------------------------
@@ -148,6 +178,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<ImageView> handCards;
     private List<Button> flipButtons;
     private Map<String, Node> playerNodes;
+    private Map<Resource, Label> counterLabels;
     /**
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
@@ -270,6 +301,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
+        // Init of counter
+        counterLabels = Map.of(
+                Resource.PLANT, plantCounterLabel,
+                Resource.ANIMAL, animalCounterLabel,
+                Resource.FUNGUS, fungusCounterLabel,
+                Resource.INSECT, insectCounterLabel,
+                Resource.QUILL, quillCounterLabel,
+                Resource.INKWELL, inkwellCounterLabel,
+                Resource.MANUSCRIPT, manuscriptCounterLabel
+        );
+        plantCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/plant.png"))));
+        animalCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/animal.png"))));
+        fungusCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/fungus.png"))));
+        insectCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/insect.png"))));
+        inkwellCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/inkwell.png"))));
+        quillCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/quill.png"))));
+        manuscriptCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/manuscript.png"))));
+
         // First log
         log.logNextTurn();
         showLastLogs();
@@ -288,7 +337,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // So I execute the commands after a short delay
         new Thread(() -> {
             try {
-                Thread.sleep(50);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -620,6 +669,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 addCardBox(coordinates, handPlayable);
             }
             ajdustFieldContainerSize();
+
+            // set counter values
+            Map<Resource, Integer> resources = state.getPlayerState(displayPlayer).getField().getResourcesInField();
+            for(Resource r : counterLabels.keySet()) {
+                System.out.println(resources.get(r));
+                counterLabels.get(r).setText(resources.get(r).toString());
+            }
         });
     }
 

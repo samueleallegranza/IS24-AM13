@@ -443,11 +443,15 @@ public class ViewTUI implements View {
      */
     @Override
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
-        // TODO: questa condizione potrebbe essere ricontrollata, se sono su all e un giocatore mi manda un messaggio
-        //  privato, ci entro comunque anche se non dovrei entrarci...
-        if((currentChatRoom!=null && currentChatRoom.contains(sender)) || receivers.equals(currentChatRoom)) {
-            printCurrentChat("");
-        }
+        if(currentChatRoom != null)
+            if (sender.equals(thisPlayer))
+                if (receivers.equals(currentChatRoom))
+                    printCurrentChat("");
+            else if (receivers.contains(thisPlayer))
+                if (receivers.size() == 1 && currentChatRoom.size() == 1 && currentChatRoom.getFirst().equals(sender))
+                    printCurrentChat("");
+                else if (receivers.size() > 1 && currentChatRoom.size() > 1)
+                    printCurrentChat("");
     }
 
     /**

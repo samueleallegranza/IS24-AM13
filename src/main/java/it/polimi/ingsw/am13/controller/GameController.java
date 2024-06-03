@@ -288,7 +288,7 @@ public class GameController implements Runnable {
      * @throws InvalidPlayerException If the passed player is not the current player
      */
     public void pickCard(PlayerLobby playerLobby, CardPlayableIF card) throws InvalidDrawCardException, GameStatusException, InvalidPlayerException {
-        if(!gameModel.fetchCurrentPlayer().equals(playerLobby))
+        if(!playerLobby.equals(gameModel.fetchCurrentPlayer()))
             throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.pickCard(card);
         if(gameModel.countConnected()>=1)
