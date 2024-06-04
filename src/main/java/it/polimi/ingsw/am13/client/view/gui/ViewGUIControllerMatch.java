@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -23,6 +24,8 @@ import javafx.util.StringConverter;
 
 import java.util.*;
 
+
+//TODO x Matteo aggiungi traslazione di token su tabellone quando si aggiornano i punti
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
@@ -87,6 +90,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     public ImageView manuscriptCounterImage;
 
+    @FXML
+    private ImageView scoreTrackerView;
+    @FXML
+    public StackPane scoreTrackerContainer;
 
     // ----------------------------------------------------------------
     // BOTTOM HALF OF THE SCREEN
@@ -179,6 +186,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<Button> flipButtons;
     private Map<String, Node> playerNodes;
     private Map<Resource, Label> counterLabels;
+    /**
+     * Map associating each player to its token image in the score tracker
+     */
+    private Map<PlayerLobby, ImageView> tokenImgs;
     /**
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
@@ -319,6 +330,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         quillCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/quill.png"))));
         manuscriptCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/manuscript.png"))));
 
+        initScoreTracker();
+
         // First log
         log.logNextTurn();
         showLastLogs();
@@ -348,6 +361,35 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }).start();
         //TODO: E' molto brutto questo thread, ma non riesco a capire come fare altrimenti...
         // + in generale, ogni tanto quando faccio switchToPlayer non setta bene lo scroll, ma non ho idea del perché
+    }
+
+    /**
+     * Initializes the score tracker view and creates all the tokens as image views.
+     * Places all the tokens at the position 0
+     */
+    private void initScoreTracker() {
+        scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
+
+        tokenImgs = new HashMap<>();
+        int cnt = 0;
+        for(PlayerLobby p : state.getPlayers()) {
+            Image tokenTexture = null;
+            switch (p.getToken().getColor()) {
+                case ColorToken.RED -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/redToken.png")));
+                case ColorToken.BLUE -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blueToken.png")));
+                case ColorToken.GREEN -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/greenToken.png")));
+                case ColorToken.YELLOW -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/yellowToken.png")));
+            }
+            ImageView tokenImg = new ImageView(tokenTexture);
+            tokenImg.setFitHeight(41);
+            tokenImg.setFitWidth(41);
+            tokenImgs.put(p, tokenImg);
+            tokenImg.setTranslateX(-55 - state.getPlayers().size() + 6*cnt);
+            tokenImg.setTranslateY(195);
+
+            scoreTrackerContainer.getChildren().add(tokenImg);
+            cnt++;
+        }
     }
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
@@ -648,7 +690,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * This method displays the field of displayPlayer, by displaying all the placed cards and adding boxes
      * at each available coordinate.
      */
-    private void displayField(){
+    private void displayField() {
+        System.out.println(scoreTrackerContainer.getLayoutBounds());
+
         Platform.runLater(() -> {
             fieldContainer.getChildren().clear();
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getPlacedCoords()) {
@@ -744,7 +788,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         double maxX = Double.NEGATIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
 
-        for (javafx.scene.Node node : fieldContainer.getChildren()) {
+        for (Node node : fieldContainer.getChildren()) {
             Bounds bounds = node.getBoundsInParent();
             minX = Math.min(minX, bounds.getMinX());
             minY = Math.min(minY, bounds.getMinY());
