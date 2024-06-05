@@ -43,14 +43,14 @@ public interface CardSidePlayableIF extends Serializable {
     List<Boolean> getCoveredCorners();
 
     /**
-     * Return the object which describes all the matter related to points
+     * Returns the object which describes all the matter related to points
      * @return PointsPlayable interface of the card side
      */
     PointsPlayable getPoints();
 
     /**
      * Return the list of corners
-     * @return list of card corners
+     * @return list of card corners (in order, they are: upper left, upper right, lower right, lower left)
      */
     List<Corner> getCorners();
 
@@ -63,10 +63,5 @@ public interface CardSidePlayableIF extends Serializable {
      * @return Side corresponding to this cardSide
      */
     Side getSide();
-//    /**
-//     * Returns a list of booleans corresponding to every corner clock-wise indexed which can be linked to other cards.
-//     * Please note that this methods doesn't count covered corners!
-//     * @return List of booleans which represent if a corner is linkable or not
-//     */
-//    List<boolean> getLinkableCorners();
+
 }

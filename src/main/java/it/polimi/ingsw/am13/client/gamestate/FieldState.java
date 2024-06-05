@@ -62,6 +62,21 @@ public class FieldState implements Serializable {
      */
     void placeCardSideAtCoord(Coordinates coord, CardSidePlayableIF cardSide) {
         field.put(coord, cardSide);
+        for(Coordinates c : coord.fetchNearCoordinates()) {
+            CardSidePlayableIF cs = field.get(c);
+            if(cs != null) {
+                Corner corner;
+                if(c.getPosX()<coord.getPosX() && c.getPosY()>coord.getPosY())
+                    corner = cs.getCorners().get(2);
+                else if(c.getPosX()>coord.getPosX() && c.getPosY()>coord.getPosY())
+                    corner = cs.getCorners().get(3);
+                else if(c.getPosX()>coord.getPosX() && c.getPosY()<coord.getPosY())
+                    corner = cs.getCorners().get(0);
+                else
+                    corner = cs.getCorners().get(1);
+                corner.coverCorner();
+            }
+        }
     }
 
     /**

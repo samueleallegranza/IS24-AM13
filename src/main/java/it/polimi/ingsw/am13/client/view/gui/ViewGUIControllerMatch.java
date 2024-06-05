@@ -691,8 +691,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * at each available coordinate.
      */
     private void displayField() {
-        System.out.println(scoreTrackerContainer.getLayoutBounds());
-
         Platform.runLater(() -> {
             fieldContainer.getChildren().clear();
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getPlacedCoords()) {
@@ -717,7 +715,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             // set counter values
             Map<Resource, Integer> resources = state.getPlayerState(displayPlayer).getField().getResourcesInField();
             for(Resource r : counterLabels.keySet()) {
-                System.out.println(resources.get(r));
                 counterLabels.get(r).setText(resources.get(r).toString());
             }
         });
