@@ -6,6 +6,8 @@ import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import javafx.animation.PathTransition;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
@@ -18,8 +20,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.util.*;
@@ -190,7 +196,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Map associating each player to its token image in the score tracker
      */
-    private Map<PlayerLobby, ImageView> tokenImgs;
+    private final Map<PlayerLobby, ImageView> tokenImgs = new HashMap<>();
+    /**
+     * Map associating each player to the current displayed points on the score tracker
+     */
+    private final Map<PlayerLobby, Integer> displayedPoints = new HashMap<>();
     /**
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
@@ -217,6 +227,31 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Height of a visible corner of the image of a card
      */
     private static final int cornerY=40;
+
+    /**
+     * Relative coordinates for x-positions of tokens on the score tracker
+     */
+    private static final List<Double> xTranslToken = List.of(
+            0.19375, 0.414583333333333, 0.6375, 0.75, 0.527083333333333, 0.304166666666667, 0.0833333333333333, 0.0833333333333333,
+            0.304166666666667, 0.527083333333333, 0.75, 0.75, 0.527083333333333, 0.304166666666667, 0.0833333333333333, 0.0833333333333333,
+            0.304166666666667, 0.527083333333333, 0.75, 0.747916666666667, 0.414583333333333, 0.0833333333333333, 0.0833333333333333,
+            0.0833333333333333, 0.2125, 0.416666666666667, 0.620833333333333, 0.75, 0.75, 0.416666666666667
+    );
+    /**
+     * Relative coordinates for y-positions of tokens on the score tracker
+     */
+    private static final List<Double> yTranslToken = List.of(
+            -0.0386680988184748, -0.0386680988184748, -0.0386680988184748, -0.141783029001074, -0.141783029001074,
+            -0.141783029001074, -0.141783029001074, -0.247046186895811, -0.247046186895811, -0.247046186895811, -0.247046186895811,
+            -0.352309344790548, -0.352309344790548, -0.352309344790548, -0.352309344790548, -0.457572502685285, -0.457572502685285,
+            -0.457572502685285, -0.457572502685285, -0.561761546723953, -0.613319011815252, -0.561761546723953, -0.66702470461869,
+            -0.772287862513426, -0.857142857142857, -0.876476906552095, -0.857142857142857, -0.772287862513426, -0.66702470461869,
+            -0.749731471535983
+    );
+    /**
+     * Token dimension (square shape) relative to width (x) of the score tracker
+     */
+    private static final double tokenDimRel2x = 0.17083;
 
 
     // ----------------------------------------------------------------
@@ -313,24 +348,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
-        // Init of counter
-        counterLabels = Map.of(
-                Resource.PLANT, plantCounterLabel,
-                Resource.ANIMAL, animalCounterLabel,
-                Resource.FUNGUS, fungusCounterLabel,
-                Resource.INSECT, insectCounterLabel,
-                Resource.QUILL, quillCounterLabel,
-                Resource.INKWELL, inkwellCounterLabel,
-                Resource.MANUSCRIPT, manuscriptCounterLabel
-        );
-        plantCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/plant.png"))));
-        animalCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/animal.png"))));
-        fungusCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/fungus.png"))));
-        insectCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/insect.png"))));
-        inkwellCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/inkwell.png"))));
-        quillCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/quill.png"))));
-        manuscriptCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/manuscript.png"))));
-
+        // Init of counter and score tracker
+        initCounter();
         initScoreTracker();
 
         // First log
@@ -352,54 +371,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         switchToPlayer(thisPlayer);
         updateActionLabel();
 
-        // For some reason, the first set of the scrolls to the center doesn't work if i put the line here
-        // So I execute the commands after a short delay
-        new Thread(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            Platform.runLater(() -> {
-                fieldScrollPane.setHvalue(0.5);
-                fieldScrollPane.setVvalue(0.5);
-            });
-        }).start();
-        //TODO: E' molto brutto questo thread, ma non riesco a capire come fare altrimenti...
-        // + in generale, ogni tanto quando faccio switchToPlayer non setta bene lo scroll, ma non ho idea del perché
-    }
-
-    /**
-     * Initializes the score tracker view and creates all the tokens as image views.
-     * Places all the tokens at the position 0
-     */
-    private void initScoreTracker() {
-        scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
-
-        tokenImgs = new HashMap<>();
-        int cnt = 0;
-        for(PlayerLobby p : state.getPlayers()) {
-            Image tokenTexture = null;
-            switch (p.getToken().getColor()) {
-                case ColorToken.RED -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/redToken.png")));
-                case ColorToken.BLUE -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blueToken.png")));
-                case ColorToken.GREEN -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/greenToken.png")));
-                case ColorToken.YELLOW -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/yellowToken.png")));
-            }
-            ImageView tokenImg = new ImageView(tokenTexture);
-            tokenImg.setFitHeight(41);
-            tokenImg.setFitWidth(41);
-            tokenImgs.put(p, tokenImg);
-            tokenImg.setTranslateX(-55 - state.getPlayers().size() + 6*cnt);
-            tokenImg.setTranslateY(195);
-
-            scoreTrackerContainer.getChildren().add(tokenImg);
-            cnt++;
-        }
+        // For how javafx works the scroll bars can't be set immediately, so i run the command with some delay
+        PauseTransition pause = new PauseTransition(Duration.seconds(1)); // Adjust the duration as needed
+        pause.setOnFinished(event -> {
+            // Access or set hvalue and vvalue after the delay
+            fieldScrollPane.setHvalue(0.5); // Example: scroll to the middle horizontally
+            fieldScrollPane.setVvalue(0.5); // Example: scroll to the middle vertically
+        });
+        pause.play();
     }
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
-
         if(thisPlayer.equals(player)) {
             flowCardPlaced = true;
             // After a card has been played, the pickable cards should be clickable
@@ -416,7 +398,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayField();
         }
 
-         playersContainerUpdatePoints(player);
+        playersContainerUpdatePoints(player);
+        updateTokenPosition(player);
 
         log.logPlayedCard(player, coord);
         showLastLogs();
@@ -867,6 +850,112 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         fieldScrollPane.setVvalue(0.5);
         fieldContainer.setScaleX(1);
         fieldContainer.setScaleY(1);
+    }
+
+    // ----------------------------------------------------------------
+    //      UTILS: SCORE TRACKER AND COUNTER
+    // -------------------------------------------------------------
+
+    /**
+     * Initializes the variables associated to counter labels, and loads the images for the counter
+     */
+    private void initCounter() {
+        counterLabels = Map.of(
+                Resource.PLANT, plantCounterLabel,
+                Resource.ANIMAL, animalCounterLabel,
+                Resource.FUNGUS, fungusCounterLabel,
+                Resource.INSECT, insectCounterLabel,
+                Resource.QUILL, quillCounterLabel,
+                Resource.INKWELL, inkwellCounterLabel,
+                Resource.MANUSCRIPT, manuscriptCounterLabel
+        );
+        plantCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/plant.png"))));
+        animalCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/animal.png"))));
+        fungusCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/fungus.png"))));
+        insectCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/insect.png"))));
+        inkwellCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/inkwell.png"))));
+        quillCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/quill.png"))));
+        manuscriptCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/manuscript.png"))));
+    }
+
+    /**
+     * Initializes the score tracker view and creates all the tokens as image views.
+     * Places all the tokens at the position 0
+     */
+    private void initScoreTracker() {
+        Platform.runLater(() -> {
+            scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
+            double xDim = scoreTrackerContainer.getWidth();
+            double yDim = scoreTrackerContainer.getHeight();
+            System.out.println(xDim);
+            System.out.println(yDim);
+            System.out.println("\n");
+
+            for(PlayerLobby p : state.getPlayers()) {
+                displayedPoints.put(p, 0);
+                Image tokenTexture = null;
+                switch (p.getToken().getColor()) {
+                    case ColorToken.RED -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/redToken.png")));
+                    case ColorToken.BLUE -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blueToken.png")));
+                    case ColorToken.GREEN -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/greenToken.png")));
+                    case ColorToken.YELLOW -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/yellowToken.png")));
+                }
+                ImageView tokenImg = new ImageView(tokenTexture);
+                tokenImg.setFitHeight(tokenDimRel2x * xDim);
+                tokenImg.setFitWidth(tokenDimRel2x * xDim);
+                tokenImgs.put(p, tokenImg);
+
+                StackPane.setAlignment(tokenImg, javafx.geometry.Pos.BOTTOM_LEFT);
+                tokenImg.setTranslateX(xTranslToken.getFirst() * xDim);
+                tokenImg.setTranslateY(yTranslToken.getFirst() * yDim);
+                scoreTrackerContainer.getChildren().add(tokenImg);
+            }
+            tokenImgs.get(thisPlayer).toFront();
+        });
+    }
+
+    /**
+     * Updates the position of the token image on the score tracker, according to the actual points of the player.
+     * It animates the movement making the token pass through all the intermediate steps
+     * @param player Player whose token is to be moved
+     */
+    private void updateTokenPosition(PlayerLobby player) {
+        Platform.runLater(() -> {
+            int points = state.getPlayerState(player).getPoints();
+            if(displayedPoints.get(player) < 29) {
+                if(points > 29)
+                    points = 29;
+                ImageView token = tokenImgs.get(player);
+
+                double xDim = scoreTrackerContainer.getWidth();
+                double yDim = scoreTrackerContainer.getHeight();
+                int currentPoints = displayedPoints.get(player);
+
+                Path path = new Path();
+                path.setVisible(false);
+                path.setLayoutX(tokenDimRel2x*xDim/2);
+                path.setLayoutY(tokenDimRel2x*xDim/2);
+                scoreTrackerContainer.getChildren().add(path);
+                path.getElements().add(new MoveTo(xTranslToken.get(currentPoints) * xDim,
+                        yTranslToken.get(currentPoints) * yDim ));
+                System.out.println("\nEccomi");
+                System.out.println(currentPoints);
+                System.out.println(points);
+                for(int point=currentPoints+1 ; point<=points ; point++) {
+                    path.getElements().add(new LineTo(
+                            xTranslToken.get(point) * xDim,
+                            yTranslToken.get(point) * yDim));
+                    System.out.println(point);
+                }
+                PathTransition pathTransition = new PathTransition();
+                pathTransition.setDuration(Duration.seconds(0.5*(points-currentPoints))); // Set animation duration
+                pathTransition.setPath(path);
+                pathTransition.setNode(token);
+                pathTransition.setCycleCount(1); // Play once
+                pathTransition.play();
+                displayedPoints.replace(player, state.getPlayerState(player).getPoints());
+            }
+        });
     }
 
     //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
