@@ -8,7 +8,4 @@ public class InvalidChoiceException extends ModelException{
         super();
     }
 
-    public InvalidChoiceException(String message) {
-        super(message);
-    }
 }

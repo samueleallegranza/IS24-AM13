@@ -182,6 +182,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private ImageView attemptedToPlayCardField;
     private Rectangle attemptedToPlayCardBox;
     private List<CardPlayableIF> handPlayable;
+    private Map<PlayerLobby,List<CardPlayableIF>> playersHandsPlayable;
     private List<ImageView> handCards;
     private List<Button> flipButtons;
     private Map<String, Node> playerNodes;
@@ -341,6 +342,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
         fieldScrollPane.setPrefWidth(screenBounds.getWidth() - 130);
 
+        //Initialize hand playables of each player
+        playersHandsPlayable=new HashMap<>();
+        for(PlayerLobby player : state.getPlayers())
+            playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
+
         // Set field to show and actionLabel
         displayPlayer = null;
         switchToPlayer(thisPlayer);
@@ -400,11 +406,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             pickablesContainer.setMouseTransparent(false);
             Platform.runLater(() -> actionLabel.setText("Play a card"));
         }
-        if(player.equals(displayPlayer)){
-            for (int i = 0; i < handPlayable.size(); i++) {
-                if(!state.getPlayerState(player).getHandPlayable().contains(handPlayable.get(i)))
-                    handPlayable.set(i,null);
+        for (int i = 0; i < playersHandsPlayable.get(player).size(); i++) {
+            if(!state.getPlayerState(player).getHandPlayable().contains(playersHandsPlayable.get(player).get(i))) {
+                playersHandsPlayable.get(player).set(i, null);
             }
+        }
+        if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
         }
@@ -421,18 +428,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             // After a card has been picked, the pickable cards should not be clickable
             pickablesContainer.setMouseTransparent(true);
         }
-        if(player.equals(displayPlayer)){
-            List<CardPlayableIF> updatedHandPlayable=state.getPlayerState(player).getHandPlayable();
-            CardPlayableIF pickedCard=null;
-            for(CardPlayableIF card : updatedHandPlayable)
-                if(!handPlayable.contains(card))
-                    pickedCard=card;
-            for (int i = 0; i < handPlayable.size(); i++) {
-                if(handPlayable.get(i)==null)
-                    handPlayable.set(i,pickedCard);
-            }
-            displayHandPlayable();
+        List<CardPlayableIF> updatedHandPlayable = state.getPlayerState(player).getHandPlayable();
+        CardPlayableIF pickedCard = null;
+        for (CardPlayableIF card : updatedHandPlayable)
+            if (!playersHandsPlayable.get(player).contains(card))
+                pickedCard = card;
+        for (int i = 0; i < playersHandsPlayable.get(player).size(); i++) {
+            if (playersHandsPlayable.get(player).get(i) == null)
+                playersHandsPlayable.get(player).set(i, pickedCard);
         }
+        if(player.equals(displayPlayer))
+            displayHandPlayable();
         displayPickablesAndCommonObjs();
 
         log.logPickedCard(player);
@@ -441,7 +447,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     public void showNextTurn() {
         if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
-            for (int i = 0; i < handPlayable.size(); i++) {
+            for (int i = 0; i < handCards.size(); i++) {
                     ImageView handCard = handCards.get(i);
                     makeDraggable(i, handCard, flipButtons.get(i));
             }
@@ -479,7 +485,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         } else {
             handCardSides.set(i, Side.SIDEFRONT);
         }
-        displayCard(handPlayable.get(i).getId(), handCardSides.get(i), handCard);
+        displayCard(playersHandsPlayable.get(thisPlayer).get(i).getId(), handCardSides.get(i), handCard);
     }
 
     /**
@@ -492,6 +498,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void displayHandPlayable(){
         Platform.runLater(() -> {
+            handPlayable = playersHandsPlayable.get(displayPlayer);
             for (int i = 0; i < handCards.size(); i++) {
                 if(i<handPlayable.size() && handPlayable.get(i)!=null) {
                     ImageView handCard = handCards.get(i);
@@ -514,8 +521,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     }
                     displayCard(handPlayable.get(i).getId(), handCardSides.get(i), handCard);
                 }
-                else
+                else {
+                    flipButtons.get(i).setVisible(false);
                     handCards.get(i).setVisible(false);
+                }
             }
             if(thisPlayer.equals(displayPlayer))
                 displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
@@ -559,7 +568,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     void switchToPlayer(PlayerLobby displayPlayer) {
         if(!displayPlayer.equals(this.displayPlayer)) {
             this.displayPlayer = displayPlayer;
-            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
 
             firstFieldScrollAdjustment = true;
             fieldContainer.setPrefSize(fieldScrollPane.getWidth(), fieldScrollPane.getHeight());
@@ -570,6 +578,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             fieldScrollPane.setVvalue(0.5);
             displayHandPlayable();
             displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
+
+            pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
         }
     }
 
@@ -692,6 +702,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void displayField() {
         Platform.runLater(() -> {
+            handPlayable = playersHandsPlayable.get(displayPlayer);
             fieldContainer.getChildren().clear();
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getPlacedCoords()) {
                 CardSidePlayableIF curPlayedCard = state.getPlayerState(displayPlayer).getField().getCardSideAtCoord(coordinates);
@@ -751,7 +762,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             box.setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
                 int handIndex = Integer.parseInt(db.getString());
-                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
+                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex)); //todo eccezione index out of bound (2 con handplayable grande 2, come è possibile che sia capitato? avevo fatto vari switchplayer)
                 String cardId = finalHandPlayable.get(handIndex).getId();
                 ImageView newCardImg = new ImageView();
                 displayCard(cardId,handCardSides.get(handIndex),newCardImg);
@@ -947,9 +958,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * When the button is clicked, if there is a message and a receiver has been selected, a chat message is sent.
      */
     @FXML
-    public void onClickSendMessage(){
+    public synchronized void onClickSendMessage(){
         if(!chatField.getText().isEmpty() && chatChoice.getValue()!=null) {
             networkHandler.sendChatMessage(chatChoice.getValue(), chatField.getText());
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -991,9 +1007,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param receivers list of players that thisPlayer is chatting with
      */
     private void showChatWith(List<PlayerLobby> receivers) {
-        chatArea.clear();
-        for(ChatMessage chatMessage : chat.getChatWith(receivers))
-            chatArea.appendText(chatMessage.getSender().getNickname() + ": " + chatMessage.getText() + "\n");
+        Platform.runLater(() -> {
+                    chatArea.clear();
+                    for (ChatMessage chatMessage : chat.getChatWith(receivers))
+                        chatArea.appendText(chatMessage.getSender().getNickname() + ": " + chatMessage.getText() + "\n");
+                }
+        );
     }
 
 }

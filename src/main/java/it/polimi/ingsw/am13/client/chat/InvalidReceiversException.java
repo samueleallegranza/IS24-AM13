@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am13.model.exceptions;
+package it.polimi.ingsw.am13.client.chat;
 
 /**
  * This exception is thrown when a client requests to send a message whose receivers are not valid, that is when

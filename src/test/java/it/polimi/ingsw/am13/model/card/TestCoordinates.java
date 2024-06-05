@@ -26,6 +26,11 @@ public class TestCoordinates {
     }
 
     @Test
+    public void testCreateInvalid() {
+        assertThrows(InvalidCoordinatesException.class, () -> new Coordinates(1,2) );
+    }
+
+    @Test
     public void testFetchNearCoordinates() {
         try {
             List<Coordinates> nears = new Coordinates(0,0).fetchNearCoordinates();

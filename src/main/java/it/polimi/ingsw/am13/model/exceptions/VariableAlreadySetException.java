@@ -8,7 +8,4 @@ public class VariableAlreadySetException extends ModelException{
     public VariableAlreadySetException() {
     }
 
-    public VariableAlreadySetException(String msg) {
-        super(msg);
-    }
 }

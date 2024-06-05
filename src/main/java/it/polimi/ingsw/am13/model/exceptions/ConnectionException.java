@@ -7,10 +7,6 @@ import java.io.Serializable;
  * or disconnect a player which has already been disconnected.
  */
 public class ConnectionException extends Exception implements Serializable {
-    public ConnectionException(){
-        super();
-    }
-
     public ConnectionException(String msg){
         super(msg);
     }

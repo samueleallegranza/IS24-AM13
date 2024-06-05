@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.network.socket;
 
+import it.polimi.ingsw.am13.client.chat.InvalidReceiversException;
 import it.polimi.ingsw.am13.controller.GameController;
 import it.polimi.ingsw.am13.controller.Lobby;
 import it.polimi.ingsw.am13.controller.LobbyException;

@@ -168,4 +168,32 @@ public class TestPlayer {
         // Attempt to play the same card again, should throw InvalidPlayCardException
         assertThrows(InvalidPlayCardException.class, () -> player.playCard(sideToPlay, new Coordinates(1, 1)));
     }
+
+    @Test
+    public void testAdd4HandCards() throws InvalidCardCreationException {
+        // Create a Player instance
+        Player player = new Player("TestPlayer", new Token(ColorToken.RED));
+        // Create a card side for the player's hand
+        CardSidePlayable sideToPlay = new CardSidePlayable(
+                norequirements,
+                Arrays.asList(new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.PLANT), new Corner(Resource.NO_RESOURCE)),
+                Arrays.asList(Resource.PLANT, Resource.PLANT),
+                new PointsInstant(3),
+                Color.ANIMAL,
+                "",
+                Side.SIDEFRONT
+        );
+        //create a card resource
+        CardResource cardResource=new CardResource("r000",sideToPlay,sideToPlay);
+        //add the same card 3 times
+        for (int i = 0; i < 3; i++) {
+            try {
+                player.addCardToHand(cardResource);
+            } catch (PlayerHandException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        //the fourth time it will cause an exception
+        assertThrows(PlayerHandException.class, () -> player.addCardToHand(cardResource));
+    }
 }
