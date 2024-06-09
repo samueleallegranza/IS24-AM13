@@ -146,6 +146,16 @@
                             <Insets bottom="30.0" right="30.0" />
                         </StackPane.margin>
                     </GridPane>
+
+<!--                    <ImageView fx:id="ciao" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">-->
+<!--                        <Image url="@/img/cards/fronts/s000.png" />-->
+<!--                    </ImageView>-->
+<!--                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" translateX="28.0" translateY="1.0">-->
+<!--                        <Image url="@/img/tokens/blackToken.png" />-->
+<!--                    </ImageView>-->
+<!--                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" translateX="-28.0" translateY="1.0">-->
+<!--                       <Image url="@/img/tokens/blueToken.png" />-->
+<!--                   </ImageView>-->
                 </StackPane>
             </HBox>
             <HBox alignment="CENTER_RIGHT" minHeight="50.0" spacing="10.0">

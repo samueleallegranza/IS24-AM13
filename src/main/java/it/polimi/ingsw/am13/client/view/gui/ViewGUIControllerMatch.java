@@ -70,36 +70,36 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private Label plantCounterLabel;
     @FXML
-    public Label animalCounterLabel;
+    private Label animalCounterLabel;
     @FXML
     private Label fungusCounterLabel;
     @FXML
-    public Label manuscriptCounterLabel;
+    private Label manuscriptCounterLabel;
     @FXML
-    public Label insectCounterLabel;
+    private Label insectCounterLabel;
     @FXML
-    public Label quillCounterLabel;
+    private Label quillCounterLabel;
     @FXML
-    public Label inkwellCounterLabel;
+    private Label inkwellCounterLabel;
     @FXML
-    public ImageView plantCounterImage;
+    private ImageView plantCounterImage;
     @FXML
-    public ImageView animalCounterImage;
+    private ImageView animalCounterImage;
     @FXML
-    public ImageView fungusCounterImage;
+    private ImageView fungusCounterImage;
     @FXML
-    public ImageView insectCounterImage;
+    private ImageView insectCounterImage;
     @FXML
-    public ImageView inkwellCounterImage;
+    private ImageView inkwellCounterImage;
     @FXML
-    public ImageView quillCounterImage;
+    private ImageView quillCounterImage;
     @FXML
-    public ImageView manuscriptCounterImage;
+    private ImageView manuscriptCounterImage;
 
     @FXML
     private ImageView scoreTrackerView;
     @FXML
-    public StackPane scoreTrackerContainer;
+    private StackPane scoreTrackerContainer;
 
     // ----------------------------------------------------------------
     // BOTTOM HALF OF THE SCREEN
@@ -205,7 +205,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
      */
-    boolean firstFieldScrollAdjustment = true;
+    private boolean firstFieldScrollAdjustment = true;
 
     // ----------------------------------------------------------------
     // CONSTANTS
@@ -214,19 +214,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Entire width of the image of a card
      */
-    private static final int imageW=150;
+    private static final int imageW = 150;
     /**
      * Entire height of the image of a card
      */
-    private static final int imageH=100;
+    private static final int imageH = 100;
     /**
      * Width of a visible corner of the image of a card
      */
-    private static final int cornerX=33;
+    private static final int cornerX = 33;
     /**
      * Height of a visible corner of the image of a card
      */
-    private static final int cornerY=40;
+    private static final int cornerY = 40;
+    /**
+     * Width/Height of the tokens visible on top of the starter card on the field
+     */
+    private static final int tokenDim = 30;
 
     /**
      * Relative coordinates for x-positions of tokens on the score tracker
@@ -516,7 +520,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
 
-    void initPlayerContainer() {
+    private void initPlayerContainer() {
         int playerCount = this.state.getPlayers().size();
         for(Node node: playersContainer.getChildren()) {
             int currPlayerIdx = GridPane.getRowIndex(node);
@@ -548,25 +552,30 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * This method updates displayPlayer and displays his field and playable hand
      * @param displayPlayer the player that needs to be displayed
      */
-    void switchToPlayer(PlayerLobby displayPlayer) {
+    private void switchToPlayer(PlayerLobby displayPlayer) {
         if(!displayPlayer.equals(this.displayPlayer)) {
             this.displayPlayer = displayPlayer;
 
             firstFieldScrollAdjustment = true;
             fieldContainer.setPrefSize(fieldScrollPane.getWidth(), fieldScrollPane.getHeight());
 
-
             displayField();
-            fieldScrollPane.setHvalue(0.5);
-            fieldScrollPane.setVvalue(0.5);
             displayHandPlayable();
             displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
-
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
+
+            // For how javafx works the scroll bars can't be set immediately, so i run the command with some delay
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // Adjust the duration as needed
+            pause.setOnFinished(event -> {
+                // Access or set hvalue and vvalue after the delay
+                fieldScrollPane.setHvalue(0.5); // Example: scroll to the middle horizontally
+                fieldScrollPane.setVvalue(0.5); // Example: scroll to the middle vertically
+            });
+            pause.play();
         }
     }
 
-    void playersContainerUpdatePoints(PlayerLobby player) {
+    private void playersContainerUpdatePoints(PlayerLobby player) {
         Platform.runLater(() -> {
             // get node corresponding to player
             VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
@@ -692,7 +701,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if(curPlayedCard!=null) {
                     ImageView fieldCardImg = new ImageView();
                     displayCard(curPlayedCard.getId(), curPlayedCard.getSide(), fieldCardImg);
-//                    System.out.println(coordinates.getPosX() + " " + coordinates.getPosY() + " " + curPlayedCard.getId() + " " + curPlayedCard.getSide());
                     int posX = (imageW - cornerX) * coordinates.getPosX();
                     int posY = (-imageH + cornerY) * coordinates.getPosY();
                     fieldCardImg.setTranslateX(posX);
@@ -700,8 +708,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     fieldContainer.getChildren().add(fieldCardImg);
                 }
             }
+
+            // print also the token for the color of the player, and the black token if this is the first player
+            ImageView token = createTokenImage(displayPlayer);
+            token.setFitWidth(tokenDim);
+            token.setTranslateX(-0.1867 * imageW);
+            token.toFront();
+            fieldContainer.getChildren().add(token);
+            if(displayPlayer.equals(state.getFirstPlayer())) {
+                token = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blackToken.png"))));
+                token.setPreserveRatio(true);
+                token.setFitWidth(tokenDim);
+                token.setTranslateX(0.1867 * imageW);
+                token.toFront();
+                fieldContainer.getChildren().add(token);
+            }
+
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getAvailableCoords()) {
-//                System.out.println(coordinates.getPosX()+" "+coordinates.getPosY());
                 addCardBox(coordinates, handPlayable);
             }
             ajdustFieldContainerSize();
@@ -893,14 +916,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             for(PlayerLobby p : state.getPlayers()) {
                 displayedPoints.put(p, 0);
-                Image tokenTexture = null;
-                switch (p.getToken().getColor()) {
-                    case ColorToken.RED -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/redToken.png")));
-                    case ColorToken.BLUE -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blueToken.png")));
-                    case ColorToken.GREEN -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/greenToken.png")));
-                    case ColorToken.YELLOW -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/yellowToken.png")));
-                }
-                ImageView tokenImg = new ImageView(tokenTexture);
+                ImageView tokenImg = createTokenImage(p);
                 tokenImg.setFitHeight(tokenDimRel2x * xDim);
                 tokenImg.setFitWidth(tokenDimRel2x * xDim);
                 tokenImgs.put(p, tokenImg);
@@ -912,6 +928,24 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
             tokenImgs.get(thisPlayer).toFront();
         });
+    }
+
+    /**
+     * Creates the image for the color token of the given player
+     * @param player Player whose the color token images is to be generated
+     * @return Container of the image of the player's color token
+     */
+    private ImageView createTokenImage(PlayerLobby player) {
+        Image tokenTexture = null;
+        switch (player.getToken().getColor()) {
+            case ColorToken.RED -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/redToken.png")));
+            case ColorToken.BLUE -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/blueToken.png")));
+            case ColorToken.GREEN -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/greenToken.png")));
+            case ColorToken.YELLOW -> tokenTexture = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/tokens/yellowToken.png")));
+        }
+        ImageView token = new ImageView(tokenTexture);
+        token.setPreserveRatio(true);
+        return token;
     }
 
     /**
