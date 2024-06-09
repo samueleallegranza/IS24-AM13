@@ -209,7 +209,7 @@
                         </HBox>
                     </VBox>
                 </HBox>
-                <TabPane prefHeight="370.0" prefWidth="414.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
+                <TabPane prefHeight="370.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
                     <HBox.margin>
                         <Insets right="10.0" />
                     </HBox.margin>
@@ -218,7 +218,7 @@
                             <padding>
                                 <Insets top="5.0" />
                             </padding>
-                            <TextArea fx:id="logArea" editable="false" prefHeight="197.0" prefWidth="478.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                            <TextArea fx:id="logArea" editable="false" layoutX="-10.0" prefHeight="197.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                         </AnchorPane>
                     </Tab>
                     <Tab text="Chat">

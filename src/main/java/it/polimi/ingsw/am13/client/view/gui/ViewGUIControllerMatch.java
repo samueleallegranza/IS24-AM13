@@ -10,11 +10,17 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 
 import javafx.scene.image.ImageView;
@@ -25,6 +31,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -151,9 +158,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     //CHAT
 
-    public ChoiceBox<List<PlayerLobby>> chatChoice;
-    public TextArea chatArea;
-    public TextField chatField;
+    @FXML
+    private ChoiceBox<List<PlayerLobby>> chatChoice;
+    @FXML
+    private TextArea chatArea;
+    @FXML
+    private TextField chatField;
 
     /**
      * Area of non-editable text for showing logs
@@ -204,9 +214,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private final Map<PlayerLobby, ImageView> tokenImgs = new HashMap<>();
     /**
-     * Map associating each player to the current displayed points on the score tracker
+     * Map associating each player to the current saved points, before a new eventual modification
      */
-    private final Map<PlayerLobby, Integer> displayedPoints = new HashMap<>();
+    private final Map<PlayerLobby, Integer> savedPoints = new HashMap<>();
     /**
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
@@ -393,6 +403,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
+        int pointsBefore = savedPoints.get(player);
         if(thisPlayer.equals(player)) {
             flowCardPlaced = true;
             // After a card has been played, the pickable cards should be clickable
@@ -412,7 +423,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playersContainerUpdatePoints(player);
         updateTokenPosition(player);
 
-        log.logPlayedCard(player, coord);
+        log.logPlayedCard(player, coord, pointsBefore < state.getPlayerState(player).getPoints());
         showLastLogs();
         updateActionLabel();
     }
@@ -466,6 +477,116 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd()));
             turnsCounterLabel.setVisible(true);
         });
+    }
+
+
+    //TODO: gestire nel server o nel client il caso di parità!!
+    //TODO: magari nei log scrivi anche che tipo di carta è stata giocata / pescata
+
+    // ----------------------------------------------------------------
+    //      OVERLAYER FOR WINNER
+    // ----------------------------------------------------------------
+
+    /**
+     * Creates a new layer with the given table to show the final points for the players.
+     * @param pointsTable Table of the final points of the players
+     * @param winnerText Label showing the definitive winner
+     */
+    private void createWinnerLayer(TableView<PlayerLobby> pointsTable, Label winnerText) {
+        // Get the root AnchorPane dynamically
+        AnchorPane anchorPane = (AnchorPane) actionLabel.getScene().getRoot();
+
+        // Create the semi-transparent layer
+        Rectangle overlay = new Rectangle(anchorPane.getWidth(), anchorPane.getHeight(), Color.rgb(0, 0, 0, 0.5));
+        overlay.setMouseTransparent(true);  // Allow clicks to pass through to the underlying elements
+
+        // Create a VBox to hold the table and center it in the overlay
+        VBox vbox = new VBox(winnerText, pointsTable);
+        vbox.setSpacing(30);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setMinSize(300, 200);
+
+        // Create a StackPane to hold both the overlay and the table
+        StackPane overlayPane = new StackPane(overlay, vbox);
+        overlayPane.setPrefSize(anchorPane.getWidth(), anchorPane.getHeight());
+
+        // Anchor the overlayPane to all sides of the AnchorPane
+        AnchorPane.setTopAnchor(overlayPane, 0.0);
+        AnchorPane.setBottomAnchor(overlayPane, 0.0);
+        AnchorPane.setLeftAnchor(overlayPane, 0.0);
+        AnchorPane.setRightAnchor(overlayPane, 0.0);
+
+        // Add a click handler to remove the overlay when clicked
+        overlayPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> anchorPane.getChildren().remove(overlayPane));
+
+        // Add the overlay to the main AnchorPane
+        anchorPane.getChildren().add(overlayPane);
+    }
+
+    /**
+     * Modifies all the elements on the view in order to update them with the final value and not to allow any other modifications.
+     */
+    public synchronized void showUpdatePoints() {
+        log.logUpdatePoints(savedPoints);
+        showLastLogs();
+        updateActionLabel();
+        playersContainerUpdateTurns();
+        state.getPlayers().forEach(this::playersContainerUpdatePoints);
+        turnsCounterLabel.setVisible(false);
+        //TODO: facciamo muovere anche i token sullo scoreboard?
+    }
+
+    /**
+     * Creates a new layer over all the view, which closes after the first click of the mouse
+     */
+    public synchronized void showWinner() {
+        log.logWinner();
+        showLastLogs();
+
+        Platform.runLater(() -> {
+            // Set background color with blur effect
+            Label winnerText = new Label();
+            winnerText.setFont(new Font(24));
+            winnerText.setTextFill(Color.WHITE);
+            winnerText.setPadding(new Insets(10));
+
+            // Set background color with blur effect
+            BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, new CornerRadii(5), Insets.EMPTY);
+            winnerText.setBackground(new Background(backgroundFill));
+
+            // Apply blur effect only to the background
+            DropShadow dropShadow = new DropShadow();
+            dropShadow.setColor(Color.BLACK);
+            dropShadow.setBlurType(BlurType.GAUSSIAN);
+            dropShadow.setRadius(10); // Adjust blur radius as needed
+            winnerText.setEffect(dropShadow);
+
+            TableView<PlayerLobby> pointsTable = new TableView<>();
+            pointsTable.setMaxWidth(175);
+            TableColumn<PlayerLobby,String> playerColumn = new TableColumn<>();
+            playerColumn.setPrefWidth(75);
+            pointsTable.getColumns().add(playerColumn);
+            TableColumn<PlayerLobby,String> pointsColumn = new TableColumn<>();
+            pointsColumn.setPrefWidth(100);
+            pointsTable.getColumns().add(pointsColumn);
+
+            for(PlayerLobby playerLobby : state.getPlayers()) {
+                pointsTable.getItems().add(playerLobby);
+            }
+            playerColumn.setCellValueFactory(new PropertyValueFactory<>("Nickname"));
+            pointsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(state.getPlayerState(cellData.getValue()).getPoints())));
+
+            if(thisPlayer.equals(state.getWinner()))
+                winnerText.setText("You have won the game");
+            else
+                winnerText.setText(state.getWinner().getNickname() + " won the game");
+
+            createWinnerLayer(pointsTable, winnerText);
+        });
+    }
+
+    public synchronized void showEndGame() {
+        //TODO: da implementare
     }
 
     // ----------------------------------------------------------------
@@ -607,11 +728,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void playersContainerUpdateTurns() {
         for(PlayerLobby p: this.state.getPlayers()) {
+            String text;
+            if(state.getGameStatus() == GameStatus.CALC_POINTS || state.getGameStatus() == GameStatus.ENDED)
+                text = "ended";
+            else
+                text = p.equals(state.getCurrentPlayer()) ? "TURN" : "waiting";
+
             VBox pVbox = (VBox) playerNodes.get(p.getNickname());
             for(Node nodeLabel: pVbox.getChildren()) {
                 Label label = (Label) nodeLabel;
                 if(label.getId().equals("turn"))
-                    Platform.runLater(() -> label.setText(this.state.getCurrentPlayer().equals(p) ? "TURN" : "waiting"));
+                    Platform.runLater(() -> label.setText(text));
             }
         }
     }
@@ -849,7 +976,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void updateActionLabel() {
         Platform.runLater(() -> {
-            if(thisPlayer.equals(state.getCurrentPlayer())) {
+            if(state.getGameStatus() == GameStatus.CALC_POINTS || state.getGameStatus() == GameStatus.ENDED)
+                actionLabel.setText("Game ended");
+            else if(thisPlayer.equals(state.getCurrentPlayer())) {
                 if(!flowCardPlaced)
                     actionLabel.setText("Play a card");
                 else
@@ -924,12 +1053,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
             double xDim = scoreTrackerContainer.getWidth();
             double yDim = scoreTrackerContainer.getHeight();
-            System.out.println(xDim);
-            System.out.println(yDim);
-            System.out.println("\n");
 
             for(PlayerLobby p : state.getPlayers()) {
-                displayedPoints.put(p, 0);
+                savedPoints.put(p, 0);
                 ImageView tokenImg = createTokenImage(p);
                 tokenImg.setFitHeight(tokenDimRel2x * xDim);
                 tokenImg.setFitWidth(tokenDimRel2x * xDim);
@@ -970,14 +1096,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private void updateTokenPosition(PlayerLobby player) {
         Platform.runLater(() -> {
             int points = state.getPlayerState(player).getPoints();
-            if(displayedPoints.get(player) < 29) {
+            if(savedPoints.get(player) < 29) {
                 if(points > 29)
                     points = 29;
                 ImageView token = tokenImgs.get(player);
 
                 double xDim = scoreTrackerContainer.getWidth();
                 double yDim = scoreTrackerContainer.getHeight();
-                int currentPoints = displayedPoints.get(player);
+                int currentPoints = this.savedPoints.get(player);
 
                 Path path = new Path();
                 path.setVisible(false);
@@ -986,9 +1112,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 scoreTrackerContainer.getChildren().add(path);
                 path.getElements().add(new MoveTo(xTranslToken.get(currentPoints) * xDim,
                         yTranslToken.get(currentPoints) * yDim ));
-                System.out.println("\nEccomi");
-                System.out.println(currentPoints);
-                System.out.println(points);
                 for(int point=currentPoints+1 ; point<=points ; point++) {
                     path.getElements().add(new LineTo(
                             xTranslToken.get(point) * xDim,
@@ -1001,8 +1124,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 pathTransition.setNode(token);
                 pathTransition.setCycleCount(1); // Play once
                 pathTransition.play();
-                displayedPoints.replace(player, state.getPlayerState(player).getPoints());
             }
+            this.savedPoints.replace(player, state.getPlayerState(player).getPoints());
         });
     }
 
@@ -1048,7 +1171,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     // ----------------------------------------------------------------
-    //CHAT METHODS
+    //    CHAT METHODS
     // ----------------------------------------------------------------
 
     /**

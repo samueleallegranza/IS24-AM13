@@ -49,7 +49,8 @@ public class GameState implements Serializable {
     private GameStatus gameStatus;
 
     /**
-     * The current player in a turn-based phase (the one who must play or pick a card)
+     * The current player in a turn-based phase (the one who must play or pick a card).
+     * Null if the game phase is different from IN_GAME or FINAL_PHASE
      */
     private PlayerLobby currentPlayer;
 
@@ -150,6 +151,7 @@ public class GameState implements Serializable {
 
     /**
      * @return The current player in a turn-based phase (the one who must play or pick a card)
+     * Null if the game phase is different from IN_GAME or FINAL
      */
     public PlayerLobby getCurrentPlayer() {
         return currentPlayer;

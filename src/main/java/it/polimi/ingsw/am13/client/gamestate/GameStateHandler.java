@@ -90,6 +90,8 @@ public class GameStateHandler {
     }
 
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
+        state.setGameStatus(GameStatus.CALC_POINTS);
+        state.setCurrentPlayer(null);
         for(PlayerLobby p : pointsMap.keySet())
             state.getPlayerState(p).setPoints(pointsMap.get(p));
     }

@@ -362,11 +362,11 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showUpdatePoints() {
-        Platform.runLater(() -> {
-//            reachedWinnerPhase = true;
-            switchToScene(winnerController);
-            winnerController.showUpdatePoints();
-        });
+//        Platform.runLater(() -> {
+//            switchToScene(winnerController);
+//            winnerController.showUpdatePoints();
+            matchController.showUpdatePoints();
+//        });
     }
 
     /**
@@ -382,7 +382,8 @@ public class ViewGUI extends Application implements View {
             //(si dovrebbe entrare in questo if solo in quel caso)
 //            showUpdatePoints();
 //        }
-        Platform.runLater(() -> winnerController.showWinner());
+//        Platform.runLater(() -> winnerController.showWinner());
+            matchController.showWinner();
     }
 
     /**
@@ -391,7 +392,8 @@ public class ViewGUI extends Application implements View {
     //todo potremmo voler stampare qualche messaggio (al momento in controller non viene fatto niente)
     @Override
     public synchronized void showEndGame() {
-        winnerController.showEndGame();
+//        winnerController.showEndGame();
+        matchController.showEndGame();
     }
 
     /**

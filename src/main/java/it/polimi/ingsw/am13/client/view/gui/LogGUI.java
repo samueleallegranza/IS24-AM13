@@ -35,8 +35,8 @@ public class LogGUI {
         this.addToLog(formatLogChosenPersonalObjective(player));
     }
 
-    public void logPlayedCard(PlayerLobby player, Coordinates coord) {
-        this.addToLog(formatLogPlayedCard(player, coord));
+    public void logPlayedCard(PlayerLobby player, Coordinates coord, boolean pointsIncr) {
+        this.addToLog(formatLogPlayedCard(player, coord, pointsIncr));
     }
 
     public void logPickedCard(PlayerLobby player) {
@@ -49,6 +49,14 @@ public class LogGUI {
 
     public void logFinalPhase() {
         this.addToLog(formatLogFinalPhase());
+    }
+
+    public void logUpdatePoints(Map<PlayerLobby, Integer> pointsDelta) {
+        addToLog(formatLogUpdatePoints(pointsDelta));
+    }
+
+    public void logWinner() {
+        addToLog(formatLogWinner());
     }
 
     public void logDisconnect(PlayerLobby player) {
@@ -84,7 +92,7 @@ public class LogGUI {
         );
     }
 
-    private String formatLogPlayedCard(PlayerLobby player, Coordinates coord) {
+    private String formatLogPlayedCard(PlayerLobby player, Coordinates coord, boolean pointsIncr) {
         CardSidePlayableIF card = gameState.getPlayerState(player).getField().getCardSideAtCoord(coord);
 
         String resourceName = card.getColor().correspondingResource().name();
@@ -92,13 +100,14 @@ public class LogGUI {
                 resourceName.substring(1).toLowerCase();
 
         return String.format(
-                "[%s][%s] Played card %s (%s) at coordinates (%d, %d)",
+                "[%s][%s] Played card %s at coordinates (%d, %d) --> %s %d points",
                 this.currentTimeString(),
                 player.getNickname(),
                 resourceName,
-                ViewTUIConstants.resourceToSymbol(card.getColor().correspondingResource()),
                 coord.getPosX(),
-                coord.getPosY()
+                coord.getPosY(),
+                pointsIncr ? "reached" : "remained with",
+                gameState.getPlayerState(player).getPoints()
         );
     }
 
@@ -137,6 +146,29 @@ public class LogGUI {
                 player.getNickname(),
                 maxpoints
         );
+    }
+
+    private String formatLogUpdatePoints(Map<PlayerLobby, Integer> pointsBefore) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("[%s][%s] The turn-based phase has ended, the extra points from the objective cards are:",
+                currentTimeString(),
+                "Server"));
+        for(PlayerLobby p : pointsBefore.keySet()) {
+            int delta = gameState.getPlayerState(p).getPoints() - pointsBefore.get(p);
+            sb.append(String.format("\n\t%s: %d points --> %s %d points",
+                    p.getNickname(),
+                    delta,
+                    delta==0 ? "remained with" : "reached",
+                    gameState.getPlayerState(p).getPoints()));
+        }
+        return sb.toString();
+    }
+
+    private String formatLogWinner() {
+        return String.format("[%s][%s] The game ended, %s has won",
+                currentTimeString(),
+                "Server",
+                gameState.getWinner().getNickname());
     }
 
     private String formatLogDisconnect(PlayerLobby player) {
