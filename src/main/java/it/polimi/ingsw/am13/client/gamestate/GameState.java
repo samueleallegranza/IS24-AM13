@@ -64,6 +64,11 @@ public class GameState implements Serializable {
     private PlayerLobby winner;
 
     /**
+     * Number of turns to reach the end of the turn-based phase. -1 if FINAL_PHASE has not been reached yet
+     */
+    private int turnsToEnd;
+
+    /**
      * Creates a new representation of the game's state starting from the given interface of model
      * @param model Game model from which to retrieve the game's state
      */
@@ -77,6 +82,7 @@ public class GameState implements Serializable {
         this.gameStatus = model.fetchGameStatus();
         this.currentPlayer = model.fetchCurrentPlayer();
         this.firstPlayer = model.fetchFirstPlayer();
+        this.turnsToEnd = -1;
         this.winner = null;
     }
 
@@ -178,5 +184,20 @@ public class GameState implements Serializable {
      */
     public void setWinner(PlayerLobby winner) {
         this.winner = winner;
+    }
+
+    /**
+     * @return Number of turns to reach the end of the turn-based phase
+     */
+    public int getTurnsToEnd() {
+        return turnsToEnd;
+    }
+
+    /**
+     * Sets the number of turns till the end.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
+     */
+    public void setTurnsToEnd(int turnsToEnd) {
+        this.turnsToEnd = turnsToEnd;
     }
 }

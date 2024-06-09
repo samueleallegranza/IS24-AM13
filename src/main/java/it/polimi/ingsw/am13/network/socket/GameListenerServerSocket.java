@@ -122,8 +122,8 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateFinalPhase() {
-        sendMessage(new MsgResponseFinalPhase());
+    public void updateFinalPhase(int turnsToEnd) {
+        sendMessage(new MsgResponseFinalPhase(turnsToEnd));
     }
 
     @Override

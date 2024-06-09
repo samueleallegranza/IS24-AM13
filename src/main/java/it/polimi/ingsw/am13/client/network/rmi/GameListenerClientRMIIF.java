@@ -103,8 +103,9 @@ public interface GameListenerClientRMIIF extends Remote {
 
     /**
      * The game is in the final phase.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
      */
-    void updateFinalPhase() throws RemoteException;
+    void updateFinalPhase(int turnsToEnd) throws RemoteException;
 
     /**
      * The points given by Objective cards (common and personal) have been calculated.

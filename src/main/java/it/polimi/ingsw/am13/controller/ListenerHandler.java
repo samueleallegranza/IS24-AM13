@@ -182,10 +182,11 @@ public class ListenerHandler implements Serializable {
 
     /**
      * Notifies the view that the game is in the final phase. <br>
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
      */
-    public void notifyFinalPhase(){
+    public void notifyFinalPhase(int turnsToEnd){
         for (GameListener listener : listeners){
-            listener.updateFinalPhase();
+            listener.updateFinalPhase(turnsToEnd);
         }
     }
 

@@ -108,6 +108,7 @@ public class Match {
         firstPlayerIndex = rnd.nextInt(players.size());
         firstPlayer = players.get(firstPlayerIndex);
         currentPlayer = null;
+        turnsToEnd = -1;
 
         LinkedList<CardResource> cardsResource;
         LinkedList<CardGold> cardsGold;
@@ -257,22 +258,6 @@ public class Match {
     public List<CardPlayable> fetchPickables() {
         List<CardPlayable> pickableCards = new LinkedList<>(deckResources.getPickables());
         pickableCards.addAll(deckGold.getPickables());
-        return pickableCards;
-    }
-
-    /**
-     * List of all visible cards (that are pickable during turn phases).
-     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
-     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
-     * If a deck is empty but both its cards are present, only the first optional of the set of 3 will be empty.
-     * Besides this first element of the set, also one or both of the other ones can be empty optionals
-     * @return a new list containing the 6 cards on the table that can be picked by players
-     * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
-     */
-    public List<Optional<? extends CardPlayable>> fetchPickablesOptional() {
-        List<Optional<? extends CardPlayable>> pickableCards;
-        pickableCards = new LinkedList<>(deckResources.getPickablesOptional());
-        pickableCards.addAll(deckGold.getPickablesOptional());
         return pickableCards;
     }
 
@@ -681,4 +666,11 @@ public class Match {
         return playersMap.get(playerLobby).getField();
     }
 
+    /**
+     * @return The number of turn to be completed to reach the end of the turn-based phase.
+     * -1 if the phase FINAL_PHASE has not been reached yet.
+     */
+    public int getTurnsToEnd() {
+        return turnsToEnd;
+    }
 }

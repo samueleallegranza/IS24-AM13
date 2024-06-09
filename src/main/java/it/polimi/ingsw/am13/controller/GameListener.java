@@ -136,8 +136,9 @@ public interface GameListener extends Serializable {
 
     /**
      * Updates the client that the game is in the final phase.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
      */
-    void updateFinalPhase();
+    void updateFinalPhase(int turnsToEnd);
 
     /**
      * Updates the client that the game has begun the turn-based phase.

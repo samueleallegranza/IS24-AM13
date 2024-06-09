@@ -122,7 +122,7 @@ public class ServerResponseHandler extends Thread{
 
                         case MsgResponseFinalPhase msgResponseFinalPhase ->{
                             if(gameStateHandler!=null)
-                                gameStateHandler.updateFinalPhase();
+                                gameStateHandler.updateFinalPhase(msgResponseFinalPhase.getTurnsToEnd());
                             view.showFinalPhase();
                         }
 

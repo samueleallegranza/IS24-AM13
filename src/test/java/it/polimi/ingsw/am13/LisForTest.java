@@ -145,9 +145,9 @@ public class LisForTest implements GameListener {
     }
 
     @Override
-    public void updateFinalPhase() {
+    public void updateFinalPhase(int turnsToEnd) {
         actions.add(ControlAction.FINAL_PHASE);
-        updates.add(new MsgResponseFinalPhase());
+        updates.add(new MsgResponseFinalPhase(turnsToEnd));
     }
 
     @Override

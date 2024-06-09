@@ -192,20 +192,6 @@ public class GameModel implements GameModelIF {
     }
 
     /**
-     * List of all visible cards (that are pickable during turn phases).
-     * The list is of size 6, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
-     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>), and repetion of this.
-     * If a deck is empty but both its cards are present, only the first optional of the set of 3 will be empty.
-     * Besides this first element of the set, also one or both of the other ones can be empty optionals
-     * @return a list containing the 6 cards on the table that can be picked by players
-     * The order: top of resource deck, 2 visible resource cards, top of gold deck, 2 visible gold cards
-     */
-    public List<Optional<? extends CardPlayableIF>> fetchPickablesOptional() {
-        return new ArrayList<>(match.fetchPickablesOptional().stream()
-                .map(c -> (Optional<? extends CardPlayableIF>)c).toList());
-    }
-
-    /**
      * Returns the visible cards for the common objectives.
      * Note that the deck of objective cards is always visible, with top card visible from its back side.
      * Hence, this information is not included in the list
@@ -348,7 +334,7 @@ public class GameModel implements GameModelIF {
         if(res) {
             listenerHandler.notifyNextTurn(fetchCurrentPlayer());
             if(beforeInGame && match.getGameStatus()==GameStatus.FINAL_PHASE)
-                listenerHandler.notifyFinalPhase();
+                listenerHandler.notifyFinalPhase(match.getTurnsToEnd());
         }
         return res;
     }

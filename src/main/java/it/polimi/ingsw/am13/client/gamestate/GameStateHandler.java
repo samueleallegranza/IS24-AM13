@@ -64,6 +64,8 @@ public class GameStateHandler {
 
     public void updateNextTurn(PlayerLobby player) {
         state.setCurrentPlayer(player);
+        if(state.getGameStatus() == GameStatus.FINAL_PHASE)
+            state.setTurnsToEnd(state.getTurnsToEnd()-1);
     }
 
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Coordinates coords, int points, List<Coordinates> availableCoords) {
@@ -105,8 +107,9 @@ public class GameStateHandler {
         state.getPlayerState(player).setConnected(true);
     }
 
-    public void updateFinalPhase() {
+    public void updateFinalPhase(int turnsToEnd) {
         state.setGameStatus(GameStatus.FINAL_PHASE);
+        state.setTurnsToEnd(turnsToEnd);
     }
 
     public void updateInGame() {

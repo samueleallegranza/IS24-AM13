@@ -313,10 +313,11 @@ public class GameListenerServerRMI implements GameListener {
 
     /**
      * Updates the client that the game is in the final phase.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
      */
     @Override
-    public void updateFinalPhase() {
-        tryRMICall(clientLis::updateFinalPhase, "finalPhase");
+    public void updateFinalPhase(int turnsToEnd) {
+        tryRMICall(() -> clientLis.updateFinalPhase(turnsToEnd), "finalPhase");
     }
 
     /**

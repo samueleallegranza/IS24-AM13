@@ -3,6 +3,7 @@ package it.polimi.ingsw.am13.client.view.gui;
 import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
+import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -66,6 +67,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     @FXML
     private Label displayPlayerLabel;
+    /**
+     * Label for counter visible during final phase, displaying the number of turns left to the end of the game
+     */
+    @FXML
+    private Label turnsCounterLabel;
 
     @FXML
     private Label plantCounterLabel;
@@ -336,6 +342,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         flipButtons = List.of(flipButton0, flipButton1, flipButton2);
         handCards = List.of(handCard0, handCard1, handCard2);
         setChat(chat);
+        turnsCounterLabel.setVisible(false);
 
         // Displaying the pickable cards and the common objectives
         // At the beginning of the game, the pickable cards shouldn't be clickable
@@ -447,11 +454,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         log.logNextTurn();
         showLastLogs();
         updateActionLabel();
+        if(state.getGameStatus() == GameStatus.FINAL_PHASE)
+            Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd())));
     }
 
     public synchronized void showFinalPhase() {
         log.logFinalPhase();
         showLastLogs();
+        Platform.runLater(() -> {
+            // I repeat this line here, not only in showNextTurn, so that i'm sure this is done
+            turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd()));
+            turnsCounterLabel.setVisible(true);
+        });
     }
 
     // ----------------------------------------------------------------

@@ -7,7 +7,6 @@ import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
 import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.rmi.GameControllerRMIIF;
 
@@ -186,9 +185,10 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
 
     /**
      * The game is in the final phase.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
      */
-    public void updateFinalPhase() throws RemoteException {
-        stateHandler.updateFinalPhase();
+    public void updateFinalPhase(int turnsToEnd) throws RemoteException {
+        stateHandler.updateFinalPhase(turnsToEnd);
         view.showFinalPhase();
     }
 

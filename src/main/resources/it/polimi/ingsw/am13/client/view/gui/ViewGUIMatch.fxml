@@ -92,6 +92,14 @@
                             <Font size="18.0" />
                         </font>
                     </Label>
+                    <Label fx:id="turnsCounterLabel" alignment="TOP_CENTER" prefHeight="39.0" prefWidth="522.0" wrapText="true" StackPane.alignment="TOP_CENTER">
+                        <StackPane.margin>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                        </StackPane.margin>
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                    </Label>
                     <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="322.0" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
                         <font>
                             <Font size="18.0" />
