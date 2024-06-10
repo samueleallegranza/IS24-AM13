@@ -283,7 +283,7 @@ public class ClientRequestsHandler extends Thread {
      * associated with the request.
      * @param command MsgCommandGetRooms command
      */
-    private void handleGetRooms(MsgCommandGetRooms command) {
+    private synchronized void handleGetRooms(MsgCommandGetRooms command) {
         // [!] Special case message: client has no PlayerLobby linked to it.
         //     Response is custom managed here.
 

@@ -24,8 +24,7 @@ public class MenuItemLeaveChat extends MenuItem {
 
     @Override
     public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
-        List<String> args = List.of(argsStr.split("\\s+"));
-        if(!args.isEmpty())
+        if(!argsStr.isEmpty())
             throw new InvalidTUICommandException("Leaving the room does not require any other argument");
         view.leaveChatRoom();
     }

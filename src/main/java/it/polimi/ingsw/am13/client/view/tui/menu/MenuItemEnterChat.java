@@ -33,7 +33,7 @@ public class MenuItemEnterChat extends MenuItem {
     public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
         List<String> args = List.of(argsStr.split("\\s+"));
         if(args.size()!=1)
-            throw new InvalidTUICommandException("There must be 1 parameter: <Side on which to play the started card (front/back>");
+            throw new InvalidTUICommandException("There must be 1 parameter: <Player's nickname associated to the chat room, or 'all' for the global chatroom with all the players> ");
 
         String playerName = args.getFirst().strip();
         List<String> receivers = new ArrayList<>();
