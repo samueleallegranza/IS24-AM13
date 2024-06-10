@@ -1,3 +1,47 @@
+@font-face {
+    src: url('font/PixelifySans-VariableFont_wght.ttf');
+}
+
+/* JavaFX base classes (will override original style)*/
+
+.label {
+    /*-fx-label-padding: 0;*/
+    /*-fx-text-overrun: clip;*/
+    -fx-font-family: "Pixelify Sans", 'sans-serif';
+}
+
+
+
+/* Match view classes */
+
+.font-regular {
+    -fx-font-size: 25;
+}
+
+.font-small {
+    -fx-font-size: 17;
+}
+
+
 .background {
     /*-fx-background-image: url("img/forest2.png");*/
+    -fx-background-color: #c2a97e;
 }
+
+.field > .viewport {
+    -fx-background-image: url("img/bgpattern.jpg");
+
+}
+
+.field {
+    -fx-background-image: url("img/bgpattern.jpg");
+    -fx-border-width: 6;
+    -fx-border-style: solid;
+    -fx-border-color: #644b3c;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+}
+
+.table {
+    -fx-background-image: url("img/wood.png");
+}
+

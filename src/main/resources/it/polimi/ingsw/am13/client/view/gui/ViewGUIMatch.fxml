@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
     <HBox spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <VBox alignment="CENTER" prefWidth="240.0" spacing="20.0">
             <StackPane fx:id="scoreTrackerContainer" minHeight="-Infinity" minWidth="-Infinity">
@@ -28,28 +42,28 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
                 <VBox prefHeight="130.0" prefWidth="135.0" GridPane.rowIndex="0">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                    <Label id="turn" prefWidth="130.0" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
+                    <Label id="turn" prefWidth="130.0" styleClass="font-small" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" text="online" />
+                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
+                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
+                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
+                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
                 </VBox>
                 <VBox.margin>
                     <Insets />
@@ -74,6 +88,10 @@
                         <StackPane.margin>
                             <Insets right="5.0" />
                         </StackPane.margin>
+                  <styleClass>
+                     <String fx:value="viewport" />
+                     <String fx:value="field" />
+                  </styleClass>
                     </ScrollPane>
 
                     <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0" StackPane.alignment="BOTTOM_LEFT">
@@ -84,7 +102,7 @@
                         <Button onAction="#onFieldDezoomButtonAction" prefHeight="25" prefWidth="25" text="-" />
                         <Button mnemonicParsing="false" onAction="#onClickResetFieldScroll" text="Reset" />
                     </HBox>
-                    <Label fx:id="actionLabel" alignment="TOP_LEFT" prefHeight="86.0" prefWidth="215.0" text="Action to do" wrapText="true" StackPane.alignment="TOP_LEFT">
+                    <Label fx:id="actionLabel" alignment="TOP_LEFT" prefHeight="86.0" prefWidth="341.0" styleClass="font-regular" text="Action to do" wrapText="true" StackPane.alignment="TOP_LEFT">
                         <StackPane.margin>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                         </StackPane.margin>
@@ -100,7 +118,7 @@
                             <Font size="18.0" />
                         </font>
                     </Label>
-                    <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="322.0" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
+                    <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="322.0" styleClass="font-regular" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
                         <font>
                             <Font size="18.0" />
                         </font>
@@ -125,31 +143,31 @@
                         <ImageView fx:id="plantCounterImage" fitHeight="41.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
 <!--                                                     <Image url="@/img/symbols/plant.png" />-->
                         </ImageView>
-                        <Label fx:id="plantCounterLabel" prefHeight="17.0" text="Plant" GridPane.columnIndex="1" />
+                        <Label fx:id="plantCounterLabel" prefHeight="17.0" styleClass="font-small" text="Plant" GridPane.columnIndex="1" />
                         <ImageView fx:id="animalCounterImage" fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
                             <!--                         <Image url="@/img/symbols/animal.png" />-->
                         </ImageView>
-                        <Label fx:id="animalCounterLabel" prefHeight="17.0" text="Animal" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label fx:id="animalCounterLabel" prefHeight="17.0" styleClass="font-small" text="Animal" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <ImageView fx:id="fungusCounterImage" fitHeight="39.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="2">
                             <!--                         <Image url="@/img/symbols/fungus.png" />-->
                         </ImageView>
-                        <Label fx:id="fungusCounterLabel" prefHeight="17.0" text="Fungus" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label fx:id="fungusCounterLabel" prefHeight="17.0" styleClass="font-small" text="Fungus" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <ImageView fx:id="insectCounterImage" fitHeight="42.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="3">
                             <!--                         <Image url="@/img/symbols/insect.png" />-->
                         </ImageView>
-                        <Label fx:id="insectCounterLabel" prefHeight="17.0" text="Insect" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label fx:id="insectCounterLabel" prefHeight="17.0" styleClass="font-small" text="Insect" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <ImageView fx:id="inkwellCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="4">
                             <!--                         <Image url="@/img/symbols/inkwell.png" />-->
                         </ImageView>
-                        <Label fx:id="inkwellCounterLabel" prefHeight="17.0" text="Inkwell" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label fx:id="inkwellCounterLabel" prefHeight="17.0" styleClass="font-small" text="Inkwell" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <ImageView fx:id="quillCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="5">
                             <!--                         <Image url="@/img/symbols/quill.png" />-->
                         </ImageView>
-                        <Label fx:id="quillCounterLabel" prefHeight="17.0" text="Quill" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label fx:id="quillCounterLabel" prefHeight="17.0" styleClass="font-small" text="Quill" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <ImageView fx:id="manuscriptCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="6">
                             <!--                         <Image url="@/img/symbols/manuscript.png" />-->
                         </ImageView>
-                        <Label fx:id="manuscriptCounterLabel" prefHeight="17.0" text="Manuscript" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Label fx:id="manuscriptCounterLabel" prefHeight="17.0" styleClass="font-small" text="Manuscript" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                         <StackPane.margin>
                             <Insets bottom="30.0" right="30.0" />
                         </StackPane.margin>
@@ -167,7 +185,7 @@
                 </StackPane>
             </HBox>
             <HBox alignment="CENTER_RIGHT" minHeight="50.0" spacing="10.0">
-                <HBox alignment="CENTER" minHeight="50.0" spacing="30.0" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER" minHeight="50.0" spacing="30.0" styleClass="table" HBox.hgrow="ALWAYS">
                     <GridPane fx:id="pickablesContainer" alignment="CENTER" hgap="10.0" vgap="10.0">
                         <columnConstraints>
                             <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
