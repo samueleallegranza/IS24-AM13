@@ -67,7 +67,16 @@ public class MenuInputReader extends Thread {
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
-                        menuItem.executeCommand(input.substring(input.indexOf(" ") + 1), networkHandler);
+                        String args="";
+                        boolean foundPref=false;
+                        for (int i = 0; i < input.length(); i++) {
+                            if(foundPref)
+                                args+=input.charAt(i);
+                            else if(input.charAt(i)==' ')
+                                foundPref=true;
+                        }
+                        //input.substring(input.indexOf(" ") + 1)
+                        menuItem.executeCommand(args, networkHandler);
                     } catch (InvalidTUICommandException e) {
                         view.showException(e);
                         //TODO forse da gestire meglio

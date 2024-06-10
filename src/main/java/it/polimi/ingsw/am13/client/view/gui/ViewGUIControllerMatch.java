@@ -379,25 +379,49 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         // Set size of fieldScrollPane
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//        System.out.println(screenBounds.getWidth()+" "+ screenBounds.getHeight()+" "+ scene.getWidth()+" "+ scene.getHeight());
         fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
         fieldScrollPane.setPrefWidth(screenBounds.getWidth() - 130);
+
+        //todo the scroll pane does not work properly when you resize the window
+//        scene.widthProperty().addListener(
+//                (obs,oldVal,newVal)->{
+////                    fieldScrollPane.setPrefWidth(newVal.intValue() - 130);
+//                    System.out.println("detected"+" "+oldVal+" "+newVal);
+//                    PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
+//                    pause.setOnFinished(event -> {
+//                        onClickResetFieldScroll();
+//                    });
+//                    pause.play();
+//                }
+//        );
+//        scene.heightProperty().addListener(
+//                (obs,oldVal,newVal)->{
+////                    fieldScrollPane.setPrefHeight(newVal.intValue()*0.9);
+//                    PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
+//                    pause.setOnFinished(event -> {
+//                        onClickResetFieldScroll();
+//                    });
+//                    pause.play();
+//                }
+//        );
 
         //Initialize hand playables of each player
         playersHandsPlayable=new HashMap<>();
         for(PlayerLobby player : state.getPlayers())
             playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
 
-        // Set field to show and actionLabel
-        displayPlayer = null;
-        switchToPlayer(thisPlayer);
+        // Set actionLabel
+//        displayPlayer = null;
+//        switchToPlayer(thisPlayer);
         updateActionLabel();
 
-        // For how javafx works the scroll bars can't be set immediately, so i run the command with some delay
-        PauseTransition pause = new PauseTransition(Duration.seconds(1)); // Adjust the duration as needed
+        // For how javafx works, I need to wait for the fieldScrollPane height and Width to be set, so I run the command with some delay
+        PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
         pause.setOnFinished(event -> {
-            // Access or set hvalue and vvalue after the delay
-            fieldScrollPane.setHvalue(0.5); // Example: scroll to the middle horizontally
-            fieldScrollPane.setVvalue(0.5); // Example: scroll to the middle vertically
+            // Set the field
+            displayPlayer = null;
+            switchToPlayer(thisPlayer);
         });
         pause.play();
     }
@@ -868,7 +892,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for (Coordinates coordinates : state.getPlayerState(displayPlayer).getField().getAvailableCoords()) {
                 addCardBox(coordinates, handPlayable);
             }
-            ajdustFieldContainerSize();
+            adjustFieldContainerSize();
 
             // set counter values
             Map<Resource, Integer> resources = state.getPlayerState(displayPlayer).getField().getResourcesInField();
@@ -934,10 +958,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * It checks the maximum extension of the elements in it, and if it does not exceed the fieldScrollPane current
      * size, it sets the size of the fieldContainer to the double of the fieldScrollPane.
      * If instead it exceeds, the size if that maximum extension doubled.
-     * Also the scroll of the fieldScrollPane is adjusted, considering if it is the first time the adjustment happens
-     * for the displayed field (set to center of field) or if it must be be taken into account the old value.
+     * Also, the scroll of the fieldScrollPane is adjusted, considering if it is the first time the adjustment happens
+     * for the displayed field (set to center of field) or if it must take into account the old value.
      */
-    private void ajdustFieldContainerSize() {
+    private void adjustFieldContainerSize() {
         double minX = Double.POSITIVE_INFINITY;
         double minY = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
@@ -950,6 +974,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             maxX = Math.max(maxX, bounds.getMaxX());
             maxY = Math.max(maxY, bounds.getMaxY());
         }
+
 
         double prefWidth = 2 * Math.max(maxX - minX, fieldScrollPane.getWidth());
         double prefHeight = 2 * Math.max(maxY - minY, fieldScrollPane.getHeight());
@@ -967,8 +992,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         // Update the preferred size of the StackPane
         fieldContainer.setPrefSize(prefWidth, prefHeight);
-        fieldScrollPane.setHvalue(scrollX);
-        fieldScrollPane.setVvalue(scrollY);
+//        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHmax()+" "+fieldScrollPane.getVmax());
+
+        PauseTransition pause = new PauseTransition(Duration.millis(500)); // Adjust the duration as needed
+        pause.setOnFinished(event -> {
+            fieldScrollPane.setHvalue(scrollX);
+            fieldScrollPane.setVvalue(scrollY);
+        });
+        pause.play();
     }
 
     /**
@@ -1051,8 +1082,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private void initScoreTracker() {
         Platform.runLater(() -> {
             scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
-            double xDim = scoreTrackerContainer.getWidth();
-            double yDim = scoreTrackerContainer.getHeight();
+            double xDim = scoreTrackerContainer.getWidth()==0 ? scoreTrackerView.getFitWidth() : scoreTrackerContainer.getWidth();
+            double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
+//            System.out.println(xDim+" "+yDim);
 
             for(PlayerLobby p : state.getPlayers()) {
                 savedPoints.put(p, 0);
