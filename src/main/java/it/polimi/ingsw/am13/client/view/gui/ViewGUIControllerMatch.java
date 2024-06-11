@@ -8,7 +8,6 @@ import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -384,14 +383,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         //adjust the field whenever the size of the scroll pane changes
         fieldScrollPane.widthProperty().addListener(
-                (obs,oldVal,newVal)->{
-                    adjustFieldContainerSize();
-                }
+                (obs,oldVal,newVal)-> adjustFieldContainerSize()
+
         );
         fieldScrollPane.heightProperty().addListener(
-                (obs,oldVal,newVal)->{
-                    adjustFieldContainerSize();
-                }
+                (obs,oldVal,newVal)-> adjustFieldContainerSize()
         );
 
         //Initialize hand playables of each player
@@ -701,15 +697,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayHandPlayable();
             displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
-
-            // For how javafx works the scroll bars can't be set immediately, so i run the command with some delay
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // Adjust the duration as needed
-            pause.setOnFinished(event -> {
-                // Access or set hvalue and vvalue after the delay
-                fieldScrollPane.setHvalue(0.5); // Example: scroll to the middle horizontally
-                fieldScrollPane.setVvalue(0.5); // Example: scroll to the middle vertically
-            });
-            pause.play();
         }
     }
 
