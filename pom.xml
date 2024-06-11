@@ -26,6 +26,11 @@
             <version>21</version>
         </dependency>
         <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>17.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>11.1.2</version>
@@ -69,7 +74,7 @@
                 <configuration>
                     <mainClass>it.polimi.ingsw.am13.ServerMain</mainClass>
                     <arguments>
-                        <argument></argument>
+                        <argument/>
                     </arguments>
                 </configuration>
             </plugin>

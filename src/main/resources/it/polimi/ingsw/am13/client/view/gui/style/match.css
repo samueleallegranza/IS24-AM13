@@ -10,8 +10,6 @@
     -fx-font-family: "Pixelify Sans", 'sans-serif';
 }
 
-
-
 /* Match view classes */
 
 .font-regular {
@@ -21,7 +19,6 @@
 .font-small {
     -fx-font-size: 17;
 }
-
 
 .background {
     /*-fx-background-image: url("img/forest2.png");*/
@@ -42,6 +39,43 @@
 }
 
 .table {
-    -fx-background-image: url("img/wood.png");
+    -fx-background-image: url("img/wood.png"); /* Set background image */
 }
 
+.tab-pane > .tab-header-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.plantCounterImage {
+    -fx-image: url("img/symbols/plant.png");
+}
+
+.animalCounterImage {
+    -fx-image: url("img/symbols/animal.png");
+}
+
+.fungusCounterImage {
+    -fx-image: url("img/symbols/fungus.png");
+}
+
+.insectCounterImage {
+    -fx-image: url("img/symbols/insect.png");
+}
+
+.inkwellCounterImage {
+    -fx-image: url("img/symbols/inkwell.png");
+}
+
+.quillCounterImage {
+    -fx-image: url("img/symbols/quill.png");
+}
+
+.manuscriptCounterImage {
+    -fx-image: url("img/symbols/manuscript.png");
+}

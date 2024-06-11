@@ -35,6 +35,7 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
+import javafx.scene.media.AudioClip;
 import java.util.*;
 
 
@@ -93,21 +94,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private Label quillCounterLabel;
     @FXML
     private Label inkwellCounterLabel;
-    @FXML
-    private ImageView plantCounterImage;
-    @FXML
-    private ImageView animalCounterImage;
-    @FXML
-    private ImageView fungusCounterImage;
-    @FXML
-    private ImageView insectCounterImage;
-    @FXML
-    private ImageView inkwellCounterImage;
-    @FXML
-    private ImageView quillCounterImage;
-    @FXML
-    private ImageView manuscriptCounterImage;
-
     @FXML
     private ImageView scoreTrackerView;
     @FXML
@@ -326,14 +312,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
-        //if I am currently watching a player who disconnected, I automatically switch the view back to mine
-//        if(player.equals(displayPlayer)){
-//            displayPlayer = thisPlayer;
-//            handPlayable = new ArrayList<>(state.getPlayerState(displayPlayer).getHandPlayable());
-//            displayField();
-//            displayHandPlayable();
-//        }
-
         log.logDisconnect(player);
         showLastLogs();
     }
@@ -458,6 +436,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
+            new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/yourTurn-DaCambiare.mp3")).toString()).play();
         }
         playersContainerUpdateTurns();
 
@@ -952,23 +931,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         double prefWidth = 2 * Math.max(maxX - minX, fieldScrollPane.getWidth());
         double prefHeight = 2 * Math.max(maxY - minY, fieldScrollPane.getHeight());
         double scrollX, scrollY;
-        System.out.println(prefWidth+" "+fieldScrollPane.getWidth()+" "+ fieldContainer.getWidth()+" "+fieldContainer.getPrefWidth());
+//        System.out.println(prefWidth+" "+fieldScrollPane.getWidth()+" "+ fieldContainer.getWidth()+" "+fieldContainer.getPrefWidth());
         if(firstFieldScrollAdjustment) {
             scrollX = 0.5;
             scrollY = 0.5;
             firstFieldScrollAdjustment = false;
         } else {
             scrollX = prefWidth == 2* fieldScrollPane.getWidth() ? fieldScrollPane.getHvalue() :
-                    fieldScrollPane.getHvalue() * prefWidth / fieldContainer.getPrefWidth();
-//                    + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
+                    fieldScrollPane.getHvalue() * prefWidth / fieldContainer.getPrefWidth()
+                    + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
             scrollY = prefHeight == 2 * fieldScrollPane.getHeight() ? fieldScrollPane.getVvalue() :
-                    fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight();
-//                    + 0.0 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
+                    fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight()
+                    + 0.0 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
         }
 
         // Update the preferred size of the StackPane
         fieldContainer.setPrefSize(prefWidth, prefHeight);
-        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHvalue()+" "+fieldScrollPane.getVvalue());
+//        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHvalue()+" "+fieldScrollPane.getVvalue());
 
         fieldContainer.widthProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setHvalue(scrollX));
         fieldContainer.heightProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setVvalue(scrollY));
@@ -1038,13 +1017,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 Resource.INKWELL, inkwellCounterLabel,
                 Resource.MANUSCRIPT, manuscriptCounterLabel
         );
-        plantCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/plant.png"))));
-        animalCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/animal.png"))));
-        fungusCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/fungus.png"))));
-        insectCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/insect.png"))));
-        inkwellCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/inkwell.png"))));
-        quillCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/quill.png"))));
-        manuscriptCounterImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/symbols/manuscript.png"))));
     }
 
     /**
@@ -1120,7 +1092,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     path.getElements().add(new LineTo(
                             xTranslToken.get(point) * xDim,
                             yTranslToken.get(point) * yDim));
-                    System.out.println(point);
+//                    System.out.println(point);
                 }
                 PathTransition pathTransition = new PathTransition();
                 pathTransition.setDuration(Duration.seconds(0.5*(points-currentPoints))); // Set animation duration
@@ -1251,6 +1223,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param receivers of the message
      */
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
+        // Load the sound file
+        AudioClip sound = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/messageNotification.mp3")).toString());
+
         if(chatChoice.getValue()!=null) {
             if (sender.equals(thisPlayer)) {
                 chatField.clear();
@@ -1264,6 +1239,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         }
 
+        if (receivers.contains(thisPlayer)) {
+            log.logMessageReceived(sender, receivers.size() > 1);
+            showLastLogs();
+            sound.play();
+        }
     }
 
     /**

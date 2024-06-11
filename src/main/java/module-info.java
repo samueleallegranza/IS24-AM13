@@ -7,6 +7,7 @@ module it.polimi.ingsw.am13 {
     requires com.fasterxml.jackson.databind;
     requires java.rmi;
     requires java.desktop;
+    requires javafx.media;
 
     opens it.polimi.ingsw.am13 to javafx.fxml;
     opens it.polimi.ingsw.am13.controller to javafx.base;

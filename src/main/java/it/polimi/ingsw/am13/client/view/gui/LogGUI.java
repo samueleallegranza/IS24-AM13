@@ -67,6 +67,13 @@ public class LogGUI {
         this.addToLog(formatLogReconnect(player));
     }
 
+    public void logMessageReceived(PlayerLobby sender, boolean toAll) {
+        addToLog(String.format("[%s][%s] Sent message to %s",
+                this.currentTimeString(),
+                sender.getNickname(),
+                toAll ? "all" : "you"));
+    }
+
     private void addToLog(String log) {
         logMessages.add(log);
     }
@@ -186,5 +193,4 @@ public class LogGUI {
                 player.getNickname()
         );
     }
-
 }

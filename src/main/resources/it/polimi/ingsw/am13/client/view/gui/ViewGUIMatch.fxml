@@ -1,26 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
     <HBox spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <VBox alignment="CENTER" prefWidth="240.0" spacing="20.0">
             <StackPane fx:id="scoreTrackerContainer" minHeight="-Infinity" minWidth="-Infinity">
@@ -96,7 +83,7 @@
 
                     <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0" StackPane.alignment="BOTTOM_LEFT">
                         <StackPane.margin>
-                            <Insets bottom="20.0" left="5.0" />
+                            <Insets bottom="20.0" left="15.0" />
                         </StackPane.margin>
                         <Button onAction="#onFieldZoomButtonAction" prefHeight="25" prefWidth="25" text="+" />
                         <Button onAction="#onFieldDezoomButtonAction" prefHeight="25" prefWidth="25" text="-" />
@@ -110,7 +97,7 @@
                             <Font size="18.0" />
                         </font>
                     </Label>
-                    <Label fx:id="turnsCounterLabel" alignment="TOP_CENTER" prefHeight="39.0" prefWidth="522.0" wrapText="true" StackPane.alignment="TOP_CENTER">
+                    <Label fx:id="turnsCounterLabel" alignment="TOP_CENTER" mouseTransparent="true" prefHeight="39.0" prefWidth="522.0" wrapText="true" StackPane.alignment="TOP_CENTER">
                         <StackPane.margin>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                         </StackPane.margin>
@@ -140,31 +127,31 @@
                             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                         </rowConstraints>
-                        <ImageView fx:id="plantCounterImage" fitHeight="41.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="41.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true" styleClass="plantCounterImage">
 <!--                                                     <Image url="@/img/symbols/plant.png" />-->
                         </ImageView>
                         <Label fx:id="plantCounterLabel" prefHeight="17.0" styleClass="font-small" text="Plant" GridPane.columnIndex="1" />
-                        <ImageView fx:id="animalCounterImage" fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
+                        <ImageView fitHeight="36.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" styleClass="animalCounterImage" GridPane.rowIndex="1">
                             <!--                         <Image url="@/img/symbols/animal.png" />-->
                         </ImageView>
                         <Label fx:id="animalCounterLabel" prefHeight="17.0" styleClass="font-small" text="Animal" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <ImageView fx:id="fungusCounterImage" fitHeight="39.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="2">
+                        <ImageView fitHeight="39.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" styleClass="fungusCounterImage" GridPane.rowIndex="2">
                             <!--                         <Image url="@/img/symbols/fungus.png" />-->
                         </ImageView>
                         <Label fx:id="fungusCounterLabel" prefHeight="17.0" styleClass="font-small" text="Fungus" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <ImageView fx:id="insectCounterImage" fitHeight="42.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="3">
+                        <ImageView fitHeight="42.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" styleClass="insectCounterImage" GridPane.rowIndex="3">
                             <!--                         <Image url="@/img/symbols/insect.png" />-->
                         </ImageView>
                         <Label fx:id="insectCounterLabel" prefHeight="17.0" styleClass="font-small" text="Insect" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <ImageView fx:id="inkwellCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="4">
+                        <ImageView fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" styleClass="inkwellCounterImage" GridPane.rowIndex="4">
                             <!--                         <Image url="@/img/symbols/inkwell.png" />-->
                         </ImageView>
                         <Label fx:id="inkwellCounterLabel" prefHeight="17.0" styleClass="font-small" text="Inkwell" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <ImageView fx:id="quillCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="5">
+                        <ImageView fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" styleClass="quillCounterImage" GridPane.rowIndex="5">
                             <!--                         <Image url="@/img/symbols/quill.png" />-->
                         </ImageView>
                         <Label fx:id="quillCounterLabel" prefHeight="17.0" styleClass="font-small" text="Quill" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <ImageView fx:id="manuscriptCounterImage" fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="6">
+                        <ImageView fitHeight="43.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true" styleClass="manuscriptCounterImage" GridPane.rowIndex="6">
                             <!--                         <Image url="@/img/symbols/manuscript.png" />-->
                         </ImageView>
                         <Label fx:id="manuscriptCounterLabel" prefHeight="17.0" styleClass="font-small" text="Manuscript" GridPane.columnIndex="1" GridPane.rowIndex="6" />
@@ -227,16 +214,16 @@
                         </HBox>
                     </VBox>
                 </HBox>
-                <TabPane prefHeight="370.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
+                <TabPane prefHeight="370.0" prefWidth="500.0" styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE" tabMinHeight="20.0" tabMinWidth="60.0">
                     <HBox.margin>
                         <Insets right="10.0" />
                     </HBox.margin>
                     <Tab text="Log">
                         <AnchorPane minHeight="0.0" minWidth="0.0">
-                            <padding>
-                                <Insets top="5.0" />
-                            </padding>
                             <TextArea fx:id="logArea" editable="false" layoutX="-10.0" prefHeight="197.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
                         </AnchorPane>
                     </Tab>
                     <Tab text="Chat">
