@@ -379,51 +379,30 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         // Set size of fieldScrollPane
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-//        System.out.println(screenBounds.getWidth()+" "+ screenBounds.getHeight()+" "+ scene.getWidth()+" "+ scene.getHeight());
         fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
         fieldScrollPane.setPrefWidth(screenBounds.getWidth() - 130);
 
-        //todo the scroll pane does not work properly when you resize the window
-//        scene.widthProperty().addListener(
-//                (obs,oldVal,newVal)->{
-////                    fieldScrollPane.setPrefWidth(newVal.intValue() - 130);
-//                    System.out.println("detected"+" "+oldVal+" "+newVal);
-//                    PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
-//                    pause.setOnFinished(event -> {
-//                        onClickResetFieldScroll();
-//                    });
-//                    pause.play();
-//                }
-//        );
-//        scene.heightProperty().addListener(
-//                (obs,oldVal,newVal)->{
-////                    fieldScrollPane.setPrefHeight(newVal.intValue()*0.9);
-//                    PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
-//                    pause.setOnFinished(event -> {
-//                        onClickResetFieldScroll();
-//                    });
-//                    pause.play();
-//                }
-//        );
+        //adjust the field whenever the size of the scroll pane changes
+        fieldScrollPane.widthProperty().addListener(
+                (obs,oldVal,newVal)->{
+                    adjustFieldContainerSize();
+                }
+        );
+        fieldScrollPane.heightProperty().addListener(
+                (obs,oldVal,newVal)->{
+                    adjustFieldContainerSize();
+                }
+        );
 
         //Initialize hand playables of each player
         playersHandsPlayable=new HashMap<>();
         for(PlayerLobby player : state.getPlayers())
             playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
 
-        // Set actionLabel
-//        displayPlayer = null;
-//        switchToPlayer(thisPlayer);
+        // Set actionLabel and the field
+        displayPlayer = null;
+        switchToPlayer(thisPlayer);
         updateActionLabel();
-
-        // For how javafx works, I need to wait for the fieldScrollPane height and Width to be set, so I run the command with some delay
-        PauseTransition pause = new PauseTransition(Duration.millis(100)); // Adjust the duration as needed
-        pause.setOnFinished(event -> {
-            // Set the field
-            displayPlayer = null;
-            switchToPlayer(thisPlayer);
-        });
-        pause.play();
     }
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
@@ -833,6 +812,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             ClipboardContent content = new ClipboardContent();
             content.putString(imageView.getId());
             db.setContent(content);
+            ImageView smallImg=new ImageView(imageView.getImage());
+            smallImg.setFitHeight(imageView.getFitHeight()*0.5);
+            smallImg.setFitWidth(imageView.getFitWidth()*0.5);
+            imageView.setVisible(false);
+            db.setDragView(smallImg.snapshot(null,null));
             event.consume();
         });
         imageView.setOnDragDone(event -> {
@@ -845,6 +829,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     handCard.setOnDragDetected(null);
                 }
             }
+            else
+                imageView.setVisible(true);
             event.consume();
         });
     }
@@ -979,27 +965,26 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         double prefWidth = 2 * Math.max(maxX - minX, fieldScrollPane.getWidth());
         double prefHeight = 2 * Math.max(maxY - minY, fieldScrollPane.getHeight());
         double scrollX, scrollY;
+        System.out.println(prefWidth+" "+fieldScrollPane.getWidth()+" "+ fieldContainer.getWidth()+" "+fieldContainer.getPrefWidth());
         if(firstFieldScrollAdjustment) {
             scrollX = 0.5;
             scrollY = 0.5;
             firstFieldScrollAdjustment = false;
         } else {
-            scrollX = fieldScrollPane.getHvalue() * prefWidth / fieldContainer.getPrefWidth()
-                    + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
-            scrollY = fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight()
-                    + 0.5 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
+            scrollX = prefWidth == 2* fieldScrollPane.getWidth() ? fieldScrollPane.getHvalue() :
+                    fieldScrollPane.getHvalue() * prefWidth / fieldContainer.getPrefWidth();
+//                    + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
+            scrollY = prefHeight == 2 * fieldScrollPane.getHeight() ? fieldScrollPane.getVvalue() :
+                    fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight();
+//                    + 0.0 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
         }
 
         // Update the preferred size of the StackPane
         fieldContainer.setPrefSize(prefWidth, prefHeight);
-//        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHmax()+" "+fieldScrollPane.getVmax());
+        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHvalue()+" "+fieldScrollPane.getVvalue());
 
-        PauseTransition pause = new PauseTransition(Duration.millis(500)); // Adjust the duration as needed
-        pause.setOnFinished(event -> {
-            fieldScrollPane.setHvalue(scrollX);
-            fieldScrollPane.setVvalue(scrollY);
-        });
-        pause.play();
+        fieldContainer.widthProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setHvalue(scrollX));
+        fieldContainer.heightProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setVvalue(scrollY));
     }
 
     /**
