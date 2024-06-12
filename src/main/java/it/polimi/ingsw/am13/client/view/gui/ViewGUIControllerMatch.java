@@ -33,7 +33,7 @@ import javafx.scene.media.AudioClip;
 import java.util.*;
 
 
-//TODO x Matteo aggiungi traslazione di token su tabellone quando si aggiornano i punti
+//TODO: Raffina strategia in play card per debug mode
 
 public class ViewGUIControllerMatch extends ViewGUIController {
 
@@ -360,6 +360,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showException(Exception e) {
+        e.printStackTrace();
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -447,10 +448,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         playAudio("startGame.mp3");
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
-            networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(),
-                    state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
-                    Side.SIDEBACK);
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(),
+                        state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
+                        Side.SIDEBACK);
+            }).start();
+        }
     }
 
 
@@ -479,8 +488,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
         updateActionLabel();
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
-            networkHandler.pickCard(state.getPickables().getFirst());
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CardPlayableIF pickedCard = state.getPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
+                networkHandler.pickCard(pickedCard);
+            }).start();
+        }
     }
 
     public void showPickedCard(PlayerLobby player) {
@@ -524,10 +542,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(state.getGameStatus() == GameStatus.FINAL_PHASE)
             Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd())));
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
-            networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(),
-                    state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
-                    Side.SIDEBACK);
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                CardPlayableIF playedCard = state.getPlayerState(thisPlayer).getHandPlayable().getFirst();
+                networkHandler.playCard(playedCard,
+                        state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
+                        playedCard instanceof CardGold ? Side.SIDEBACK : Side.SIDEFRONT);
+            }).start();
+        }
     }
 
     public synchronized void showFinalPhase() {
