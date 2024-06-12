@@ -5,6 +5,7 @@ import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
+import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
@@ -267,6 +268,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final double tokenDimRel2x = 0.17083;
 
+    /**
+     * Only for debug: delay for doing actions in SKIP_TURNS mode
+     */
+    private static final long THINKING_TIME = 100;
+
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
@@ -360,35 +366,49 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showException(Exception e) {
-        e.printStackTrace();
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("An error occurred");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-        });
-
-        //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
-        if(state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
+        if(!ViewGUI.SKIP_TURNS) {
+//            e.printStackTrace();
             Platform.runLater(() -> {
-//                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
-                attemptedToPlayCardHand.setVisible(true);
-                attemptedToPlayFlipButton.setVisible(true);
-                fieldContainer.getChildren().remove(attemptedToPlayCardField);
-                fieldContainer.getChildren().add(attemptedToPlayCardBox);
-                attemptedToPlayCardBox.toBack();
-                for (int i = 0; i < handCards.size(); i++) {
-                    int finalI = i;
-                    handCards.get(i).setOnDragDetected( event -> {
-                        Dragboard db = handCards.get(finalI).startDragAndDrop(TransferMode.ANY);
-                        ClipboardContent content = new ClipboardContent();
-                        content.putString(handCards.get(finalI).getId());
-                        db.setContent(content);
-                        event.consume();
-                    } );
-                }
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("An error occurred");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
             });
+
+            //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
+            if (state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
+                Platform.runLater(() -> {
+//                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
+                    attemptedToPlayCardHand.setVisible(true);
+                    attemptedToPlayFlipButton.setVisible(true);
+                    fieldContainer.getChildren().remove(attemptedToPlayCardField);
+                    fieldContainer.getChildren().add(attemptedToPlayCardBox);
+                    attemptedToPlayCardBox.toBack();
+                    for (int i = 0; i < handCards.size(); i++) {
+                        int finalI = i;
+                        handCards.get(i).setOnDragDetected(event -> {
+                            Dragboard db = handCards.get(finalI).startDragAndDrop(TransferMode.ANY);
+                            ClipboardContent content = new ClipboardContent();
+                            content.putString(handCards.get(finalI).getId());
+                            db.setContent(content);
+                            event.consume();
+                        });
+                    }
+                });
+            }
+        } else {
+            if(e instanceof RequirementsNotMetException) {
+                // I'm here if I tried to play, in debug mode, a gold card, but resulted in an exception
+                // So I surrender for this turn and play a resource card
+                CardPlayableIF playedCard = state.getPlayerState(thisPlayer).getHandPlayable()
+                        .stream().filter(c -> c instanceof CardResource).findFirst().orElse(null);
+                Coordinates coord = state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst();
+                if(playedCard != null)
+                    networkHandler.playCard(playedCard, coord, Side.SIDEFRONT);
+                else
+                    networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(), coord, Side.SIDEBACK);
+            }
         }
     }
     @Override
@@ -451,7 +471,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(THINKING_TIME);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -491,12 +511,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(THINKING_TIME);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                CardPlayableIF pickedCard = state.getPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
-                networkHandler.pickCard(pickedCard);
+                List<CardPlayableIF> pickablesForSkip = new ArrayList<>(state.getPickables().stream().filter(Objects::nonNull).toList());
+                Collections.shuffle(pickablesForSkip);
+                networkHandler.pickCard(pickablesForSkip.getFirst());       // I assume there is at least 1 card
             }).start();
         }
     }
@@ -545,14 +566,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(THINKING_TIME);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                CardPlayableIF playedCard = state.getPlayerState(thisPlayer).getHandPlayable().getFirst();
+                // I try to play a golden card, if present.
+                // If ok, the game moves on. Otherwise, in showException i play a resourceCard
+                CardPlayableIF playedCard = state.getPlayerState(thisPlayer).getHandPlayable().stream()
+                        .filter(p -> p instanceof CardGold).findFirst().orElse(state.getPlayerState(thisPlayer).getHandPlayable().getFirst());
                 networkHandler.playCard(playedCard,
                         state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
-                        playedCard instanceof CardGold ? Side.SIDEBACK : Side.SIDEFRONT);
+                        Side.SIDEFRONT);
             }).start();
         }
     }
