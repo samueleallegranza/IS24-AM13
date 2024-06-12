@@ -17,10 +17,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -30,9 +30,16 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
-import javafx.scene.media.AudioClip;
 import java.util.*;
 
+import org.jfugue.pattern.Pattern;
+import org.jfugue.player.Player;
+import org.jfugue.realtime.RealtimePlayer;
+import org.jfugue.rhythm.Rhythm;
+import org.jfugue.theory.ChordProgression;
+import org.jfugue.theory.Note;
+
+import javax.sound.midi.MidiUnavailableException;
 
 //TODO: Raffina strategia in play card per debug mode
 
@@ -273,6 +280,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
+    private RealtimePlayer notePlayer;
+
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
@@ -456,6 +465,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
+        try {
+            notePlayer=new RealtimePlayer();
+        } catch (MidiUnavailableException e) {
+            System.out.println(e);
+        }
 
         // First in game log
         log.logNextTurn();
@@ -483,6 +497,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
 
+    private static Pattern[] PATTERNS = new Pattern[] {
+            new Pattern("Cmajq Dmajq Emajq"),
+            new Pattern("V0 Ei Gi Di Ci  V1 Gi Ci Fi Ei"),
+            new Pattern("V0 Cmajq V1 Gmajq")
+    };
+
+
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         int pointsBefore = savedPoints.get(player);
         if(thisPlayer.equals(player)) {
@@ -499,6 +520,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
+            notePlayer.changeInstrument(1);
+            notePlayer.startNote(new Note("A"));
+            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
+
         }
 
         playersContainerUpdatePoints(player);
@@ -833,12 +858,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             List<CardPlayableIF> pickables = state.getPickables();
             List<ImageView> pickablesViews = List.of(resDeck,resPick1,resPick2,gldDeck,gldPick1,gldPick2);
             for (int i = 0; i < pickables.size(); i++) {
-                displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
-                int finalI = i;
-                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
-                    if(flowCardPlaced)
-                        networkHandler.pickCard(pickables.get(finalI));
-                });
+                if(pickables.get(i)!=null) {
+                    displayCard(pickables.get(i).getId(), pickables.get(i).getVisibleSide(), pickablesViews.get(i));
+                    int finalI = i;
+                    pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
+                        if (flowCardPlaced)
+                            networkHandler.pickCard(pickables.get(finalI));
+                    });
+                }
+                else
+                    pickablesViews.get(i).setVisible(false);
             }
 
             List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
