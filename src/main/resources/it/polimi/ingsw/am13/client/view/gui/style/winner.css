@@ -1,0 +1,28 @@
+.winnerTable {
+    -fx-font-size: 20px; /* Change the font size for the entire TableView */
+    /*-fx-background-color: transparent;*/
+}
+
+.winnerTable .column-header {
+    -fx-font-size: 20px; /* Change the font size for the column headers */
+}
+
+.winnerTable .cell {
+    -fx-font-size: 20px; /* Change the font size for the cells */
+}
+
+VBox {
+    -fx-background-color: transparent;
+}
+HBox {
+    -fx-background-color: transparent;
+}
+
+.winnerBigLabel {
+    -fx-font-size: 50px;
+    -fx-text-fill: white;
+    -fx-background-color: black, black;
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0, 2;
+    -fx-effect: dropshadow(gaussian, black, 40, 0, 0, 0);
+}

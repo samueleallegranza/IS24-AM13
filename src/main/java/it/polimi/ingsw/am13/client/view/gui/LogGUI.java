@@ -27,115 +27,45 @@ public class LogGUI {
         return logMessages.poll();
     }
 
+
+    public void logStartGame() {
+        addToLog("The game has started\n--> TO 30L... AND BEYOND!! <--");
+    }
+
     public void logPlayedStarter(PlayerLobby player) {
-        this.addToLog(formatLogPlayedStarter(player));
+        addToLog(player, "Played starter card");
     }
 
     public void logChosenPersonalObjective(PlayerLobby player) {
-        this.addToLog(formatLogChosenPersonalObjective(player));
+        addToLog(player, "Chose personal objective");
     }
 
     public void logPlayedCard(PlayerLobby player, Coordinates coord, boolean pointsIncr) {
-        this.addToLog(formatLogPlayedCard(player, coord, pointsIncr));
-    }
-
-    public void logPickedCard(PlayerLobby player) {
-        this.addToLog(formatLogPickedCard(player));
-    }
-
-    public void logNextTurn() {
-        this.addToLog(formatLogNextTurn());
-    }
-
-    public void logFinalPhase() {
-        this.addToLog(formatLogFinalPhase());
-    }
-
-    public void logUpdatePoints(Map<PlayerLobby, Integer> pointsDelta) {
-        addToLog(formatLogUpdatePoints(pointsDelta));
-    }
-
-    public void logWinner() {
-        addToLog(formatLogWinner());
-    }
-
-    public void logDisconnect(PlayerLobby player) {
-        this.addToLog(formatLogDisconnect(player));
-    }
-
-    public void logReconnect(PlayerLobby player) {
-        this.addToLog(formatLogReconnect(player));
-    }
-
-    public void logMessageReceived(PlayerLobby sender, boolean toAll) {
-        addToLog(String.format("[%s][%s] Sent message to %s",
-                this.currentTimeString(),
-                sender.getNickname(),
-                toAll ? "all" : "you"));
-    }
-
-    private void addToLog(String log) {
-        logMessages.add(log);
-    }
-
-    private String currentTimeString() {
-        LocalTime currentTime = LocalTime.now();
-        return currentTime.format(ViewTUIConstants.DATETIME_FORMAT);
-    }
-
-    private String formatLogPlayedStarter(PlayerLobby player) {
-        return String.format(
-                "[%s][%s] Played starter card",
-                this.currentTimeString(),
-                player.getNickname()
-        );
-    }
-
-    private String formatLogChosenPersonalObjective(PlayerLobby player) {
-        return String.format(
-                "[%s][%s] Chosen personal objective",
-                this.currentTimeString(),
-                player.getNickname()
-        );
-    }
-
-    private String formatLogPlayedCard(PlayerLobby player, Coordinates coord, boolean pointsIncr) {
         CardSidePlayableIF card = gameState.getPlayerState(player).getField().getCardSideAtCoord(coord);
 
         String resourceName = card.getColor().correspondingResource().name();
         resourceName = resourceName.substring(0,1).toUpperCase() +
                 resourceName.substring(1).toLowerCase();
 
-        return String.format(
-                "[%s][%s] Played card %s at coordinates (%d, %d) --> %s %d points",
-                this.currentTimeString(),
-                player.getNickname(),
-                resourceName,
-                coord.getPosX(),
-                coord.getPosY(),
-                pointsIncr ? "reached" : "remained with",
-                gameState.getPlayerState(player).getPoints()
+        this.addToLog(player,
+                String.format("Played card %s at coordinates (%d, %d) --> %s %d points",
+                        resourceName,
+                        coord.getPosX(),
+                        coord.getPosY(),
+                        pointsIncr ? "reached" : "remained with",
+                        gameState.getPlayerState(player).getPoints())
         );
     }
 
-    private String formatLogPickedCard(PlayerLobby player) {
-        return String.format(
-                "[%s][%s] Picked card from the table",
-                this.currentTimeString(),
-                player.getNickname()
-        );
+    public void logPickedCard(PlayerLobby player) {
+        this.addToLog(player, "Picked card from the table");
     }
 
-    private String formatLogNextTurn() {
-        return String.format(
-                "[%s][%s] Now its the turn of player %s",
-                this.currentTimeString(),
-                "Server",
-                gameState.getCurrentPlayer().getNickname()
-        );
+    public void logNextTurn() {
+        this.addToLog("Now its the turn of player " + gameState.getCurrentPlayer().getNickname());
     }
 
-    private String formatLogFinalPhase() {
+    public void logFinalPhase() {
         // find who triggered the final phase
         int maxpoints = -1;
         PlayerLobby player = gameState.getPlayers().getFirst();
@@ -146,51 +76,60 @@ public class LogGUI {
             }
         }
 
-        return String.format(
-                "[%s][%s] Hurry up, %s has reached %d points! The next game round will be the last one",
-                this.currentTimeString(),
-                "Server",
+        this.addToLog(String.format(
+                "Hurry up, %s has reached %d points! The next game round will be the last one",
                 player.getNickname(),
                 maxpoints
-        );
+        ));
     }
 
-    private String formatLogUpdatePoints(Map<PlayerLobby, Integer> pointsBefore) {
+    public void logUpdatePoints(Map<PlayerLobby, Integer> pointsDelta) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("[%s][%s] The turn-based phase has ended, the extra points from the objective cards are:",
-                currentTimeString(),
-                "Server"));
-        for(PlayerLobby p : pointsBefore.keySet()) {
-            int delta = gameState.getPlayerState(p).getPoints() - pointsBefore.get(p);
+        sb.append("The turn-based phase has ended, the extra points from the objective cards are:");
+        for(PlayerLobby p : pointsDelta.keySet()) {
+            int delta = gameState.getPlayerState(p).getPoints() - pointsDelta.get(p);
             sb.append(String.format("\n\t%s: %d points --> %s %d points",
                     p.getNickname(),
                     delta,
                     delta==0 ? "remained with" : "reached",
                     gameState.getPlayerState(p).getPoints()));
         }
-        return sb.toString();
+        addToLog(sb.toString());
     }
 
-    private String formatLogWinner() {
-        return String.format("[%s][%s] The game ended, %s has won",
-                currentTimeString(),
-                "Server",
-                gameState.getWinner().getNickname());
-    }
-
-    private String formatLogDisconnect(PlayerLobby player) {
-        return String.format(
-                "[%s][%s] Left the game",
-                this.currentTimeString(),
-                player.getNickname()
+    public void logWinner() {
+        addToLog(String.format("The game ended, %s has won",
+                gameState.getWinner().getNickname())
         );
     }
 
-    private String formatLogReconnect(PlayerLobby player) {
-        return String.format(
-                "[%s][%s] Re-joined the game",
+    public void logDisconnect(PlayerLobby player) {
+        this.addToLog(player, "Left the game");
+    }
+
+    public void logReconnect(PlayerLobby player) {
+        this.addToLog(player, "Re-joined the game");
+    }
+
+    public void logMessageReceived(PlayerLobby sender, boolean toAll) {
+        addToLog(String.format("[%s][%s] Sent message to %s",
                 this.currentTimeString(),
-                player.getNickname()
-        );
+                sender.getNickname(),
+                toAll ? "all" : "you"));
+    }
+
+    private void addToLog(PlayerLobby player, String log) {
+        logMessages.add(String.format("[%s][%s] %s",
+                this.currentTimeString(),
+                player.getNickname(), log));
+    }
+    private void addToLog(String log) {
+        logMessages.add(String.format("[%s][Server] %s",
+                this.currentTimeString(), log));
+    }
+
+    private String currentTimeString() {
+        LocalTime currentTime = LocalTime.now();
+        return currentTime.format(ViewTUIConstants.DATETIME_FORMAT);
     }
 }

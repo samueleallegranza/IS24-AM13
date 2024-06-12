@@ -9,17 +9,12 @@ import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 
 import javafx.scene.image.ImageView;
@@ -30,7 +25,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -194,6 +188,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private List<Button> flipButtons;
     private Map<String, Node> playerNodes;
     private Map<Resource, Label> counterLabels;
+
+    /**
+     * Overlay rectangle for the init view
+     */
+    private Rectangle initOverlay;
+
     /**
      * Map associating each player to its token image in the score tracker
      */
@@ -207,6 +207,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Hence it is set to true each time the displayPlayer changes
      */
     private boolean firstFieldScrollAdjustment = true;
+
+    /**
+     * Controller for the initialization view
+     */
+    private ViewGUIControllerInit controllerInit;
+    /**
+     * Controller for the winner view
+     */
+    private ViewGUIControllerWinner controllerWinner;
 
     // ----------------------------------------------------------------
     // CONSTANTS
@@ -262,6 +271,78 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
     // ----------------------------------------------------------------
+
+    /**
+     * Initialization method, it must be called as first method before starting using the object.
+     * It sets all the visual elements and the internal state information
+     * @param controllerInit Controller for the initialization view. It has not to be already set
+     * @param controllerWinner Controller for the winner view. It has not to be already set
+     * @param chat Chat instance
+     */
+    public void init(ViewGUIControllerInit controllerInit, ViewGUIControllerWinner controllerWinner, Chat chat) {
+        // First internal state initialization
+        this.controllerInit = controllerInit;
+        this.controllerWinner = controllerWinner;
+        this.chat = chat;
+        controllerInit.setGameState(state);
+        controllerInit.setThisPlayer(thisPlayer);
+        controllerWinner.setGameState(state);
+        controllerWinner.setThisPlayer(thisPlayer);
+
+        // Init of lists of graphical elements
+        flipButtons = List.of(flipButton0, flipButton1, flipButton2);
+        handCards = List.of(handCard0, handCard1, handCard2);
+        counterLabels = Map.of(
+                Resource.PLANT, plantCounterLabel,
+                Resource.ANIMAL, animalCounterLabel,
+                Resource.FUNGUS, fungusCounterLabel,
+                Resource.INSECT, insectCounterLabel,
+                Resource.QUILL, quillCounterLabel,
+                Resource.INKWELL, inkwellCounterLabel,
+                Resource.MANUSCRIPT, manuscriptCounterLabel
+        );
+
+        //init the chat
+        setChat(this.chat);
+        turnsCounterLabel.setVisible(false);
+
+        // Displaying the pickable cards and the common objectives
+        // At the beginning of the game, the pickable cards shouldn't be clickable
+        displayPickablesAndCommonObjs();
+        pickablesContainer.setMouseTransparent(true);
+
+        // Init of score tracker
+        initScoreTracker();
+
+        // Set size of fieldScrollPane and adjust the field whenever the size of the scroll pane changes
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
+        fieldScrollPane.widthProperty().addListener(
+                (obs,oldVal,newVal)-> adjustFieldContainerSize()
+        );
+        fieldScrollPane.heightProperty().addListener(
+                (obs,oldVal,newVal)-> adjustFieldContainerSize()
+        );
+
+        // Set the initial side of the hand cards to front
+        handCardSides = new ArrayList<>(List.of(Side.SIDEFRONT, Side.SIDEFRONT, Side.SIDEFRONT));
+
+        //Initialize playable hands of each player
+        playersHandsPlayable=new HashMap<>();
+        for(PlayerLobby player : state.getPlayers())
+            playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
+
+        // First display of player's field and hand
+        displayPlayer=null;
+        switchToPlayer(thisPlayer);
+
+        // Set the initial condition to 'no card placed', for flow of the game
+        flowCardPlaced = false;
+
+        // Init of players container
+        playerNodes = new HashMap<>();
+        initPlayerContainer();
+    }
 
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -323,59 +404,20 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
     }
 
-    public void showStartGame(Chat chat){
-        // Set the initial condition to 'card placed',for flow of the game
-        flowCardPlaced = true;
+    public void showStartGame(){
+        StackPane topPane = (StackPane) this.getScene().getRoot();
 
-        // Init of lists of graphical elements
-        flipButtons = List.of(flipButton0, flipButton1, flipButton2);
-        handCards = List.of(handCard0, handCard1, handCard2);
+        // Create the semi-transparent layer
+        initOverlay = new Rectangle(topPane.getWidth(), topPane.getHeight(), Color.rgb(0, 0, 0, 0.5));
+        topPane.getChildren().addAll(initOverlay, controllerInit.getScene().getRoot());
+        controllerInit.showStartGame();
 
-        // Set the initial side of the hand cards to front
-        handCardSides = new ArrayList<>(List.of(Side.SIDEFRONT, Side.SIDEFRONT, Side.SIDEFRONT));
-
-        //init the chat
-        setChat(chat);
-        turnsCounterLabel.setVisible(false);
-
-        // Displaying the pickable cards and the common objectives
-        // At the beginning of the game, the pickable cards shouldn't be clickable
-        displayPickablesAndCommonObjs();
-        pickablesContainer.setMouseTransparent(true);
-
-        // Init of counter and score tracker
-        initCounter();
-        initScoreTracker();
-
-        // Set size of fieldScrollPane
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        fieldScrollPane.setPrefHeight(screenBounds.getHeight() * 0.9);
-        fieldScrollPane.setPrefWidth(screenBounds.getWidth() - 130);
-
-        //adjust the field whenever the size of the scroll pane changes
-        fieldScrollPane.widthProperty().addListener(
-                (obs,oldVal,newVal)-> adjustFieldContainerSize()
-
-        );
-        fieldScrollPane.heightProperty().addListener(
-                (obs,oldVal,newVal)-> adjustFieldContainerSize()
-        );
-
-        //Initialize playable hands of each player
-        playersHandsPlayable=new HashMap<>();
-        for(PlayerLobby player : state.getPlayers())
-            playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
-
-        //display hand playable
-        displayPlayer=null;
-        switchToPlayer(thisPlayer);
-
-        // Init of players container
-        playerNodes = new HashMap<>();
-        initPlayerContainer();
+        log.logStartGame();
+        showLastLogs();
     }
 
     public void showPlayedStarter(PlayerLobby player){
+        controllerInit.showPlayedStarter(player);
         if(displayPlayer.equals(player))
             displayField();
         log.logPlayedStarter(player);
@@ -383,27 +425,32 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     public void showChosenPersonalObjective(PlayerLobby player) {
+        controllerInit.showChosenPersonalObjective(player);
         if(displayPlayer.equals(player))
             displayHandObjective();
         log.logChosenPersonalObjective(player);
         showLastLogs();
     }
     public void showInGame() {
-        // Set the initial condition to 'no card placed', for flow of the game
-        flowCardPlaced = false;
-
-        // Init of players container
-        playerNodes = new HashMap<>();
-        initPlayerContainer();
+        StackPane stackPane = (StackPane) this.getScene().getRoot();
+        stackPane.getChildren().remove(controllerInit.getScene().getRoot());
+        stackPane.getChildren().remove(initOverlay);
 
         // First in game log
         log.logNextTurn();
         showLastLogs();
 
-        // Set actionLabel and the field
-        displayPlayer = null;
+        //display hand playable
+        displayPlayer=null;
         switchToPlayer(thisPlayer);
         updateActionLabel();
+
+        playAudio("startGame.mp3");
+
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
+            networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(),
+                    state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
+                    Side.SIDEBACK);
     }
 
 
@@ -431,6 +478,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         log.logPlayedCard(player, coord, pointsBefore < state.getPlayerState(player).getPoints());
         showLastLogs();
         updateActionLabel();
+
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
+            networkHandler.pickCard(state.getPickables().getFirst());
     }
 
     public void showPickedCard(PlayerLobby player) {
@@ -464,7 +514,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
-            new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/yourTurn.wav")).toString()).play();
+            playAudio("yourTurn.wav");
         }
         playersContainerUpdateTurns();
 
@@ -473,6 +523,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         updateActionLabel();
         if(state.getGameStatus() == GameStatus.FINAL_PHASE)
             Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd())));
+
+        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer))
+            networkHandler.playCard(state.getPlayerState(thisPlayer).getHandPlayable().getFirst(),
+                    state.getPlayerState(thisPlayer).getField().getAvailableCoords().getFirst(),
+                    Side.SIDEBACK);
     }
 
     public synchronized void showFinalPhase() {
@@ -492,42 +547,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // ----------------------------------------------------------------
     //      OVERLAYER FOR WINNER
     // ----------------------------------------------------------------
-
-    /**
-     * Creates a new layer with the given table to show the final points for the players.
-     * @param pointsTable Table of the final points of the players
-     * @param winnerText Label showing the definitive winner
-     */
-    private void createWinnerLayer(TableView<PlayerLobby> pointsTable, Label winnerText) {
-        // Get the root AnchorPane dynamically
-        AnchorPane anchorPane = (AnchorPane) actionLabel.getScene().getRoot();
-
-        // Create the semi-transparent layer
-        Rectangle overlay = new Rectangle(anchorPane.getWidth(), anchorPane.getHeight(), Color.rgb(0, 0, 0, 0.5));
-        overlay.setMouseTransparent(true);  // Allow clicks to pass through to the underlying elements
-
-        // Create a VBox to hold the table and center it in the overlay
-        VBox vbox = new VBox(winnerText, pointsTable);
-        vbox.setSpacing(30);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.setMinSize(300, 200);
-
-        // Create a StackPane to hold both the overlay and the table
-        StackPane overlayPane = new StackPane(overlay, vbox);
-        overlayPane.setPrefSize(anchorPane.getWidth(), anchorPane.getHeight());
-
-        // Anchor the overlayPane to all sides of the AnchorPane
-        AnchorPane.setTopAnchor(overlayPane, 0.0);
-        AnchorPane.setBottomAnchor(overlayPane, 0.0);
-        AnchorPane.setLeftAnchor(overlayPane, 0.0);
-        AnchorPane.setRightAnchor(overlayPane, 0.0);
-
-        // Add a click handler to remove the overlay when clicked
-        overlayPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> anchorPane.getChildren().remove(overlayPane));
-
-        // Add the overlay to the main AnchorPane
-        anchorPane.getChildren().add(overlayPane);
-    }
 
     /**
      * Modifies all the elements on the view in order to update them with the final value and not to allow any other modifications.
@@ -550,45 +569,31 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
 
         Platform.runLater(() -> {
-            // Set background color with blur effect
-            Label winnerText = new Label();
-            winnerText.setFont(new Font(24));
-            winnerText.setTextFill(Color.WHITE);
-            winnerText.setPadding(new Insets(10));
+            controllerWinner.showWinner();
 
-            // Set background color with blur effect
-            BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, new CornerRadii(5), Insets.EMPTY);
-            winnerText.setBackground(new Background(backgroundFill));
+            StackPane mainRoot = (StackPane) this.getScene().getRoot();
 
-            // Apply blur effect only to the background
-            DropShadow dropShadow = new DropShadow();
-            dropShadow.setColor(Color.BLACK);
-            dropShadow.setBlurType(BlurType.GAUSSIAN);
-            dropShadow.setRadius(10); // Adjust blur radius as needed
-            winnerText.setEffect(dropShadow);
+            // Create the semi-transparent layer
+            Rectangle overlay = new Rectangle(mainRoot.getWidth(), mainRoot.getHeight(), Color.rgb(0, 0, 0, 0.5));
+            overlay.setMouseTransparent(true);  // Allow clicks to pass through to the underlying elements
 
-            TableView<PlayerLobby> pointsTable = new TableView<>();
-            pointsTable.setMaxWidth(175);
-            TableColumn<PlayerLobby,String> playerColumn = new TableColumn<>();
-            playerColumn.setPrefWidth(75);
-            pointsTable.getColumns().add(playerColumn);
-            TableColumn<PlayerLobby,String> pointsColumn = new TableColumn<>();
-            pointsColumn.setPrefWidth(100);
-            pointsTable.getColumns().add(pointsColumn);
+            // Create a StackPane to hold both the overlay and the table
+            StackPane overlayPane = new StackPane(overlay, controllerWinner.getScene().getRoot());
+            overlayPane.setAlignment(Pos.CENTER);
+            overlayPane.setBackground(Background.EMPTY);
+            overlayPane.setPrefSize(mainRoot.getWidth(), mainRoot.getHeight());
 
-            for(PlayerLobby playerLobby : state.getPlayers()) {
-                pointsTable.getItems().add(playerLobby);
-            }
-            playerColumn.setCellValueFactory(new PropertyValueFactory<>("Nickname"));
-            pointsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(state.getPlayerState(cellData.getValue()).getPoints())));
+            // Add a click handler to remove the overlay when clicked
+            overlayPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> mainRoot.getChildren().remove(overlayPane));
 
-            if(thisPlayer.equals(state.getWinner()))
-                winnerText.setText("You have won the game");
-            else
-                winnerText.setText(state.getWinner().getNickname() + " won the game");
-
-            createWinnerLayer(pointsTable, winnerText);
+            // Add the overlay to the main AnchorPane
+            mainRoot.getChildren().add(overlayPane);
         });
+
+        if(state.getWinner().equals(thisPlayer))
+            playAudio("endWinner-daCambiare.mp3");
+        else
+            playAudio("endLoser-daCambiare.mp3");
     }
 
     public synchronized void showEndGame() {
@@ -637,7 +642,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         int finalI = i;
                         flipHandCard.setVisible(true);
                         flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(finalI, handCard));
-                        if (!flowCardPlaced && state.getCurrentPlayer().equals(thisPlayer)) {
+                        if (!flowCardPlaced && thisPlayer.equals(state.getCurrentPlayer())) {
                             makeDraggable(i, handCard,flipHandCard);
                         }
                     }
@@ -779,7 +784,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             for (int i = 0; i < pickables.size(); i++) {
                 displayCard(pickables.get(i).getId(),pickables.get(i).getVisibleSide(),pickablesViews.get(i));
                 int finalI = i;
-                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> networkHandler.pickCard(pickables.get(finalI)));
+                pickablesViews.get(i).setOnMouseClicked(mouseEvent -> {
+                    if(flowCardPlaced)
+                        networkHandler.pickCard(pickables.get(finalI));
+                });
             }
 
             List<CardObjectiveIF> commonObjectives=state.getCommonObjectives();
@@ -1039,21 +1047,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     // -------------------------------------------------------------
 
     /**
-     * Initializes the variables associated to counter labels, and loads the images for the counter
-     */
-    private void initCounter() {
-        counterLabels = Map.of(
-                Resource.PLANT, plantCounterLabel,
-                Resource.ANIMAL, animalCounterLabel,
-                Resource.FUNGUS, fungusCounterLabel,
-                Resource.INSECT, insectCounterLabel,
-                Resource.QUILL, quillCounterLabel,
-                Resource.INKWELL, inkwellCounterLabel,
-                Resource.MANUSCRIPT, manuscriptCounterLabel
-        );
-    }
-
-    /**
      * Initializes the score tracker view and creates all the tokens as image views.
      * Places all the tokens at the position 0
      */
@@ -1180,6 +1173,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
 
+    /**
+     * Plays the audio file specified by the name.
+     * The file must be in relative path /sounds with respect to the fxml file
+     * @param fileName Name of the file, with the extension too
+     */
+    private void playAudio(String fileName) {
+        Platform.runLater(() -> new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString()).play());
+    }
+
     // ----------------------------------------------------------------
     //    CHAT METHODS
     // ----------------------------------------------------------------
@@ -1257,9 +1259,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param receivers of the message
      */
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
-        // Load the sound file
-        AudioClip sound = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/messageNotification.mp3")).toString());
-
         if(chatChoice.getValue()!=null) {
             if (sender.equals(thisPlayer)) {
                 chatField.clear();
@@ -1276,7 +1275,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if (receivers.contains(thisPlayer)) {
             log.logMessageReceived(sender, receivers.size() > 1);
             showLastLogs();
-            Platform.runLater(sound::play);
+            playAudio("messageNotification.mp3");
 
         }
     }

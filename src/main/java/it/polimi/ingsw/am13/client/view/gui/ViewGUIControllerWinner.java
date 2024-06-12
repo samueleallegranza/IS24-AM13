@@ -47,16 +47,20 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     public void showPlayerReconnected(PlayerLobby player) {
     }
 
-    public synchronized void showUpdatePoints() {
+    public synchronized void showWinner() {
+
         for(PlayerLobby playerLobby : state.getPlayers()) {
             pointsTable.getItems().add(playerLobby);
         }
-
         playerColumn.setCellValueFactory(new PropertyValueFactory<>("Nickname"));
         pointsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(state.getPlayerState(cellData.getValue()).getPoints())));
-    }
 
-    public synchronized void showWinner() {
+        pointsTable.setFixedCellSize(45);
+        double totalHeight = state.getPlayers().size() * pointsTable.getFixedCellSize();
+        totalHeight += 42;      // header height, could be necessary to arrange better the value
+        System.out.println(totalHeight);
+        pointsTable.setPrefHeight(totalHeight);
+
         if(thisPlayer.equals(state.getWinner()))
             winnerText.setText("You have won the game");
         else

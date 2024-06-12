@@ -180,7 +180,7 @@ public class ViewTUI implements View {
                 new MenuItemReconnect()
         );
 
-        if(ViewGUI.DEBUG_MODE) {
+        if(ViewGUI.SKIP_ROOM) {
             NetworkHandler networkHandler = inputReader.getNetworkHandler();
             if(rooms.isEmpty())
                 networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
@@ -264,7 +264,7 @@ public class ViewTUI implements View {
                 new MenuItemPlayStarter()
         );
 
-        if(ViewGUI.DEBUG_MODE){
+        if(ViewGUI.SKIP_INIT){
             inputReader.getNetworkHandler().playStarter(Side.SIDEBACK);
         }
     }
@@ -316,7 +316,7 @@ public class ViewTUI implements View {
         for(String log: this.logs.getLogMessages()) System.out.println(log);
         currentMenu.printMenu();
 
-        if(ViewGUI.DEBUG_MODE && thisPlayer.equals(player)){
+        if(ViewGUI.SKIP_INIT && thisPlayer.equals(player)){
             inputReader.getNetworkHandler().choosePersonalObjective(
                     gameState.getPlayerState(thisPlayer).getPossibleHandObjectives().getFirst());
         }

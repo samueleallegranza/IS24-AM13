@@ -56,18 +56,18 @@ public class ViewGUIControllerInit extends ViewGUIController {
     }
     @Override
     public void setGameState(GameState state) {
+        this.state = state;
     }
 
-    public void showStartGame(GameState state) {
+    public void showStartGame() {
         firstChoiceImage.setMouseTransparent(false);
         secondChoiceImage.setMouseTransparent(false);
         log = new LogGUI(state);
         descriptionLabel.setText("How do you want to play the starter card(front/back)?");
         CardIF starterCard=null;
-        this.state = state;
         for(PlayerLobby playerLobby : state.getPlayers())
             if(playerLobby.equals(thisPlayer))
-                starterCard=state.getPlayerState(playerLobby).getStarterCard();
+                starterCard =state.getPlayerState(playerLobby).getStarterCard();
         Image imageFront=new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/cards/fronts/" + starterCard.getId() + ".png")));
         firstChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEFRONT));
         firstChoiceImage.setImage(imageFront);
@@ -75,7 +75,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
         secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEBACK));
         secondChoiceImage.setImage(imageBack);
 
-        if(ViewGUI.DEBUG_MODE) {
+        if(ViewGUI.SKIP_INIT) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -84,7 +84,6 @@ public class ViewGUIControllerInit extends ViewGUIController {
                     null));
         }
     }
-
 
 
     public void showPlayedStarter(PlayerLobby player) {
@@ -102,8 +101,10 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(1)));
             secondChoiceImage.setImage(imageBack);
         }
+        log.logPlayedStarter(player);
+//        showLastLogs();
 
-        if(ViewGUI.DEBUG_MODE && thisPlayer.equals(player)) {
+        if(ViewGUI.SKIP_INIT && thisPlayer.equals(player)) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -122,8 +123,5 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logChosenPersonalObjective(player);
 //        showLastLogs();
     }
-
-
-
 
 }

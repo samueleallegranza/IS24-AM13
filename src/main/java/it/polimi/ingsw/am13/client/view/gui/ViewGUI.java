@@ -13,9 +13,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -80,11 +77,6 @@ public class ViewGUI extends Application implements View {
     private String ip;
     private int port;
 
-    private Chat chat;
-
-
-    private Rectangle overlay;
-
     /**
      * This method is executed when this application is launched by {@link ClientMain}.
      * It sets the stage, and it loads the first scene, which is the one where players can see, join, create, reconnect
@@ -146,8 +138,8 @@ public class ViewGUI extends Application implements View {
 
     /**
      * Switches a scene, showing another scene based on the associated controller.
-     * It effectively shows the scene, sets the scene title, and sets some parameter who can change during the game
-     * for the controller. The current controller is updated, too.
+     * It effectively shows the scene, sets the scene title, and sets the parameters <code>thisPlayer</code> and <code>state</code>
+     * The current controller is updated, too.
      * @param controller Controller associated to the scene to switch to
      */
     private void switchToScene(ViewGUIController controller) {
@@ -269,18 +261,9 @@ public class ViewGUI extends Application implements View {
     public synchronized void showStartGame(GameState state, Chat chat) {
         Platform.runLater(() -> {
             this.state = state;
-            this.chat = chat;
-            switchToScene(initController);
             switchToScene(matchController);
-            StackPane topPane = (StackPane) matchController.getScene().getRoot();
-
-            // Create the semi-transparent layer
-            overlay = new Rectangle(Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight(), Color.rgb(0, 0, 0, 0.5));
-            overlay.setMouseTransparent(true);  // Allow clicks to pass through to the underlying elements
-            topPane.getChildren().addAll(overlay,initController.getScene().getRoot());
-            matchController.switchToScene();
-            matchController.showStartGame(chat);
-            initController.showStartGame(state);
+            matchController.init(initController, winnerController, chat);
+            matchController.showStartGame();
         });
     }
 
@@ -314,10 +297,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayedStarter(PlayerLobby player) {
-        Platform.runLater(() -> {
-            initController.showPlayedStarter(player);
-            matchController.showPlayedStarter(player);
-        });
+        Platform.runLater(() -> matchController.showPlayedStarter(player));
     }
 
     /**
@@ -327,10 +307,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showChosenPersonalObjective(PlayerLobby player) {
-        Platform.runLater(() -> {
-            initController.showChosenPersonalObjective(player);
-            matchController.showChosenPersonalObjective(player);
-        });
+        Platform.runLater(() -> matchController.showChosenPersonalObjective(player));
     }
 
     /**
@@ -339,12 +316,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showInGame() {
-        Platform.runLater(() -> {
-            StackPane stackPane = (StackPane) matchController.getScene().getRoot();
-            stackPane.getChildren().remove(initController.getScene().getRoot());
-            stackPane.getChildren().remove(overlay);
-            matchController.showInGame();
-        });
+        Platform.runLater(() -> matchController.showInGame());
     }
 
     /**
@@ -385,11 +357,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showUpdatePoints() {
-//        Platform.runLater(() -> {
-//            switchToScene(winnerController);
-//            winnerController.showUpdatePoints();
             matchController.showUpdatePoints();
-//        });
     }
 
     /**
@@ -405,8 +373,7 @@ public class ViewGUI extends Application implements View {
             //(si dovrebbe entrare in questo if solo in quel caso)
 //            showUpdatePoints();
 //        }
-//        Platform.runLater(() -> winnerController.showWinner());
-            matchController.showWinner();
+        matchController.showWinner();
     }
 
     /**
@@ -415,7 +382,6 @@ public class ViewGUI extends Application implements View {
     //todo potremmo voler stampare qualche messaggio (al momento in controller non viene fatto niente)
     @Override
     public synchronized void showEndGame() {
-//        winnerController.showEndGame();
         matchController.showEndGame();
     }
 
