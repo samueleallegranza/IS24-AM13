@@ -13,6 +13,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -78,6 +81,9 @@ public class ViewGUI extends Application implements View {
     private int port;
 
     private Chat chat;
+
+
+    private Rectangle overlay;
 
     /**
      * This method is executed when this application is launched by {@link ClientMain}.
@@ -265,6 +271,15 @@ public class ViewGUI extends Application implements View {
             this.state = state;
             this.chat = chat;
             switchToScene(initController);
+            switchToScene(matchController);
+            StackPane topPane = (StackPane) matchController.getScene().getRoot();
+
+            // Create the semi-transparent layer
+            overlay = new Rectangle(Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight(), Color.rgb(0, 0, 0, 0.5));
+            overlay.setMouseTransparent(true);  // Allow clicks to pass through to the underlying elements
+            topPane.getChildren().addAll(overlay,initController.getScene().getRoot());
+            matchController.switchToScene();
+            matchController.showStartGame(chat);
             initController.showStartGame(state);
         });
     }
@@ -299,7 +314,10 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showPlayedStarter(PlayerLobby player) {
-        Platform.runLater(() -> initController.showPlayedStarter(player));
+        Platform.runLater(() -> {
+            initController.showPlayedStarter(player);
+            matchController.showPlayedStarter(player);
+        });
     }
 
     /**
@@ -309,7 +327,10 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showChosenPersonalObjective(PlayerLobby player) {
-        Platform.runLater(() -> initController.showChosenPersonalObjective(player));
+        Platform.runLater(() -> {
+            initController.showChosenPersonalObjective(player);
+            matchController.showChosenPersonalObjective(player);
+        });
     }
 
     /**
@@ -319,8 +340,10 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showInGame() {
         Platform.runLater(() -> {
-            switchToScene(matchController);
-            matchController.showInGame(chat);
+            StackPane stackPane = (StackPane) matchController.getScene().getRoot();
+            stackPane.getChildren().remove(initController.getScene().getRoot());
+            stackPane.getChildren().remove(overlay);
+            matchController.showInGame();
         });
     }
 

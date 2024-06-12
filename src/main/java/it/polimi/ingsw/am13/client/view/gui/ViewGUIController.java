@@ -13,6 +13,10 @@ public abstract class ViewGUIController {
     protected Scene scene;
     protected NetworkHandler networkHandler;
 
+    public Scene getScene() {
+        return scene;
+    }
+
     public void setStage(Stage stage){
         this.stage = stage;
     }
@@ -36,6 +40,7 @@ public abstract class ViewGUIController {
             stage.show();
         });
     }
+
 
 
     public abstract String getSceneTitle();

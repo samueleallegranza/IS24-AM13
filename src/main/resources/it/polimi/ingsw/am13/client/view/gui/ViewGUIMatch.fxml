@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+<StackPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
     <HBox spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <VBox alignment="CENTER" prefWidth="240.0" spacing="20.0">
             <StackPane fx:id="scoreTrackerContainer" minHeight="-Infinity" minWidth="-Infinity">
@@ -105,7 +105,7 @@
                             <Font size="18.0" />
                         </font>
                     </Label>
-                    <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="322.0" styleClass="font-regular" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
+                    <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" minHeight="40.0" minWidth="322.0" styleClass="font-regular" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
                         <font>
                             <Font size="18.0" />
                         </font>
@@ -248,4 +248,4 @@
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>
-</AnchorPane>
+</StackPane>

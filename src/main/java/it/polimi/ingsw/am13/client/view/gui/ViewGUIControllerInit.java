@@ -5,10 +5,8 @@ import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -25,11 +23,6 @@ public class ViewGUIControllerInit extends ViewGUIController {
     public ImageView firstChoiceImage;
     @FXML
     public ImageView secondChoiceImage;
-    /**
-     * Area of non-editable text for showing logs
-     */
-    @FXML
-    private TextArea logArea;
 
     private PlayerLobby thisPlayer;
     private GameState state;
@@ -50,12 +43,12 @@ public class ViewGUIControllerInit extends ViewGUIController {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         log.logDisconnect(player);
-        showLastLogs();
+//        showLastLogs();
     }
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         log.logDisconnect(player);
-        showLastLogs();
+//        showLastLogs();
     }
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
@@ -65,14 +58,9 @@ public class ViewGUIControllerInit extends ViewGUIController {
     public void setGameState(GameState state) {
     }
 
-    private void showLastLogs() {
-        Platform.runLater(() -> {
-            while(log.hasOtherLogs())
-                logArea.appendText(log.popNextLog() + "\n");
-        });
-    }
-
     public void showStartGame(GameState state) {
+        firstChoiceImage.setMouseTransparent(false);
+        secondChoiceImage.setMouseTransparent(false);
         log = new LogGUI(state);
         descriptionLabel.setText("How do you want to play the starter card(front/back)?");
         CardIF starterCard=null;
@@ -114,8 +102,6 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(1)));
             secondChoiceImage.setImage(imageBack);
         }
-        log.logPlayedStarter(player);
-        showLastLogs();
 
         if(ViewGUI.DEBUG_MODE && thisPlayer.equals(player)) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
@@ -134,7 +120,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setImage(null);
         }
         log.logChosenPersonalObjective(player);
-        showLastLogs();
+//        showLastLogs();
     }
 
 

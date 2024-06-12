@@ -323,11 +323,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
     }
 
+    public void showStartGame(Chat chat){
+        // Set the initial condition to 'card placed',for flow of the game
+        flowCardPlaced = true;
 
-    public void showInGame(Chat chat) {
         // Init of lists of graphical elements
         flipButtons = List.of(flipButton0, flipButton1, flipButton2);
         handCards = List.of(handCard0, handCard1, handCard2);
+
+        // Set the initial side of the hand cards to front
+        handCardSides = new ArrayList<>(List.of(Side.SIDEFRONT, Side.SIDEFRONT, Side.SIDEFRONT));
+
+        //init the chat
         setChat(chat);
         turnsCounterLabel.setVisible(false);
 
@@ -336,23 +343,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         displayPickablesAndCommonObjs();
         pickablesContainer.setMouseTransparent(true);
 
-        // Set the initial side of the hand cards to front
-        handCardSides = new ArrayList<>(List.of(Side.SIDEFRONT, Side.SIDEFRONT, Side.SIDEFRONT));
-
-        // Set the initial condition to 'no card placed', for flow of the game
-        flowCardPlaced = false;
-
-        // Init of players container
-        playerNodes = new HashMap<>();
-        initPlayerContainer();
-
         // Init of counter and score tracker
         initCounter();
         initScoreTracker();
-
-        // First log
-        log.logNextTurn();
-        showLastLogs();
 
         // Set size of fieldScrollPane
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
@@ -368,16 +361,51 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 (obs,oldVal,newVal)-> adjustFieldContainerSize()
         );
 
-        //Initialize hand playables of each player
+        //Initialize playable hands of each player
         playersHandsPlayable=new HashMap<>();
         for(PlayerLobby player : state.getPlayers())
             playersHandsPlayable.put(player,new ArrayList<>((state.getPlayerState(player).getHandPlayable())));
+
+        //display hand playable
+        displayPlayer=null;
+        switchToPlayer(thisPlayer);
+
+        // Init of players container
+        playerNodes = new HashMap<>();
+        initPlayerContainer();
+    }
+
+    public void showPlayedStarter(PlayerLobby player){
+        if(displayPlayer.equals(player))
+            displayField();
+        log.logPlayedStarter(player);
+        showLastLogs();
+    }
+
+    public void showChosenPersonalObjective(PlayerLobby player) {
+        if(displayPlayer.equals(player))
+            displayHandObjective();
+        log.logChosenPersonalObjective(player);
+        showLastLogs();
+    }
+    public void showInGame() {
+        // Set the initial condition to 'no card placed', for flow of the game
+        flowCardPlaced = false;
+
+        // Init of players container
+        playerNodes = new HashMap<>();
+        initPlayerContainer();
+
+        // First in game log
+        log.logNextTurn();
+        showLastLogs();
 
         // Set actionLabel and the field
         displayPlayer = null;
         switchToPlayer(thisPlayer);
         updateActionLabel();
     }
+
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         int pointsBefore = savedPoints.get(player);
@@ -436,7 +464,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
-            new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/yourTurn-DaCambiare.mp3")).toString()).play();
+            new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/yourTurn.wav")).toString()).play();
         }
         playersContainerUpdateTurns();
 
@@ -626,13 +654,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     handCards.get(i).setVisible(false);
                 }
             }
-            if(thisPlayer.equals(displayPlayer))
-                displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
-            else
-                displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEBACK, handObjective);
         });
     }
 
+    public void displayHandObjective(){
+        if(thisPlayer.equals(displayPlayer))
+            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
+        else
+            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEBACK, handObjective);
+    }
     private void initPlayerContainer() {
         int playerCount = this.state.getPlayers().size();
         for(Node node: playersContainer.getChildren()) {
@@ -650,7 +680,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                             label.setText(currPlayer.getNickname() + isYouPostfix);
                         }
                         case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
-                        case "turn" -> label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
+                        case "turn" -> {
+                            if(this.state.getCurrentPlayer()==null)
+                                label.setText("Initial phase");
+                            else
+                                label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
+                        }
                         case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
                         default -> throw new RuntimeException("Error while labeling in playerContainer");
                     }
@@ -674,6 +709,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             displayField();
             displayHandPlayable();
+            if(state.getPlayerState(displayPlayer).getHandObjective()!=null)
+                displayHandObjective();
             displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
         }
@@ -931,7 +968,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         double prefWidth = 2 * Math.max(maxX - minX, fieldScrollPane.getWidth());
         double prefHeight = 2 * Math.max(maxY - minY, fieldScrollPane.getHeight());
         double scrollX, scrollY;
-//        System.out.println(prefWidth+" "+fieldScrollPane.getWidth()+" "+ fieldContainer.getWidth()+" "+fieldContainer.getPrefWidth());
         if(firstFieldScrollAdjustment) {
             scrollX = 0.5;
             scrollY = 0.5;
@@ -942,13 +978,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     + 0.5 * (prefWidth-fieldContainer.getPrefWidth()) / fieldContainer.getPrefWidth();
             scrollY = prefHeight == 2 * fieldScrollPane.getHeight() ? fieldScrollPane.getVvalue() :
                     fieldScrollPane.getVvalue() * prefHeight / fieldContainer.getPrefHeight()
-                    + 0.0 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
+                    + 0.5 * (prefHeight-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight();
         }
 
         // Update the preferred size of the StackPane
         fieldContainer.setPrefSize(prefWidth, prefHeight);
-//        System.out.println(scrollX+" "+scrollY+" "+fieldScrollPane.getHvalue()+" "+fieldScrollPane.getVvalue());
-
         fieldContainer.widthProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setHvalue(scrollX));
         fieldContainer.heightProperty().addListener((oldVal,newVal,obs) -> fieldScrollPane.setVvalue(scrollY));
     }
@@ -1242,7 +1276,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if (receivers.contains(thisPlayer)) {
             log.logMessageReceived(sender, receivers.size() > 1);
             showLastLogs();
-            sound.play();
+            Platform.runLater(sound::play);
+
         }
     }
 
