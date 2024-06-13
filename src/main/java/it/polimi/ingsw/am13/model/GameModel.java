@@ -86,7 +86,7 @@ public class GameModel implements GameModelIF {
                 listenerHandler.notifyChosenPersonalObjective(player, match.fetchHandObjective(player));
             if(match.getGameStatus()==GameStatus.IN_GAME)
                 listenerHandler.notifyInGame();
-        } else if(match.getGameStatus()!=GameStatus.IN_GAME || match.getGameStatus()!=GameStatus.FINAL_PHASE) {
+        } else if(match.getGameStatus()==GameStatus.IN_GAME || match.getGameStatus()==GameStatus.FINAL_PHASE) {
             if(handCards.size() == 2) {
                 CardPlayable pickedCard = match.fetchHandPlayable(player).stream()
                         .filter(c -> !handCards.contains(c)).findFirst().orElseThrow();

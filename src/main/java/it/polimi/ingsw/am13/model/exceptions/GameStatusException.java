@@ -10,6 +10,7 @@ public class GameStatusException extends ModelException{
         super(msg);
     }
     public GameStatusException(GameStatus wrongStatus, GameStatus rightStatus){
-        super("We are currently in "+wrongStatus.toString()+" phase, this method can only be called in the "+rightStatus.toString()+" phase");
+        super(wrongStatus==null ? "We are currently in the pre init phase, this method can only be called in the "+rightStatus.toString()+" phase" :
+                "We are currently in "+ wrongStatus +" phase, this method can only be called in the "+rightStatus.toString()+" phase");
     }
 }

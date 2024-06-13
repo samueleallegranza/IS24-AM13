@@ -137,10 +137,6 @@ public class DeckHandler<T extends Card>{
         } catch (InvalidDrawCardException e) {
             pickableCards.add(null);
         }
-//        if(!deck.isEmpty())
-//            pickableCards.add(deck.getTop());
-//        else
-//            pickableCards.add(null);
         pickableCards.addAll(visibleCards);
         return pickableCards;
     }

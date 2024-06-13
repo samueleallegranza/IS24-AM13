@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am13.model;
 
-import it.polimi.ingsw.am13.controller.LobbyException;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.ColorToken;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -254,7 +254,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException, LobbyException {
+    public void testPickAndPlayWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, GameStatusException {
         testGameSetupWithDisconnection();
         match.reconnectPlayer(disPlayer);
         Player currentPlayer = match.getCurrentPlayer();
@@ -279,7 +279,7 @@ public class TestMatch {
     }
 
     @Test
-    public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException, LobbyException {
+    public void testCompleteGameWithDisconnection() throws RequirementsNotMetException, InvalidPlayCardException, InvalidPlayerException, ConnectionException {
         testGameSetupWithDisconnection();
         match.reconnectPlayer(disPlayer);
         boolean hasNextTurn;    // Set to true by default
@@ -359,4 +359,39 @@ public class TestMatch {
         }
     }
 
+    //test some of the exceptions that are not tested by the other test of this class
+    @Test
+    public void testExceptions(){
+        List<Player> players;
+        player0=new Player("Al",new Token(ColorToken.RED));
+        player1=new Player("John",new Token(ColorToken.BLUE));
+        assertThrows(InvalidPlayersNumberException.class, ()->new Match(Collections.singletonList(player0)));
+        players=new ArrayList<>(Arrays.asList(player0,player1));
+
+        try{
+            match=new Match(players);
+        } catch (InvalidPlayersNumberException e){
+            //System.out.println("Invalid number of players");
+        }
+
+        PlayerLobby unexistentPlayer=new PlayerLobby("j",ColorToken.RED);
+        try {
+            match.startGame();
+        } catch (GameStatusException e) {
+            throw new RuntimeException(e);
+        }
+        assertThrows(InvalidPlayerException.class,() -> match.disconnectPlayer(unexistentPlayer));
+        assertThrows(InvalidPlayerException.class,() -> match.reconnectPlayer(unexistentPlayer));
+        assertThrows(InvalidPlayerException.class,()->match.fetchAvailableCoord(unexistentPlayer));
+
+        assertThrows(InvalidPlayerException.class,()->match.playStarter(unexistentPlayer,Side.SIDEFRONT));
+
+        assertThrows(InvalidPlayerException.class,()->match.fetchPersonalObjectives(unexistentPlayer));
+        assertThrows(InvalidPlayerException.class,()->match.choosePersonalObjective(unexistentPlayer,null));
+
+        assertThrows(GameStatusException.class,()->match.playCard(null,Side.SIDEFRONT,new Coordinates(1,1)));
+        assertThrows(GameStatusException.class,()->match.pickCard(null));
+
+        assertThrows(InvalidPlayerException.class,()->match.getFieldByPlayer(unexistentPlayer));
+    }
 }

@@ -433,7 +433,9 @@ public class TestGameController {
             for(LisForTest l : liss)
                 assertNotEquals(ControlAction.WINNER, l.actions.getLast());
             controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
-            controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null));
+            CardPlayableIF cardToPick=model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElse(null);
+            if(cardToPick != null)
+                controller.pickCard(currPlayer, cardToPick);
             count++;
         }
 
