@@ -21,6 +21,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -31,15 +33,6 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.util.*;
-
-import org.jfugue.pattern.Pattern;
-import org.jfugue.player.Player;
-import org.jfugue.realtime.RealtimePlayer;
-import org.jfugue.rhythm.Rhythm;
-import org.jfugue.theory.ChordProgression;
-import org.jfugue.theory.Note;
-
-import javax.sound.midi.MidiUnavailableException;
 
 //TODO: Raffina strategia in play card per debug mode
 
@@ -280,7 +273,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
-    private RealtimePlayer notePlayer;
+//    private RealtimePlayer notePlayer;
+    private MediaPlayer fuguePlayer;
 
 
     // ----------------------------------------------------------------
@@ -357,6 +351,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // Init of players container
         playerNodes = new HashMap<>();
         initPlayerContainer();
+
+
     }
 
     @Override
@@ -465,11 +461,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
-        try {
-            notePlayer=new RealtimePlayer();
-        } catch (MidiUnavailableException e) {
-            System.out.println(e);
-        }
 
         // First in game log
         log.logNextTurn();
@@ -481,6 +472,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         updateActionLabel();
 
         playAudio("startGame.mp3");
+
+        // Init of players container
+        playerNodes = new HashMap<>();
+        initPlayerContainer();
 
         if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
@@ -497,11 +492,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
 
-    private static Pattern[] PATTERNS = new Pattern[] {
-            new Pattern("Cmajq Dmajq Emajq"),
-            new Pattern("V0 Ei Gi Di Ci  V1 Gi Ci Fi Ei"),
-            new Pattern("V0 Cmajq V1 Gmajq")
-    };
+
 
 
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
@@ -520,10 +511,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
-            notePlayer.changeInstrument(1);
-            notePlayer.startNote(new Note("A"));
-            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
+//            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
+            Platform.runLater(()-> {
 
+                fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
+                fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
+//                System.out.println(player.getNickname()+" "+fuguePlayer.getStartTime().toMillis()+" "+fuguePlayer.getStopTime().toMillis());
+                fuguePlayer.play();
+            });
         }
 
         playersContainerUpdatePoints(player);
@@ -578,7 +573,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
-            playAudio("yourTurn.wav");
+            playAudio("yourTurn.wav",0.1);
         }
         playersContainerUpdateTurns();
 
@@ -794,6 +789,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 displayHandObjective();
             displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
+
+            //init fugue player
+            fuguePlayer=new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString()));
+
+            Platform.runLater(()-> {
+                fuguePlayer.setStartTime(Duration.millis(0));
+                fuguePlayer.setStopTime(Duration.millis(1000));
+            });
         }
     }
 
@@ -1258,8 +1261,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * The file must be in relative path /sounds with respect to the fxml file
      * @param fileName Name of the file, with the extension too
      */
+    private void playAudio(String fileName, double volume) {
+        Platform.runLater(() -> {
+            AudioClip audioClip=new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
+            audioClip.setVolume(volume);
+            audioClip.play();
+        });
+    }
+
     private void playAudio(String fileName) {
-        Platform.runLater(() -> new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString()).play());
+        playAudio(fileName,0.3);
     }
 
     // ----------------------------------------------------------------
