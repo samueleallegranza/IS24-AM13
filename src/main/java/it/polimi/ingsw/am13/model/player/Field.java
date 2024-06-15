@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.model.player;
 
+import it.polimi.ingsw.am13.client.gamestate.FieldState;
+import it.polimi.ingsw.am13.client.view.tui.ViewTUIPrintUtils;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.*;
 
@@ -260,5 +262,10 @@ public class Field implements FieldIF, Serializable {
     @Override
     public Map<Resource, Integer> getResourcesInField() {
         return this.resources;
+    }
+
+    @Override
+    public String toString() {
+        return ViewTUIPrintUtils.genFieldString(new FieldState(this));
     }
 }

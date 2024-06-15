@@ -4,10 +4,7 @@ import it.polimi.ingsw.am13.model.card.points.PointsPlayable;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * This class represents one of the two sides of a playable card
@@ -153,6 +150,23 @@ public class CardSidePlayable implements CardSidePlayableIF {
      */
     public int calcPoints(Field field){
         return points.calcPoints(this,field);
+    }
+
+    @Override
+    public CardSidePlayableIF clone() {
+        try {
+            return new CardSidePlayable(
+                    new HashMap<>(requirements),
+                    corners.stream().map(Corner::clone).toList(),
+                    new ArrayList<>(centerResources),
+                    points,     // points should be immutable, it sholdn't need a 'clone' method
+                    color,
+                    id,
+                    side
+            );
+        } catch (InvalidCardCreationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

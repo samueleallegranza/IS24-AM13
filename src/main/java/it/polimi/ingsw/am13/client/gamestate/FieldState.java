@@ -36,8 +36,8 @@ public class FieldState implements Serializable {
     public FieldState(FieldIF field) {
         this.field = new HashMap<>();
         for(Coordinates c : field.getCoordinatesPlaced())
-            this.field.put(c, field.getCardSideAtCoord(c));
-        this.availableCoords = field.getAvailableCoords();
+            this.field.put(c, field.getCardSideAtCoord(c).clone());
+        this.availableCoords = new ArrayList<>(field.getAvailableCoords());
     }
 
     /**

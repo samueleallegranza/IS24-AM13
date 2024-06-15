@@ -273,7 +273,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
-//    private RealtimePlayer notePlayer;
     private MediaPlayer fuguePlayer;
 
 
@@ -351,8 +350,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // Init of players container
         playerNodes = new HashMap<>();
         initPlayerContainer();
-
-
     }
 
     @Override
@@ -491,10 +488,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
-
-
-
-
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         int pointsBefore = savedPoints.get(player);
         if(thisPlayer.equals(player)) {
@@ -516,7 +509,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
                 fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
                 fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
-//                System.out.println(player.getNickname()+" "+fuguePlayer.getStartTime().toMillis()+" "+fuguePlayer.getStopTime().toMillis());
                 fuguePlayer.play();
             });
         }
@@ -627,6 +619,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
         updateActionLabel();
         playersContainerUpdateTurns();
+        handCards.forEach(c -> c.setOnDragDetected(null));
+
         state.getPlayers().forEach(this::playersContainerUpdatePoints);
         turnsCounterLabel.setVisible(false);
         //TODO: facciamo muovere anche i token sullo scoreboard?
@@ -1138,7 +1132,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
             double xDim = scoreTrackerContainer.getWidth()==0 ? scoreTrackerView.getFitWidth() : scoreTrackerContainer.getWidth();
             double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
-//            System.out.println(xDim+" "+yDim);
 
             for(PlayerLobby p : state.getPlayers()) {
                 savedPoints.put(p, 0);
@@ -1202,7 +1195,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     path.getElements().add(new LineTo(
                             xTranslToken.get(point) * xDim,
                             yTranslToken.get(point) * yDim));
-//                    System.out.println(point);
                 }
                 PathTransition pathTransition = new PathTransition();
                 pathTransition.setDuration(Duration.seconds(0.5*(points-currentPoints))); // Set animation duration

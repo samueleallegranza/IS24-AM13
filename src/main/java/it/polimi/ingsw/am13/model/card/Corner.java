@@ -107,6 +107,13 @@ public class Corner implements Serializable {
                 new Corner(Resource.NO_RESOURCE), new Corner(Resource.NO_RESOURCE));
     }
 
+    public Corner clone() {
+        Corner cloned = new Corner(resource);
+        cloned.covered = covered;
+        cloned.link = link;
+        return cloned;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -3,7 +3,6 @@ package it.polimi.ingsw.am13.client.view.tui;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.model.card.*;
-import it.polimi.ingsw.am13.model.exceptions.InvalidCoordinatesException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.security.InvalidParameterException;
@@ -133,7 +132,7 @@ public class ViewTUIMatch {
     }
 
     private String sectionField() {
-        return genFieldString(this.displayPlayer);
+        return ViewTUIPrintUtils.genFieldString(gameState.getPlayerState(displayPlayer).getField());
     }
 
     private String sectionCards() {
@@ -310,126 +309,5 @@ public class ViewTUIMatch {
         );
     }
 
-    private List<List<Character>> cardToStr(CardSidePlayableIF cardSidePlayableIF){
-        List<List<Character>> strCard=new ArrayList<>(3);
-        List<Resource> cornerResources=cardSidePlayableIF.getCornerResources();
-        List<Resource> centerResources=cardSidePlayableIF.getCenterResources();
-        for (int i = 0; i < 3; i++) {
-            strCard.add(i,new ArrayList<>(3));
-        }
 
-        List<Resource> cornerRes = cardSidePlayableIF.getCornerResources();
-        List<Corner> cornerList = cardSidePlayableIF.getCorners();
-
-        Character[] cornerSymb = new Character[4];
-        for (int i = 0; i < 4; i++) {
-            if(cornerList.get(i).isPlaceable())
-                cornerSymb[i] = ViewTUIConstants.resourceToSymbol(cornerRes.get(i)).charAt(0);
-            else
-                cornerSymb[i] = ViewTUIConstants.ANGLE_NOTLINKABLE_SYMBOL.charAt(0);
-        }
-
-        strCard.getFirst().addFirst(cornerSymb[0]);
-        strCard.get(0).add(1,'─');
-        strCard.get(0).add(2,cornerSymb[1]);
-        strCard.get(1).add(0,'│');
-        strCard.get(1).add(1,' ');
-        strCard.get(1).add(2,'│');
-        strCard.get(2).add(0,cornerSymb[3]);
-        strCard.get(2).add(1,'─');
-        strCard.get(2).add(2,cornerSymb[2]);
-        int startInd;
-        if(centerResources.size()<3)
-            startInd=1;
-        else
-            startInd=0;
-        for (int i = 0; i < centerResources.size(); i++)
-            strCard.get(1).set(startInd+i,ViewTUIConstants.resourceToSymbol(centerResources.get(i)).charAt(0));
-        return strCard;
-    }
-
-    private List<List<Character>> availableStr(int index){
-        List<List<Character>> strPos=new ArrayList<>(3);
-        for (int i = 0; i < 3; i++) {
-            strPos.add(i,new ArrayList<>(3));
-        }
-        strPos.getFirst().addFirst('┌');
-        strPos.get(0).add(1,'─');
-        strPos.get(0).add(2,'┐');
-        strPos.get(1).add(0,(char)('0'+index/100));
-        index-=index/100;
-        strPos.get(1).add(1,(char)('0'+index/10));
-        index-=index/10;
-        strPos.get(1).add(2,(char)('0'+index));
-        strPos.get(2).add(0,'└');
-        strPos.get(2).add(1,'─');
-        strPos.get(2).add(2,'┘');
-        return strPos;
-    }
-
-    private String genFieldString(PlayerLobby playerLobby){
-        StringBuilder strField= new StringBuilder();
-        try {
-            CardSidePlayableIF starterCard=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(new Coordinates(0,0));
-            if(starterCard!=null) {
-                int minX=0,maxX=0,minY=0,maxY=0;
-                for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
-                    if(coord.getPosX()<minX)
-                        minX= coord.getPosX();
-                    else if(coord.getPosX()>maxX)
-                        maxX= coord.getPosX();
-                    if(coord.getPosY()<minY)
-                        minY= coord.getPosY();
-                    else if(coord.getPosY()>maxY)
-                        maxY= coord.getPosY();
-                }
-                int dimX=2*(maxX-minX+3)+1,dimY=2*(maxY-minY+3)+1;
-                Character[][] fieldMatrix=new Character[dimY][dimX];
-                for (int i = 0; i < dimY; i++) {
-                    for (int j = 0; j < dimX; j++) {
-                        fieldMatrix[i][j]=' ';
-                    }
-                }
-                for(Coordinates coord : gameState.getPlayerState(playerLobby).getField().getPlacedCoords()){
-                    CardSidePlayableIF cardSidePlayableIF=gameState.getPlayerState(playerLobby).getField().getCardSideAtCoord(coord);
-                    List<List<Character>> strCard=cardToStr(cardSidePlayableIF);
-                    int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            if(fieldMatrix[curY+j][curX+i]==' ')
-                                fieldMatrix[curY+j][curX+i]=strCard.get(j).get(i);
-                        }
-                    }
-                    if(!cardSidePlayableIF.getCoveredCorners().get(0))
-                        fieldMatrix[curY][curX]=strCard.get(0).get(0);
-                    if(!cardSidePlayableIF.getCoveredCorners().get(1))
-                        fieldMatrix[curY][curX+2]=strCard.get(0).get(2);
-                    if(!cardSidePlayableIF.getCoveredCorners().get(2))
-                        fieldMatrix[curY+2][curX+2]=strCard.get(2).get(2);
-                    if(!cardSidePlayableIF.getCoveredCorners().get(3))
-                        fieldMatrix[curY+2][curX]=strCard.get(2).get(0);
-                }
-                for(int i=0; i<gameState.getPlayerState(playerLobby).getField().getAvailableCoords().size();i++){
-                    List<List<Character>> strCard=availableStr(i);
-                    Coordinates coord=gameState.getPlayerState(playerLobby).getField().getAvailableCoords().get(i);
-                    int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
-                    for (int x = 0; x < 3; x++) {
-                        for (int y = 0; y < 3; y++) {
-                            if(fieldMatrix[curY+y][curX+x]==' ')
-                                fieldMatrix[curY+y][curX+x]=strCard.get(y).get(x);
-                        }
-                    }
-                }
-                for (int i = 0; i < dimY; i++) {
-                    for (int j = 0; j < dimX; j++) {
-                        strField.append(fieldMatrix[i][j]);
-                    }
-                    strField.append('\n');
-                }
-            }
-        } catch (InvalidCoordinatesException e) {
-            throw new RuntimeException(e);
-        }
-        return strField.toString();
-    }
 }

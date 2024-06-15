@@ -64,4 +64,8 @@ public interface CardSidePlayableIF extends Serializable {
      */
     Side getSide();
 
+    /**
+     * @return A new instance identical to the object
+     */
+    CardSidePlayableIF clone();
 }
