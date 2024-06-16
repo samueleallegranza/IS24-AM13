@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.model.card.CardSidePlayableIF;
 import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**

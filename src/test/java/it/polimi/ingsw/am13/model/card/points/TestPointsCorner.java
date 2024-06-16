@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestPointsCorner {
     /**
@@ -23,6 +24,11 @@ public class TestPointsCorner {
         List<Resource> centerResources=new ArrayList<>();
         PointsInstant cardPoints=new PointsInstant(3);
         PointsCorner pointsCorner=new PointsCorner(points);
+        assertEquals(points,pointsCorner.getPointsMultiplier());
+        assertEquals(Resource.NO_RESOURCE,pointsCorner.getPointsResource());
+        assertTrue(pointsCorner.isCornerTypePoints());
+        PointsCorner pointsCornerCopy=new PointsCorner(points);
+        assertEquals(pointsCorner, pointsCornerCopy);
         CardSidePlayable cardSide=new CardSidePlayable(req,corners,centerResources,cardPoints, Color.NO_COLOR,
                 "",
                 Side.SIDEFRONT);

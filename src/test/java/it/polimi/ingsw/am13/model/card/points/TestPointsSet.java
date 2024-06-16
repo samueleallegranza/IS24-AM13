@@ -31,6 +31,10 @@ public class TestPointsSet {
                     "",
                     Side.SIDEFRONT
             );
+
+            assertEquals(1,points.getPointsMultiplier());
+            assertEquals(resForPoints,points.getSet());
+            assertEquals(new PointsSet(resForPoints, 1),points);
             field.playCardSide(startSide, Coordinates.origin());
             // nothing
             assertEquals(0, points.calcPoints(field));

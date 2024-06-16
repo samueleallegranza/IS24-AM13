@@ -105,8 +105,10 @@ public class FieldState implements Serializable {
             for(Resource r : card.getCenterResources())
                 resources.replace(r, resources.get(r)+1);
             for(Corner c : card.getCorners())
-                if(c.getResource()!=Resource.NO_RESOURCE && !c.isCovered())
-                    resources.replace(c.getResource(), resources.get(c.getResource())+1);
+                if(c.getResource()!=Resource.NO_RESOURCE && !c.isCovered()) {
+//                    System.out.println(card.getId()+" "+c.getResource());
+                    resources.replace(c.getResource(), resources.get(c.getResource()) + 1);
+                }
         }
         return resources;
     }

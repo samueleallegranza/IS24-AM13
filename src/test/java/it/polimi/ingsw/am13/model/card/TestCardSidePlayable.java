@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCardSidePlayable {
     /**
@@ -27,6 +27,13 @@ public class TestCardSidePlayable {
                 "",
                 Side.SIDEFRONT);
         Field field=new Field();
+
+        assertEquals(Side.SIDEFRONT,starterFront.getSide());
+        assertEquals("",starterFront.getId());
+        assertEquals(points,starterFront.getPoints());
+        List<Boolean> coveredCorners=starterFront.getCoveredCorners();
+        for(Boolean isCovered : coveredCorners)
+            assertFalse(isCovered);
         assertEquals(npoints,starterFront.calcPoints(field));
     }
 }

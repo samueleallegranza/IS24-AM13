@@ -29,10 +29,9 @@ public class TestCardPlayable {
                 new PointsInstant(0),
                 Color.PLANT,
                 "",
-                Side.SIDEFRONT
+                Side.SIDEBACK
         );
         CardPlayable card = new CardResource("bho", front, back);
-
         assertNull(card.getPlayedCardSide());
         card.placeCardInField(Side.SIDEFRONT);
         assertEquals(card.getPlayedCardSide(), front);

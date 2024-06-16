@@ -44,14 +44,14 @@ public class CardSidePlayable implements CardSidePlayableIF {
      */
     final private String id;
 
-    public Side getSide() {
-        return side;
-    }
-
     /**
      * The side of the card this CardSide corresponds to
      */
     final private Side side;
+
+    public Side getSide() {
+        return side;
+    }
     /**
      * This is the constructor of a cardSidePlayable
      * @param requirements the resources needed to play this card side(it's empty if no resource is required)

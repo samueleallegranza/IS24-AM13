@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestPointstInstant {
     /**
@@ -27,6 +28,10 @@ public class TestPointstInstant {
                 "",
                 Side.SIDEFRONT);
         Field field=new Field();
+        assertEquals(points,cardPoints.getPointsMultiplier());
+        assertEquals(Resource.NO_RESOURCE,cardPoints.getPointsResource());
+        assertFalse(cardPoints.isCornerTypePoints());
+        assertEquals(new PointsInstant(points),cardPoints);
         assertEquals(Integer.valueOf(points),cardPoints.calcPoints(cardSide,field));
     }
 }

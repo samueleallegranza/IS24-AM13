@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class TestPointsResource {
     /**
      * This test verifies that the constructor correctly instantiates PointsIstant, and that calcPoints returns the correct value
@@ -24,6 +26,11 @@ public class TestPointsResource {
                 Side.SIDEFRONT);
         Field field=new Field();
         Coordinates origin;
+
+        assertEquals(points,pointsResource.getPointsMultiplier());
+        assertEquals(Resource.PLANT,pointsResource.getPointsResource());
+        assertFalse(pointsResource.isCornerTypePoints());
+        assertEquals(new PointsResource(points,Resource.PLANT),pointsResource);
         try{
             origin=new Coordinates(0,0);
             field.playCardSide(cardSide,origin);

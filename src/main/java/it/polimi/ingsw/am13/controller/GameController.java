@@ -151,8 +151,10 @@ public class GameController implements Runnable {
         int numberConnectedPlayers = gameModel.countConnected();
         if(numberConnectedPlayers > 1) {
             stopReconnectionTimer();
-            if (numberConnectedPlayers==2 && (gameModel.fetchGameStatus()==GameStatus.IN_GAME && gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
-                nextTurn();
+            //todo le due righe successive non dovrebbero servire perché è disconnect player che fa passare al prossimo turno
+            //todo prima che le commentassi c'era && al posto di || quindi non entrava mai nell'if
+//            if (numberConnectedPlayers==2 && (gameModel.fetchGameStatus()==GameStatus.IN_GAME || gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
+//                nextTurn();
         }
     }
 

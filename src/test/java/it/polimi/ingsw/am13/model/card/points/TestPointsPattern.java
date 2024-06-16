@@ -70,6 +70,26 @@ public class TestPointsPattern {
                 -1,0, 1);
         // 2 points for pattern F - left - A - under - A
 
+        //verify that the constructor, getters, and equals work correctly
+        assertEquals(Color.FUNGUS,points.getColor1());
+        assertEquals(Color.ANIMAL,points.getColor2());
+        assertEquals(Color.ANIMAL,points.getColor3());
+        try {
+            assertEquals(new Coordinates(-1,-1),points.getVec12());
+        } catch (InvalidCoordinatesException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            assertEquals(new Coordinates(-1,-3),points.getVec13());
+        } catch (InvalidCoordinatesException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(1,points.getPointsMultiplier());
+        assertEquals(new PointsPattern(Color.FUNGUS, Color.ANIMAL, Color.ANIMAL,
+                -1,0, 1),points);
+
+
         Field field = new Field();
         playStart(field);
 
