@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="980" prefWidth="1820" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
-    <HBox spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <VBox alignment="CENTER" prefWidth="240.0" spacing="20.0">
-            <StackPane fx:id="scoreTrackerContainer" minHeight="-Infinity" minWidth="-Infinity">
-                <ImageView fx:id="scoreTrackerView" fitHeight="466.5" fitWidth="240.0" pickOnBounds="true" preserveRatio="true">
-<!--                    <Image url="@/img/scoreTracker.png" />-->
-                </ImageView>
-<!--            <ImageView fitHeight="41.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">-->
-<!--                <Image url="@/img/tokens/redToken.png" />-->
-<!--            </ImageView>-->
-            </StackPane>
-            <GridPane fx:id="playersContainer" maxHeight="-Infinity" prefHeight="400.0" vgap="5.0" VBox.vgrow="ALWAYS">
+<StackPane prefHeight="980" prefWidth="1820.0" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+    <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox alignment="TOP_CENTER" maxWidth="480.0" minWidth="400.0" HBox.hgrow="ALWAYS">
+         <ImageView fitHeight="45.0" fitWidth="183.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+               <Image url="@style/img/players-logo.png" />
+            </image>
+            <VBox.margin>
+               <Insets bottom="20.0" top="22.0" />
+            </VBox.margin>
+         </ImageView>
+            <GridPane fx:id="playersContainer" maxHeight="-Infinity" prefHeight="500.0" vgap="5.0" VBox.vgrow="ALWAYS">
                 <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="240.0" prefWidth="100.0" />
                 </columnConstraints>
@@ -28,42 +42,87 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
-                <VBox prefHeight="130.0" prefWidth="135.0" GridPane.rowIndex="0">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
-                    <Label id="turn" prefWidth="130.0" styleClass="font-small" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
-                </VBox>
-                <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
-                    <Label id="player" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="player_1" />
-                    <Label id="points" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="points" />
-                    <Label id="turn" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="turn" />
-                    <Label id="online" prefHeight="22.0" prefWidth="129.0" styleClass="font-small" text="online" />
-                </VBox>
+            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="0">
+               <children>
+                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
+                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="85.0" top="35.0" />
+               </padding>
+            </StackPane>
+            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="1">
+               <children>
+                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
+                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="85.0" top="35.0" />
+               </padding>
+            </StackPane>
+            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="2">
+               <children>
+                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
+                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="85.0" top="35.0" />
+               </padding>
+            </StackPane>
+            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="3">
+               <children>
+                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
+                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="85.0" top="35.0" />
+               </padding>
+            </StackPane>
                 <VBox.margin>
                     <Insets />
                 </VBox.margin>
             </GridPane>
+         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+            <children>
+                  <StackPane fx:id="scoreTrackerContainer" alignment="BOTTOM_CENTER" maxHeight="466.5" maxWidth="240.0" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="NEVER">
+                      <ImageView fx:id="scoreTrackerView" fitHeight="466.5" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                     <image>
+                        <Image url="@../../../../../../../img/scoreTracker.png" />
+                     </image>
+                  </ImageView>
+      <!--            <ImageView fitHeight="41.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">-->
+      <!--                <Image url="@/img/tokens/redToken.png" />-->
+      <!--            </ImageView>-->
+                  </StackPane>
+            </children>
+         </VBox>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
         </VBox>
-        <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
-            <HBox minHeight="400.0">
+        <VBox HBox.hgrow="ALWAYS">
+            <HBox prefHeight="1000.0">
                 <StackPane HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets />
                     </HBox.margin>
-                    <ScrollPane fx:id="fieldScrollPane" hvalue="0.5" pannable="true" prefHeight="850.0" prefWidth="1660.0" vvalue="0.5">
+                    <ScrollPane fx:id="fieldScrollPane" hbarPolicy="NEVER" hvalue="0.5" pannable="true" vbarPolicy="NEVER" vvalue="0.5">
                         <padding>
                             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                         </padding>
@@ -73,30 +132,13 @@
                             </padding>
                         </StackPane>
                         <StackPane.margin>
-                            <Insets right="5.0" />
+                            <Insets />
                         </StackPane.margin>
                   <styleClass>
                      <String fx:value="viewport" />
                      <String fx:value="field" />
                   </styleClass>
                     </ScrollPane>
-
-                    <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0" StackPane.alignment="BOTTOM_LEFT">
-                        <StackPane.margin>
-                            <Insets bottom="20.0" left="15.0" />
-                        </StackPane.margin>
-                        <Button onAction="#onFieldZoomButtonAction" prefHeight="25" prefWidth="25" text="+" />
-                        <Button onAction="#onFieldDezoomButtonAction" prefHeight="25" prefWidth="25" text="-" />
-                        <Button mnemonicParsing="false" onAction="#onClickResetFieldScroll" text="Reset" />
-                    </HBox>
-                    <Label fx:id="actionLabel" alignment="TOP_LEFT" prefHeight="86.0" prefWidth="341.0" styleClass="font-regular" text="Action to do" wrapText="true" StackPane.alignment="TOP_LEFT">
-                        <StackPane.margin>
-                            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                        </StackPane.margin>
-                        <font>
-                            <Font size="18.0" />
-                        </font>
-                    </Label>
                     <Label fx:id="turnsCounterLabel" alignment="TOP_CENTER" mouseTransparent="true" prefHeight="39.0" prefWidth="522.0" wrapText="true" StackPane.alignment="TOP_CENTER">
                         <StackPane.margin>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
@@ -104,14 +146,6 @@
                         <font>
                             <Font size="18.0" />
                         </font>
-                    </Label>
-                    <Label fx:id="displayPlayerLabel" alignment="TOP_RIGHT" minHeight="40.0" minWidth="322.0" styleClass="font-regular" text="player displayed" wrapText="true" StackPane.alignment="TOP_RIGHT">
-                        <font>
-                            <Font size="18.0" />
-                        </font>
-                        <StackPane.margin>
-                            <Insets bottom="10.0" left="10.0" right="30.0" top="5.0" />
-                        </StackPane.margin>
                     </Label>
                     <GridPane alignment="CENTER" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" vgap="5.0" StackPane.alignment="BOTTOM_RIGHT">
                         <columnConstraints>
@@ -156,9 +190,67 @@
                         </ImageView>
                         <Label fx:id="manuscriptCounterLabel" prefHeight="17.0" styleClass="font-small" text="Manuscript" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                         <StackPane.margin>
-                            <Insets bottom="30.0" right="30.0" />
+                            <Insets bottom="40.0" right="40.0" />
                         </StackPane.margin>
                     </GridPane>
+               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                  <image>
+                     <Image url="@style/img/border-field-corner-top-left.png" />
+                  </image>
+               </ImageView>
+               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
+                  <image>
+                     <Image url="@style/img/border-field-corner-top-right.png" />
+                  </image>
+               </ImageView>
+               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_RIGHT">
+                  <image>
+                     <Image url="@style/img/border-field-corner-bottom-right.png" />
+                  </image>
+               </ImageView>
+               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">
+                  <image>
+                     <Image url="@style/img/border-field-corner-bottom-left.png" />
+                  </image>
+               </ImageView>
+               <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
+                  <image>
+                     <Image url="@style/img/field-player-container.png" />
+                  </image>
+                  <StackPane.margin>
+                     <Insets top="12.0" />
+                  </StackPane.margin>
+               </ImageView>
+               <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_CENTER">
+                  <image>
+                     <Image url="@style/img/field-action-container.png" />
+                  </image>
+               </ImageView>
+                    <Label fx:id="actionLabel" alignment="CENTER" prefHeight="44.0" prefWidth="313.0" styleClass="font-regular" text="action_todo" textAlignment="CENTER" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_CENTER">
+                        <StackPane.margin>
+                            <Insets />
+                        </StackPane.margin>
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                    </Label>
+                    <Label fx:id="displayPlayerLabel" ellipsisString="" minHeight="40.0" minWidth="273.0" prefHeight="40.0" prefWidth="273.0" styleClass="font-regular" text="player_name" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_RIGHT">
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                        <StackPane.margin>
+                            <Insets bottom="10.0" left="10.0" top="125.0" />
+                        </StackPane.margin>
+                    </Label>
+
+                    <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="5.0" StackPane.alignment="BOTTOM_LEFT">
+                        <StackPane.margin>
+                            <Insets bottom="20.0" left="15.0" />
+                        </StackPane.margin>
+                        <Button onAction="#onFieldZoomButtonAction" prefHeight="25" prefWidth="25" text="+" />
+                        <Button onAction="#onFieldDezoomButtonAction" prefHeight="25" prefWidth="25" text="-" />
+                        <Button mnemonicParsing="false" onAction="#onClickResetFieldScroll" text="Reset" />
+                    </HBox>
 
 <!--                    <ImageView fx:id="ciao" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">-->
 <!--                        <Image url="@/img/cards/fronts/s000.png" />-->
@@ -171,8 +263,8 @@
 <!--                   </ImageView>-->
                 </StackPane>
             </HBox>
-            <HBox alignment="CENTER_RIGHT" minHeight="50.0" spacing="10.0">
-                <HBox alignment="CENTER" minHeight="50.0" spacing="30.0" styleClass="table" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" prefHeight="380.0" spacing="10.0" styleClass="dashboard">
+                <HBox alignment="CENTER" minHeight="50.0" spacing="30.0" HBox.hgrow="ALWAYS">
                     <GridPane fx:id="pickablesContainer" alignment="CENTER" hgap="10.0" vgap="10.0">
                         <columnConstraints>
                             <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="30.0" prefWidth="150.0" />
@@ -194,7 +286,7 @@
                         <ImageView fx:id="commonObj1" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <ImageView fx:id="commonObj2" fitHeight="100.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                     </GridPane>
-                    <VBox alignment="CENTER" minHeight="50.0" spacing="30.0">
+                    <VBox alignment="CENTER" spacing="30.0">
                         <HBox alignment="CENTER" spacing="20.0">
                             <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
                                 <Button fx:id="flipButton0" prefHeight="25" prefWidth="25" />
@@ -245,7 +337,4 @@
             </HBox>
         </VBox>
     </HBox>
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
 </StackPane>

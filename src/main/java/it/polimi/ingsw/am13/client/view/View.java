@@ -22,10 +22,10 @@ public interface View {
     boolean SKIP_ROOM = true;
     boolean SKIP_INIT = true;
     boolean SKIP_TURNS = true;
-    /**
+    /**1
      * Number of players for the debug mode
      */
-    int DEBUG_NPLAYERS = 2;
+    int DEBUG_NPLAYERS = 4;
 
     /**
      * Sets the handler of the network, which the view can use to send its command actions to the server

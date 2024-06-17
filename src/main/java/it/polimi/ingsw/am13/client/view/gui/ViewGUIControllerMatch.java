@@ -737,31 +737,71 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         int playerCount = this.state.getPlayers().size();
         for(Node node: playersContainer.getChildren()) {
             int currPlayerIdx = GridPane.getRowIndex(node);
-            VBox vBox = (VBox) node;
+            StackPane stackPane = (StackPane) node;
             if(currPlayerIdx < playerCount) {
                 PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
+
                 this.playerNodes.put(currPlayer.getNickname(), node); // save node association with nickname
-                vBox.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayer));
-                for(Node labelNode: vBox.getChildren()) {
-                    Label label = (Label) labelNode;
-                    switch (label.getId()) {
-                        case "player" -> {
-                            String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
-                            label.setText(currPlayer.getNickname() + isYouPostfix);
+                stackPane.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayer));
+
+                ColorToken color = currPlayer.getToken().getColor();
+                String colorClass = null;
+                switch (color) {
+                    case GREEN : {
+                        colorClass = "player-green";
+                        break;
+                    }
+                    case BLUE : {
+                        colorClass = "player-blue";
+                        break;
+                    }
+                    case RED : {
+                        colorClass = "player-red";
+                        break;
+                    }
+                    case YELLOW : {
+                        colorClass = "player-yellow";
+                        break;
+                    }
+                };
+                stackPane.getStyleClass().add(colorClass);
+
+                for(Node playerNode: stackPane.getChildren()) {
+                    // TODO: beautify, this is not great...
+                    try {
+                        // this node is a label
+                        Label label = (Label) playerNode;
+                        switch (label.getId()) {
+                            case "player" -> {
+                                String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
+                                label.setText(currPlayer.getNickname() + isYouPostfix);
+                            }
+//                            case "turn" -> {
+//                                if(this.state.getCurrentPlayer()==null)
+//                                    label.setText("Initial phase");
+//                                else
+//                                    label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
+//                            }
+//                            case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
+                            default -> throw new RuntimeException("Error while labeling in playerContainer");
                         }
-                        case "online" -> label.setText(this.state.getPlayerState(currPlayer).isConnected() ? "online" : "disconnected");
-                        case "turn" -> {
-                            if(this.state.getCurrentPlayer()==null)
-                                label.setText("Initial phase");
-                            else
-                                label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
+                    } catch (Exception ignore) {
+                        // this node is an imageView
+                        ImageView imgView = (ImageView) playerNode;
+                        switch (imgView.getId()) {
+                            case "online" -> {
+                                imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
+                            }
                         }
-                        case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
-                        default -> throw new RuntimeException("Error while labeling in playerContainer");
                     }
                 }
             } else {
-                for(Node labelNode: vBox.getChildren()) ((Label) labelNode).setText("");
+                for(Node playerNode: stackPane.getChildren()) {
+                    try {
+                        Label labelNode = (Label) playerNode;
+                        labelNode.setText("");
+                    } catch (Exception ignore) {}
+                }
             }
         }
     }
@@ -781,7 +821,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayHandPlayable();
             if(state.getPlayerState(displayPlayer).getHandObjective()!=null)
                 displayHandObjective();
-            displayPlayerLabel.setText("You are watching player " + displayPlayer.getNickname());
+            displayPlayerLabel.setText(displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
 
             //init fugue player
@@ -795,15 +835,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     private void playersContainerUpdatePoints(PlayerLobby player) {
-        Platform.runLater(() -> {
-            // get node corresponding to player
-            VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
-            for(Node labelNode: vBox.getChildren()) {
-                Label label = (Label) labelNode;
-                if(label.getId().equals("points"))
-                    label.setText(this.state.getPlayerState(player).getPoints() + " pts");
-            }
-        });
+        //TODO: Should we remove this?
+
+//        Platform.runLater(() -> {
+//            // get node corresponding to player
+//            VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
+//            for(Node labelNode: vBox.getChildren()) {
+//                Label label = (Label) labelNode;
+//                if(label.getId().equals("points"))
+//                    label.setText(this.state.getPlayerState(player).getPoints() + " pts");
+//            }
+//        });
     }
 
     /**
@@ -818,12 +860,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             else
                 text = p.equals(state.getCurrentPlayer()) ? "TURN" : "waiting";
 
-            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
-            for(Node nodeLabel: pVbox.getChildren()) {
-                Label label = (Label) nodeLabel;
-                if(label.getId().equals("turn"))
-                    Platform.runLater(() -> label.setText(text));
-            }
+            //TODO: Should we remove this?
+//            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
+//            for(Node nodeLabel: pVbox.getChildren()) {
+//                Label label = (Label) nodeLabel;
+//                if(label.getId().equals("turn"))
+//                    Platform.runLater(() -> label.setText(text));
+//            }
         }
     }
 
@@ -832,12 +875,25 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param player Player which needs its connection status label to be updated
      */
     private void playerContainerUpdateConnection(PlayerLobby player) {
-        VBox pVbox = (VBox) playerNodes.get(player.getNickname());
-        for(Node labelNode: pVbox.getChildren()) {
-            Label label = (Label) labelNode;
-            if(label.getId().equals("online")) {
-                Platform.runLater(() -> label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected"));
+        //TODO: Check if written in a decent way :)
+        StackPane sPane = (StackPane) playerNodes.get(player.getNickname());
+        for(Node node: sPane.getChildren()) {
+            switch (node) {
+                case ImageView ignored: {
+                    ImageView imgView = (ImageView) node;
+                    if(imgView.getId().equals("online")) {
+                        if(state.getPlayerState(player).isConnected())
+                            Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png")))));
+                        else
+                            Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-offline.png")))));
+                    }
+                };
+                default: {};
             }
+//            Label label = (Label) node;
+//            if(label.getId().equals("online")) {
+//                Platform.runLater(() -> label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected"));
+//            }
         }
     }
 
@@ -1129,7 +1185,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void initScoreTracker() {
         Platform.runLater(() -> {
-            scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
+//            scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
             double xDim = scoreTrackerContainer.getWidth()==0 ? scoreTrackerView.getFitWidth() : scoreTrackerContainer.getWidth();
             double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
 
@@ -1140,7 +1196,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 tokenImg.setFitWidth(tokenDimRel2x * xDim);
                 tokenImgs.put(p, tokenImg);
 
-                StackPane.setAlignment(tokenImg, javafx.geometry.Pos.BOTTOM_LEFT);
+                StackPane.setAlignment(tokenImg, Pos.BOTTOM_LEFT);
                 tokenImg.setTranslateX(xTranslToken.getFirst() * xDim);
                 tokenImg.setTranslateY(yTranslToken.getFirst() * yDim);
                 scoreTrackerContainer.getChildren().add(tokenImg);

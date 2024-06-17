@@ -2,6 +2,8 @@
     src: url('font/PixelifySans-VariableFont_wght.ttf');
 }
 
+
+
 /* JavaFX base classes (will override original style)*/
 
 .label {
@@ -10,7 +12,9 @@
     -fx-font-family: "Pixelify Sans", 'sans-serif';
 }
 
-/* Match view classes */
+
+
+/* Global styling */
 
 .font-regular {
     -fx-font-size: 25;
@@ -21,25 +25,48 @@
 }
 
 .background {
-    /*-fx-background-image: url("img/forest2.png");*/
-    -fx-background-color: #c2a97e;
+    -fx-background-image: url("img/woodplank.jpg");
 }
 
-.field > .viewport {
-    -fx-background-image: url("img/bgpattern.jpg");
 
+
+/* Player sidebar */
+
+.players-logo {
+    -fx-background-image: url("img/players-logo.png");
 }
 
-.field {
-    -fx-background-image: url("img/bgpattern.jpg");
-    -fx-border-width: 6;
-    -fx-border-style: solid;
-    -fx-border-color: #644b3c;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+.player-banner {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center; /* Center the image vertically (90%) and horizontally */
+    -fx-background-size: 350px auto; /* Stretch to 100% width of pane */
 }
 
-.table {
-    -fx-background-image: url("img/wood.png"); /* Set background image */
+.player-red {
+    -fx-background-image: url("img/player-red.png");
+}
+
+.player-green {
+    -fx-background-image: url("img/player-green.png");
+}
+
+.player-blue {
+    -fx-background-image: url("img/player-blue.png");
+}
+
+.player-yellow {
+    -fx-background-image: url("img/player-yellow.png");
+}
+
+
+
+/* Dashboard */
+
+.dashboard {
+    -fx-background-image: url("img/dashboard-bg.jpg");
+    -fx-background-size: 100% auto; /* Stretch to 100% width of pane */
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: bottom center; /* Center the image vertically (90%) and horizontally */
 }
 
 .tab-pane > .tab-header-area {
@@ -50,6 +77,26 @@
 .tab-pane > .tab-header-area > .tab-header-background {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+}
+
+
+
+/* Field */
+
+.field > .viewport {
+    -fx-background-image: url("img/bgpattern.jpg");
+}
+
+.field {
+    -fx-background-image: url("img/bgpattern.jpg");
+
+    -fx-border-image-source: url("img/border-field-quad.png");
+    -fx-border-image-slice: 30 30 30 30; /* or you can use percentages */
+    -fx-border-image-width: 26;
+    -fx-border-image-repeat: stretch;
+    -fx-border-image-insets: 0;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
 
 .plantCounterImage {
