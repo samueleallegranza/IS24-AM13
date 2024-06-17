@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
@@ -428,7 +429,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @Override
     public void showException(Exception e) {
-        if(!ViewGUI.SKIP_TURNS) {
+        if(!ParametersClient.SKIP_TURNS) {
 //            e.printStackTrace();
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -534,7 +535,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+        if(ParametersClient.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
                     Thread.sleep(THINKING_TIME);
@@ -581,7 +582,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
         updateActionLabel();
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+        if(ParametersClient.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
                     Thread.sleep(THINKING_TIME);
@@ -636,7 +637,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(state.getGameStatus() == GameStatus.FINAL_PHASE)
             Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd())));
 
-        if(ViewGUI.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
+        if(ParametersClient.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
                 try {
                     Thread.sleep(THINKING_TIME);
@@ -1254,7 +1255,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
 
             for(PlayerLobby p : state.getPlayers()) {
-                System.out.println(p);
                 savedPoints.put(p, 0);
                 ImageView tokenImg = createTokenImage(p);
                 tokenImg.setFitHeight(tokenDimRel2x * xDim);
@@ -1385,7 +1385,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     private void playAudio(String fileName) {
-        playAudio(fileName,0.001);
+        playAudio(fileName,0.3);
     }
 
     // ----------------------------------------------------------------

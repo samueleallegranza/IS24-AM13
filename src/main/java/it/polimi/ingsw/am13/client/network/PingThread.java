@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am13.client.network;
 
+import it.polimi.ingsw.am13.ParametersClient;
+
 public class PingThread{
-    private static final Long sleepTime = 500L;
     private final NetworkHandler networkHandler;
 
     private final Thread pingThread;
@@ -12,7 +13,7 @@ public class PingThread{
             while(!Thread.interrupted()) {
                 this.networkHandler.ping();
                 try {
-                    Thread.sleep(sleepTime);
+                    Thread.sleep(ParametersClient.sleepTime);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

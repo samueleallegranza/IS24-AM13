@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.model.card.CardIF;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
@@ -75,7 +76,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
         secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.playStarter(Side.SIDEBACK));
         secondChoiceImage.setImage(imageBack);
 
-        if(ViewGUI.SKIP_INIT) {
+        if(ParametersClient.SKIP_INIT) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,
@@ -104,7 +105,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
         log.logPlayedStarter(player);
 //        showLastLogs();
 
-        if(ViewGUI.SKIP_INIT && thisPlayer.equals(player)) {
+        if(ParametersClient.SKIP_INIT && thisPlayer.equals(player)) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
                     0, 0, 0, 0,
                     MouseButton.PRIMARY,

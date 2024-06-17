@@ -8,6 +8,7 @@ module it.polimi.ingsw.am13 {
     requires java.rmi;
     requires java.desktop;
     requires javafx.media;
+    requires jfugue;
 
     opens it.polimi.ingsw.am13 to javafx.fxml;
     opens it.polimi.ingsw.am13.controller to javafx.base;

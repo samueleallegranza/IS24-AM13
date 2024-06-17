@@ -1,11 +1,11 @@
 package it.polimi.ingsw.am13.client.view.tui;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
-import it.polimi.ingsw.am13.client.view.gui.ViewGUI;
 import it.polimi.ingsw.am13.client.view.tui.menu.*;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.GameStatus;
@@ -178,10 +178,10 @@ public class ViewTUI implements View {
                 new MenuItemReconnect()
         );
 
-        if(ViewGUI.SKIP_ROOM) {
+        if(ParametersClient.SKIP_ROOM) {
             NetworkHandler networkHandler = inputReader.getNetworkHandler();
             if(rooms.isEmpty())
-                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
+                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ParametersClient.DEBUG_NPLAYERS);
             else {
                 RoomIF room = rooms.getFirst();
                 switch (room.getPlayers().size()) {
@@ -262,7 +262,7 @@ public class ViewTUI implements View {
                 new MenuItemPlayStarter()
         );
 
-        if(ViewGUI.SKIP_INIT){
+        if(ParametersClient.SKIP_INIT){
             inputReader.getNetworkHandler().playStarter(Side.SIDEBACK);
         }
     }
@@ -314,7 +314,7 @@ public class ViewTUI implements View {
         for(String log: this.logs.getLogMessages()) System.out.println(log);
         currentMenu.printMenu();
 
-        if(ViewGUI.SKIP_INIT && thisPlayer.equals(player)){
+        if(ParametersClient.SKIP_INIT && thisPlayer.equals(player)){
             inputReader.getNetworkHandler().choosePersonalObjective(
                     gameState.getPlayerState(thisPlayer).getPossibleHandObjectives().getFirst());
         }

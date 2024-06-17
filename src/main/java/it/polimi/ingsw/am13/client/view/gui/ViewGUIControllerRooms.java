@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
@@ -174,9 +175,9 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
         roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
 
-        if(ViewGUI.SKIP_ROOM) {
+        if(ParametersClient.SKIP_ROOM) {
             if(rooms.isEmpty())
-                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ViewGUI.DEBUG_NPLAYERS);
+                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ParametersClient.DEBUG_NPLAYERS);
             else {
                 RoomIF room = rooms.getFirst();
                 switch (room.getPlayers().size()) {

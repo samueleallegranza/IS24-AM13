@@ -15,9 +15,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.jfugue.player.Player;
-import org.jfugue.rhythm.Rhythm;
-import org.jfugue.theory.ChordProgression;
 
 import java.io.IOException;
 import java.util.List;
@@ -95,7 +92,7 @@ public class ViewGUI extends Application implements View {
 
         this.stage = stage;
         thisPlayer = null;
-        networkHandler = ClientMain.initConnection(isSocket, ip, port, this);
+        networkHandler = ClientMain.initConnection(this);
 
         if(FULLSCREEN_MODE)
             // real full-screen mode

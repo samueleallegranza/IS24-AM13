@@ -17,17 +17,6 @@ import java.util.List;
 public interface View {
 
     /**
-     * If true, execute in debug mode
-     */
-    boolean SKIP_ROOM = true;
-    boolean SKIP_INIT = true;
-    boolean SKIP_TURNS = false;
-    /**1
-     * Number of players for the debug mode
-     */
-    int DEBUG_NPLAYERS = 2;
-
-    /**
      * Sets the handler of the network, which the view can use to send its command actions to the server
      * @param networkHandler Handler of the network
      */
