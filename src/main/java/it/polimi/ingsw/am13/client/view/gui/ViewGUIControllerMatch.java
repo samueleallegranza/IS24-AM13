@@ -65,7 +65,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private Label actionLabel;
     /**
-     * Label displaying whose the current displayed field is
+     * Label displaying the name of the player whose field is currently being displayed
      */
     @FXML
     private Label displayPlayerLabel;
@@ -75,18 +75,39 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private Label turnsCounterLabel;
 
+    /**
+     * Label for counter of plant resources in the field of displayPlayer
+     */
     @FXML
     private Label plantCounterLabel;
+    /**
+     * Label for counter of animal resources in the field of displayPlayer
+     */
     @FXML
     private Label animalCounterLabel;
+    /**
+     * Label for counter of fungus resources in the field of displayPlayer
+     */
     @FXML
     private Label fungusCounterLabel;
+    /**
+     * Label for counter of manuscript resources in the field of displayPlayer
+     */
     @FXML
     private Label manuscriptCounterLabel;
+    /**
+     * Label for counter of insect resources in the field of displayPlayer
+     */
     @FXML
     private Label insectCounterLabel;
+    /**
+     * Label for counter of quill resources in the field of displayPlayer
+     */
     @FXML
     private Label quillCounterLabel;
+    /**
+     * Label for counter of inkwell resources in the field of displayPlayer
+     */
     @FXML
     private Label inkwellCounterLabel;
     @FXML
@@ -176,18 +197,57 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private LogGUI log;
 
 
-    //TODO: aggiungi documentazione per gli attributi qua sotto
+    /**
+     * The sides on which each of the hand cards are being displayed
+     */
     private List<Side> handCardSides;
+    /**
+     * True if it is the turn of thisPlayer and he has played a card, false otherwise
+     */
     private boolean flowCardPlaced;
+    /**
+     * The ImageView of the hand card thisPlayer has played, before he receives confirmation from the server
+     * of the fact that the card was played successfully
+     */
     private ImageView attemptedToPlayCardHand;
+    /**
+     * The button used to flip the hand card thisPlayer has played, before he receives confirmation from the server
+     * of the fact that the card was played successfully
+     */
     private Button attemptedToPlayFlipButton;
+    /**
+     * The ImageView of the card on the field that thisPlayer has played, before he receives confirmation from the server
+     * of the fact that the card was played successfully
+     */
     private ImageView attemptedToPlayCardField;
+    /**
+     * The card box in which thisPlayer has placed a card, before he receives confirmation from the server
+     * of the fact that the card was played successfully
+     */
     private Rectangle attemptedToPlayCardBox;
+    /**
+     * The playable cards in the hand of displayPlayer
+     */
     private List<CardPlayableIF> handPlayable;
+    /**
+     * A map storing the playable cards in the hand of each player
+     */
     private Map<PlayerLobby,List<CardPlayableIF>> playersHandsPlayable;
+    /**
+     * The images of the cards in the hand of displayPlayer
+     */
     private List<ImageView> handCards;
+    /**
+     * The buttons to flip the hand cards of thisPlayer
+     */
     private List<Button> flipButtons;
+    /**
+     * A map associating to the nickname of each player the VBox in which his information is being displayed
+     */
     private Map<String, Node> playerNodes;
+    /**
+     * A map associating each resource to its Label
+     */
     private Map<Resource, Label> counterLabels;
 
     /**
@@ -506,10 +566,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayField();
 //            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
             Platform.runLater(()-> {
-
-                fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
-                fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
-                fuguePlayer.play();
+                if(fuguePlayer!=null) { //to avoid some exceptions on linux
+                    fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
+                    fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
+                    fuguePlayer.play();
+                }
             });
         }
 
@@ -740,7 +801,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             StackPane stackPane = (StackPane) node;
             if(currPlayerIdx < playerCount) {
                 PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
-
                 this.playerNodes.put(currPlayer.getNickname(), node); // save node association with nickname
                 stackPane.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayer));
 
@@ -763,7 +823,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         colorClass = "player-yellow";
                         break;
                     }
-                };
+                }
                 stackPane.getStyleClass().add(colorClass);
 
                 for(Node playerNode: stackPane.getChildren()) {
@@ -824,12 +884,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayPlayerLabel.setText(displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
 
-            //init fugue player
-            fuguePlayer=new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString()));
 
             Platform.runLater(()-> {
-                fuguePlayer.setStartTime(Duration.millis(0));
-                fuguePlayer.setStopTime(Duration.millis(1000));
+
+                if(System.getProperty("os.name").toLowerCase().contains("win")) {
+                    //init fugue player
+                    Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
+                    fuguePlayer = new MediaPlayer(fugueMedia);
+                    fuguePlayer.setVolume(0.001);
+                    fuguePlayer.setStartTime(Duration.millis(0));
+                    fuguePlayer.setStopTime(Duration.millis(1000));
+                }
             });
         }
     }
@@ -859,7 +924,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 text = "ended";
             else
                 text = p.equals(state.getCurrentPlayer()) ? "TURN" : "waiting";
-
             //TODO: Should we remove this?
 //            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
 //            for(Node nodeLabel: pVbox.getChildren()) {
@@ -887,7 +951,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         else
                             Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-offline.png")))));
                     }
-                };
+                }
                 default: {};
             }
 //            Label label = (Label) node;
@@ -1310,15 +1374,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param fileName Name of the file, with the extension too
      */
     private void playAudio(String fileName, double volume) {
-        Platform.runLater(() -> {
-            AudioClip audioClip=new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
-            audioClip.setVolume(volume);
-            audioClip.play();
-        });
+        if(System.getProperty("os.name").toLowerCase().contains("win")) {
+            Platform.runLater(() -> {
+                AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
+                audioClip.setVolume(volume);
+                audioClip.play();
+            });
+        }
     }
 
     private void playAudio(String fileName) {
-        playAudio(fileName,0.3);
+        playAudio(fileName,0.001);
     }
 
     // ----------------------------------------------------------------

@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * Menu item for picking a card off the common field during a turn-based game phase.
  * It expects 2:
- * <li>
- *     <ul> Type of card to pick (res / gold) </ul>
- *     <ul> What card of that type to pick (draw for drawing from the deck, 1 or 2 to pick the first or the
- *     second visible card starting from left)</ul>
- * </li>
+ * <ul>
+ *     <li> Type of card to pick (res / gold) </li>
+ *     <li> What card of that type to pick (draw for drawing from the deck, 1 or 2 to pick the first or the
+ *     second visible card starting from left)</li>
+ * </ul>
  * And then it sends the command to the server
  */
 public class MenuItemPickCard extends MenuItem {

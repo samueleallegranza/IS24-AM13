@@ -3,7 +3,7 @@ package it.polimi.ingsw.am13.model.exceptions;
 import java.io.Serializable;
 
 /**
- * This exception is thrown when the player number is not valid (ie <2 or >4)
+ * This exception is thrown when the player number is not valid (ie &lt;2 or &gt;4)
  */
 //TODO: controlla meglio descrizione e suo utilizzo, al limite cambia nome
 // (ora la usiamo anche se i token sono sbagliati)

@@ -26,8 +26,6 @@ public class ViewTUI implements View {
 
     //TODO finisci di documentare
 
-    //TODO implementa showChatMessage
-
     /**
      * Current menu, which defines the possible actions to perform
      */

@@ -8,15 +8,15 @@ import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.exceptions.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.network.socket.message.command.*;
-import it.polimi.ingsw.am13.network.socket.message.response.MsgResponse;
 import it.polimi.ingsw.am13.network.socket.message.response.MsgResponseGetRooms;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
+import java.util.Objects;
 
 // TODO: Discuss about Exceptions. Should we add a new one for this class?
-// TODO: complete missing documentation
+// TODO: togli paramatro command dove non serve? (vedi warning)
 public class ClientRequestsHandler extends Thread {
 
     /**
@@ -35,7 +35,7 @@ public class ClientRequestsHandler extends Thread {
     private final ObjectOutputStream outputStream;
 
     /**
-     * Instance of the Lobby which exposes the main methods for match init & disconnection
+     * Instance of the Lobby which exposes the main methods for match, init and disconnection
      */
     private final Lobby lobby;
 
@@ -255,7 +255,7 @@ public class ClientRequestsHandler extends Thread {
             this.gameController = this.lobby.reconnectPlayer(hypotGameListener);
         } catch (LobbyException | ConnectionException | GameStatusException exc) {
             // if no "ghost" player is found or other game-related exceptions are thrown, send error message back to client
-            this.gameListener.sendError(exc);
+            Objects.requireNonNullElse(this.gameListener, hypotGameListener).sendError(exc);
             return; // [!] important!
         }
 
@@ -300,8 +300,7 @@ public class ClientRequestsHandler extends Thread {
             this.outputStream.reset();
 
             // for debugging purposes only
-            MsgResponse msg = (MsgResponse) response;
-            logResponse(msg.getType());
+            logResponse(response.getType());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -342,6 +341,11 @@ public class ClientRequestsHandler extends Thread {
         this.gameListener = hypotGameListener;
     }
 
+    /**
+     * Command handler for "joinRoom" command. The client sends its chosen nickname and token color. If the given
+     * information is valid, the player joins the room. Otherwise, an error is sent back to client
+     * @param command a MsgCommandJoinRoom command
+     */
     private void handleJoinRoom(MsgCommandJoinRoom command) {
         logCommand("joinRoom");
 
@@ -373,6 +377,11 @@ public class ClientRequestsHandler extends Thread {
         this.gameListener = hypotGameListener;
     }
 
+    /**
+     * Command handler for "leaveRoom" command. If the player is inside a room, he leaves it.
+     * Otherwise, an error is sent back to client
+     * @param command a MsgCommandLeaveRoom command
+     */
     private void handleLeaveRoom(MsgCommandLeaveRoom command) {
         logCommand("leaveRoom");
 
@@ -389,6 +398,12 @@ public class ClientRequestsHandler extends Thread {
         this.gameListener = null;
     }
 
+    /**
+     * Command handler for "playStarter" command. The client sends the chosen side. If the passed side is valid
+     * ,it is the right game status to play the starter and there is no other error while playing it, the starter card is played.
+     * Otherwise, an error is sent back to the client.
+     * @param command a MsgCommandPlayStarter command
+     */
     private void handlePlayStarter(MsgCommandPlayStarter command) {
         logCommand("playStarter");
 
@@ -408,6 +423,13 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * Command handler for "choosePersonalObjective" command. The client sends the chosen personal objective.
+     * If the chosen personal objective is one of the two possible valid choices,
+     * it is the right game status to play the starter and there is no other error while playing it, the personal objective is chosen.
+     * Otherwise, an error is sent back to the client.
+     * @param command a MsgChoosePersonalObjective command
+     */
     private void handleChoosePersonalObjective(MsgCommandChoosePersonalObjective command) {
         logCommand("choosePersonalObjective");
 
@@ -428,6 +450,13 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * Command handler for "playCard" command. The client sends the chosen card. If the passed card is valid
+     * ,it is the right moment for this player to play it, the requirements to play it are satisfied
+     * and there is no other error while playing it, the card is played.
+     * Otherwise, an error is sent back to the client.
+     * @param command a MsgCommandPlayCard command
+     */
     private void handlePlayCard(MsgCommandPlayCard command) {
         logCommand("playCard");
 
@@ -450,6 +479,12 @@ public class ClientRequestsHandler extends Thread {
         }
     }
 
+    /**
+     * Command handler for "pickCard" command. The client sends the chosen side. If the passed card is on the table
+     * ,it is the right game status to pick it and there is no other error while picking it, the card is picked.
+     * Otherwise, an error is sent back to the client.
+     * @param command a MsgCommandPickCard command
+     */
     private void handlePickCard(MsgCommandPickCard command) {
         logCommand("pickCard");
 

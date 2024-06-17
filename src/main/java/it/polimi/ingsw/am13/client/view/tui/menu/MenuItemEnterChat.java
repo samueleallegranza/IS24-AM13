@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * Menu item for entering a chat room
  * It expects 1 argument
- * <li>
- *     <ul> Player's nickname associated to the chat room, or 'all' for the global chatroom with all the players </ul>
- * </li>
+ * <ul>
+ *     <li> Player's nickname associated to the chat room, or 'all' for the global chatroom with all the players </li>
+ * </ul>
  * And then it sends the command to the server
  */
 public class MenuItemEnterChat extends MenuItem {

@@ -42,7 +42,7 @@ public class GameController implements Runnable {
      * It also starts the game
      * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
      *                        handler of their listeners
-     * @throws InvalidPlayersNumberException If lists nicks, colors have size <2 or >4,
+     * @throws InvalidPlayersNumberException If lists nicks, colors have size &lt;2 or &gt;4,
      * or there are duplicate chosen colors
      */
     GameController(Room listenerHandler) throws InvalidPlayersNumberException {

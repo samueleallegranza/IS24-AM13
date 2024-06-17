@@ -36,7 +36,7 @@ public class Match {
 
     /**
      * The players of the match. The list is created by building the entire class, and cannot change
-     * The size is >=2 and <=4, the colors of players are all different
+     * The size is &gt;=2 and &lt;=4, the colors of players are all different
      * It includes all the players, even if they are disconnected
      */
     private final List<Player> players;
@@ -649,7 +649,7 @@ public class Match {
 
     /**
      * @return The players of the match
-     * The size is >=2 and <=4, and the colors of players are all different
+     * The size is &gt;=2 and &lt;=4, and the colors of players are all different
      */
     public List<Player> getPlayers() {
         return players;

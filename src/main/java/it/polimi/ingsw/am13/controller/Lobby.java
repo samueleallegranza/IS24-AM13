@@ -94,7 +94,7 @@ public class Lobby {
      * @param player First player who creates the game which will start in the future
      * @param nPlayers The number of players to start the game, chosen by the player who creates the room
      * @throws LobbyException If the player has a nickName already chosen by another player in the lobby,
-     * or if the given target number of players to reach is <2 or >4
+     * or if the given target number of players to reach is &lt;2 or &gt;4
      */
     public synchronized void createRoom(GameListener player, int nPlayers) throws LobbyException {
         if(isNickInvalid(player))
@@ -141,7 +141,7 @@ public class Lobby {
      * In case of success, it notifies the players in the room
      * If the room becomes empty, it is automatically removed, as if it has never been created. (it does not notify the players of this)
      * @param player Player to remove from that room
-     * @throws LobbyException If the specified player is not in any existing rooms
+     * @throws LobbyException If the specified player is not in any existing room
      */
     public synchronized void leaveRoom(GameListener player) throws LobbyException {
         int gameId = rooms.entrySet().stream().filter(entry -> entry.getValue().getPlayers().contains(player.getPlayer())).map(Map.Entry::getKey)

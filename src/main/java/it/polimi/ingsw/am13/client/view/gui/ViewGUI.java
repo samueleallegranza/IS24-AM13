@@ -15,6 +15,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.jfugue.player.Player;
+import org.jfugue.rhythm.Rhythm;
+import org.jfugue.theory.ChordProgression;
 
 import java.io.IOException;
 import java.util.List;
@@ -273,7 +276,6 @@ public class ViewGUI extends Application implements View {
      * @param state GameState of the started match
      * @param thisPlayer Player linked to this client which is reconnecting to the match
      */
-    //todo pensare meglio a come gestire le eccezioni per reconnect, al momento se clicco reconnect e il player non era in una room prima dà eccezione il server, il server si blocca e il client non vede nulla
     @Override
     public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat) {
         // set ViewGUI base attributes

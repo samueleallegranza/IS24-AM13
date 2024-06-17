@@ -22,7 +22,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Resource cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return <code>LinkedList<></code> of CardResource
+     * @return <code>LinkedList&lt;&gt;</code> of CardResource
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardResource> createCardsResource() throws InvalidCardCreationException {
@@ -66,7 +66,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Gold cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return <code>LinkedList<></code> of CardGold
+     * @return <code>LinkedList&lt;&gt;</code> of CardGold
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardGold> createCardsGold() throws InvalidCardCreationException{
@@ -120,7 +120,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Starter cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return <code>LinkedList<></code> of CardStarter
+     * @return <code>LinkedList&lt;&gt;</code> of CardStarter
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardStarter> createCardsStarter() throws InvalidCardCreationException{
@@ -167,7 +167,7 @@ public class CardFactory {
 
     /**
      * Deserializes a list of Objective cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
-     * @return <code>LinkedList<></code> of CardObjective
+     * @return <code>LinkedList&lt;&gt;</code> of CardObjective
      * @throws InvalidCardCreationException if it fails to create a valid card
      */
     public LinkedList<CardObjective> createCardsObjective()  throws InvalidCardCreationException{
@@ -244,7 +244,7 @@ public class CardFactory {
     /**
      *
      * @param cardSide {@code JsonNode} of the card side to which the corners are a part of.
-     * @return <code>List<></code> of {@link Corner} objects
+     * @return <code>List&lt;&gt;</code> of {@link Corner} objects
      */
     private List<Corner> getCorners(JsonNode cardSide){
         List<Corner> corners = new ArrayList<>();

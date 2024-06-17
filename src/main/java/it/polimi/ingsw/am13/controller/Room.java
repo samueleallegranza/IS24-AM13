@@ -45,7 +45,7 @@ public class Room extends ListenerHandler implements RoomIF {
      * @param gameId GameId for the new room
      * @param player Player who created the room. It is automatically added to the room
      * @param nPlayersTarget Target number of players to reach in order to start the game for this room
-     * @throws LobbyException If the target number of players is <2 or >4
+     * @throws LobbyException If the target number of players is &lt;2 or &gt;4
      */
     public Room(int gameId, GameListener player, int nPlayersTarget) throws LobbyException {
         super();

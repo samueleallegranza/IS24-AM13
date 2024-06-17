@@ -7,11 +7,11 @@ import it.polimi.ingsw.am13.model.player.Token;
 /**
  * Menu item for joining an existing room.
  * If parses the input as
- * <li>
- *     <ul> Nickname (1 word) </ul>
- *     <ul> Color of token (red / blue / green / yellow) </ul>
- *     <ul> Game id of the room to join </ul>
- * </li>
+ * <ul>
+ *     <li> Nickname (1 word) </li>
+ *     <li> Color of token (red / blue / green / yellow) </li>
+ *     <li> Game id of the room to join </li>
+ * </ul>
  * It then sends to the server the command for joining the specified room
  */
 public class MenuItemJoinRoom extends MenuItem {

@@ -7,11 +7,11 @@ import it.polimi.ingsw.am13.model.player.Token;
 /**
  * Menu item for creating a room.
  * It parses the parameters as:
- * <li>
- *     <ul> Nickname (1 word) </ul>
- *     <ul> Color of token (red / blue / green / yellow) </ul>
- *     <ul> Number of players to make the game start </ul>
- * </li>
+ * <ul>
+ *     <li> Nickname (1 word) </li>
+ *     <li> Color of token (red / blue / green / yellow) </li>
+ *     <li> Number of players to make the game start </li>
+ * </ul>
  * It then sends to the server the command for creating a new room
  */
 public class MenuItemCreateRoom extends MenuItem {

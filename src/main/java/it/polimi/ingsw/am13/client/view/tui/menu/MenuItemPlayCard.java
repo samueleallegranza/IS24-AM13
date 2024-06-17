@@ -10,12 +10,12 @@ import java.util.List;
 /**
  * Menu item for playing a card on field during a turn-based game phase.
  * It expects 3 arguments:
- * <li>
- *     <ul> Number of card to play (index of the card in the list of hand cards in game's state </ul>
- *     <ul> Number of spot where to place the card in field (index of the coordinates in the list of
- *     available coordinates for that field in game's state </ul>
- *     <ul> Side on which to play the card (front / back) </ul>
- * </li>
+ * <ul>
+ *     <li> Number of card to play (index of the card in the list of hand cards in game's state </li>
+ *     <li> Number of spot where to place the card in field (index of the coordinates in the list of
+ *     available coordinates for that field in game's state </li>
+ *     <li> Side on which to play the card (front / back) </li>
+ * </ul>
  * And then it sends the command to the server
  */
 public class MenuItemPlayCard extends MenuItem {

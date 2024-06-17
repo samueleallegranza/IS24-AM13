@@ -35,7 +35,7 @@ public class GameModel implements GameModelIF {
      * The players used here to create the model are the definitive players, and nobody can be added in a second time.
      * @param listenerHandler Room with the players who will be the definite players of the game, corresponding to the
      *                        handler of their listeners
-     * @throws InvalidPlayersNumberException If the list of players has size <2 or >4,
+     * @throws InvalidPlayersNumberException If the list of players has size &lt;2 or &gt;4,
      * the room did not reach the set number of players (the game for the room is not set as started),
      * or there are duplicate chosen colors
      */

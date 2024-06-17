@@ -26,7 +26,7 @@ public interface CardSidePlayableIF extends Serializable {
 
     /**
      * @return Number of corners covered by this card of that other card cover on this one.
-     * Fow how the game works, except for the starter card when no other card is added, it will be always <=3
+     * Fow how the game works, except for the starter card when no other card is added, it will be always &lt;=3
      */
     int calcCornersCovered();
 
