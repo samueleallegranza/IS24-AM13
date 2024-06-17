@@ -1254,6 +1254,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
 
             for(PlayerLobby p : state.getPlayers()) {
+                System.out.println(p);
                 savedPoints.put(p, 0);
                 ImageView tokenImg = createTokenImage(p);
                 tokenImg.setFitHeight(tokenDimRel2x * xDim);

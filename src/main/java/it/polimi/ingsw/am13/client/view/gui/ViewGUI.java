@@ -287,7 +287,15 @@ public class ViewGUI extends Application implements View {
                 showStartGame(state,chat); // sets the init visualization screen
                 showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
             }
-            case GameStatus.IN_GAME -> showInGame();
+            case GameStatus.IN_GAME -> {
+                showStartGame(state,chat);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                showInGame();
+            }
         }
     }
 

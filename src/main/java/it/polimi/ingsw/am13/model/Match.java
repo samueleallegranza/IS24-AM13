@@ -493,7 +493,8 @@ public class Match {
         // Right moment in turn-based phases for playing the card
         if(turnActionsCounter!=0)
             throw new GameStatusException("It's not the moment for playing the card on field");
-
+        if(countConnected()==1 && cardIF!=null)
+            throw new GameStatusException("You are the only player connected: wait for someone else to reconnect");
         CardPlayableIF card = null;
         if(currentPlayer.isConnected()) {
             // Card must be in player's hand. In this case, I retrieve che card itself (instead on the interface of the parameter)
