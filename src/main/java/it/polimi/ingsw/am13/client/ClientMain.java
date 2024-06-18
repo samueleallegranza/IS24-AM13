@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am13.client;
 
+import it.polimi.ingsw.am13.ParametersClient;
+import it.polimi.ingsw.am13.ParametersServer;
 import it.polimi.ingsw.am13.ServerMain;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.network.rmi.NetworkHandlerRMI;
@@ -107,8 +109,8 @@ public class ClientMain {
             Registry registry;
             try {
                 //TODO: rivedi meglio questo setup x rmi
-                registry = LocateRegistry.getRegistry(ip, ServerMain.RMI_DEFAULT_PORT);
-                LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ServerMain.LOBBY_RMI_NAME);
+                registry = LocateRegistry.getRegistry(ip, RMI_DEFAULT_PORT);
+                LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ParametersServer.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);
             } catch (RemoteException | NotBoundException e) {
                 throw new RuntimeException(e);

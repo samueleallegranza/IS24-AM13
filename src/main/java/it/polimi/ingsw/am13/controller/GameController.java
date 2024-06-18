@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.controller;
 
+import it.polimi.ingsw.am13.ParametersServer;
 import it.polimi.ingsw.am13.model.GameModel;
 import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
@@ -18,18 +19,6 @@ public class GameController implements Runnable {
      * The model of the game
      */
     private final GameModel gameModel;
-    /**
-     * Constant storing the timeout used to detect the disconnection of a client (in ms)
-     */
-    private static final Long timeout=4000L;
-    /**
-     * Constant storing the sleep time in ms of the threads managing connections (i.e. how often they repeat the checks)
-     */
-    private static final Long sleepTime=500L;
-    /**
-     * How much time (in ms) the controller waits for a client to reconnect when only 1 player or fewer are connected
-     */
-    private static final Long timeToWaitReconnection=10000L;
 
     /**
      * Thread used to manage the reconnection timer which is started when there only 1 player left
@@ -80,7 +69,7 @@ public class GameController implements Runnable {
         while(!Thread.interrupted()) {
             List<GameListener> listeners = gameModel.getListeners();
             for (GameListener gameListener : listeners) {
-                if (System.currentTimeMillis() - gameListener.getPing() > timeout) {
+                if (System.currentTimeMillis() - gameListener.getPing() > ParametersServer.timeout) {
                     try {
                         disconnectPlayer(gameListener.getPlayer());
                         if(gameModel.countConnected() == 0) {
@@ -94,7 +83,7 @@ public class GameController implements Runnable {
                 }
             }
             try {
-                Thread.sleep(sleepTime);
+                Thread.sleep(ParametersServer.sleepTime);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -133,7 +122,7 @@ public class GameController implements Runnable {
      * @throws LobbyException if gameListener didn't belong to ListenerHandler
      */
     public synchronized void disconnectPlayer(PlayerLobby player) throws InvalidPlayerException, ConnectionException, LobbyException {
-        disconnectPlayer(player, timeToWaitReconnection);
+        disconnectPlayer(player, ParametersServer.timeToWaitReconnection);
     }
 
     /**

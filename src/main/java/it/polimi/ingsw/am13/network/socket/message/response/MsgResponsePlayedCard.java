@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.network.socket.message.response;
 
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
 import it.polimi.ingsw.am13.model.card.Coordinates;
-import it.polimi.ingsw.am13.model.card.Side;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.io.Serializable;

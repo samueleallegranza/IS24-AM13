@@ -5,6 +5,9 @@ import it.polimi.ingsw.am13.model.GameModelIF;
 
 import java.io.Serializable;
 
+/**
+ * Response message which is sent when the game starts, containing the game state at that moment
+ */
 public class MsgResponseStartGame extends MsgResponse implements Serializable {
     /**
      * The game initial game state

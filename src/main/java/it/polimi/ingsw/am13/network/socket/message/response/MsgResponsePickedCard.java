@@ -6,6 +6,9 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Response message which is sent when a player has successfully picked a card
+ */
 public class MsgResponsePickedCard extends MsgResponse implements Serializable {
     /**
      * The player that has picked a card

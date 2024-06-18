@@ -7,6 +7,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class manages a player of match, storing and managing his nickname, token, field, hand cards, personal
+ * objective, starter card, points, whether he is connected or not.
+ */
 public class Player implements Serializable, PlayerIF {
 
     /**

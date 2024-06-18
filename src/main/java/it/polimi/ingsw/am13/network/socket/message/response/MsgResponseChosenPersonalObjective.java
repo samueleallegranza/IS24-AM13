@@ -1,11 +1,13 @@
 package it.polimi.ingsw.am13.network.socket.message.response;
 
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
-import it.polimi.ingsw.am13.model.card.CardStarterIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.io.Serializable;
 
+/**
+ * Response message containing the information describing the choice of a personal objective
+ */
 public class MsgResponseChosenPersonalObjective extends MsgResponse implements Serializable {
     /**
      * The player that has chosen the personal objective

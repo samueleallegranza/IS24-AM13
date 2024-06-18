@@ -41,7 +41,7 @@ public class CardObjective extends Card implements CardObjectiveIF {
      * @param color3 Color of bottom card
      * @param pos12 Position of middle card with respect to upper card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
      * @param pos23 Position of bottom card with respect to middle card. It can only be -1 (to the left), 0 (right under), 1 (to the right)
-     * @throws InvalidParameterException If pos12 or pos23 are not among their possible values
+     * @throws InvalidCardCreationException If pos12 or pos23 are not among their possible values
      */
     public CardObjective(String id, int points, Color color1, Color color2, Color color3, int pos12, int pos23)
             throws InvalidCardCreationException {

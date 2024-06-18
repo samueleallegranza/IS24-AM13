@@ -13,6 +13,11 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is the socket implementation of {@link GameListener}.
+ * It handles the communication between the server and the clients.
+ * It contains methods to update the game state of the clients.
+ */
 public class GameListenerServerSocket implements GameListener {
 
     /**

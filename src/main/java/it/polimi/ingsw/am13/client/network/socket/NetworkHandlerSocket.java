@@ -90,7 +90,7 @@ public class NetworkHandlerSocket implements NetworkHandler {
 
     @Override
     public synchronized void leaveRoom() {
-        sendMessage(new MsgCommandLeaveRoom(latestPlayer.getNickname()));
+        sendMessage(new MsgCommandLeaveRoom());
     }
 
     @Override

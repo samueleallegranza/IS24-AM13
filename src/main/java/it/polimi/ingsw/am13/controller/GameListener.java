@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Interface to be implemented by the classes that handle the communication between the server and the clients.
- * It contains methods to update the client of the clients with the game status.
+ * It contains methods to update the game state of the clients.
  */
 public interface GameListener extends Serializable {
 

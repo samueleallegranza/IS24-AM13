@@ -4,6 +4,9 @@ import it.polimi.ingsw.am13.model.card.*;
 
 import java.util.List;
 
+/**
+ * Interface of a player, which only allows to get his data
+ */
 public interface PlayerIF {
 
     /**

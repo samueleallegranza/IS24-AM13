@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 // TODO: Discuss about Exceptions. Should we add a new one for this class?
-// TODO: togli paramatro command dove non serve? (vedi warning)
+// TODO: togli parametro command dove non serve? (vedi warning)
 public class ClientRequestsHandler extends Thread {
 
     /**
