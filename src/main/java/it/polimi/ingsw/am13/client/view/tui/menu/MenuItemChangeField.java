@@ -6,6 +6,9 @@ import it.polimi.ingsw.am13.client.view.tui.ViewTUIMatch;
 import java.security.InvalidParameterException;
 import java.util.List;
 
+/**
+ * Menu item to change the displayed field to that of another player
+ */
 public class MenuItemChangeField extends MenuItem {
 
     private final ViewTUIMatch view;

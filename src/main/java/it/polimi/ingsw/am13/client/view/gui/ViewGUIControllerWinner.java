@@ -9,6 +9,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+/**
+ * Controller of 'Winner' scene, where the final points and the winner are shown
+ */
 public class ViewGUIControllerWinner extends ViewGUIController{
 
     @FXML

@@ -7,6 +7,9 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Abstract class for the GUI controllers (the classes implementing the logic behind the various scenes)
+ */
 public abstract class ViewGUIController {
 
     protected Stage stage;

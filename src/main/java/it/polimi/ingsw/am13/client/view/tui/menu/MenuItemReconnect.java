@@ -5,6 +5,10 @@ import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Token;
 
 // TODO testa e scrivi documentazione
+
+/**
+ * Menu item to reconnect a player to an ongoing game
+ */
 public class MenuItemReconnect extends MenuItem{
 
         public MenuItemReconnect() {

@@ -17,6 +17,11 @@ import java.util.Objects;
 
 // TODO: Discuss about Exceptions. Should we add a new one for this class?
 // TODO: togli parametro command dove non serve? (vedi warning)
+
+/**
+ * This class listens for request messages coming from a client connected via socket.
+ * It has a corresponding handle method for each possible {@link MsgCommand}
+ */
 public class ClientRequestsHandler extends Thread {
 
     /**

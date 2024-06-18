@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerRooms">
+<VBox alignment="CENTER" spacing="20.0" styleClass="background" stylesheets="@style/rooms.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerRooms">
     <padding>
         <Insets bottom="40.0" left="20.0" right="20.0" top="40.0" />
     </padding>
 
-    <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="60.0" prefWidth="650.0" textAlignment="CENTER" wrapText="true">
+    <Label fx:id="startupText" contentDisplay="CENTER" prefHeight="60.0" prefWidth="650.0" styleClass="Label" stylesheets="@style/rooms.css" textAlignment="CENTER" wrapText="true">
       <font>
          <Font size="20.0" />
       </font></Label>
@@ -27,31 +27,27 @@
             </columns>
         </TableView>
     </HBox>
-    <HBox alignment="CENTER" spacing="20.0">
+    <HBox alignment="CENTER" maxWidth="700" prefHeight="220" spacing="20.0" styleClass="Hbox" stylesheets="@style/rooms.css">
         <VBox alignment="CENTER_LEFT" spacing="20.0">
             <HBox alignment="CENTER" spacing="30.0">
-                <TextField fx:id="nicknameField" prefHeight="25.0" prefWidth="220.0" promptText="Nickname"/>
-                <HBox alignment="CENTER" prefHeight="25.0" prefWidth="245.0" spacing="10.0">
-                    <Label prefHeight="17.0" prefWidth="75.0" text="Token Color:"/>
-                    <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0"/>
+                <TextField fx:id="nicknameField" prefHeight="25.0" prefWidth="220.0" promptText="Nickname" />
+                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="245.0" spacing="10.0">
+                    <Label prefHeight="50.0" prefWidth="75.0" text="Token Color:" wrapText="true" />
+                    <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" />
                 </HBox>
             </HBox>
             <HBox alignment="CENTER" spacing="40.0">
-                <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="300.0" spacing="10.0">
-                    <Label prefHeight="17.0" prefWidth="138.0" text="Target number of players:"/>
-                    <Spinner fx:id="nPlayersSpinner" prefHeight="25.0" prefWidth="130.0"/>
+                <HBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="300.0" spacing="10.0">
+                    <Label prefHeight="50.0" prefWidth="138.0" text="Target number of players:" wrapText="true" />
+                    <Spinner fx:id="nPlayersSpinner" prefHeight="40.0" prefWidth="130.0" />
                 </HBox>
-                <Button mnemonicParsing="false" onAction="#onCreateRoomButtonClick" prefHeight="25.0"
-                        prefWidth="125.0" text="Create Room"/>
+                <Button mnemonicParsing="false" onAction="#onCreateRoomButtonClick" prefHeight="25.0" prefWidth="150.0" text="Create Room" wrapText="true" />
             </HBox>
         </VBox>
         <VBox spacing="20.0">
-            <Button mnemonicParsing="false" onAction="#onReconnectMatchButtonClick"
-                    prefHeight="25.0" prefWidth="125.0" text="Reconnect Match"/>
-            <Button mnemonicParsing="false" onAction="#onRefreshRoomButtonClick"
-                    prefHeight="25.0" prefWidth="125.0" text="Refresh Rooms"/>
-            <Button mnemonicParsing="false" onAction="#onJoinRoomButtonClick" prefHeight="25.0"
-                    prefWidth="125.0" text="Join Room"/>
+            <Button mnemonicParsing="false" onAction="#onReconnectMatchButtonClick" prefHeight="65.0" prefWidth="125.0" text="Reconnect Match" wrapText="true" />
+            <Button mnemonicParsing="false" onAction="#onRefreshRoomButtonClick" prefHeight="65.0" prefWidth="125.0" text="Refresh Rooms" wrapText="true" />
+            <Button mnemonicParsing="false" onAction="#onJoinRoomButtonClick" prefHeight="25.0" prefWidth="125.0" text="Join Room" />
         </VBox>
     </HBox>
 

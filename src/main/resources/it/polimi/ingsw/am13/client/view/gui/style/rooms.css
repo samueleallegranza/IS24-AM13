@@ -1,0 +1,23 @@
+@font-face {
+    src: url('font/PixelifySans-VariableFont_wght.ttf');
+}
+
+.background {
+    -fx-background-image: url("img/frontPage.png");
+}
+
+.font-regular {
+    -fx-font-size: 25;
+}
+
+.Label{
+    -fx-font-family: "Pixelify Sans", 'sans-serif';
+    -fx-font-size: 25;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+
+.Hbox{
+    -fx-font-family: "Pixelify Sans", 'sans-serif';
+    -fx-font-size: 18;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}

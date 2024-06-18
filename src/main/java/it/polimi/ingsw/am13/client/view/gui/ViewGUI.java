@@ -34,7 +34,7 @@ public class ViewGUI extends Application implements View {
     private final static int sceneHeight = 980;
 
     /**
-     * Controller of the 'Rooms' scene, where the rooms are lister and the user can create/join/reconnect to a room
+     * Controller of the 'Rooms' scene, where the rooms are listed and the user can create/join/reconnect to a room
      */
     private ViewGUIControllerRooms roomsController;
     /**

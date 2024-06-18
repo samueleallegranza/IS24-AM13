@@ -16,6 +16,9 @@ import javafx.scene.input.MouseEvent;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Controller of 'Init' scene, where the player must complete the initialization part of the game
+ */
 public class ViewGUIControllerInit extends ViewGUIController {
 
     @FXML

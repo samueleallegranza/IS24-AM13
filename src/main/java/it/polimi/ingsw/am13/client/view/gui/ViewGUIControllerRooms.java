@@ -14,6 +14,9 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
+/**
+ * Controller of the 'Rooms' scene, where the rooms are listed and the user can create/join/reconnect to a room
+ */
 public class ViewGUIControllerRooms extends ViewGUIController {
 
     @FXML

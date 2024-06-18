@@ -1,12 +1,13 @@
 package it.polimi.ingsw.am13.network.socket;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * This class listens for new socket connection requests coming from the client.
+ * Whenever a new connection is accepted, it starts a new {@link ClientRequestsHandler} thread
+ */
 public class ServerSocketHandler {
     private final int socket_port;
 

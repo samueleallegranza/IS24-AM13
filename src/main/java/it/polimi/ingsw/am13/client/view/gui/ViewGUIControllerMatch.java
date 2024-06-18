@@ -37,6 +37,9 @@ import java.util.*;
 
 //TODO: Raffina strategia in play card per debug mode
 
+/**
+ * Controller of 'Match' scene, where player can actually play the most of the game
+ */
 public class ViewGUIControllerMatch extends ViewGUIController {
 
     // ----------------------------------------------------------------

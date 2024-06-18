@@ -16,6 +16,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller of 'JoinedRoom' scene, where player can wait for the room to get full or can leave the room
+ */
 public class ViewGUIControllerJoinedRoom extends ViewGUIController {
 
     @FXML
