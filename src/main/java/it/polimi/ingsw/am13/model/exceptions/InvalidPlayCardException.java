@@ -12,6 +12,10 @@ public class InvalidPlayCardException extends ModelException {
         super();
     }
 
+    /**
+     * Constructor of the exception.
+     * @param msg the message to be shown when the exception will be handled.
+     */
     public InvalidPlayCardException(String msg) {
         super(msg);
     }
