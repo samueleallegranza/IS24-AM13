@@ -569,13 +569,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayHandPlayable();
             displayField();
 //            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
-            Platform.runLater(()-> {
-                if(fuguePlayer!=null) { //to avoid some exceptions on linux
-                    fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
-                    fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
-                    fuguePlayer.play();
-                }
-            });
+            if(ParametersClient.SOUND_ENABLE)
+                Platform.runLater(()-> {
+                    if(fuguePlayer!=null) { //to avoid some exceptions on linux
+                        fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
+                        fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
+                        fuguePlayer.play();
+                    }
+                });
         }
 
         playersContainerUpdatePoints(player);
@@ -688,7 +689,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         state.getPlayers().forEach(this::playersContainerUpdatePoints);
         turnsCounterLabel.setVisible(false);
+
         //TODO: facciamo muovere anche i token sullo scoreboard?
+        state.getPlayers().forEach(this::updateTokenPosition);
     }
 
     /**
@@ -720,7 +723,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             mainRoot.getChildren().add(overlayPane);
         });
 
-        if(state.getWinner().equals(thisPlayer))
+        if(state.getWinner().contains(thisPlayer))
             playAudio("endWinner-daCambiare.mp3");
         else
             playAudio("endLoser-daCambiare.mp3");
@@ -835,11 +838,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     try {
                         // this node is a label
                         Label label = (Label) playerNode;
-                        switch (label.getId()) {
-                            case "player" -> {
-                                String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
-                                label.setText(currPlayer.getNickname() + isYouPostfix);
-                            }
+                        if (label.getId().equals("player")) {
+                            String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
+                            label.setText(currPlayer.getNickname() + isYouPostfix);
 //                            case "turn" -> {
 //                                if(this.state.getCurrentPlayer()==null)
 //                                    label.setText("Initial phase");
@@ -847,15 +848,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //                                    label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
 //                            }
 //                            case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
-                            default -> throw new RuntimeException("Error while labeling in playerContainer");
+                        } else {
+                            throw new RuntimeException("Error while labeling in playerContainer");
                         }
                     } catch (Exception ignore) {
                         // this node is an imageView
                         ImageView imgView = (ImageView) playerNode;
-                        switch (imgView.getId()) {
-                            case "online" -> {
-                                imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
-                            }
+                        if (imgView.getId().equals("online")) {
+                            imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
                         }
                     }
                 }
@@ -888,18 +888,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayPlayerLabel.setText(displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
 
-
-            Platform.runLater(()-> {
-
-                if(System.getProperty("os.name").toLowerCase().contains("win")) {
-                    //init fugue player
-                    Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
-                    fuguePlayer = new MediaPlayer(fugueMedia);
-                    fuguePlayer.setVolume(0.001);
-                    fuguePlayer.setStartTime(Duration.millis(0));
-                    fuguePlayer.setStopTime(Duration.millis(1000));
-                }
-            });
+            if(ParametersClient.SOUND_ENABLE)
+                Platform.runLater(()-> {
+                    if(System.getProperty("os.name").toLowerCase().contains("win")) {
+                        //init fugue player
+                        Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
+                        fuguePlayer = new MediaPlayer(fugueMedia);
+                        fuguePlayer.setVolume(0.001);
+                        fuguePlayer.setStartTime(Duration.millis(0));
+                        fuguePlayer.setStopTime(Duration.millis(1000));
+                    }
+                });
         }
     }
 
@@ -917,6 +916,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //        });
     }
 
+    //TODO forse è da rimuovere tutto il metodo
     /**
      * Updates player container labels representing the turn of the players. Every turn label is set to "waiting"
      * except for the player currently playing, which will be set to "TURN".
@@ -946,17 +946,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         //TODO: Check if written in a decent way :)
         StackPane sPane = (StackPane) playerNodes.get(player.getNickname());
         for(Node node: sPane.getChildren()) {
-            switch (node) {
-                case ImageView ignored: {
-                    ImageView imgView = (ImageView) node;
-                    if(imgView.getId().equals("online")) {
-                        if(state.getPlayerState(player).isConnected())
-                            Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png")))));
-                        else
-                            Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-offline.png")))));
-                    }
+            if (Objects.requireNonNull(node) instanceof ImageView) {
+                ImageView imgView = (ImageView) node;
+                if (imgView.getId().equals("online")) {
+                    if (state.getPlayerState(player).isConnected())
+                        Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png")))));
+                    else
+                        Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-offline.png")))));
                 }
-                default: {};
             }
 //            Label label = (Label) node;
 //            if(label.getId().equals("online")) {
@@ -1253,21 +1250,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void initScoreTracker() {
         Platform.runLater(() -> {
-//            scoreTrackerView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/scoreTracker.png"))));
-            double xDim = scoreTrackerContainer.getWidth()==0 ? scoreTrackerView.getFitWidth() : scoreTrackerContainer.getWidth();
-            double yDim = scoreTrackerContainer.getHeight()==0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
-
             for(PlayerLobby p : state.getPlayers()) {
                 savedPoints.put(p, 0);
-                ImageView tokenImg = createTokenImage(p);
-                tokenImg.setFitHeight(tokenDimRel2x * xDim);
-                tokenImg.setFitWidth(tokenDimRel2x * xDim);
+                ImageView tokenImg = createAndPositionTokenImage(p);
                 tokenImgs.put(p, tokenImg);
-
-                StackPane.setAlignment(tokenImg, Pos.BOTTOM_LEFT);
-                tokenImg.setTranslateX(xTranslToken.getFirst() * xDim);
-                tokenImg.setTranslateY(yTranslToken.getFirst() * yDim);
-                scoreTrackerContainer.getChildren().add(tokenImg);
             }
             tokenImgs.get(thisPlayer).toFront();
         });
@@ -1292,43 +1278,106 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     /**
+     * Creates the image for the color token of the given player, and places it on the position 0 of the score tracker
+     * @param player Player whose the color token images is to be generated and placed
+     * @return Container of the image of the player's color token
+     */
+    private ImageView createAndPositionTokenImage(PlayerLobby player) {
+        double xDim = scoreTrackerContainer.getWidth() == 0 ? scoreTrackerView.getFitWidth() : scoreTrackerContainer.getWidth();
+        double yDim = scoreTrackerContainer.getHeight() == 0 ? scoreTrackerView.getFitHeight() : scoreTrackerContainer.getHeight();
+        ImageView newToken = createTokenImage(player);
+
+        newToken.setFitHeight(tokenDimRel2x * xDim);
+        newToken.setFitWidth(tokenDimRel2x * xDim);
+
+        StackPane.setAlignment(newToken, Pos.BOTTOM_LEFT);
+        newToken.setTranslateX(xTranslToken.getFirst() * xDim);
+        newToken.setTranslateY(yTranslToken.getFirst() * yDim);
+        scoreTrackerContainer.getChildren().add(newToken);
+
+        return newToken;
+    }
+
+    //TODO: da testare meglio, forse potrebbe essere meglio farla non ricorsiva,
+    // meno generale, ma più robusta...
+
+    /**
+     * Recursive creation and concatenation of the animation for the new tokens created to pass from
+     * the current saved point to the final updated points
+     * @param player Player whose token is to be animated
+     */
+    private void updateTokenPositionRic(PlayerLobby player) {
+        int points = state.getPlayerState(player).getPoints();
+        int currentPoints = savedPoints.get(player);
+
+        if(points == currentPoints)
+            return;
+
+        if (currentPoints % 29 == 0 && currentPoints > 0) {
+            // The maximum of the score tracker was surpassed, i must start from 0
+            ImageView token = createAndPositionTokenImage(player);
+            tokenImgs.replace(player, token);
+        }
+
+        ImageView token = tokenImgs.get(player);
+        if (currentPoints / 29 < points / 29) {
+            // I must go to 29 and concatenate another animation after that
+            int finalAnimationPoints = (currentPoints / 29 + 1) * 29;
+            PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, 29);
+            animation.setOnFinished(event -> {
+                savedPoints.replace(player, finalAnimationPoints);
+                updateTokenPositionRic(player);
+            });
+            animation.play();
+
+        } else {
+            createAnimationTokenMove(token, currentPoints % 29, points % 29).play();
+            savedPoints.replace(player, points);
+        }
+    }
+
+    /**
      * Updates the position of the token image on the score tracker, according to the actual points of the player.
-     * It animates the movement making the token pass through all the intermediate steps
+     * It animates the movement making the token pass through all the intermediate steps.
+     * If the points exceeds the maximum of the scoretracker, a new token is created starting from 0 again, so that
+     * the total points are obtained as the sum of the points where the old token and the new token are.
      * @param player Player whose token is to be moved
      */
     private void updateTokenPosition(PlayerLobby player) {
-        Platform.runLater(() -> {
-            int points = state.getPlayerState(player).getPoints();
-            if(savedPoints.get(player) < 29) {
-                if(points > 29)
-                    points = 29;
-                ImageView token = tokenImgs.get(player);
+        Platform.runLater(() -> updateTokenPositionRic(player));
+    }
 
-                double xDim = scoreTrackerContainer.getWidth();
-                double yDim = scoreTrackerContainer.getHeight();
-                int currentPoints = this.savedPoints.get(player);
+    /**
+     * Creates and plays an animation of the given token moving on the scoretrakcer.
+     * The specified points must be the visible number on the scoretracker, and the token can move only forward
+     * @param token Token to be moved
+     * @param from Points where to start from. Must be a number >=0 and < 29
+     * @param to Points where to arrive. Must be a number <code>>from</code>, so >0 and <=29
+     * @return The transition animation (could be useful to add listeners...)
+     */
+    private PathTransition createAnimationTokenMove(ImageView token, int from, int to) {
+        double xDim = scoreTrackerContainer.getWidth();
+        double yDim = scoreTrackerContainer.getHeight();
 
-                Path path = new Path();
-                path.setVisible(false);
-                path.setLayoutX(tokenDimRel2x*xDim/2);
-                path.setLayoutY(tokenDimRel2x*xDim/2);
-                scoreTrackerContainer.getChildren().add(path);
-                path.getElements().add(new MoveTo(xTranslToken.get(currentPoints) * xDim,
-                        yTranslToken.get(currentPoints) * yDim ));
-                for(int point=currentPoints+1 ; point<=points ; point++) {
-                    path.getElements().add(new LineTo(
-                            xTranslToken.get(point) * xDim,
-                            yTranslToken.get(point) * yDim));
-                }
-                PathTransition pathTransition = new PathTransition();
-                pathTransition.setDuration(Duration.seconds(0.5*(points-currentPoints))); // Set animation duration
-                pathTransition.setPath(path);
-                pathTransition.setNode(token);
-                pathTransition.setCycleCount(1); // Play once
-                pathTransition.play();
-            }
-            this.savedPoints.replace(player, state.getPlayerState(player).getPoints());
-        });
+        Path path = new Path();
+        path.setVisible(false);
+        path.setLayoutX(tokenDimRel2x*xDim/2);
+        path.setLayoutY(tokenDimRel2x*xDim/2);
+        scoreTrackerContainer.getChildren().add(path);
+        path.getElements().add(new MoveTo(xTranslToken.get(from) * xDim, yTranslToken.get(from) * yDim ));
+        for(int point=from+1 ; point<=to ; point++) {
+            path.getElements().add(new LineTo(
+                    xTranslToken.get(point) * xDim,
+                    yTranslToken.get(point) * yDim));
+        }
+
+        PathTransition pathTransition = new PathTransition();
+//        pathTransition.setDuration(Duration.seconds(2)); // Set animation duration
+        pathTransition.setDuration(Duration.seconds(0.25*(to-from))); // Set animation duration
+        pathTransition.setPath(path);
+        pathTransition.setNode(token);
+        pathTransition.setCycleCount(1); // Play once
+        return pathTransition;
     }
 
     //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
@@ -1378,13 +1427,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param fileName Name of the file, with the extension too
      */
     private void playAudio(String fileName, double volume) {
-        if(System.getProperty("os.name").toLowerCase().contains("win")) {
-            Platform.runLater(() -> {
-                AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
-                audioClip.setVolume(volume);
-                audioClip.play();
-            });
-        }
+        if(ParametersClient.SOUND_ENABLE)
+            if(System.getProperty("os.name").toLowerCase().contains("win")) {       // TODO cosa fa questo if?????
+                Platform.runLater(() -> {
+                    AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
+                    audioClip.setVolume(volume);
+                    audioClip.play();
+                });
+            }
     }
 
     private void playAudio(String fileName) {

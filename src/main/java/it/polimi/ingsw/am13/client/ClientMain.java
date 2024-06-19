@@ -2,7 +2,6 @@ package it.polimi.ingsw.am13.client;
 
 import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.ParametersServer;
-import it.polimi.ingsw.am13.ServerMain;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.network.rmi.NetworkHandlerRMI;
 import it.polimi.ingsw.am13.client.network.socket.NetworkHandlerSocket;
@@ -23,47 +22,37 @@ import java.util.Objects;
 
 public class ClientMain {
 
-    // TODO: Create a common constant class for these
-    public static final int  SOCKET_DEFAULT_PORT = 25566;
-    public static final int RMI_DEFAULT_PORT = 25567;
-
-    public static final String  SOCKET_DEFAULT_IP = "localhost";
-    public static final String RMI_DEFAULT_IP = "localhost";
-
-//    public static final String LOBBY_RMI_NAME = "lobby_rmi";
-
-
     public static void main(String[] args) {
 
-        // Parse args given
-
-        boolean isSocket = true;
-        boolean isTUI = true;
-        String ip = null;
-        Integer port = null;
-
-
         List<String> argsList = List.of(args);
-        if(argsList.contains("--gui"))
-            isTUI = false;
+        if(argsList.contains("--tui"))
+            ParametersClient.IS_TUI = true;
         if(argsList.contains("--rmi"))
-            isSocket = false;
+            ParametersClient.IS_SOCKET = false;
+        if(argsList.contains("--skip_init"))
+            ParametersClient.SKIP_INIT = true;
+        if(argsList.contains("--skip_turns"))
+            ParametersClient.SKIP_TURNS = true;
+        if(argsList.contains("--no_sounds"))
+            ParametersClient.SOUND_ENABLE = false;
+
 
         for(int i=0 ; i<args.length ; i++) {
             if(Objects.equals(args[i], "--ip"))
-                ip = args[i+1];
+                ParametersClient.SERVER_IP = args[i+1];
             else if(Objects.equals(args[i], "--port"))
-                port = Integer.parseInt(args[i+1]);
+                ParametersClient.SERVER_PORT = Integer.parseInt(args[i+1]);
+            else if(Objects.equals(args[i], "--skip_room")) {
+                ParametersClient.SKIP_ROOM = true;
+                ParametersClient.DEBUG_NPLAYERS = Integer.parseInt(args[i + 1]);
+            }
         }
-        if(ip == null)
-            ip = (isSocket ? SOCKET_DEFAULT_IP : RMI_DEFAULT_IP);
-        if(port == null)
-            port = (isSocket ? SOCKET_DEFAULT_PORT : RMI_DEFAULT_PORT);
+        ParametersClient.checkServerPort();
 
         // check that ip and port are valid
         InetAddress ipInet;
         try {
-            ipInet = new InetSocketAddress(ip, port).getAddress();
+            ipInet = new InetSocketAddress(ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT).getAddress();
         } catch (Exception e) {
             System.out.println("[Error] Given ip or port not valid, please try again.");
             return;
@@ -73,33 +62,32 @@ public class ClientMain {
             return;
         }
 
-
         View view;
         NetworkHandler networkHandler;
-        if (isTUI) {
+        if (ParametersClient.IS_TUI) {
             view = new ViewTUI();
-            networkHandler = initConnection(isSocket, ip, port, view);
+            networkHandler = initConnection(view);
             // Sets the network handler for the view, in order to allow it to send commands/messages to the server
             view.setNetworkHandler(networkHandler);
-            view.showStartupScreen(isSocket, ip, port);
+            view.showStartupScreen(ParametersClient.IS_SOCKET, ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT);
             networkHandler.getRooms();
         }
         else{
-            Application.launch(ViewGUI.class, Boolean.toString(isSocket), ip, port.toString());
+            Application.launch(ViewGUI.class, Boolean.toString(ParametersClient.IS_SOCKET),
+                    ParametersClient.SERVER_IP, Integer.toString(ParametersClient.SERVER_PORT));
         }
-
     }
 
-    public static NetworkHandler initConnection(boolean isSocket, String ip, int port, View view) {
+    public static NetworkHandler initConnection(View view) {
         NetworkHandler networkHandler;
-        if(isSocket) {
+        if(ParametersClient.IS_SOCKET) {
             // open socket connection with ip:port
-            System.out.println("[Client] Connecting to server " + ip + ":" + port);
+            System.out.println("[Client] Connecting to server " + ParametersClient.SERVER_IP + ":" + ParametersClient.SERVER_PORT);
             Socket socket;
             try {
-                socket = new Socket(ip, port);
+                socket = new Socket(ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT);
             } catch (IOException e) {
-                System.out.println("[Error] Something went wrong while trying to reach server at " + ip + ":" + port);
+                System.out.println("[Error] Something went wrong while trying to reach server at " + ParametersClient.SERVER_IP + ":" + ParametersClient.SERVER_PORT);
                 throw new RuntimeException(e);
             }
             System.out.println("[Client] Connected to server");
@@ -109,7 +97,7 @@ public class ClientMain {
             Registry registry;
             try {
                 //TODO: rivedi meglio questo setup x rmi
-                registry = LocateRegistry.getRegistry(ip, RMI_DEFAULT_PORT);
+                registry = LocateRegistry.getRegistry(ParametersClient.SERVER_IP, ParametersServer.RMI_PORT);
                 LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ParametersServer.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);
             } catch (RemoteException | NotBoundException e) {

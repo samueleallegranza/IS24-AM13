@@ -92,7 +92,7 @@ public class ViewGUI extends Application implements View {
 
         this.stage = stage;
         thisPlayer = null;
-        networkHandler = ClientMain.initConnection(isSocket,ip,port,this);
+        networkHandler = ClientMain.initConnection(this);
 
         if(FULLSCREEN_MODE)
             // real full-screen mode

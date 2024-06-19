@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.model.player;
 
+import it.polimi.ingsw.am13.ParametersServer;
 import it.polimi.ingsw.am13.client.gamestate.FieldState;
 import it.polimi.ingsw.am13.client.view.tui.ViewTUIPrintUtils;
 import it.polimi.ingsw.am13.model.card.*;
@@ -201,10 +202,12 @@ public class Field implements FieldIF, Serializable {
         }
 
         // check if every card's requirement is met immediately before placing the new card. If not throw Exception
-        Map<Resource, Integer> cardRequirements = card.getRequirements();
-        for(Resource currResource: cardRequirements.keySet())
-            if(getResourceCount(currResource) < cardRequirements.get(currResource))
-                throw new RequirementsNotMetException();
+        if(ParametersServer.CHECK_REQUIREMENTS) {
+            Map<Resource, Integer> cardRequirements = card.getRequirements();
+            for (Resource currResource : cardRequirements.keySet())
+                if (getResourceCount(currResource) < cardRequirements.get(currResource))
+                    throw new RequirementsNotMetException();
+        }
 
         // remove the resources of covered corners from the set of visible ones and update coverage
         //      calculate surrounding coordinates of the given one

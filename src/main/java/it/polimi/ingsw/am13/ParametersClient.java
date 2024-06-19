@@ -62,4 +62,8 @@ public class ParametersClient {
         if(SERVER_PORT == -1)
             SERVER_PORT = IS_SOCKET ? SOCKET_DEFAULT_PORT : RMI_DEFAULT_PORT;
     }
+
+    // VARIOUS
+
+    public static boolean SOUND_ENABLE = true;
 }
