@@ -8,6 +8,10 @@ public class InvalidPlayerException extends ModelException{
     public InvalidPlayerException() {
     }
 
+    /**
+     * Constructor of the exception.
+     * @param msg the message to be shown when the exception will be handled.
+     */
     public InvalidPlayerException(String msg) {
         super(msg);
     }

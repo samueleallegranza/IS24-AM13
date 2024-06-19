@@ -11,6 +11,10 @@ public class ModelException extends Exception implements Serializable {
         super();
     }
 
+    /**
+     * Constructor of the exception.
+     * @param msg the message to be shown when the exception will be handled.
+     */
     public ModelException(String msg) {
         super(msg);
     }
