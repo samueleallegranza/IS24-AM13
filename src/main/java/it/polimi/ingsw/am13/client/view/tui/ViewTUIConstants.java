@@ -9,6 +9,10 @@ import java.util.Map;
 
 
 // could be replaced with enum
+
+/**
+ * Class containing various constants used by view TUI
+ */
 public final class ViewTUIConstants {
     public static final int LOG_MAXLINES = 6;
     public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -43,7 +47,12 @@ public final class ViewTUIConstants {
     public static final String ANSI_WHITE = "\u001B[37m";
 
 
-    // TODO: fix to map
+    // TODO: fix to map (use char instead of a string?)
+    /**
+     * Returns the symbol associated to a resource
+     * @param r a resource
+     * @return the symbol associated to the resource
+     */
     public static String resourceToSymbol(Resource r) {
         switch (r) {
             case FUNGUS -> {return ViewTUIConstants.FUNGUS_SYMBOL;}

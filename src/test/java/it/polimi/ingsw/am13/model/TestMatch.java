@@ -178,7 +178,7 @@ public class TestMatch {
             throw new RuntimeException(e);
         }
         try{
-            System.out.println(match.calcWinner().getNickname());
+            System.out.println(match.calcWinner().get(0).getNickname());
 //            assertEquals(match.calcWinner(), player0);
         } catch(GameStatusException e){
             throw new RuntimeException(e);
@@ -352,7 +352,7 @@ public class TestMatch {
         match.disconnectPlayer(wouldWin.getPlayerLobby());
         //System.out.println(wouldWin.getPlayerLobby().getNickname()+" would have won");
         try{
-            System.out.println("But he disconnected right before the end so "+match.calcWinner().getNickname()+" won");
+            System.out.println("But he disconnected right before the end so "+match.calcWinner().get(0).getNickname()+" won");
 //            assertEquals(match.calcWinner(), player0);
         } catch(GameStatusException e){
             throw new RuntimeException(e);

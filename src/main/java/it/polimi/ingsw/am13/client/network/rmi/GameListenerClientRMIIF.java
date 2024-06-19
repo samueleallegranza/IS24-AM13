@@ -116,9 +116,10 @@ public interface GameListenerClientRMIIF extends Remote {
 
     /**
      * The winner has been calculated
-     * @param winner The player that has won the game.
+     *
+     * @param winners The player(s) that has won the game.
      */
-    void updateWinner(PlayerLobby winner) throws RemoteException;
+    void updateWinner(List<PlayerLobby> winners) throws RemoteException;
 
     /**
      * The game has ended.

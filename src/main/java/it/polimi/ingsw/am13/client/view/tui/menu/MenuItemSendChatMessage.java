@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class MenuItemSendChatMessage extends MenuItem{
 
+    /**
+     *  List of receivers defining the current shown chat room.
+     */
     private final List<PlayerLobby> chatRoom;
 
     /**

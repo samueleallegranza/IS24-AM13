@@ -112,7 +112,7 @@ public class LisForTest implements GameListener {
     }
 
     @Override
-    public void updateWinner(PlayerLobby winner) {
+    public void updateWinner(List<PlayerLobby> winner) {
         actions.add( ControlAction.WINNER);
         updates.add(new MsgResponseWinner(winner));
     }

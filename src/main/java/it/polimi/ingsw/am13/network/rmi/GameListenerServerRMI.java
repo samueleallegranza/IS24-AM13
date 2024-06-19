@@ -269,11 +269,12 @@ public class GameListenerServerRMI implements GameListener {
 
     /**
      * Updates the client with the winner
-     * @param winner The player that has won the game.
+     *
+     * @param winners The player that has won the game.
      */
     @Override
-    public void updateWinner(PlayerLobby winner) {
-        tryRMICall(() -> clientLis.updateWinner(winner),
+    public void updateWinner(List<PlayerLobby> winners) {
+        tryRMICall(() -> clientLis.updateWinner(winners),
                 "winner");
     }
 

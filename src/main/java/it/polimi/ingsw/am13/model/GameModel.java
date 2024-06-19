@@ -396,14 +396,14 @@ public class GameModel implements GameModelIF {
 
     /**
      * Method callable only once reached phase ENDED
-     * It finds the winner, ie the player with the most points
+     * It finds the winner, ie the player(s) with the most points
      * @return the winner of the match
      * @throws GameStatusException if this method is called in a phase which is not the ENDED phase
      */
-    public PlayerLobby calcWinner() throws GameStatusException {
-        PlayerLobby winner = match.calcWinner();
-        listenerHandler.notifyWinner(winner);
-        return winner;
+    public List<PlayerLobby> calcWinner() throws GameStatusException {
+        List<PlayerLobby> winners = match.calcWinner();
+        listenerHandler.notifyWinner(winners);
+        return winners;
     }
 
     // CHAT METHOD

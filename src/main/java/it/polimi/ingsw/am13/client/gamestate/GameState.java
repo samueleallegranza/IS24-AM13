@@ -62,7 +62,7 @@ public class GameState implements Serializable {
     /**
      * Winner of the game, initially null
      */
-    private PlayerLobby winner;
+    private List<PlayerLobby> winner;
 
     /**
      * Number of turns to reach the end of the turn-based phase. -1 if FINAL_PHASE has not been reached yet
@@ -176,16 +176,17 @@ public class GameState implements Serializable {
     /**
      * @return Winner of the game, initially null
      */
-    public PlayerLobby getWinner() {
+    public List<PlayerLobby> getWinner() {
         return winner;
     }
 
     /**
      * Sets the winner. This method should be used only once the game is ended
-     * @param winner Winner to set
+     *
+     * @param winners Winner to set
      */
-    public void setWinner(PlayerLobby winner) {
-        this.winner = winner;
+    public void setWinner(List<PlayerLobby> winners) {
+        this.winner = winners;
     }
 
     /**

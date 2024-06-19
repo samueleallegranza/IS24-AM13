@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class MenuItemChangeField extends MenuItem {
 
+    /**
+     * View handling the printed match for TUI
+     */
     private final ViewTUIMatch view;
 
     /**

@@ -17,6 +17,9 @@ import it.polimi.ingsw.am13.network.rmi.LobbyRMIIF;
 import java.rmi.RemoteException;
 import java.util.List;
 
+/**
+ * RMI implementation of {@link NetworkHandler}, which is used by the client to send messages to the server
+ */
 public class NetworkHandlerRMI implements NetworkHandler {
 
     private final LobbyRMIIF lobby;

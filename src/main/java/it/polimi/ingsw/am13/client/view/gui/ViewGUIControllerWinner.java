@@ -64,10 +64,18 @@ public class ViewGUIControllerWinner extends ViewGUIController{
         System.out.println(totalHeight);
         pointsTable.setPrefHeight(totalHeight);
 
-        if(thisPlayer.equals(state.getWinner()))
-            winnerText.setText("You have won the game");
-        else
-            winnerText.setText(state.getWinner().getNickname() + " won the game");
+        if(state.getWinner().size()==1 && thisPlayer.equals(state.getWinner().getFirst()))
+                winnerText.setText(state.getWinner().getFirst().getNickname() + " won the game");
+        else{
+            String winnerStr="";
+            for (int i = 0; i <state.getWinner().size() ; i++) {
+                winnerStr += state.getWinner().get(i).getNickname();
+                if(i!=state.getWinner().size()-1)
+                    winnerStr += ", ";
+            }
+            winnerStr+=" won the game";
+            winnerText.setText(winnerStr);
+        }
     }
 
     public synchronized void showEndGame() {

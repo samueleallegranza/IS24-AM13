@@ -9,6 +9,9 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class handles the TUI during the match
+ */
 public class ViewTUIMatch {
 
     //TODO: magari aggiungi legenda da qualche parte per i simboli usati

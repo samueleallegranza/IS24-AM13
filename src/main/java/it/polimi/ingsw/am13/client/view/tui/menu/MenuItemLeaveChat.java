@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class MenuItemLeaveChat extends MenuItem {
 
+    /**
+     * View handling the printed match for TUI
+     */
     private final ViewTUI view;
 
     /**

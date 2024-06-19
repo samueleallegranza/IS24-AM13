@@ -16,12 +16,37 @@ import java.util.ArrayList;
  * Depending on the received message, it calls the corresponding GameStateHandler and View methods.
  */
 public class ServerResponseHandler extends Thread{
+    /**
+     * The socket which is used to communicate with the server
+     */
     private final Socket socket;
+    /**
+     * Handler of the representation of the game state
+     */
     private GameStateHandler gameStateHandler;
+    /**
+     * The thread that regularly sends a ping
+     */
     private PingThread pingThread;
+    /**
+     * The socket network handler that sends the messages from the client to the server
+     */
     private final NetworkHandlerSocket networkHandlerSocket;
+    /**
+     * The user interface
+     */
     private final View view;
+    /**
+     * Chat storing all the messages involving this player
+     */
     private Chat chat;
+
+    /**
+     * Constructor of this class, that sets the socket, network handler and view
+     * @param socket to communicate with the server
+     * @param networkHandlerSocket that sends the messages from the client to the server
+     * @param view of this client, where the updates received from the server are shown
+     */
     public ServerResponseHandler(Socket socket, NetworkHandlerSocket networkHandlerSocket, View view){
         this.socket=socket;
         gameStateHandler=null;
@@ -30,6 +55,10 @@ public class ServerResponseHandler extends Thread{
         chat=null;
     }
 
+    /**
+     * Thread run method that waits for messages coming from the server, and updates the view and the game state
+     * according to the received message
+     */
     public void run(){
 
             ObjectInputStream in;

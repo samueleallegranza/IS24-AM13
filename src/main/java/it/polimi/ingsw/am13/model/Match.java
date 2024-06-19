@@ -27,9 +27,21 @@ import java.util.*;
 
 public class Match {
 
+    /**
+     * Deck handler of the resource cards deck
+     */
     private final DeckHandler<CardResource> deckResources;
+    /**
+     * Deck handler of the gold cards deck
+     */
     private final DeckHandler<CardGold> deckGold;
+    /**
+     * Deck handler of the objective cards deck
+     */
     private final DeckHandler<CardObjective> deckObjective;
+    /**
+     * Deck handler of the starter cards deck
+     */
     private final Deck<CardStarter> deckStarter;
 
     /**
@@ -614,11 +626,12 @@ public class Match {
      * @return the winner of the match
      * @throws GameStatusException if this method is called in a phase which is not the ENDED phase, unless there is only one player left
      */
-    public PlayerLobby calcWinner() throws GameStatusException{
+    public List<PlayerLobby> calcWinner() throws GameStatusException{
         if(gameStatus!=GameStatus.ENDED && countConnected()!=1)
             throw new GameStatusException(gameStatus,GameStatus.ENDED);
-        return players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints))
-                .map(Player::getPlayerLobby).orElseThrow();
+        Player winner0=players.stream().filter(Player::isConnected).max(Comparator.comparingInt(Player::getPoints).thenComparing(Player::getObjectivePoints)).orElseThrow();
+        return players.stream().filter(Player::isConnected).filter(x -> x.getPoints()==winner0.getPoints() && x.getObjectivePoints()== winner0.getObjectivePoints())
+                .map(Player::getPlayerLobby).toList();
     }
 
 

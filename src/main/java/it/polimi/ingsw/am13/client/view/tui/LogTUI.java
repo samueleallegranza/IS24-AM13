@@ -10,7 +10,10 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Vector;
 
-
+/**
+ * Class that stores the logs for the TUI
+ * To avoid using too much space in the terminal, it only stores the last LOG_MAXLINES log messages
+ */
 public class LogTUI {
     private final Deque<String> logMessages;
     private final GameState gameState;

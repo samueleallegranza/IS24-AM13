@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//OSS: currently, the only classes managing notifications via ListenerHandler are Room for per-GameBegins and
+//NOTE: currently, the only classes managing notifications via ListenerHandler are Room for per-GameBegins and
 // GameModel for post-GameBegins
 
 /**
@@ -151,9 +151,9 @@ public class ListenerHandler implements Serializable {
 
     /**
      * Notifies the view that a player has won the game. <br>
-     * @param player The player that has won the game.
+     * @param player The player(s) that has won the game.
      */
-    public void notifyWinner(PlayerLobby player){
+    public void notifyWinner(List<PlayerLobby> player){
         for (GameListener listener : listeners){
             listener.updateWinner(player);
         }

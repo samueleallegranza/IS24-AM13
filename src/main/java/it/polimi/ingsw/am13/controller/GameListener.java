@@ -107,9 +107,9 @@ public interface GameListener extends Serializable {
 
     /**
      * Updates the client with the winner
-     * @param winner The player that has won the game.
+     * @param winner The player(s) that has won the game.
      */
-    void updateWinner(PlayerLobby winner);
+    void updateWinner(List<PlayerLobby> winner);
 
     /**
      * Updates the client about ending of game.

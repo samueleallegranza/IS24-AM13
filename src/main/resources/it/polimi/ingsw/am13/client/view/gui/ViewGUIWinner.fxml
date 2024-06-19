@@ -7,8 +7,8 @@
 
 <VBox alignment="CENTER" spacing="30.0" stylesheets="@style/winner.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerWinner">
     <HBox alignment="CENTER">
-        <Label fx:id="winnerText" alignment="CENTER" contentDisplay="CENTER" prefHeight="115.0" prefWidth="614.0"
-               styleClass="winnerBigLabel" textAlignment="CENTER">
+        <Label fx:id="winnerText" alignment="CENTER" contentDisplay="CENTER" prefHeight="150.0" prefWidth="614.0"
+               styleClass="winnerBigLabel" textAlignment="CENTER" wrapText="true">
             <font>
                 <Font size="20.0"/>
             </font>

@@ -101,8 +101,8 @@ public class GameListenerServerSocket implements GameListener {
     }
 
     @Override
-    public void updateWinner(PlayerLobby winner) {
-        sendMessage(new MsgResponseWinner(winner));
+    public void updateWinner(List<PlayerLobby> winners) {
+        sendMessage(new MsgResponseWinner(winners));
     }
 
     @Override
@@ -136,6 +136,11 @@ public class GameListenerServerSocket implements GameListener {
         sendMessage(new MsgResponseInGame());
     }
 
+    /**
+     * @param model      The updated game model
+     * @param controller The controller of the game
+     * @param player     The updated player who is reconnecting.
+     */
     @Override
     public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
         sendMessage(new MsgResponseUpdateGameState(model, player));

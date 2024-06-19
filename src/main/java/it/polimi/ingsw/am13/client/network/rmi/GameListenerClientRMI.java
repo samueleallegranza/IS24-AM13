@@ -159,7 +159,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
     }
 
     /**
-     * A player plays a card.
+     * A player has played a card.
      * @param player The player that played the card.
      * @param cardPlayed The card played.
      * @param coord The coordinates where the card has been placed, relative to the player's field.
@@ -173,7 +173,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
     }
 
     /**
-     * A player picks a card from the common visible cards.
+     * A player has picked a card from the common visible cards.
      * @param player The player that picked the card.
      * @param updatedVisibleCards The updated list of visible cards in the common field.
      * @param pickedCard The card picked by the player
@@ -204,10 +204,11 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
 
     /**
      * The winner has been calculated
-     * @param winner The player that has won the game.
+     *
+     * @param winners The player(s) that won the game.
      */
-    public void updateWinner(PlayerLobby winner) throws RemoteException {
-        stateHandler.updateWinner(winner);
+    public void updateWinner(List<PlayerLobby> winners) throws RemoteException {
+        stateHandler.updateWinner(winners);
         view.showWinner();
     }
 

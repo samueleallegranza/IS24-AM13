@@ -43,7 +43,7 @@ public interface CardSidePlayableIF extends Serializable {
     List<Boolean> getCoveredCorners();
 
     /**
-     * Returns the object which describes all the matter related to points
+     * Returns the object which describes all the information related to points
      * @return PointsPlayable interface of the card side
      */
     PointsPlayable getPoints();

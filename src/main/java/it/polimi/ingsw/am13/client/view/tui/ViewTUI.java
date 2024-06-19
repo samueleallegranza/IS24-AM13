@@ -24,15 +24,13 @@ import java.util.List;
  */
 public class ViewTUI implements View {
 
-    //TODO finisci di documentare
-
     /**
      * Current menu, which defines the possible actions to perform
      */
     private MenuTUI currentMenu;
 
     /**
-     * Player the view refers to. Null if it is not define yet
+     * Player the view refers to. Null if it is not defined yet
      */
     private PlayerLobby thisPlayer;
 
@@ -267,6 +265,11 @@ public class ViewTUI implements View {
         }
     }
 
+    /**
+     * Shows the already started game to the player who has reconnected mid-game
+     * @param state GameState of the started match
+     * @param thisPlayer Player linked to this client which is reconnecting to the match
+     */
     @Override
     public synchronized void showStartGameReconnected(GameState state, PlayerLobby thisPlayer, Chat chat) {
         this.thisPlayer = thisPlayer;
@@ -352,6 +355,11 @@ public class ViewTUI implements View {
         viewTUIMatch.printMatch();
     }
 
+    /**
+     * Shows a player placing one of their hand cards on the field
+     * @param player Player who placed the card on field
+     * @param coord Coordinates of the field where the card has been placed
+     */
     @Override
     public synchronized void showPlayedCard(PlayerLobby player, Coordinates coord) {
         this.logs.logPlayedCard(player, coord);
@@ -360,6 +368,10 @@ public class ViewTUI implements View {
             viewTUIMatch.printMatch();
     }
 
+    /**
+     * Shows a player picking a card
+     * @param player Player who picked a card
+     */
     @Override
     public synchronized void showPickedCard(PlayerLobby player) {
         this.logs.logPickedCard(player);
@@ -368,6 +380,9 @@ public class ViewTUI implements View {
             viewTUIMatch.printMatch();
     }
 
+    /**
+     * Show the game moving on to the next turn
+     */
     @Override
     public synchronized void showNextTurn() {
         logs.logNextTurn();
@@ -379,6 +394,9 @@ public class ViewTUI implements View {
             printCurrentChat("Now it's your turn");
     }
 
+    /**
+     * Shows the game entering the final phase (last turns before adding extra points)
+     */
     @Override
     public synchronized void showFinalPhase() {
         logs.logFinalPhase();
@@ -388,6 +406,9 @@ public class ViewTUI implements View {
             printCurrentChat("The final phase has arrived, hurry up!");
     }
 
+    /**
+     * Shows the points updated after the turn-based phase is finished
+     */
     @Override
     public synchronized void showUpdatePoints() {
         this.inputReader.interrupt();
@@ -402,18 +423,34 @@ public class ViewTUI implements View {
         System.out.print("\n");
     }
 
+    /**
+     * Show the winner
+     */
     @Override
     public synchronized void showWinner() {
-        System.out.println("⇒ " + gameState.getWinner() + " has won the match!");
+        String winnerStr="";
+        for (int i = 0; i <gameState.getWinner().size() ; i++) {
+            winnerStr += gameState.getWinner().get(i).getNickname();
+            if(i!=gameState.getWinner().size()-1)
+                winnerStr += ", ";
+        }
+        System.out.println("⇒ " + winnerStr + " won the match!");
         System.out.println("\n\n\n\nPress enter to quit the game\n");
     }
 
+    /**
+     * Show the end of the game (after which the server deletes the game)
+     */
     @Override
     public synchronized void showEndGame() {
         System.out.println("The game has ended");
         // TODO aggiungi networkHandler che chiama getRooms
     }
 
+    /**
+     * Show a player disconnecting from the game
+     * @param player Player who disconnected
+     */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         this.logs.logDisconnect(player);
@@ -424,6 +461,10 @@ public class ViewTUI implements View {
             //TODO sistema con i log
     }
 
+    /**
+     * Show a player reconnecting to the game
+     * @param player Player who reconnected
+     */
     @Override
     public synchronized void showPlayerReconnected(PlayerLobby player) {
         this.logs.logReconnect(player);
@@ -501,18 +542,34 @@ public class ViewTUI implements View {
         viewTUIMatch.printMatch();
     }
 
+    /**
+     *
+     * @return player the view refers to. Null if it is not defined yet
+     */
     public PlayerLobby getThisPlayer() {
         return thisPlayer;
     }
 
+    /**
+     *
+     * @return game's state. Null if it is not defined yet
+     */
     public GameState getGameState() {
         return gameState;
     }
 
+    /**
+     *
+     * @return current menu, which defines the possible actions to perform
+     */
     public synchronized MenuTUI getCurrentMenu() {
         return currentMenu;
     }
 
+    /**
+     * Sets the current menu
+     * @param currentMenu current menu, which defines the possible actions to perform
+     */
     synchronized void setCurrentMenu(MenuTUI currentMenu) {
         this.currentMenu = currentMenu;
     }

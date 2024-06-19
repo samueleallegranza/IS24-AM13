@@ -48,9 +48,12 @@ public class GameStateHandler {
     }
 
 
-    //TODO aggiungi documentazione
-
-
+    /**
+     * A player has played their starter card.
+     * @param player The player that played the starter card.
+     * @param cardStarter The starter card played.
+     * @param availableCoords The list of coordinates that are available to play a card
+     */
     public void updatePlayedStarter(PlayerLobby player, CardStarterIF cardStarter, List<Coordinates> availableCoords) {
         state.getPlayerState(player).setStarterCard(cardStarter);
         FieldState field = state.getPlayerState(player).getField();
@@ -58,16 +61,33 @@ public class GameStateHandler {
         field.setAvailableCoords(availableCoords);
     }
 
+    /**
+     * A player has chosen their personal objective card.
+     * @param player The player that chose the personal objective card.
+     * @param chosenObj Objective card chosen by the player
+     */
     public void updateChosenPersonalObjective(PlayerLobby player, CardObjectiveIF chosenObj) {
         state.getPlayerState(player).setHandObjective(chosenObj);
     }
 
+    /**
+     * The next turn has been reached
+     * @param player The player that is going to play the next turn.
+     */
     public void updateNextTurn(PlayerLobby player) {
         state.setCurrentPlayer(player);
         if(state.getGameStatus() == GameStatus.FINAL_PHASE)
             state.setTurnsToEnd(state.getTurnsToEnd()-1);
     }
 
+    /**
+     * A player has played a card.
+     * @param player The player that played the card.
+     * @param card The card played.
+     * @param coords The coordinates where the card has been placed, relative to the player's field.
+     * @param points The points given by the card.
+     * @param availableCoords The list of coordinates that are available to play a card
+     */
     public void updatePlayedCard(PlayerLobby player, CardPlayableIF card, Coordinates coords, int points, List<Coordinates> availableCoords) {
         // If card == null, it implies this is a 'ghost' move for disconnected player, and I don't have to update anything in gamestate
         if(card != null) {
@@ -81,6 +101,12 @@ public class GameStateHandler {
         }
     }
 
+    /**
+     * A player has picked a card from the common visible cards.
+     * @param player The player that picked the card.
+     * @param updatedVisibleCards The updated list of visible cards in the common field.
+     * @param pickedCard The card picked by the player
+     */
     public void updatePickedCard(PlayerLobby player, List<CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         // If pickedCard == null, it implies this is a 'ghost' move for disconnected player, and I don't have to update anything in gamestate
         if(pickedCard!=null) {
@@ -89,6 +115,11 @@ public class GameStateHandler {
         }
     }
 
+    /**
+     * The points given by Objective cards (common and personal) have been calculated.
+     * Following the game's rules, the specified points are the final ones
+     * @param pointsMap A map containing the points of each player.
+     */
     public void updatePoints(Map<PlayerLobby, Integer> pointsMap) {
         state.setGameStatus(GameStatus.CALC_POINTS);
         state.setCurrentPlayer(null);
@@ -96,24 +127,44 @@ public class GameStateHandler {
             state.getPlayerState(p).setPoints(pointsMap.get(p));
     }
 
-    public void updateWinner(PlayerLobby winner) {
+    /**
+     * The winner has been calculated
+     *
+     * @param winners The player(s) that won the game.
+     */
+    public void updateWinner(List<PlayerLobby> winners) {
         state.setGameStatus(GameStatus.ENDED);
-        state.setWinner(winner);
+        state.setWinner(winners);
     }
 
+    /**
+     * A player has disconnected from the game.
+     * @param player The player that has disconnected.
+     */
     public void updatePlayerDisconnected(PlayerLobby player) {
         state.getPlayerState(player).setConnected(false);
     }
 
+    /**
+     * A player has reconnected to the game.
+     * @param player The player that has reconnected.
+     */
     public void updatePlayerReconnected(PlayerLobby player) {
         state.getPlayerState(player).setConnected(true);
     }
 
+    /**
+     * The game is in the final phase.
+     * @param turnsToEnd Number of turns to reach the end of the turn-based phase
+     */
     public void updateFinalPhase(int turnsToEnd) {
         state.setGameStatus(GameStatus.FINAL_PHASE);
         state.setTurnsToEnd(turnsToEnd);
     }
 
+    /**
+     * The game has begun the turn-based phase.
+     */
     public void updateInGame() {
         state.setGameStatus(GameStatus.IN_GAME);
         state.setCurrentPlayer(state.getFirstPlayer());

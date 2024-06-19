@@ -124,6 +124,10 @@ public class CardSidePlayable implements CardSidePlayableIF {
         return resourceList;
     }
 
+    /**
+     *
+     * @return list of 4 booleans, true if the corresponding corners is covered
+     */
     @Override
     public List<Boolean> getCoveredCorners() {
         List<Boolean> isCovered=new ArrayList<>(4);
@@ -133,6 +137,10 @@ public class CardSidePlayable implements CardSidePlayableIF {
         return isCovered;
     }
 
+    /**
+     * Returns the object which describes all the information related to points
+     * @return PointsPlayable interface of the card side
+     */
     @Override
     public PointsPlayable getPoints() {
         return this.points;

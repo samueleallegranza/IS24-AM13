@@ -12,20 +12,53 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Class containing various utility methods used by view TUI to print elements on the terminal
+ */
 public class ViewTUIPrintUtils {
 
-
+    /**
+     * Static class containing all the symbols related to a card side
+     */
     public static class CardSideSymbolsBuilder {
-        public Character type; // gold/resource/starter -> G/R/S
-        public Character side; // front/back -> F/B
-        public Character[] corners; // -> {x,y,z,k}
-        public String points; // points -> "2xK" / " 2 "
-        public String color; // resource color -> " x " / "[x]"
-        public String requirements; // requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
-        public String centerResourcesStarter; // "xyz"
+        /**
+         * gold/resource/starter -> G/R/S
+         */
+        public Character type;
+        /**
+         * front/back -> F/B
+         */
+        public Character side;
+        /**
+         * -> {x,y,z,k} (a character for each corner, corresponding to its resource)
+         */
+        public Character[] corners;
+        /**
+         * points -> "2xK" / " 2 " (either a number representing instant points, or a number representing how many
+         * points the player gets for each object/covered corner, followed by x and then a symbol representing
+         * the object or the covered corner condition
+         */
+        public String points;
+        /**
+         * resource color -> " x " / "[x]"
+         */
+        public String color;
+        /**
+         * requirements -> "  x  " / " xx  " / " xxx " / "xxxx " / "xxxxx"
+         */
+        public String requirements;
+        /**
+         * "xyz"
+         */
+        public String centerResourcesStarter;
 
+        /**
+         * Construct this class by initialising the various symbols according to the passed card side
+         * @param c a playable card
+         * @param s a side for that card (front/back)
+         */
         public CardSideSymbolsBuilder(CardPlayableIF c, Side s) {
-            // if card is null, we mush show an empty one
+            // if card is null, we must show an empty one
             if(c == null) {
                 type = '─';
                 side = '─';
@@ -217,8 +250,14 @@ public class ViewTUIPrintUtils {
         return infos;
     }
 
+    /**
+     * Create the string associated to the two objective cards the player can choose from
+     * @param obj1 first objective card
+     * @param obj2 second objective card
+     * @return the string associated to those objective cards
+     */
     public static String objectiveCards(CardObjectiveIF obj1, CardObjectiveIF obj2) {
-        // FIXME: Dont have access to CardObjectiveIF informations!
+        // FIXME: Dont have access to CardObjectiveIF information!
         List<String> info1 = createInfoForObjective(obj1);
         List<String> info2 = createInfoForObjective(obj2);
 
@@ -238,6 +277,11 @@ public class ViewTUIPrintUtils {
         );
     }
 
+    /**
+     * Generate the field string
+     * @param field of a player
+     * @return the string representing the field
+     */
     public static String genFieldString(FieldState field){
         StringBuilder strField= new StringBuilder();
         try {
@@ -265,12 +309,7 @@ public class ViewTUIPrintUtils {
                     CardSidePlayableIF cardSidePlayableIF = field.getCardSideAtCoord(coord);
                     List<List<Character>> strCard=cardToStr(cardSidePlayableIF);
                     int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            if(fieldMatrix[curY+j][curX+i]==' ')
-                                fieldMatrix[curY+j][curX+i]=strCard.get(j).get(i);
-                        }
-                    }
+                    putCardStrInFieldStr(fieldMatrix,strCard,curX,curY);
                     if(!cardSidePlayableIF.getCoveredCorners().get(0))
                         fieldMatrix[curY][curX]=strCard.get(0).get(0);
                     if(!cardSidePlayableIF.getCoveredCorners().get(1))
@@ -284,12 +323,7 @@ public class ViewTUIPrintUtils {
                     List<List<Character>> strCard=availableStr(i);
                     Coordinates coord = field.getAvailableCoords().get(i);
                     int curY=2*(maxY-coord.getPosY()+1), curX=2*(coord.getPosX()-minX+1);
-                    for (int x = 0; x < 3; x++) {
-                        for (int y = 0; y < 3; y++) {
-                            if(fieldMatrix[curY+y][curX+x]==' ')
-                                fieldMatrix[curY+y][curX+x]=strCard.get(y).get(x);
-                        }
-                    }
+                    putCardStrInFieldStr(fieldMatrix,strCard,curX,curY);
                 }
                 for (int i = 0; i < dimY; i++) {
                     for (int j = 0; j < dimX; j++) {
@@ -358,6 +392,15 @@ public class ViewTUIPrintUtils {
         strPos.get(2).add(1,'─');
         strPos.get(2).add(2,'┘');
         return strPos;
+    }
+
+    private static void putCardStrInFieldStr(Character[][] fieldMatrix, List<List<Character>> strCard, int curX, int curY){
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if(fieldMatrix[curY+j][curX+i]==' ')
+                    fieldMatrix[curY+j][curX+i]=strCard.get(j).get(i);
+            }
+        }
     }
 
 }

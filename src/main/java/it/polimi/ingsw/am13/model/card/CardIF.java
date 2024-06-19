@@ -2,6 +2,9 @@ package it.polimi.ingsw.am13.model.card;
 
 import java.io.Serializable;
 
+/**
+ * Read-only interface of a card
+ */
 public interface CardIF extends Serializable {
 
     /**

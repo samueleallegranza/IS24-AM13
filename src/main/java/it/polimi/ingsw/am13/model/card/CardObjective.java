@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.model.card.points.PointsObjective;
 import it.polimi.ingsw.am13.model.exceptions.InvalidCardCreationException;
 import it.polimi.ingsw.am13.model.player.Field;
 
-import java.security.InvalidParameterException;
 import java.util.Map;
 import java.util.Objects;
 

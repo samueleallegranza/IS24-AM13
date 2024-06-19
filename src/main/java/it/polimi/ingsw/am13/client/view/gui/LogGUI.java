@@ -9,6 +9,9 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.time.LocalTime;
 import java.util.*;
 
+/**
+ * Class that stores a log of the game for the GUI
+ */
 public class LogGUI {
 
     private final Queue<String> logMessages;
@@ -98,9 +101,20 @@ public class LogGUI {
     }
 
     public void logWinner() {
-        addToLog(String.format("The game ended, %s has won",
-                gameState.getWinner().getNickname())
-        );
+        String winnerStr;
+        if(gameState.getWinner().size()==1)
+            winnerStr=String.format("The game ended, %s has won",
+                    gameState.getWinner().getFirst().getNickname());
+        else {
+            winnerStr = "The game ended, ";
+            for (int i = 0; i <gameState.getWinner().size() ; i++) {
+                winnerStr += gameState.getWinner().get(i).getNickname();
+                if(i!=gameState.getWinner().size()-1)
+                    winnerStr += ", ";
+            }
+            winnerStr+=" have won";
+        }
+        addToLog(winnerStr);
     }
 
     public void logDisconnect(PlayerLobby player) {

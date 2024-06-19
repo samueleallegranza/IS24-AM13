@@ -97,6 +97,7 @@ public class PlayerState implements Serializable {
      * Note that it is not created another list
      * @param possibleHandObjectives List of possible objective cards to set
      */
+    //todo rimuovi dato che non è usato?
     void setPossibleHandObjectives(List<CardObjectiveIF> possibleHandObjectives) {
         this.possibleHandObjectives = possibleHandObjectives;
     }

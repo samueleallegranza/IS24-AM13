@@ -50,6 +50,12 @@ public class Player implements Serializable, PlayerIF {
     private int points;
 
     /**
+     * The points of the player that are given by objective cards.
+     * They are calculated at the end and are only used to determine the winner when they both have the
+     * same total points.
+     */
+    private int objectivePoints;
+    /**
      * Whether a player is currently connected or not (for the corresponding Advanced Function)
      */
     private boolean isConnected;
@@ -75,6 +81,7 @@ public class Player implements Serializable, PlayerIF {
         this.startCard = null;
         this.playerLobby = playerLobby;
         this.points = 0;
+        objectivePoints = 0;
         field = new Field();
         handCards = new ArrayList<>();
         possiblePersonalObjectives = new ArrayList<>();
@@ -245,12 +252,15 @@ public class Player implements Serializable, PlayerIF {
      * @param common2 Second common objective.
      */
     public void addObjectivePoints(CardObjective common1, CardObjective common2) {
+        int tmp=points;
         // Add points of personal objective
         this.addPoints(this.personalObjective.calcPoints(this.field));
 
         // Add points of common objectives
         this.addPoints(common1.calcPoints(this.field));
         this.addPoints(common2.calcPoints(this.field));
+
+        objectivePoints=points-tmp;
     }
 
     // GETTERS
@@ -312,6 +322,14 @@ public class Player implements Serializable, PlayerIF {
      */
     public FieldIF getField() {
         return field;
+    }
+
+    /**
+     *
+     * @return the points of the player that are given by objective cards
+     */
+    public int getObjectivePoints(){
+        return objectivePoints;
     }
 
 }

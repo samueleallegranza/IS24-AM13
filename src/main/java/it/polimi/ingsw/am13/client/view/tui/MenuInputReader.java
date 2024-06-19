@@ -49,6 +49,9 @@ public class MenuInputReader extends Thread {
         return networkHandler;
     }
 
+    /**
+     * Listen for command line inputs coming from the user, and execute them
+     */
     @Override
     public void run() {
         while (!Thread.interrupted()) {
