@@ -516,7 +516,7 @@ public class TestGameModel {
                     }
                 }).
                 max((a,b) -> Integer.compare(game.fetchPoints().get(a), game.fetchPoints().get(b))).orElseThrow();
-        assertEquals(expected, game.calcWinner());
+        assertEquals(expected, game.calcWinner().getFirst());
         assertDoesNotThrow(()->game.calcWinner());
     }
 

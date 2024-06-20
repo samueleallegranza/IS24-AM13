@@ -18,6 +18,11 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -34,12 +39,19 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
+import java.util.List;
 
 /**
  * Controller of 'Match' scene, where player can actually play the most of the game
  */
 public class ViewGUIControllerMatch extends ViewGUIController {
+    public TextArea guideArea;
 
     // ----------------------------------------------------------------
     // UPPER HALF OF THE SCREEN
@@ -425,6 +437,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         // Init of players container
         playerNodes = new HashMap<>();
         initPlayerContainer();
+
+        guideArea.setText("Drag a card in your hand to one of the blue boxes to play it\n Click a card to draw it\n"+
+                "Click on the banner a player to view its field");
     }
 
     /**
@@ -1620,6 +1635,50 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+
+    @FXML
+    public void onClickShowRulebook(){
+        File file=   new File( Objects.requireNonNull(ViewGUIControllerMatch.class.getResource("/docs/CODEX_Rulebook_EN.pdf")).getFile());
+
+//        System.out.println(ViewGUIControllerMatch.class.getResourceAsStream("/docs/CODEX_Rulebook_EN.pdf"));
+//        Platform.runLater(()-> {
+            System.out.println(file.exists() + " " + file.getPath() + " " + Desktop.isDesktopSupported());
+            new Thread(() -> {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException ignored) {
+
+                }
+            });
+        if(System.getProperty("os.name").toLowerCase().contains("lin")) {
+            try {
+                Runtime.getRuntime().exec(new String[]{"/usr/bin/firefox", file.getAbsolutePath()});
+            } catch (IOException e) {
+
+            }
+        }
+//        try {
+//            // Execute the xdg-mime command to get the default application for PDF files
+//            Process process = Runtime.getRuntime().exec("xdg-mime query default application/pdf");
+//
+//            // Read the output of the command
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//            String defaultApplication = reader.readLine();
+//
+//            // Print the default application
+//            System.out.println("Default PDF application: " + defaultApplication);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//            ProcessBuilder processBuilder = new ProcessBuilder("xdg-open", file.getAbsolutePath());
+//            try {
+//                processBuilder.start();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+    }
+
     /**
      * If the message belongs to the chat that is currently being selected, it shows it.
      *
@@ -1660,5 +1719,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 }
         );
     }
+
+
+
 
 }

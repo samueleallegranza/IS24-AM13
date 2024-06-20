@@ -293,6 +293,17 @@
                             </VBox>
                         </AnchorPane>
                     </Tab>
+                    <Tab text="Guide">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="500.0">
+                            <padding>
+                                <Insets top="5.0" />
+                            </padding>
+                            <VBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <TextArea fx:id="guideArea" editable="false" prefHeight="300" prefWidth="500.0" wrapText="true" />
+                                <Button onMouseClicked="#onClickShowRulebook" prefWidth="200" text="Open Rulebook" />
+                            </VBox>
+                        </AnchorPane>
+                    </Tab>
                 </TabPane>
             </HBox>
         </VBox>

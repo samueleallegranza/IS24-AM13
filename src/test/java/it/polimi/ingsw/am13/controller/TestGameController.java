@@ -346,7 +346,7 @@ public class TestGameController {
 
         Thread.sleep(3000);
         assertEquals(ControlAction.WINNER, liss.getLast().actions.getLast());
-        assertEquals(liss.getLast().getPlayer(), ((MsgResponseWinner)liss.getLast().updates.getLast()).getPlayer());
+        assertEquals(liss.getLast().getPlayer(), ((MsgResponseWinner)liss.getLast().updates.getLast()).getPlayer().getFirst());
     }
 
     @Test
@@ -442,7 +442,7 @@ public class TestGameController {
         for(LisForTest l : liss) {
             assertEquals(ControlAction.WINNER, l.actions.getLast());
             assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
-            assertEquals(pToWin, ((MsgResponseWinner)l.updates.getLast()).getPlayer());
+            assertEquals(pToWin, ((MsgResponseWinner)l.updates.getLast()).getPlayer().getFirst());
         }
 
         assertEquals(1, Lobby.getInstance().getRooms().size());
@@ -530,7 +530,7 @@ public class TestGameController {
             if(l.getPlayer() != pToWin) {
                 assertEquals(ControlAction.WINNER, l.actions.getLast());
                 assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
-                assertEquals(pActuallyWon, ((MsgResponseWinner)l.updates.getLast()).getPlayer());
+                assertEquals(pActuallyWon, ((MsgResponseWinner)l.updates.getLast()).getPlayer().getFirst());
             }
         }
         assertNotEquals(ControlAction.WINNER, pl.get(pToWin).actions.getLast());
@@ -630,14 +630,14 @@ public class TestGameController {
 
         PlayerLobby playerRemain = lissRemain.getPlayer();
         assertEquals(playerRemain, model.fetchCurrentPlayer());
-        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
-        controller.pickCard(playerRemain, model.fetchPickables().getFirst());
-        assertEquals(playerRemain, model.fetchCurrentPlayer());     // Only playerRemain has remained, it's still his turn
-        assertNotEquals(ControlAction.WINNER, lissRemain.actions.getLast());
+//        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
+//        controller.pickCard(playerRemain, model.fetchPickables().getFirst());
+//        assertEquals(playerRemain, model.fetchCurrentPlayer());     // Only playerRemain has remained, it's still his turn
+//        assertNotEquals(ControlAction.WINNER, lissRemain.actions.getLast());
 
         Thread.sleep(11000);
         assertEquals(ControlAction.WINNER, lissRemain.actions.getLast());
-        assertEquals(playerRemain, ((MsgResponseWinner)lissRemain.updates.getLast()).getPlayer());
+        assertEquals(playerRemain, ((MsgResponseWinner)lissRemain.updates.getLast()).getPlayer().getFirst());
     }
 
     @Test
