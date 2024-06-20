@@ -59,11 +59,19 @@ public class ViewGUI extends Application implements View {
      */
     private ViewGUIController currentController;
 
-
+    /**
+     * The stage on which the application is displayed
+     */
     private Stage stage;
+
+    /**
+     * The network handler which is used to communicate with the server
+     */
     private NetworkHandler networkHandler;
 
-
+    /**
+     * The representation of the state of the game
+     */
     private GameState state;
     /**
      * The player corresponding to a specific instance of {@link ViewGUI}.
@@ -73,8 +81,18 @@ public class ViewGUI extends Application implements View {
     private PlayerLobby thisPlayer;
 
 //    private boolean reachedWinnerPhase;
+    /**
+     * This variable if the client is connected via socket, false otherwise
+     */
     private boolean isSocket;
+
+    /**
+     * IP address of the server
+     */
     private String ip;
+    /**
+     * Port of the server
+     */
     private int port;
 
     /**

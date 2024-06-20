@@ -30,6 +30,12 @@ public class NetworkHandlerSocket implements NetworkHandler {
      * a player leaves a room and then creates, joins or reconnects to another)
      */
     private PlayerLobby latestPlayer;
+
+    /**
+     * Initialize the output stream and start the server response handler
+     * @param socket the socket which is used to communicate with the server
+     * @param view the user interface
+     */
     public NetworkHandlerSocket(Socket socket, View view) {
         try {
             this.out = new ObjectOutputStream(socket.getOutputStream());
@@ -39,6 +45,10 @@ public class NetworkHandlerSocket implements NetworkHandler {
         new ServerResponseHandler(socket,this, view).start();
     }
 
+    /**
+     * Flush and reset the network output stream
+     * @throws IOException if an IO exception has occured
+     */
     private void flushReset() throws IOException{
         out.flush();
         out.reset();
@@ -65,54 +75,98 @@ public class NetworkHandlerSocket implements NetworkHandler {
         return latestPlayer;
     }
 
+    /**
+     * Get the existing rooms
+     */
     @Override
     public synchronized void getRooms() {
         sendMessage(new MsgCommandGetRooms());
     }
 
+    /**
+     * Create a room with the passed parameters
+     * @param chosenNickname of the player who is creating the room
+     * @param token of the player who is creating the room
+     * @param players of the room that is being created
+     */
     @Override
     public synchronized void createRoom(String chosenNickname, Token token, int players) {
         sendMessage(new MsgCommandCreateRoom(chosenNickname,token,players));
         latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
+    /**
+     * Make the player join the specified room
+     * @param chosenNickname the nickname the client wants to join the room with
+     * @param token chosen by the player who wants to join the room
+     * @param gameId of the game that the client wants to join
+     */
     @Override
     public synchronized void joinRoom(String chosenNickname, Token token, int gameId) {
         sendMessage(new MsgCommandJoinRoom(chosenNickname,token,gameId));
         latestPlayer = new PlayerLobby(chosenNickname,token);
     }
 
+    /**
+     * Reconnect the passed player to an existing game he was previously part of
+     * @param nickname of the player who wants to reconnect
+     * @param token of the player who wants to reconnect
+     */
     @Override
     public synchronized void reconnect(String nickname, Token token) {
         sendMessage(new MsgCommandReconnectGame(nickname, token));
         latestPlayer = new PlayerLobby(nickname, token);
     }
 
+    /**
+     * Make the player leave the room he is currently part of
+     */
     @Override
     public synchronized void leaveRoom() {
         sendMessage(new MsgCommandLeaveRoom());
     }
 
+    /**
+     * Play the starter card
+     * @param side on which the starter card should be played
+     */
     @Override
     public synchronized void playStarter(Side side) {
         sendMessage(new MsgCommandPlayStarter(side));
     }
 
+    /**
+     * Choose the personal objective card
+     * @param card the chosen personal objective
+     */
     @Override
     public synchronized void choosePersonalObjective(CardObjectiveIF card) {
         sendMessage(new MsgCommandChoosePersonalObjective(card));
     }
 
+    /**
+     * Play a card according to the parameters
+     * @param card the player wants to play
+     * @param coords where the card should be played
+     * @param side on which the card should be played
+     */
     @Override
     public synchronized void playCard(CardPlayableIF card, Coordinates coords, Side side) {
         sendMessage(new MsgCommandPlayCard(card,coords,side));
     }
 
+    /**
+     * Pick the passed card
+     * @param card the player wants to pick
+     */
     @Override
     public synchronized void pickCard(CardPlayableIF card) {
         sendMessage(new MsgCommandPickCard(card));
     }
 
+    /**
+     * Ping the server
+     */
     @Override
     public synchronized void ping() {
         sendMessage(new MsgCommandPing());

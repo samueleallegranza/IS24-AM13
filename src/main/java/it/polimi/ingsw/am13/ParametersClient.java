@@ -16,17 +16,17 @@ public class ParametersClient {
     // DEBUG
 
     /**
-     * If true, skips the create/join room phase, creating a room with the specifiec DEBUG_NPLAYERS number of players
+     * If true, skips the create/join room phase, creating a room with the specific DEBUG_NPLAYERS number of players
      */
-    public static boolean SKIP_ROOM = false;
+    public static boolean SKIP_ROOM = true;
     /**
      * If true, skips the init phase
      */
-    public static boolean SKIP_INIT = false;
+    public static boolean SKIP_INIT = true;
     /**
      * If true, skips the turn-bases phase, moving directly to the end of the game
      */
-    public static boolean SKIP_TURNS = false;
+    public static boolean SKIP_TURNS = true;
     /**1
      * Number of players for the debug mode
      */

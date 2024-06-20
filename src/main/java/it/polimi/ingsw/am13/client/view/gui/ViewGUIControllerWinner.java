@@ -39,9 +39,12 @@ public class ViewGUIControllerWinner extends ViewGUIController{
         return "Winner screem";
     }
 
+    /**
+     * This method cannot be called
+     * @param e Exception to be shown
+     */
     @Override
     public void showException(Exception e) {
-        //TODO: forse da implementare
     }
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
