@@ -182,7 +182,6 @@ public class ViewGUI extends Application implements View {
     }
 
     /**
-     *
      * @param msg Message to be shown
      */
     @Override
