@@ -3,21 +3,158 @@
 }
 
 .background {
-    -fx-background-image: url("img/frontPage.png");
+    -fx-background-image: url("img/forest_blur.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center; /* Center the image vertically and horizontally */
+    -fx-background-size: 150% auto; /* Zooms in by 50% */
 }
 
-.font-regular {
-    -fx-font-size: 25;
+.container {
+    -fx-background-image: url("img/paperlobby.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+    -fx-background-size: 100% 100%;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+
 }
 
-.Label{
+.container-border {
+    -fx-border-image-source: url("img/border-field-quad.png");
+    -fx-border-image-slice: 30 30 30 30; /* or you can use percentages */
+    -fx-border-image-width: 26;
+    -fx-border-image-repeat: stretch;
+    -fx-border-image-insets: 0;
+}
+
+
+.table-view {
+    -fx-background-color: rgba(255, 255, 255, 0); /* Background color of the table */
+    -fx-border-color: rgba(204, 204, 204, 0);     /* Border color of the table */
     -fx-font-family: "Pixelify Sans", 'sans-serif';
-    -fx-font-size: 25;
-    -fx-background-color: rgba(255, 255, 255, 0.9);
+    /*-fx-fill: black;*/
+    -fx-font-size: 12px;
+    -fx-font-weight: bolder;
 }
 
-.Hbox{
+.table-view .column-header-background .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .corner {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: rgba(0,0,0,0);
+    -fx-padding: 0 0 5px 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-style: hidden hidden solid hidden;
+    -fx-border-color: rgb(56, 30, 8);
+    -fx-border-width: 2px;
+}
+
+.table-view .table-cell{
+    -fx-padding: 2 0 2 10px;
+
+    -fx-border-style: hidden hidden solid hidden;
+    -fx-border-width: 1px;
+}
+
+.table-row-cell {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:filled {
+    -fx-border-style: hidden hidden solid hidden;
+    -fx-border-color: rgb(98, 81, 60);
+    -fx-border-width: 1px;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(204, 171, 124, 0.55);
+}
+
+.table-row-cell:filled .text {
+    /*-fx-fill: black; !* Change to your desired text color *!*/
+}
+
+.table-row-cell:filled:focused .text {
+    /*-fx-fill: black; !* Ensure the text color stays red when the row is focused *!*/
+}
+
+/*.table-row-cell:selected {*/
+/*    -fx-background-color: rgb(73, 52, 32);*/
+/*}*/
+
+.table-row-cell:filled:selected .text {
+    /*-fx-fill: white; !* Ensure the text color stays red when the row is focused *!*/
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: rgb(159, 130, 79);
+}
+
+
+
+.controls{
     -fx-font-family: "Pixelify Sans", 'sans-serif';
-    -fx-font-size: 18;
-    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-font-size: 12;
+}
+
+.button {
+    -fx-background-color: rgb(213, 192, 158);
+    -fx-border-color: #381e08;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-text-fill: black;
+}
+
+.button:hover {
+    -fx-background-color: rgb(159, 130, 79);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}
+
+.button:pressed {
+    -fx-background-color: rgb(122, 92, 51);
+    /*-fx-text-fill: white;*/
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}
+
+.textbox {
+    -fx-background-color: rgb(241, 226, 198);
+    -fx-border-color: #381e08;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+}
+
+.spinner {
+    -fx-background-color: rgb(241, 226, 198);
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: rgb(213, 192, 158);
+    -fx-border-color: #381e08;
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-background-color: rgb(159, 130, 79);
+}
+
+.spinner .increment-arrow-button:hover:pressed,
+.spinner .decrement-arrow-button:hover:pressed,
+.spinner .increment-arrow-button:pressed,
+.spinner .decrement-arrow-button:pressed {
+    -fx-background-color: rgb(122, 92, 51);
+    /*-fx-text-fill: white;*/
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}
+
+.spinner .text-field {
+    -fx-background-color: rgb(241, 226, 198);
 }

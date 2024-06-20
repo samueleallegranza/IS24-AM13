@@ -20,8 +20,6 @@ import java.util.List;
 public class ViewGUIControllerRooms extends ViewGUIController {
 
     @FXML
-    private Label startupText;
-    @FXML
     private TableView<RoomIF> roomsTable;
     @FXML
     private TextField nicknameField;
@@ -74,13 +72,8 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
 
     public void showStartupScreen(boolean isSocket, String ip, int port) {
-        if(isSocket)
-            startupText.setText("Welcome to Codex Naturalis! (connected via socket to "+ip+" "+port+")");
-        else
-            startupText.setText("Welcome to Codex Naturalis! (connected via RMI to "+ip+" "+port+")");
         nPlayersSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 4, 2));
         colorBox.getItems().addAll(ColorToken.values());
-
     }
 
     public void showRooms(List<RoomIF> rooms) {
