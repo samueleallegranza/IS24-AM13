@@ -20,8 +20,6 @@ import java.util.Map;
  */
 public class ListenerHandler implements Serializable {
 
-    //TODO: Non dovrebbe, ma potrebbero servire delle synchronized...
-
     /**
      * Listeners handled by the class
      */

@@ -12,6 +12,7 @@ import it.polimi.ingsw.am13.network.socket.message.response.MsgResponseGetRooms;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -146,11 +147,20 @@ public class ClientRequestsHandler extends Thread {
             throw new RuntimeException(e);
         }
 
-        try {
-            this.gameController.disconnectPlayer(player);
-        } catch (InvalidPlayerException| LobbyException e) {
-            throw new RuntimeException(e);
-        } catch (ConnectionException ignore) {
+        if(gameListener != null) {
+            if (gameController == null) {
+                try {
+                    lobby.leaveRoom(gameListener);
+                } catch (LobbyException e) {
+                    throw new RuntimeException(e);
+                }
+            } else
+                try {
+                    this.gameController.disconnectPlayer(player);
+                } catch (InvalidPlayerException | LobbyException e) {
+                    throw new RuntimeException(e);
+                } catch (ConnectionException ignore) {
+                }
         }
 
         // run() returns, the Thread ends its life.
@@ -518,7 +528,7 @@ public class ClientRequestsHandler extends Thread {
     private void handleChatMessage(MsgCommandChat command){
         logCommand("chatMessage");
         if(assertGameController()){
-            if(!gameController.getPlayers().containsAll(command.getReceivers()))
+            if(!new HashSet<>(gameController.getPlayers()).containsAll(command.getReceivers()))
                 gameListener.sendError(new InvalidReceiversException("One or more of the receivers are not in the match"));
             else if (command.getReceivers().size()!=1 && command.getReceivers().size()!=gameController.getPlayers().size()-1) {
                 gameListener.sendError(new InvalidReceiversException("The receivers are more than one and less than all the others"));

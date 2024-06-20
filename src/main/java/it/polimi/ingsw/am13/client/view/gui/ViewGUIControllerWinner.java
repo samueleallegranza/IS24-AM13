@@ -23,17 +23,37 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     @FXML
     public TableColumn<PlayerLobby,String> pointsColumn;
 
+    /**
+     * State of the game
+     */
     private GameState state;
+
+    /**
+     * Player associated to the client the GUI was created by
+     */
     private PlayerLobby thisPlayer;
 
+    /**
+     * Sets the player associated to the client the GUI was created by
+     * @param thisPlayer Player associated to the client the GUI was created by
+     */
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
     }
+
+    /**
+     * Sets the state of the game
+     * @param gameState State of the game
+     */
     @Override
     public void setGameState(GameState gameState) {
         this.state = gameState;
     }
+
+    /**
+     * @return Title of the screen
+     */
     @Override
     public String getSceneTitle() {
         return "Winner screem";
@@ -46,13 +66,22 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     @Override
     public void showException(Exception e) {
     }
+    /**
+     * It should never be called, not implemented
+     */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
     }
+    /**
+     * It should never be called, not implemented
+     */
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
     }
 
+    /**
+     * Shows a table of the players with their final points, printing the winner / winners.
+     */
     public synchronized void showWinner() {
 
         for(PlayerLobby playerLobby : state.getPlayers()) {
@@ -78,9 +107,5 @@ public class ViewGUIControllerWinner extends ViewGUIController{
             winnerStr.append(" won the game");
             winnerText.setText(winnerStr.toString());
         }
-    }
-
-    public synchronized void showEndGame() {
-        //TODO: da implementare
     }
 }

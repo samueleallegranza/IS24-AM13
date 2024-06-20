@@ -11,6 +11,7 @@ import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -256,6 +257,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Overlay rectangle for the init view
      */
     private Rectangle initOverlay;
+
+    private ChangeListener<Number> overlayWidthListener;
+    private ChangeListener<Number> overlayHeightListener;
+
 
     /**
      * Map associating each player to its token image in the score tracker
@@ -533,7 +538,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         StackPane topPane = (StackPane) this.getScene().getRoot();
 
         // Create the semi-transparent layer
-        initOverlay = new Rectangle(topPane.getWidth(), topPane.getHeight(), Color.rgb(0, 0, 0, 0.5));
+        initOverlay = new Rectangle();
+        initOverlay.setOpacity(0.5);
+        overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
+        overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
+        topPane.widthProperty().addListener(overlayWidthListener);
+        topPane.heightProperty().addListener(overlayHeightListener);
         topPane.getChildren().addAll(initOverlay, controllerInit.getScene().getRoot());
         controllerInit.showStartGame();
 
@@ -575,6 +585,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
+        stackPane.widthProperty().removeListener(overlayWidthListener);
+        stackPane.heightProperty().removeListener(overlayHeightListener);
 
         // First in game log
         log.logNextTurn();
@@ -799,7 +811,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     public synchronized void showEndGame() {
-        //TODO: da implementare
     }
 
     // ----------------------------------------------------------------

@@ -133,9 +133,8 @@ public class GameController implements Runnable {
      * @param gameListener one of the listeners of ListenerHandler
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player was already connected when this method was called
-     * @throws GameStatusException if any of the methods called directly or indirectly by this method are called in wrong game phase
      */
-    void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
+    void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
         gameModel.reconnectPlayer(gameListener, this);
         int numberConnectedPlayers = gameModel.countConnected();
         if(numberConnectedPlayers > 1) {
@@ -171,8 +170,10 @@ public class GameController implements Runnable {
                     try {
                         if(numberConnectedPlayers == 0)
                             Lobby.getInstance().endGame(getGameId());
-                        else if(numberConnectedPlayers == 1 && gameModel.fetchGameStatus()!=GameStatus.ENDED)
+                        else if(numberConnectedPlayers == 1 && gameModel.fetchGameStatus()!=GameStatus.ENDED) {
+                            gameModel.addObjectivePoints();
                             gameModel.calcWinner();
+                        }
                         else
                             reconnectionThread = null;
                     } catch (LobbyException | GameStatusException ignore) {

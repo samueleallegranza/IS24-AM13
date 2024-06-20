@@ -281,7 +281,8 @@ public class ViewTUI implements View {
         this.logs.logReconnect(thisPlayer);
 
         if(gameState.getGameStatus()==GameStatus.INIT || gameState.getGameStatus()==null) {
-            for(String log: this.logs.getLogMessages()) System.out.println(log);
+            for(String log: this.logs.getLogMessages())
+                System.out.println(log);
             System.out.println("You reconnected successfully, wait for the other players to complete the initialization phase");
         } else {
             // re-initialize view for match as we are in game
@@ -428,11 +429,11 @@ public class ViewTUI implements View {
      */
     @Override
     public synchronized void showWinner() {
-        String winnerStr="";
+        StringBuilder winnerStr= new StringBuilder();
         for (int i = 0; i <gameState.getWinner().size() ; i++) {
-            winnerStr += gameState.getWinner().get(i).getNickname();
+            winnerStr.append(gameState.getWinner().get(i).getNickname());
             if(i!=gameState.getWinner().size()-1)
-                winnerStr += ", ";
+                winnerStr.append(", ");
         }
         System.out.println("⇒ " + winnerStr + " won the match!");
         System.out.println("\n\n\n\nPress enter to quit the game\n");
