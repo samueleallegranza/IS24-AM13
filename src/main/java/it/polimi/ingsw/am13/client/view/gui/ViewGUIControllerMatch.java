@@ -274,6 +274,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private boolean firstFieldScrollAdjustment = true;
 
     /**
+     * Last playing animations for the players' token. If the token of a player is not moving, the animation is null
+     */
+    private final Map<PlayerLobby, PathTransition> lastTokenAnimations = new HashMap<>();
+
+    /**
      * Controller for the initialization view
      */
     private ViewGUIControllerInit controllerInit;
@@ -579,7 +584,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 });
         }
 
-        playersContainerUpdatePoints(player);
         updateTokenPosition(player);
 
         log.logPlayedCard(player, coord, pointsBefore < state.getPlayerState(player).getPoints());
@@ -687,7 +691,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playersContainerUpdateTurns();
         handCards.forEach(c -> c.setOnDragDetected(null));
 
-        state.getPlayers().forEach(this::playersContainerUpdatePoints);
         turnsCounterLabel.setVisible(false);
 
         //TODO: facciamo muovere anche i token sullo scoreboard?
@@ -902,21 +905,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
-    private void playersContainerUpdatePoints(PlayerLobby player) {
-        //TODO: Should we remove this?
-
-//        Platform.runLater(() -> {
-//            // get node corresponding to player
-//            VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
-//            for(Node labelNode: vBox.getChildren()) {
-//                Label label = (Label) labelNode;
-//                if(label.getId().equals("points"))
-//                    label.setText(this.state.getPlayerState(player).getPoints() + " pts");
-//            }
-//        });
-    }
-
-    //TODO forse è da rimuovere tutto il metodo
+    //TODO Indicare in qualche modo di chi è il turno
     /**
      * Updates player container labels representing the turn of the players. Every turn label is set to "waiting"
      * except for the player currently playing, which will be set to "TURN".
@@ -1257,6 +1246,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
             tokenImgs.get(thisPlayer).toFront();
         });
+        for(PlayerLobby p : state.getPlayers()) {
+            lastTokenAnimations.put(p, null);
+        }
     }
 
     /**
@@ -1298,9 +1290,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         return newToken;
     }
 
-    //TODO: da testare meglio, forse potrebbe essere meglio farla non ricorsiva,
-    // meno generale, ma più robusta...
-
     /**
      * Recursive creation and concatenation of the animation for the new tokens created to pass from
      * the current saved point to the final updated points
@@ -1325,14 +1314,48 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             int finalAnimationPoints = (currentPoints / 29 + 1) * 29;
             PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, 29);
             animation.setOnFinished(event -> {
-                savedPoints.replace(player, finalAnimationPoints);
-                updateTokenPositionRic(player);
+                synchronized (player) {
+                    savedPoints.replace(player, finalAnimationPoints);
+                    updateTokenPositionRic(player);
+                    lastTokenAnimations.replace(player, null);
+                }
             });
-            animation.play();
+
+            synchronized (player) {
+                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
+                if(lastTokenAnimation != null) {     // An animation is still playing
+                    lastTokenAnimation.setOnFinished(actionEvent -> {
+                        savedPoints.replace(player, points);
+                        animation.play();
+                        lastTokenAnimations.replace(player, animation);
+                    });
+                } else {     // no animation is currently playing
+                    savedPoints.replace(player, points);
+                    animation.play();
+                }
+            }
 
         } else {
-            createAnimationTokenMove(token, currentPoints % 29, points % 29).play();
-            savedPoints.replace(player, points);
+            PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, points % 29);
+            animation.setOnFinished(actionEvent -> {
+                    synchronized (player) {
+                        lastTokenAnimations.replace(player, null);
+                    }
+                }
+            );
+            synchronized (player) {
+                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
+                if(lastTokenAnimation != null) {     // An animation is still playing
+                    lastTokenAnimation.setOnFinished(actionEvent -> {
+                        savedPoints.replace(player, points);
+                        animation.play();
+                        lastTokenAnimations.replace(player, animation);
+                    });
+                } else {     // no animation is currently playing
+                    savedPoints.replace(player, points);
+                    animation.play();
+                }
+            }
         }
     }
 
@@ -1372,7 +1395,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
 
         PathTransition pathTransition = new PathTransition();
-//        pathTransition.setDuration(Duration.seconds(2)); // Set animation duration
         pathTransition.setDuration(Duration.seconds(0.25*(to-from))); // Set animation duration
         pathTransition.setPath(path);
         pathTransition.setNode(token);
@@ -1428,7 +1450,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void playAudio(String fileName, double volume) {
         if(ParametersClient.SOUND_ENABLE)
-            if(System.getProperty("os.name").toLowerCase().contains("win")) {       // TODO cosa fa questo if?????
+            if(System.getProperty("os.name").toLowerCase().contains("win")) {
                 Platform.runLater(() -> {
                     AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
                     audioClip.setVolume(volume);

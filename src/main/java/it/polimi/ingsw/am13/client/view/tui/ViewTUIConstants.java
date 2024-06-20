@@ -4,8 +4,6 @@ import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 
 
 // could be replaced with enum
@@ -46,8 +44,6 @@ public final class ViewTUIConstants {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-
-    // TODO: fix to map (use char instead of a string?)
     /**
      * Returns the symbol associated to a resource
      * @param r a resource

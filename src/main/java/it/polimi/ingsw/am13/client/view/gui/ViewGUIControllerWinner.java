@@ -61,20 +61,19 @@ public class ViewGUIControllerWinner extends ViewGUIController{
         pointsTable.setFixedCellSize(45);
         double totalHeight = state.getPlayers().size() * pointsTable.getFixedCellSize();
         totalHeight += 42;      // header height, could be necessary to arrange better the value
-        System.out.println(totalHeight);
         pointsTable.setPrefHeight(totalHeight);
 
         if(state.getWinner().size()==1 && thisPlayer.equals(state.getWinner().getFirst()))
                 winnerText.setText(state.getWinner().getFirst().getNickname() + " won the game");
         else{
-            String winnerStr="";
+            StringBuilder winnerStr= new StringBuilder();
             for (int i = 0; i <state.getWinner().size() ; i++) {
-                winnerStr += state.getWinner().get(i).getNickname();
+                winnerStr.append(state.getWinner().get(i).getNickname());
                 if(i!=state.getWinner().size()-1)
-                    winnerStr += ", ";
+                    winnerStr.append(", ");
             }
-            winnerStr+=" won the game";
-            winnerText.setText(winnerStr);
+            winnerStr.append(" won the game");
+            winnerText.setText(winnerStr.toString());
         }
     }
 
