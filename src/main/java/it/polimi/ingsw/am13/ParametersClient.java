@@ -16,7 +16,7 @@ public class ParametersClient {
     // DEBUG
 
     /**
-     * If true, skips the create/join room phase, creating a room with the specifiec DEBUG_NPLAYERS number of players
+     * If true, skips the create/join room phase, creating a room with the specific DEBUG_NPLAYERS number of players
      */
     public static boolean SKIP_ROOM = false;
     /**

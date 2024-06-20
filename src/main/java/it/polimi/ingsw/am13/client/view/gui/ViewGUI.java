@@ -30,8 +30,8 @@ import java.util.List;
 public class ViewGUI extends Application implements View {
 
     private final static boolean FULLSCREEN_MODE = false;
-    private final static int sceneWidth = 1820;
-    private final static int sceneHeight = 980;
+    private final static int sceneWidth = 1920;
+    private final static int sceneHeight = 1080;
 
     /**
      * Controller of the 'Rooms' scene, where the rooms are listed and the user can create/join/reconnect to a room
@@ -59,11 +59,19 @@ public class ViewGUI extends Application implements View {
      */
     private ViewGUIController currentController;
 
-
+    /**
+     * The stage on which the application is displayed
+     */
     private Stage stage;
+
+    /**
+     * The network handler which is used to communicate with the server
+     */
     private NetworkHandler networkHandler;
 
-
+    /**
+     * The representation of the state of the game
+     */
     private GameState state;
     /**
      * The player corresponding to a specific instance of {@link ViewGUI}.
@@ -72,9 +80,18 @@ public class ViewGUI extends Application implements View {
      */
     private PlayerLobby thisPlayer;
 
-//    private boolean reachedWinnerPhase;
+    /**
+     * This variable if the client is connected via socket, false otherwise
+     */
     private boolean isSocket;
+
+    /**
+     * IP address of the server
+     */
     private String ip;
+    /**
+     * Port of the server
+     */
     private int port;
 
     /**
@@ -113,9 +130,15 @@ public class ViewGUI extends Application implements View {
         matchController = createScene(ViewGUIControllerMatch.class, "ViewGUIMatch.fxml");
         winnerController = createScene(ViewGUIControllerWinner.class, "ViewGUIWinner.fxml");
 
-//        reachedWinnerPhase = false;
         showStartupScreen(isSocket, ip, port);
         networkHandler.getRooms();
+
+        // Handle window close request
+        stage.setOnCloseRequest(event -> {
+            System.out.println("Game closed");
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     /**
@@ -182,7 +205,6 @@ public class ViewGUI extends Application implements View {
     }
 
     /**
-     *
      * @param msg Message to be shown
      */
     @Override
@@ -374,19 +396,13 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showWinner() {
-//        if(!reachedWinnerPhase) {
-//            reachedWinnerPhase = true;
             //todo forse si potrebbe visualizzare in qualche modo che ha vinto perché è l'unico giocatore rimasto
-            //(si dovrebbe entrare in questo if solo in quel caso)
-//            showUpdatePoints();
-//        }
         matchController.showWinner();
     }
 
     /**
      * It calls the corresponding method on {@link ViewGUIController}.
      */
-    //todo potremmo voler stampare qualche messaggio (al momento in controller non viene fatto niente)
     @Override
     public synchronized void showEndGame() {
         matchController.showEndGame();
@@ -420,7 +436,6 @@ public class ViewGUI extends Application implements View {
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
         matchController.showChatMessage(sender,receivers);
     }
-
 
     public static void main(String[] args) {
         launch();

@@ -28,41 +28,72 @@ public class ViewGUIControllerInit extends ViewGUIController {
     @FXML
     public ImageView secondChoiceImage;
 
+    /**
+     * The player associated to this {@link ViewGUIControllerInit}
+     */
     private PlayerLobby thisPlayer;
+    /**
+     * The representation of the state of the game
+     */
     private GameState state;
     /**
      * Handler of the logs
      */
     private LogGUI log;
 
-
+    /**
+     *
+     * @return the title of the scene
+     */
     @Override
     public String getSceneTitle() {
         return "Initial Phase";
     }
+
+    /**
+     * This method cannot be called
+     * @param e Exception to be shown
+     */
     @Override
     public void showException(Exception e) {
-        //TODO: forse da implementare
     }
+
+    /**
+     * This method cannot be called
+     * @param player Player who disconnected
+     */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
-        log.logDisconnect(player);
-//        showLastLogs();
     }
+
+    /**
+     * This method cannot be called
+     * @param player Player who reconnected
+     */
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
-        log.logDisconnect(player);
-//        showLastLogs();
     }
+
+    /**
+     * Method that sets the player
+     * @param thisPlayer the player associated to this {@link ViewGUIController}
+     */
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
     }
+    /**
+     * Method that sets the gameState
+     * @param state the representation of the state of the game
+     */
     @Override
     public void setGameState(GameState state) {
         this.state = state;
     }
 
+    /**
+     * Shows the start of the game, by showing the two sides of the starter card the player can choose from
+     */
     public void showStartGame() {
         firstChoiceImage.setMouseTransparent(false);
         secondChoiceImage.setMouseTransparent(false);
@@ -90,6 +121,11 @@ public class ViewGUIControllerInit extends ViewGUIController {
     }
 
 
+    /**
+     * If the player who played the starter card is thisPlayer, it shows the two personal objective cards
+     * the player can choose from
+     * @param player the player who played his starter card
+     */
     public void showPlayedStarter(PlayerLobby player) {
         if(this.thisPlayer.equals(player)) {
             descriptionLabel.setText("Which personal objective do you want to choose?");
@@ -105,8 +141,6 @@ public class ViewGUIControllerInit extends ViewGUIController {
             secondChoiceImage.setOnMouseClicked(mouseEvent -> networkHandler.choosePersonalObjective(finalPossibleHandObjectives.get(1)));
             secondChoiceImage.setImage(imageBack);
         }
-        log.logPlayedStarter(player);
-//        showLastLogs();
 
         if(ParametersClient.SKIP_INIT && thisPlayer.equals(player)) {
             firstChoiceImage.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED,
@@ -118,6 +152,11 @@ public class ViewGUIControllerInit extends ViewGUIController {
         }
     }
 
+    /**
+     * If the player who has chosen his personal objective is thisPlayer, it shows that the player should wait
+     * for the other players to finish their initial phase
+     * @param player the player who has chosen his personal objective
+     */
     public void showChosenPersonalObjective(PlayerLobby player) {
         if(this.thisPlayer.equals(player)) {
             descriptionLabel.setText("You have chosen your personal objective.\n Now wait for the others to finish their initial phase");

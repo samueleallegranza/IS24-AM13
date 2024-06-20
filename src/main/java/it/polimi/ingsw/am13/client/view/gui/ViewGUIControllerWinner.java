@@ -23,33 +23,65 @@ public class ViewGUIControllerWinner extends ViewGUIController{
     @FXML
     public TableColumn<PlayerLobby,String> pointsColumn;
 
+    /**
+     * State of the game
+     */
     private GameState state;
+
+    /**
+     * Player associated to the client the GUI was created by
+     */
     private PlayerLobby thisPlayer;
 
+    /**
+     * Sets the player associated to the client the GUI was created by
+     * @param thisPlayer Player associated to the client the GUI was created by
+     */
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
     }
+
+    /**
+     * Sets the state of the game
+     * @param gameState State of the game
+     */
     @Override
     public void setGameState(GameState gameState) {
         this.state = gameState;
     }
+
+    /**
+     * @return Title of the screen
+     */
     @Override
     public String getSceneTitle() {
         return "Winner screem";
     }
 
+    /**
+     * This method cannot be called
+     * @param e Exception to be shown
+     */
     @Override
     public void showException(Exception e) {
-        //TODO: forse da implementare
     }
+    /**
+     * It should never be called, not implemented
+     */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
     }
+    /**
+     * It should never be called, not implemented
+     */
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
     }
 
+    /**
+     * Shows a table of the players with their final points, printing the winner / winners.
+     */
     public synchronized void showWinner() {
 
         for(PlayerLobby playerLobby : state.getPlayers()) {
@@ -61,24 +93,19 @@ public class ViewGUIControllerWinner extends ViewGUIController{
         pointsTable.setFixedCellSize(45);
         double totalHeight = state.getPlayers().size() * pointsTable.getFixedCellSize();
         totalHeight += 42;      // header height, could be necessary to arrange better the value
-        System.out.println(totalHeight);
         pointsTable.setPrefHeight(totalHeight);
 
         if(state.getWinner().size()==1 && thisPlayer.equals(state.getWinner().getFirst()))
                 winnerText.setText(state.getWinner().getFirst().getNickname() + " won the game");
         else{
-            String winnerStr="";
+            StringBuilder winnerStr= new StringBuilder();
             for (int i = 0; i <state.getWinner().size() ; i++) {
-                winnerStr += state.getWinner().get(i).getNickname();
+                winnerStr.append(state.getWinner().get(i).getNickname());
                 if(i!=state.getWinner().size()-1)
-                    winnerStr += ", ";
+                    winnerStr.append(", ");
             }
-            winnerStr+=" won the game";
-            winnerText.setText(winnerStr);
+            winnerStr.append(" won the game");
+            winnerText.setText(winnerStr.toString());
         }
-    }
-
-    public synchronized void showEndGame() {
-        //TODO: da implementare
     }
 }

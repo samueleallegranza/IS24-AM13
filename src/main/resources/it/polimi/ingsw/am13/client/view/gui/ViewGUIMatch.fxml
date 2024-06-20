@@ -21,17 +21,15 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="980" prefWidth="1820.0" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
+<StackPane prefHeight="1080" prefWidth="1920.0" styleClass="background" stylesheets="@style/match.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerMatch">
     <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <VBox alignment="TOP_CENTER" maxWidth="480.0" minWidth="400.0" HBox.hgrow="ALWAYS">
-         <ImageView fitHeight="45.0" fitWidth="183.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-               <Image url="@style/img/players-logo.png" />
-            </image>
-            <VBox.margin>
-               <Insets bottom="20.0" top="22.0" />
-            </VBox.margin>
-         </ImageView>
+            <ImageView fitHeight="45.0" fitWidth="183.0" pickOnBounds="true" preserveRatio="true">
+                <VBox.margin>
+                    <Insets bottom="20.0" top="22.0"/>
+                </VBox.margin>
+                <Image url="@style/img/players-logo.png"/>
+            </ImageView>
             <GridPane fx:id="playersContainer" maxHeight="-Infinity" prefHeight="500.0" vgap="5.0" VBox.vgrow="ALWAYS">
                 <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="240.0" prefWidth="100.0" />
@@ -42,76 +40,74 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
-            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="0">
-               <children>
-                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
-                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-               </children>
-               <padding>
-                  <Insets left="85.0" top="35.0" />
-               </padding>
-            </StackPane>
-            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="1">
-               <children>
-                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
-                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-               </children>
-               <padding>
-                  <Insets left="85.0" top="35.0" />
-               </padding>
-            </StackPane>
-            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="2">
-               <children>
-                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
-                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-               </children>
-               <padding>
-                  <Insets left="85.0" top="35.0" />
-               </padding>
-            </StackPane>
-            <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="3">
-               <children>
-                  <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT" />
-                  <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0" styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-               </children>
-               <padding>
-                  <Insets left="85.0" top="35.0" />
-               </padding>
-            </StackPane>
+                <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="0">
+                    <padding>
+                        <Insets left="85.0" top="35.0"/>
+                    </padding>
+                    <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_LEFT"/>
+                    <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0"
+                           styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                        <font>
+                            <Font size="24.0"/>
+                        </font>
+                    </Label>
+                </StackPane>
+                <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="1">
+                    <padding>
+                        <Insets left="85.0" top="35.0"/>
+                    </padding>
+                    <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_LEFT"/>
+                    <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0"
+                           styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                        <font>
+                            <Font size="24.0"/>
+                        </font>
+                    </Label>
+                </StackPane>
+                <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="2">
+                    <padding>
+                        <Insets left="85.0" top="35.0"/>
+                    </padding>
+                    <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_LEFT"/>
+                    <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0"
+                           styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                        <font>
+                            <Font size="24.0"/>
+                        </font>
+                    </Label>
+                </StackPane>
+                <StackPane prefHeight="150.0" prefWidth="200.0" styleClass="player-banner" GridPane.rowIndex="3">
+                    <padding>
+                        <Insets left="85.0" top="35.0"/>
+                    </padding>
+                    <ImageView id="online" fitHeight="35.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_LEFT"/>
+                    <Label id="player" contentDisplay="CENTER" prefHeight="29.0" prefWidth="222.0"
+                           styleClass="font-regular" text="player_1" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+                        <font>
+                            <Font size="24.0"/>
+                        </font>
+                    </Label>
+                </StackPane>
                 <VBox.margin>
                     <Insets />
                 </VBox.margin>
             </GridPane>
-         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
-            <children>
-                  <StackPane fx:id="scoreTrackerContainer" alignment="BOTTOM_CENTER" maxHeight="466.5" maxWidth="240.0" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="NEVER">
-                      <ImageView fx:id="scoreTrackerView" fitHeight="466.5" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
-                     <image>
-                        <Image url="@../../../../../../../img/scoreTracker.png" />
-                     </image>
-                  </ImageView>
-      <!--            <ImageView fitHeight="41.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">-->
-      <!--                <Image url="@/img/tokens/redToken.png" />-->
-      <!--            </ImageView>-->
-                  </StackPane>
-            </children>
-         </VBox>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                <StackPane fx:id="scoreTrackerContainer" alignment="BOTTOM_CENTER" maxHeight="466.5" maxWidth="240.0"
+                           minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="NEVER">
+                    <ImageView fx:id="scoreTrackerView" fitHeight="466.5" fitWidth="240.0" pickOnBounds="true"
+                               preserveRatio="true" StackPane.alignment="CENTER">
+                        <Image url="@../../../../../../../img/scoreTracker.png"/>
+                    </ImageView>
+                    <!--            <ImageView fitHeight="41.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">-->
+                    <!--                <Image url="@/img/tokens/redToken.png" />-->
+                    <!--            </ImageView>-->
+                </StackPane>
+            </VBox>
          <HBox.margin>
             <Insets />
          </HBox.margin>
@@ -193,39 +189,33 @@
                             <Insets bottom="40.0" right="40.0" />
                         </StackPane.margin>
                     </GridPane>
-               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
-                  <image>
-                     <Image url="@style/img/border-field-corner-top-left.png" />
-                  </image>
-               </ImageView>
-               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
-                  <image>
-                     <Image url="@style/img/border-field-corner-top-right.png" />
-                  </image>
-               </ImageView>
-               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_RIGHT">
-                  <image>
-                     <Image url="@style/img/border-field-corner-bottom-right.png" />
-                  </image>
-               </ImageView>
-               <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">
-                  <image>
-                     <Image url="@style/img/border-field-corner-bottom-left.png" />
-                  </image>
-               </ImageView>
-               <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
-                  <image>
-                     <Image url="@style/img/field-player-container.png" />
-                  </image>
-                  <StackPane.margin>
-                     <Insets top="12.0" />
-                  </StackPane.margin>
-               </ImageView>
-               <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_CENTER">
-                  <image>
-                     <Image url="@style/img/field-action-container.png" />
-                  </image>
-               </ImageView>
+                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_LEFT">
+                        <Image url="@style/img/border-field-corner-top-left.png"/>
+                    </ImageView>
+                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_RIGHT">
+                        <Image url="@style/img/border-field-corner-top-right.png"/>
+                    </ImageView>
+                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="BOTTOM_RIGHT">
+                        <Image url="@style/img/border-field-corner-bottom-right.png"/>
+                    </ImageView>
+                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="BOTTOM_LEFT">
+                        <Image url="@style/img/border-field-corner-bottom-left.png"/>
+                    </ImageView>
+                    <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_RIGHT">
+                        <StackPane.margin>
+                            <Insets top="12.0"/>
+                        </StackPane.margin>
+                        <Image url="@style/img/field-player-container.png"/>
+                    </ImageView>
+                    <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true"
+                               StackPane.alignment="TOP_CENTER">
+                        <Image url="@style/img/field-action-container.png"/>
+                    </ImageView>
                     <Label fx:id="actionLabel" alignment="CENTER" prefHeight="44.0" prefWidth="313.0" styleClass="font-regular" text="action_todo" textAlignment="CENTER" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_CENTER">
                         <StackPane.margin>
                             <Insets />

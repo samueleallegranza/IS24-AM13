@@ -4,11 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Menu storing all possible menu items the is possible to execute
+ * Menu storing all possible menu items corresponding to the is possible executable action in the current state of the game.
  */
 public class MenuTUI {
-
+    /**
+     * Map of menu items, with the command key as key
+     */
     private final Map<String, MenuItem> menu;
+    /**
+     * Request to be printed before the menu
+     */
     private final String request;
 
     /**

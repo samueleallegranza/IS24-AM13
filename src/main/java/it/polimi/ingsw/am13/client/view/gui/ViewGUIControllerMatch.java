@@ -11,6 +11,7 @@ import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -34,8 +35,6 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.util.*;
-
-//TODO: Raffina strategia in play card per debug mode
 
 /**
  * Controller of 'Match' scene, where player can actually play the most of the game
@@ -259,6 +258,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private Rectangle initOverlay;
 
+    private ChangeListener<Number> overlayWidthListener;
+    private ChangeListener<Number> overlayHeightListener;
+
+
     /**
      * Map associating each player to its token image in the score tracker
      */
@@ -272,6 +275,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Hence it is set to true each time the displayPlayer changes
      */
     private boolean firstFieldScrollAdjustment = true;
+
+    /**
+     * Last playing animations for the players' token. If the token of a player is not moving, the animation is null
+     */
+    private final Map<PlayerLobby, PathTransition> lastTokenAnimations = new HashMap<>();
 
     /**
      * Controller for the initialization view
@@ -337,7 +345,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
-    private MediaPlayer fuguePlayer;
+    /**
+     * Player of the sounds effects that are played when a card is played
+     */
+    private MediaPlayer playCardSoundPlayer;
 
 
     // ----------------------------------------------------------------
@@ -416,20 +427,39 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         initPlayerContainer();
     }
 
+    /**
+     * Method that sets the player
+     * @param thisPlayer the player associated to this {@link ViewGUIController}
+     */
     @Override
     public void setThisPlayer(PlayerLobby thisPlayer) {
         this.thisPlayer = thisPlayer;
     }
+
+    /**
+     * Method that sets the gameState
+     * @param gameState the representation of the state of the game
+     */
     @Override
     public void setGameState(GameState gameState) {
         this.state=gameState;
         log = new LogGUI(gameState);
     }
+
+    /**
+     *
+     * @return the title of the scene
+     */
     @Override
     public String getSceneTitle() {
         return "Turn-based phase";
     }
 
+    /**
+     * Shows a generic exception in the view (specific exception could be handled in different
+     * ways, also depending on the phase or the state of game)
+     * @param e Exception to be shown
+     */
     @Override
     public void showException(Exception e) {
         if(!ParametersClient.SKIP_TURNS) {
@@ -477,12 +507,22 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
         }
     }
+
+    /**
+     * It shows that a player disconnected from an ongoing game by calling the corresponding method on {@link ViewGUIController}.
+     * @param player Player who disconnected
+     */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
         log.logDisconnect(player);
         showLastLogs();
     }
+
+    /**
+     * It shows that a player reconnected to an ongoing game by calling the corresponding method on {@link ViewGUIController}.
+     * @param player Player who reconnected
+     */
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
@@ -491,11 +531,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
     }
 
+    /**
+     * Show the start of the game by creating a semi transparent layer and displaying the init scene on top of it
+     */
     public void showStartGame(){
         StackPane topPane = (StackPane) this.getScene().getRoot();
 
         // Create the semi-transparent layer
-        initOverlay = new Rectangle(topPane.getWidth(), topPane.getHeight(), Color.rgb(0, 0, 0, 0.5));
+        initOverlay = new Rectangle();
+        initOverlay.setOpacity(0.5);
+        overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
+        overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
+        topPane.widthProperty().addListener(overlayWidthListener);
+        topPane.heightProperty().addListener(overlayHeightListener);
         topPane.getChildren().addAll(initOverlay, controllerInit.getScene().getRoot());
         controllerInit.showStartGame();
 
@@ -503,6 +551,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
     }
 
+    /**
+     * Show that player his starting card by calling the corresponding method on {@link ViewGUIControllerInit}, displaying in the field
+     * , adding the corresponding log and displaying the logs
+     * @param player who played his starter card
+     */
     public void showPlayedStarter(PlayerLobby player){
         controllerInit.showPlayedStarter(player);
         if(displayPlayer.equals(player))
@@ -511,6 +564,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
     }
 
+    /**
+     * Show that a player showed his personal objectiveby calling the corresponding method on {@link ViewGUIControllerInit}, adding the corresponding log
+     * and displaying the logs
+     * @param player who chose his personal objective
+     */
     public void showChosenPersonalObjective(PlayerLobby player) {
         controllerInit.showChosenPersonalObjective(player);
         if(displayPlayer.equals(player))
@@ -518,10 +576,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         log.logChosenPersonalObjective(player);
         showLastLogs();
     }
+
+    /**
+     * Show that we reached the in game phase, by removed the init scene and the transparent overlay,
+     * adding the log message, updating the hand playable, field and players container
+     */
     public void showInGame() {
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
+        stackPane.widthProperty().removeListener(overlayWidthListener);
+        stackPane.heightProperty().removeListener(overlayHeightListener);
 
         // First in game log
         log.logNextTurn();
@@ -534,7 +599,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         playAudio("startGame.mp3");
 
-        // Init of players container
+        // Update players container
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
@@ -552,6 +617,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * If the player is {@link #thisPlayer}, set to true {@link #flowCardPlaced}, make the pickable cards
+     * clickable and update {@link #actionLabel}.
+     * Update {@link #playersHandsPlayable}.
+     * If the player is {@link #displayPlayer}, display the field and the hand playable (to update them)
+     * @param player who played the card
+     * @param coord of the player where the card was played
+     */
     public void showPlayedCard(PlayerLobby player, Coordinates coord) {
         int pointsBefore = savedPoints.get(player);
         if(thisPlayer.equals(player)) {
@@ -571,15 +644,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
             if(ParametersClient.SOUND_ENABLE)
                 Platform.runLater(()-> {
-                    if(fuguePlayer!=null) { //to avoid some exceptions on linux
-                        fuguePlayer.setStartTime(Duration.millis((1000 + fuguePlayer.getStartTime().toMillis()) % 480000));
-                        fuguePlayer.setStopTime(Duration.millis(1000 + fuguePlayer.getStartTime().toMillis()));
-                        fuguePlayer.play();
+                    if(playCardSoundPlayer !=null) { //to avoid some exceptions on linux
+                        playCardSoundPlayer.setStartTime(Duration.millis((1000 + playCardSoundPlayer.getStartTime().toMillis()) % 480000));
+                        playCardSoundPlayer.setStopTime(Duration.millis(1000 + playCardSoundPlayer.getStartTime().toMillis()));
+                        playCardSoundPlayer.play();
                     }
                 });
         }
 
-        playersContainerUpdatePoints(player);
         updateTokenPosition(player);
 
         log.logPlayedCard(player, coord, pointsBefore < state.getPlayerState(player).getPoints());
@@ -600,6 +672,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * Show that a card was picked by making the pickable cards not clickable, updating {@link #playersHandsPlayable}
+     * and displaying the hand playable
+     * @param player who picked the card
+     */
     public void showPickedCard(PlayerLobby player) {
         if (this.thisPlayer.equals(player)){
             // After a card has been picked, the pickable cards should not be clickable
@@ -622,6 +699,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         updateActionLabel();
     }
 
+    /**
+     * Make all the updates necessary to make it the turn of the next player
+     */
     public void showNextTurn() {
         if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
             for (int i = 0; i < handCards.size(); i++) {
@@ -659,6 +739,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
+    /**
+     * Sho the logs, update the {@link #turnsCounterLabel}
+     */
     public synchronized void showFinalPhase() {
         log.logFinalPhase();
         showLastLogs();
@@ -670,7 +753,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
 
-    //TODO: gestire nel server o nel client il caso di parità!!
     //TODO: magari nei log scrivi anche che tipo di carta è stata giocata / pescata
 
     // ----------------------------------------------------------------
@@ -687,7 +769,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playersContainerUpdateTurns();
         handCards.forEach(c -> c.setOnDragDetected(null));
 
-        state.getPlayers().forEach(this::playersContainerUpdatePoints);
         turnsCounterLabel.setVisible(false);
 
         //TODO: facciamo muovere anche i token sullo scoreboard?
@@ -730,7 +811,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     public synchronized void showEndGame() {
-        //TODO: da implementare
     }
 
     // ----------------------------------------------------------------
@@ -795,12 +875,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
 
+    /**
+     * Display the personal objective card
+     */
     public void displayHandObjective(){
         if(thisPlayer.equals(displayPlayer))
             displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
         else
             displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEBACK, handObjective);
     }
+
+    /**
+     * Initialize the player container
+     */
     private void initPlayerContainer() {
         int playerCount = this.state.getPlayers().size();
         for(Node node: playersContainer.getChildren()) {
@@ -893,30 +980,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     if(System.getProperty("os.name").toLowerCase().contains("win")) {
                         //init fugue player
                         Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
-                        fuguePlayer = new MediaPlayer(fugueMedia);
-                        fuguePlayer.setVolume(0.001);
-                        fuguePlayer.setStartTime(Duration.millis(0));
-                        fuguePlayer.setStopTime(Duration.millis(1000));
+                        playCardSoundPlayer = new MediaPlayer(fugueMedia);
+                        playCardSoundPlayer.setVolume(0.001);
+                        playCardSoundPlayer.setStartTime(Duration.millis(0));
+                        playCardSoundPlayer.setStopTime(Duration.millis(1000));
                     }
                 });
         }
     }
 
-    private void playersContainerUpdatePoints(PlayerLobby player) {
-        //TODO: Should we remove this?
-
-//        Platform.runLater(() -> {
-//            // get node corresponding to player
-//            VBox vBox = (VBox) this.playerNodes.get(player.getNickname());
-//            for(Node labelNode: vBox.getChildren()) {
-//                Label label = (Label) labelNode;
-//                if(label.getId().equals("points"))
-//                    label.setText(this.state.getPlayerState(player).getPoints() + " pts");
-//            }
-//        });
-    }
-
-    //TODO forse è da rimuovere tutto il metodo
+    //TODO Indicare in qualche modo di chi è il turno
     /**
      * Updates player container labels representing the turn of the players. Every turn label is set to "waiting"
      * except for the player currently playing, which will be set to "TURN".
@@ -995,6 +1068,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         });
     }
 
+    /**
+     * Clear the pickable cards
+     */
     private void clearPickables(){
         resDeck.setImage(null);
         resPick1.setImage(null);
@@ -1257,6 +1333,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
             tokenImgs.get(thisPlayer).toFront();
         });
+        for(PlayerLobby p : state.getPlayers()) {
+            lastTokenAnimations.put(p, null);
+        }
     }
 
     /**
@@ -1298,9 +1377,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         return newToken;
     }
 
-    //TODO: da testare meglio, forse potrebbe essere meglio farla non ricorsiva,
-    // meno generale, ma più robusta...
-
     /**
      * Recursive creation and concatenation of the animation for the new tokens created to pass from
      * the current saved point to the final updated points
@@ -1325,14 +1401,48 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             int finalAnimationPoints = (currentPoints / 29 + 1) * 29;
             PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, 29);
             animation.setOnFinished(event -> {
-                savedPoints.replace(player, finalAnimationPoints);
-                updateTokenPositionRic(player);
+                synchronized (player) {
+                    savedPoints.replace(player, finalAnimationPoints);
+                    updateTokenPositionRic(player);
+                    lastTokenAnimations.replace(player, null);
+                }
             });
-            animation.play();
+
+            synchronized (player) {
+                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
+                if(lastTokenAnimation != null) {     // An animation is still playing
+                    lastTokenAnimation.setOnFinished(actionEvent -> {
+                        savedPoints.replace(player, points);
+                        animation.play();
+                        lastTokenAnimations.replace(player, animation);
+                    });
+                } else {     // no animation is currently playing
+                    savedPoints.replace(player, points);
+                    animation.play();
+                }
+            }
 
         } else {
-            createAnimationTokenMove(token, currentPoints % 29, points % 29).play();
-            savedPoints.replace(player, points);
+            PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, points % 29);
+            animation.setOnFinished(actionEvent -> {
+                    synchronized (player) {
+                        lastTokenAnimations.replace(player, null);
+                    }
+                }
+            );
+            synchronized (player) {
+                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
+                if(lastTokenAnimation != null) {     // An animation is still playing
+                    lastTokenAnimation.setOnFinished(actionEvent -> {
+                        savedPoints.replace(player, points);
+                        animation.play();
+                        lastTokenAnimations.replace(player, animation);
+                    });
+                } else {     // no animation is currently playing
+                    savedPoints.replace(player, points);
+                    animation.play();
+                }
+            }
         }
     }
 
@@ -1372,7 +1482,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
 
         PathTransition pathTransition = new PathTransition();
-//        pathTransition.setDuration(Duration.seconds(2)); // Set animation duration
         pathTransition.setDuration(Duration.seconds(0.25*(to-from))); // Set animation duration
         pathTransition.setPath(path);
         pathTransition.setNode(token);
@@ -1428,7 +1537,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void playAudio(String fileName, double volume) {
         if(ParametersClient.SOUND_ENABLE)
-            if(System.getProperty("os.name").toLowerCase().contains("win")) {       // TODO cosa fa questo if?????
+            if(System.getProperty("os.name").toLowerCase().contains("win")) {
                 Platform.runLater(() -> {
                     AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
                     audioClip.setVolume(volume);

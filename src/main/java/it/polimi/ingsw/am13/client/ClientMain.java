@@ -25,6 +25,10 @@ public class ClientMain {
     public static void main(String[] args) {
 
         List<String> argsList = List.of(args);
+        if(argsList.contains("--help")) {
+            System.out.println(generateHelp());
+            System.exit(0);
+        }
         if(argsList.contains("--tui"))
             ParametersClient.IS_TUI = true;
         if(argsList.contains("--rmi"))
@@ -35,7 +39,6 @@ public class ClientMain {
             ParametersClient.SKIP_TURNS = true;
         if(argsList.contains("--no_sounds"))
             ParametersClient.SOUND_ENABLE = false;
-
 
         for(int i=0 ; i<args.length ; i++) {
             if(Objects.equals(args[i], "--ip"))
@@ -105,5 +108,24 @@ public class ClientMain {
             }
         }
         return networkHandler;
+    }
+
+    /**
+     * Generates a help string to be printed via command line
+     * @return Help string for the client app
+     */
+    private static String generateHelp() {
+        return """
+                Help for game Codex Naturalis (client)
+                Accepted commands:
+                \t--tui:\t\t\t\tStarts the application with Text User Interface (default is with Graphical User Interface)
+                \t--rmi:\t\t\t\tStarts the application by using rmi to connect to the server (default is with socket)
+                \t--ip <ip>:\t\t\tSets the ip address of the server
+                \t--port <port>:\t\tSets the port number of the server
+                \t--no_sounds:\t\tDisables all the sounds during the game
+                \t--skip_room <number of player>:\t\tSkips the room phase, with the specified number of players for the room (debug purposes)
+                \t--skip_init:\t\tMakes the choices for the initialization phase automatic (debug purposes)
+                \t--skip_turns:\t\tMakes the choices for the turn-based phase automatic (debug purposes)
+                """;
     }
 }

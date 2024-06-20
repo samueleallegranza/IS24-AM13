@@ -7,7 +7,6 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidDrawCardException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This class represents a deck and two visible cards
@@ -138,27 +137,6 @@ public class DeckHandler<T extends Card>{
             pickableCards.add(null);
         }
         pickableCards.addAll(visibleCards);
-        return pickableCards;
-    }
-
-    /**
-     * List of all visible cards (that are pickable during turn phases).
-     * The list is of size 3, with order: top of deck (with <code>getVisibleSide()==Side.SIDEBACK</code>),
-     * and 2 visible cards (with <code>getVisibleSide()==Side.SIDEFRONT</code>).
-     * If the deck is empty but both cards are present, only the first optional will be empty.
-     * Besides first element, also one or both of the other ones can be empty optionals
-     * (if it remains only one or no cards of this type to be picked)
-     * @return List of visible cards (top of deck, 2 visible cards)
-     */
-    public List<Optional<T>> getPickablesOptional() {
-        List<Optional<T>> pickableCards=new ArrayList<>();
-        try {
-            pickableCards.add(Optional.of(deck.getTop()));
-        } catch (InvalidDrawCardException e) {
-            pickableCards.add(Optional.empty());
-        }
-        for(T c : visibleCards)
-            pickableCards.add(Optional.ofNullable(c));
         return pickableCards;
     }
 

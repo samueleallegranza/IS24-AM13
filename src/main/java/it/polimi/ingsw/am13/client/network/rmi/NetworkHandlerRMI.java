@@ -22,33 +22,64 @@ import java.util.List;
  */
 public class NetworkHandlerRMI implements NetworkHandler {
 
+    /**
+     * The controller that manages all the games
+     */
     private final LobbyRMIIF lobby;
 
+    /**
+     * The player associated to this network handler
+     */
     private PlayerLobby player;
 
+    /**
+     *  The controller of the match associated to this network handler
+     */
     private GameControllerRMIIF controller;
 
+    /**
+     * The user interface
+     */
     private final View view;
 
+    /**
+     * Initializes lobby and view
+     * @param lobby the controller that manages all the games
+     * @param view the user interface
+     */
     public NetworkHandlerRMI(LobbyRMIIF lobby, View view) {
         this.lobby = lobby;
         this.view = view;
         this.controller = null;
     }
 
+    /**
+     * @return the current valid player associated to this NetworkHandler. Null is no valid player is currently associated.
+     */
     @Override
     public PlayerLobby getPlayer() {
         return player;
     }
 
+    /**
+     *
+     * @return the user interface
+     */
     public View getView() {
         return view;
     }
 
+    /**
+     * Sets the controller to the passed parameter
+     * @param controller the controller of the match associated to this network handler
+     */
     public void setController(GameControllerRMIIF controller) {
         this.controller = controller;
     }
 
+    /**
+     * Get the existing rooms
+     */
     @Override
     public void getRooms() {
         try {
@@ -59,6 +90,12 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Create a room with the passed parameters
+     * @param nickname of the player who is creating the room
+     * @param token of the player who is creating the room
+     * @param nPlayers of the room that is being created
+     */
     @Override
     public void createRoom(String nickname, Token token, int nPlayers) {
         GameListenerClientRMI clientLis;
@@ -77,6 +114,12 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Make the player join the specified room
+     * @param nickname the nickname the client wants to join the room with
+     * @param token chosen by the player who wants to join the room
+     * @param gameId of the game that the client wants to join
+     */
     @Override
     public void joinRoom(String nickname, Token token, int gameId) {
         GameListenerClientRMI clientLis;
@@ -95,6 +138,11 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Reconnect the passed player to an existing game he was previously part of
+     * @param nickname of the player who wants to reconnect
+     * @param token of the player who wants to reconnect
+     */
     @Override
     public void reconnect(String nickname, Token token) {
         GameListenerClientRMI clientLis;
@@ -116,6 +164,9 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Make the player leave the room he is currently part of
+     */
     @Override
     public void leaveRoom() {
         try {
@@ -127,6 +178,10 @@ public class NetworkHandlerRMI implements NetworkHandler {
         this.player = null;
     }
 
+    /**
+     * Play the starter card
+     * @param side on which the starter card should be played
+     */
     @Override
     public void playStarter(Side side) {
         try {
@@ -137,6 +192,10 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Choose the personal objective card
+     * @param card the chosen personal objective
+     */
     @Override
     public void choosePersonalObjective(CardObjectiveIF card) {
         try {
@@ -147,6 +206,12 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Play a card according to the parameters
+     * @param card the player wants to play
+     * @param coords where the card should be played
+     * @param side on which the card should be played
+     */
     @Override
     public void playCard(CardPlayableIF card, Coordinates coords, Side side) {
         try {
@@ -157,6 +222,10 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Pick the passed card
+     * @param card the player wants to pick
+     */
     @Override
     public void pickCard(CardPlayableIF card) {
         try {
@@ -167,6 +236,9 @@ public class NetworkHandlerRMI implements NetworkHandler {
         }
     }
 
+    /**
+     * Ping the server
+     */
     @Override
     public void ping() {
         try {

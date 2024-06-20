@@ -150,7 +150,6 @@ public class ViewTUIPrintUtils {
         }
     }
 
-
     public static void printStartup(boolean isSocket, String ip, int port) {
         String options = String.format(
                 """

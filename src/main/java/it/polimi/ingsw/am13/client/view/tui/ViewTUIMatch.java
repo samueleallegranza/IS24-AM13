@@ -25,6 +25,16 @@ public class ViewTUIMatch {
     private boolean flowCardPlaced;
     private LogTUI logs;
 
+    /**
+     * Flag indicating if the legend is currently being printed.
+     * The default value is true
+     */
+    private boolean showLegend;
+    /**
+     * Item that must be shown to enable or disable the print of the legend
+     */
+    private MenuItem itemForLegend;
+
     public ViewTUIMatch(ViewTUI viewTUI, GameState gameState, PlayerLobby thisPlayer) {
         this.view = viewTUI;
         this.gameState = gameState;
@@ -32,6 +42,19 @@ public class ViewTUIMatch {
         this.displayPlayer = null;
         this.flowCardPlaced = false;
         this.logs = null;
+        this.setShowLegend(true);
+    }
+
+    /**
+     * Setter for the flag indicating whether to print the legend
+     * @param showLegend True if the legend must be printed, false otherwise
+     */
+    public void setShowLegend(boolean showLegend) {
+        this.showLegend = showLegend;
+        if(showLegend)
+            itemForLegend = new MenuItemDisableLegend(this);
+        else
+            itemForLegend = new MenuItemEnableLegend(this);
     }
 
     public void setFlowCardPlaced(boolean flowCardPlaced) {
@@ -56,9 +79,11 @@ public class ViewTUIMatch {
         // clear screen
         ViewTUIConstants.clearScreen();
 
-        // TODO: fix order of printing for players... they are different between clients!
         // print player header
         System.out.println(sectionPlayers());
+
+        if(showLegend)
+            System.out.println(sectionLegend());
 
         // print player field
         System.out.println(sectionField());
@@ -76,20 +101,23 @@ public class ViewTUIMatch {
                 // player has to place a card first
                 view.setCurrentMenu(new MenuTUI( "Play a card on the field",
                         new MenuItemPlayCard(this.gameState),
-                        new MenuItemEnterChat(view)
+                        new MenuItemEnterChat(view),
+                        itemForLegend
                 ));
             } else {
                 // player has to pick a new card from drawable ones
                 view.setCurrentMenu(new MenuTUI( "Pick a card from the common field",
                         new MenuItemPickCard(this.gameState),
-                        new MenuItemEnterChat(view)
+                        new MenuItemEnterChat(view),
+                        itemForLegend
                 ));
             }
         } else {
             // not this player's turn, can move around until its turn.
             view.setCurrentMenu(new MenuTUI( "Wait for your turn",
                     new MenuItemChangeField(this),
-                    new MenuItemEnterChat(view)
+                    new MenuItemEnterChat(view),
+                    itemForLegend
             ));
         }
 
@@ -100,7 +128,7 @@ public class ViewTUIMatch {
     // ----------------------------- SECTIONS -----------------------------
     // --------------------------------------------------------------------
 
-    public String sectionPlayers() {
+    private String sectionPlayers() {
         List<PlayerLobby> players = this.gameState.getPlayers();
 
         // turn symbol
@@ -132,6 +160,19 @@ public class ViewTUIMatch {
                 nickString[0], nickString[1], nickString[2], nickString[3],
                 pointsStr[0], pointsStr[1], pointsStr[2], pointsStr[3]
         );
+    }
+
+    private String sectionLegend() {
+        StringBuilder sb = new StringBuilder("Legend:");
+        for(Resource r : Resource.values())
+            if(r != Resource.NO_RESOURCE)
+                sb.append(String.format("\n\tResource %s: %s", ViewTUIConstants.resourceToSymbol(r), r.name()));
+        sb.append("\n\t" + ViewTUIConstants.ANGLE_NORESOURCE_SYMBOL + ": Existing corner with no resource");
+        sb.append("\n\t" + ViewTUIConstants.ANGLE_NOTLINKABLE_SYMBOL + ": Non existing corner (card not placeable)");
+        sb.append("\n\t" + ViewTUIConstants.POINTS_PATTERN_ANGLE + ": Objective card giving points for how many corners are covered");
+        sb.append("\n\tAbbreviations for objective card giving points for patterns of colors: LT (Left), RT (Right), DN (Down)");
+        sb.append("\n");
+        return sb.toString();
     }
 
     private String sectionField() {

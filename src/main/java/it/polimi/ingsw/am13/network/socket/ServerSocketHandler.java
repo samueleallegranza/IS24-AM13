@@ -9,14 +9,28 @@ import java.net.Socket;
  * Whenever a new connection is accepted, it starts a new {@link ClientRequestsHandler} thread
  */
 public class ServerSocketHandler {
+    /**
+     * The socket port of the server
+     */
     private final int socket_port;
 
+    /**
+     * The server socket of this server
+     */
     private ServerSocket serverSocket;
 
+    /**
+     * Assign the value to the socket port attribute
+     * @param socket_port the socket port of the server
+     */
     public ServerSocketHandler(int socket_port) {
         this.socket_port = socket_port;
     }
 
+    /**
+     * Initialise and start the threat that listens for new connection requests
+     * @throws IOException if an I/ O error occurs when opening the socket
+     */
     public void start() throws IOException {
         // open server socket and start listening for new connection requests
         this.serverSocket = new ServerSocket(this.socket_port);

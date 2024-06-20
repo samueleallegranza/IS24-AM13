@@ -45,7 +45,7 @@ public class ParametersServer {
     /**
      * Number of points that, when first reached by a player, triggers the final phase
      */
-    public static int POINTS_FOR_FINAL_PHASE = 20;
+    public static int POINTS_FOR_FINAL_PHASE = 28;
     /**
      * If true (default) the requirements for gold cards are checked. Otherwise, the card can always be placed in field
      */
