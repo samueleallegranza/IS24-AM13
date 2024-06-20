@@ -9,7 +9,10 @@ import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.exceptions.RequirementsNotMetException;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.PathTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
@@ -23,6 +26,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -51,7 +56,6 @@ import java.util.List;
  * Controller of 'Match' scene, where player can actually play the most of the game
  */
 public class ViewGUIControllerMatch extends ViewGUIController {
-    public TextArea guideArea;
 
     // ----------------------------------------------------------------
     // UPPER HALF OF THE SCREEN
@@ -89,6 +93,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     @FXML
     private Label turnsCounterLabel;
+    /**
+     * Background image ofr counter of turns to the end of the game
+     */
+    @FXML
+    private ImageView turnsCounterBackground;
 
     /**
      * Label for counter of plant resources in the field of displayPlayer
@@ -172,7 +181,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private ImageView commonObj2;
 
 
-    //CHAT
+    //TAB PANE
 
     @FXML
     private ChoiceBox<List<PlayerLobby>> chatChoice;
@@ -186,6 +195,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     @FXML
     private TextArea logArea;
+
+    @FXML
+    private TextArea guideArea;
 
     // ----------------------------------------------------------------
     // PRIVATE STATE VARIABLE FOR CONTROLLER'S LOGIC USE
@@ -259,7 +271,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * A map associating to the nickname of each player the VBox in which his information is being displayed
      */
-    private Map<String, Node> playerNodes;
+    private Map<PlayerLobby, Node> playerNodes;
     /**
      * A map associating each resource to its Label
      */
@@ -400,6 +412,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         //init the chat
         setChat(this.chat);
         turnsCounterLabel.setVisible(false);
+        turnsCounterBackground.setVisible(false);
 
         // Displaying the pickable cards and the common objectives
         // At the beginning of the game, the pickable cards shouldn't be clickable
@@ -614,9 +627,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         playAudio("startGame.mp3");
 
-        // Update players container
-        playerNodes = new HashMap<>();
-        initPlayerContainer();
+        playersContainerUpdateTurns();
 
         if(ParametersClient.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
@@ -734,7 +745,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
         updateActionLabel();
         if(state.getGameStatus() == GameStatus.FINAL_PHASE)
-            Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd())));
+            Platform.runLater(() -> turnsCounterLabel.setText(String.format("-%d to end game", state.getTurnsToEnd())));
 
         if(ParametersClient.SKIP_TURNS && state.getCurrentPlayer().equals(thisPlayer)) {
             new Thread(() -> {
@@ -762,11 +773,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         showLastLogs();
         Platform.runLater(() -> {
             // I repeat this line here, not only in showNextTurn, so that i'm sure this is done
-            turnsCounterLabel.setText(String.format("-%d to the end of game", state.getTurnsToEnd()));
+            turnsCounterLabel.setText(String.format("-%d to end game", state.getTurnsToEnd()));
+            turnsCounterBackground.setVisible(true);
             turnsCounterLabel.setVisible(true);
+
+            playTransitionAppearLeftRight(turnsCounterBackground, turnsCounterBackground.getFitWidth());
+            playTransitionAppearLeftRight(turnsCounterLabel, turnsCounterLabel.getWidth());
         });
     }
-
 
     //TODO: magari nei log scrivi anche che tipo di carta è stata giocata / pescata
 
@@ -812,8 +826,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             overlayPane.setBackground(Background.EMPTY);
             overlayPane.setPrefSize(mainRoot.getWidth(), mainRoot.getHeight());
 
+            overlayWidthListener = (observable, oldValue, newValue) -> {
+                overlayPane.setPrefWidth(newValue.doubleValue());
+                overlay.setWidth(newValue.doubleValue());
+            };
+            overlayHeightListener = (observable, oldValue, newValue) -> {
+                overlayPane.setPrefHeight(newValue.doubleValue());
+                overlay.setHeight(newValue.doubleValue());
+            };
+            mainRoot.widthProperty().addListener(overlayWidthListener);
+            mainRoot.heightProperty().addListener(overlayHeightListener);
+
             // Add a click handler to remove the overlay when clicked
-            overlayPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> mainRoot.getChildren().remove(overlayPane));
+            overlayPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+                mainRoot.getChildren().remove(overlayPane);
+                mainRoot.widthProperty().removeListener(overlayWidthListener);
+                mainRoot.heightProperty().removeListener(overlayHeightListener);
+            });
 
             // Add the overlay to the main AnchorPane
             mainRoot.getChildren().add(overlayPane);
@@ -910,7 +939,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             StackPane stackPane = (StackPane) node;
             if(currPlayerIdx < playerCount) {
                 PlayerLobby currPlayer = this.state.getPlayers().get(currPlayerIdx);
-                this.playerNodes.put(currPlayer.getNickname(), node); // save node association with nickname
+                this.playerNodes.put(currPlayer, node); // save node association with nickname
                 stackPane.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayer));
 
                 ColorToken color = currPlayer.getToken().getColor();
@@ -1011,19 +1040,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void playersContainerUpdateTurns() {
         for(PlayerLobby p: this.state.getPlayers()) {
-            String text;
-            if(state.getGameStatus() == GameStatus.CALC_POINTS || state.getGameStatus() == GameStatus.ENDED)
-                text = "ended";
-            else
-                text = p.equals(state.getCurrentPlayer()) ? "TURN" : "waiting";
-            //TODO: Should we remove this?
-//            VBox pVbox = (VBox) playerNodes.get(p.getNickname());
-//            for(Node nodeLabel: pVbox.getChildren()) {
-//                Label label = (Label) nodeLabel;
-//                if(label.getId().equals("turn"))
-//                    Platform.runLater(() -> label.setText(text));
-//            }
+            playerNodes.get(p).setEffect(null);
         }
+
+        DropShadow shadow = new DropShadow();
+        shadow.setRadius(25);
+        shadow.setOffsetX(0);
+        shadow.setOffsetY(0);
+        shadow.setSpread(0.5);
+        shadow.setColor(new Color(1,1,1,0.75));
+        playerNodes.get(state.getCurrentPlayer()).setEffect(shadow);
     }
 
     /**
@@ -1032,7 +1058,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void playerContainerUpdateConnection(PlayerLobby player) {
         //TODO: Check if written in a decent way :)
-        StackPane sPane = (StackPane) playerNodes.get(player.getNickname());
+        StackPane sPane = (StackPane) playerNodes.get(player);
         for(Node node: sPane.getChildren()) {
             if (Objects.requireNonNull(node) instanceof ImageView) {
                 ImageView imgView = (ImageView) node;
@@ -1565,6 +1591,26 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playAudio(fileName,0.3);
     }
 
+    /**
+     * Creates and plays a transition making the given node appearing with the slide of a clip from left to right
+     * @param node Node to make appear
+     * @param totWidth Width of the node (total movement the clip must do)
+     */
+    private void playTransitionAppearLeftRight(Node node, double totWidth) {
+        Rectangle clip = new Rectangle(0, totWidth);
+        // Apply a GaussianBlur to the clip
+        GaussianBlur blur = new GaussianBlur(20); // Adjust the radius as needed
+        clip.setEffect(blur);
+
+        node.setClip(clip);
+
+        Timeline timeline = new Timeline();
+        KeyValue keyValue = new KeyValue(clip.widthProperty(), totWidth);
+        KeyFrame keyFrame = new KeyFrame(Duration.seconds(2), keyValue); // Duration of 2 seconds
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.play();
+    }
+
     // ----------------------------------------------------------------
     //    CHAT METHODS
     // ----------------------------------------------------------------
@@ -1634,7 +1680,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             onClickSendMessage();
         }
     }
-
 
     @FXML
     public void onClickShowRulebook(){

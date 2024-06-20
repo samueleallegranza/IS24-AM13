@@ -111,14 +111,6 @@
                      <String fx:value="field" />
                   </styleClass>
                     </ScrollPane>
-                    <Label fx:id="turnsCounterLabel" alignment="TOP_CENTER" mouseTransparent="true" prefHeight="39.0" prefWidth="522.0" wrapText="true" StackPane.alignment="TOP_CENTER">
-                        <StackPane.margin>
-                            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                        </StackPane.margin>
-                        <font>
-                            <Font size="18.0" />
-                        </font>
-                    </Label>
                     <GridPane alignment="CENTER" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" vgap="5.0" StackPane.alignment="BOTTOM_RIGHT">
                         <columnConstraints>
                             <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" />
@@ -177,12 +169,7 @@
                     <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="BOTTOM_LEFT">
                         <Image url="@style/img/border-field-corner-bottom-left.png" />
                     </ImageView>
-                    <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
-                        <StackPane.margin>
-                            <Insets top="12.0" />
-                        </StackPane.margin>
-                        <Image url="@style/img/field-player-container.png" />
-                    </ImageView>
+
                     <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_CENTER">
                         <Image url="@style/img/field-action-container.png" />
                     </ImageView>
@@ -194,12 +181,34 @@
                             <Font size="18.0" />
                         </font>
                     </Label>
+
+                    <ImageView fx:id="turnsCounterBackground" fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                        <StackPane.margin>
+                            <Insets top="12.0" />
+                        </StackPane.margin>
+                        <Image url="@style/img/field-turn-counter-container.png" />
+                    </ImageView>
+                    <Label fx:id="turnsCounterLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" ellipsisString="" minHeight="40.0" minWidth="273.0" mouseTransparent="true" prefHeight="40.0" prefWidth="273.0" styleClass="font-regular" text="-3 to end game" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_LEFT">
+                        <StackPane.margin>
+                            <Insets top="122.0" />
+                        </StackPane.margin>
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                    </Label>
+
+                    <ImageView fitHeight="179.0" fitWidth="331.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
+                        <StackPane.margin>
+                            <Insets top="12.0" />
+                        </StackPane.margin>
+                        <Image url="@style/img/field-player-container.png" />
+                    </ImageView>
                     <Label fx:id="displayPlayerLabel" ellipsisString="" minHeight="40.0" minWidth="273.0" prefHeight="40.0" prefWidth="273.0" styleClass="font-regular" text="player_name" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_RIGHT">
                         <font>
                             <Font size="18.0" />
                         </font>
                         <StackPane.margin>
-                            <Insets bottom="10.0" left="10.0" top="125.0" />
+                            <Insets top="125.0" />
                         </StackPane.margin>
                     </Label>
 

@@ -254,7 +254,8 @@ public class Player implements Serializable, PlayerIF {
     public void addObjectivePoints(CardObjective common1, CardObjective common2) {
         int tmp=points;
         // Add points of personal objective
-        this.addPoints(this.personalObjective.calcPoints(this.field));
+        if(personalObjective != null)
+            this.addPoints(this.personalObjective.calcPoints(this.field));
 
         // Add points of common objectives
         this.addPoints(common1.calcPoints(this.field));

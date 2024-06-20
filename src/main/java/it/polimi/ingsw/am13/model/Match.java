@@ -614,7 +614,7 @@ public class Match {
      * @throws GameStatusException if this method is called in a phase which is not the CALC_POINTS phase
      */
     public void addObjectivePoints() throws GameStatusException{
-        if(gameStatus!=GameStatus.CALC_POINTS)
+        if(gameStatus!=GameStatus.CALC_POINTS && countConnected()!=1)
             throw new GameStatusException(gameStatus,GameStatus.CALC_POINTS);
         for(Player player : players)
             player.addObjectivePoints(deckObjective.showFromTable(0), deckObjective.showFromTable(1));
