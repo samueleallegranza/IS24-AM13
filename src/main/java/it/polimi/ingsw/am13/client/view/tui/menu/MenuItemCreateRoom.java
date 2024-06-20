@@ -16,6 +16,9 @@ import it.polimi.ingsw.am13.model.player.Token;
  */
 public class MenuItemCreateRoom extends MenuItem {
 
+    /**
+     * Build a new item for creating a new room
+     */
     public MenuItemCreateRoom() {
         super("create",
                 "Create a room: 'create <your nickname> <your token color (red/blue/green/yellow)> <number of players (2/3/4)>'");

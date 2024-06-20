@@ -16,11 +16,20 @@ import it.polimi.ingsw.am13.model.player.Token;
  */
 public class MenuItemJoinRoom extends MenuItem {
 
+        /**
+         * Build a new item for joining a room
+         */
         public MenuItemJoinRoom() {
             super("join",
                     "Join a room: ‘join <your nickname> <your token color (red/blue/green/yellow)> <game id of the room to join>’");
         }
 
+        /**
+         * Executes the action this menu item represents
+         * @param args        String of parameters for the command
+         * @param networkHandler Handler of the network thanks to which the item sends the command to the server
+         * @throws InvalidTUICommandException If the arguments passed via command line are wrong, or anyway different from what expected
+         */
         @Override
         public void executeCommand(String args, NetworkHandler networkHandler) throws InvalidTUICommandException {
             if (args == null || args.isEmpty()) {
