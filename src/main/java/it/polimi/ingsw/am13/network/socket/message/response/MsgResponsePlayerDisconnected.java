@@ -13,11 +13,18 @@ public class MsgResponsePlayerDisconnected extends MsgResponse implements Serial
      */
     private final PlayerLobby player;
 
+    /**
+     * Builds a new response message with the given player
+     * @param player the player that has disconnected
+     */
     public MsgResponsePlayerDisconnected(PlayerLobby player) {
         super("resPlayerDisconnected");
         this.player = player;
     }
 
+    /**
+     * @return the player that has disconnected
+     */
     public PlayerLobby getPlayer() {
         return player;
     }

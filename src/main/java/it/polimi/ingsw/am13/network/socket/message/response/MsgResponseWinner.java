@@ -15,12 +15,18 @@ public class MsgResponseWinner extends MsgResponse implements Serializable {
      */
     private final List<PlayerLobby> players;
 
+    /**
+     * Builds a new response message with the given player
+     * @param players the player that has won the game
+     */
     public MsgResponseWinner(List<PlayerLobby> players) {
         super("resWinner");
         this.players = players;
     }
 
-
+    /**
+     * @return the player that has won the game
+     */
     public List<PlayerLobby> getPlayer() {
         return players;
     }

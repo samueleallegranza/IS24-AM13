@@ -15,7 +15,7 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
      */
     private final PlayerLobby player;
     /**
-     * The list of cards that are visible to the player (the two tops aof the decks and the four cards that are drawable)
+     * The list of cards that are visible to the player (the two tops of the decks and the four cards that are drawable)
      */
     private final List<? extends CardPlayableIF> updatedVisibleCards;
 
@@ -24,6 +24,12 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
      */
     private final CardPlayableIF pickedCard;
 
+    /**
+     * Builds a new response message with the given player, the updated visible cards and the picked card
+     * @param player the player that has picked a card
+     * @param updatedVisibleCards the list of cards that are visible to the player (the two tops of the decks and the four cards that are drawable)
+     * @param pickedCard the card that has been picked
+     */
     public MsgResponsePickedCard(PlayerLobby player, List<? extends CardPlayableIF> updatedVisibleCards, CardPlayableIF pickedCard) {
         super("resPickedCard");
         this.player = player;
@@ -31,14 +37,23 @@ public class MsgResponsePickedCard extends MsgResponse implements Serializable {
         this.pickedCard = pickedCard;
     }
 
+    /**
+     * @return the player that has picked a card
+     */
     public PlayerLobby getPlayer() {
         return player;
     }
 
+    /**
+     * @return the list of cards that are visible to the player (the two tops of the decks and the four cards that are drawable)
+     */
     public List<? extends CardPlayableIF> getUpdatedVisibleCards() {
         return updatedVisibleCards;
     }
 
+    /**
+     * @return the card that has been picked
+     */
     public CardPlayableIF getPickedCard() {
         return pickedCard;
     }

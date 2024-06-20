@@ -13,11 +13,18 @@ public class MsgResponsePlayerLeftRoom extends MsgResponse implements Serializab
      */
     private final PlayerLobby player;
 
+    /**
+     * Builds a new response message with the given player
+     * @param player the player who left the room
+     */
     public MsgResponsePlayerLeftRoom(PlayerLobby player) {
         super("resPlayerLeftRoom");
         this.player = player;
     }
 
+    /**
+     * @return the player who left the room
+     */
     public PlayerLobby getPlayer() {
         return player;
     }

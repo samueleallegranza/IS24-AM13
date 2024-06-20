@@ -13,11 +13,18 @@ public class MsgResponsePlayerJoinedRooom extends MsgResponse implements Seriali
      */
     private final PlayerLobby player;
 
+    /**
+     * Builds a new response message with the given player
+     * @param player the player who joined the room
+     */
     public MsgResponsePlayerJoinedRooom(PlayerLobby player) {
         super("resPlayerJoinedRoom");
         this.player = player;
     }
 
+    /**
+     * @return the player who joined the room
+     */
     public PlayerLobby getPlayer() {
         return player;
     }

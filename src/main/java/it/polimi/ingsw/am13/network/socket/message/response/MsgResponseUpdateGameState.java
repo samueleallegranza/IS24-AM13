@@ -19,16 +19,27 @@ public class MsgResponseUpdateGameState extends MsgResponse{
      */
     private final PlayerLobby player;
 
+    /**
+     * Builds a new response message with the given game state
+     * @param gameModel the game model
+     * @param player the player who wants to reconnect
+     */
     public MsgResponseUpdateGameState(GameModelIF gameModel, PlayerLobby player) {
         super("resUpdateGameState");
         this.gameState = new GameState(gameModel);
         this.player = player;
     }
 
+    /**
+     * @return the game state at the moment the player reconnected
+     */
     public GameState getGameState() {
         return gameState;
     }
 
+    /**
+     * @return the player who reconnected
+     */
     public PlayerLobby getPlayer() {
         return player;
     }

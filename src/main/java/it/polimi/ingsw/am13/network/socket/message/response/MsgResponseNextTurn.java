@@ -9,15 +9,22 @@ import java.io.Serializable;
  */
 public class MsgResponseNextTurn extends MsgResponse implements Serializable {
     /**
-     * The player that has to play the next turn
+     * The player that has to play in the next turn
      */
     private final PlayerLobby player;
 
+    /**
+     * Builds a new response message with the given player
+     * @param player the player that has to play in the next turn
+     */
     public MsgResponseNextTurn(PlayerLobby player) {
         super("resNextTurn");
         this.player = player;
     }
 
+    /**
+     * @return the player that has to play in the next turn
+     */
     public PlayerLobby getPlayer() {
         return player;
     }

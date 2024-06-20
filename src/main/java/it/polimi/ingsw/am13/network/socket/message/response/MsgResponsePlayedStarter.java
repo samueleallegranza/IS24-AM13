@@ -21,10 +21,16 @@ public class MsgResponsePlayedStarter extends MsgResponse implements Serializabl
     private final CardStarterIF starter;
 
     /**
-     * The coordinates of the starter
+     * The list of coordinates that are available after playing the starter
      */
     private final List<Coordinates> availableCoords;
 
+    /**
+     * Builds a new response message with the given player, the played starter and the available coordinates
+     * @param player the player that has played a starter
+     * @param starter the starter that has been played
+     * @param availableCoords the list of coordinates that are available after playing the card
+     */
     public MsgResponsePlayedStarter(PlayerLobby player, CardStarterIF starter, List<Coordinates> availableCoords) {
         super("resPlayedStarter");
         this.player = player;
@@ -32,14 +38,23 @@ public class MsgResponsePlayedStarter extends MsgResponse implements Serializabl
         this.availableCoords = availableCoords;
     }
 
+    /**
+     * @return the player that has played a starter
+     */
     public PlayerLobby getPlayer() {
         return player;
     }
 
+    /**
+     * @return the starter that has been played
+     */
     public CardStarterIF getStarter() {
         return starter;
     }
 
+    /**
+     * @return the list of coordinates that are available after playing the starter
+     */
     public List<Coordinates> getAvailableCoords() {
         return availableCoords;
     }

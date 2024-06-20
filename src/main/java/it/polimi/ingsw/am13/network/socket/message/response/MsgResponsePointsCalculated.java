@@ -15,11 +15,18 @@ public class MsgResponsePointsCalculated extends MsgResponse implements Serializ
      */
     private final Map<PlayerLobby, Integer> pointsMap;
 
+    /**
+     * Builds a new response message with the given points
+     * @param pointsMap the map containing the points calculated for each player
+     */
     public MsgResponsePointsCalculated(Map<PlayerLobby, Integer> pointsMap) {
         super("resPointsCalculated");
         this.pointsMap = pointsMap;
     }
 
+    /**
+     * @return the map containing the points calculated for each player
+     */
     public Map<PlayerLobby, Integer> getPoints() {
         return pointsMap;
     }
