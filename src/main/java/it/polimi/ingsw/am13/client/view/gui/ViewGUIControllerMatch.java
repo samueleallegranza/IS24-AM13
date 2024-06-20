@@ -1639,44 +1639,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     public void onClickShowRulebook(){
         File file=   new File( Objects.requireNonNull(ViewGUIControllerMatch.class.getResource("/docs/CODEX_Rulebook_EN.pdf")).getFile());
-
-//        System.out.println(ViewGUIControllerMatch.class.getResourceAsStream("/docs/CODEX_Rulebook_EN.pdf"));
-//        Platform.runLater(()-> {
-            System.out.println(file.exists() + " " + file.getPath() + " " + Desktop.isDesktopSupported());
-            new Thread(() -> {
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException ignored) {
-
-                }
-            });
-        if(System.getProperty("os.name").toLowerCase().contains("lin")) {
+        new Thread(() -> {
             try {
-                Runtime.getRuntime().exec(new String[]{"/usr/bin/firefox", file.getAbsolutePath()});
-            } catch (IOException e) {
+                Desktop.getDesktop().open(file);
+            } catch (IOException ignored) {
 
             }
-        }
-//        try {
-//            // Execute the xdg-mime command to get the default application for PDF files
-//            Process process = Runtime.getRuntime().exec("xdg-mime query default application/pdf");
-//
-//            // Read the output of the command
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//            String defaultApplication = reader.readLine();
-//
-//            // Print the default application
-//            System.out.println("Default PDF application: " + defaultApplication);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//            ProcessBuilder processBuilder = new ProcessBuilder("xdg-open", file.getAbsolutePath());
-//            try {
-//                processBuilder.start();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
+        }).start();
     }
 
     /**
