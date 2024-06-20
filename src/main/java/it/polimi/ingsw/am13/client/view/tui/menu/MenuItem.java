@@ -33,7 +33,7 @@ public abstract class MenuItem {
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
      * @param networkHandler Handler of the network thanks to which the item sends the command to the server
-     * @throws InvalidTUICommandException If the arguments passad via command line are wrong, or anyway different from what expected
+     * @throws InvalidTUICommandException If the arguments passed via command line are wrong, or anyway different from what expected
      */
     public abstract void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException;
 
@@ -55,7 +55,6 @@ public abstract class MenuItem {
 
     @Override
     public String toString() {
-        //FIXME: format better
         return String.format("%s: %s", getCommandKey(), getDescription());
     }
 }

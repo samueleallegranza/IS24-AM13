@@ -25,8 +25,16 @@ public class MenuItemSendChatMessage extends MenuItem{
         this.chatRoom = chatRoom;
     }
 
+    /**
+     * Executes the action this menu item represents
+     * @param argsStr        String of parameters for the command
+     * @param networkHandler Handler of the network thanks to which the item sends the command to the server
+     * @throws InvalidTUICommandException If there are no arguments passed via command line
+     */
     @Override
     public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
+        if(argsStr.isEmpty())
+            throw new InvalidTUICommandException("You must write a message to send");
         networkHandler.sendChatMessage(chatRoom, argsStr);
     }
 }

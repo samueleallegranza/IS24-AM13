@@ -39,7 +39,7 @@ public class MenuItemPickCard extends MenuItem {
     /**
      * Executes the action this menu item represents
      * @param argsStr String of parameters for the command
-     * @throws InvalidTUICommandException If the arguments passad via command line are wrong, or anyway different from what expected
+     * @throws InvalidTUICommandException If the arguments passed via command line are wrong, or anyway different from what expected
      */
     @Override
     public void executeCommand(String argsStr, NetworkHandler networkHandler) throws InvalidTUICommandException {
