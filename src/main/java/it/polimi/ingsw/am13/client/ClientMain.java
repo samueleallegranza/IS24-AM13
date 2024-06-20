@@ -100,6 +100,8 @@ public class ClientMain {
             Registry registry;
             try {
                 //TODO: rivedi meglio questo setup x rmi
+                // server hostname should be the ip of this client (the correct network address)
+                //System.setProperty("java.rmi.server.hostname", "192.168.83.184");
                 registry = LocateRegistry.getRegistry(ParametersClient.SERVER_IP, ParametersServer.RMI_PORT);
                 LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ParametersServer.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);
