@@ -1,6 +1,11 @@
+/*@font-face {*/
+/*    src: url('font/PixelifySans-VariableFont_wght.ttf');*/
+/*}*/
+
 @font-face {
-    src: url('font/PixelifySans-VariableFont_wght.ttf');
+    src: url('font/InknutAntiqua-Regular.ttf');
 }
+
 
 .background {
     -fx-background-image: url("img/forest_blur.png");
@@ -31,10 +36,11 @@
 .table-view {
     -fx-background-color: rgba(255, 255, 255, 0); /* Background color of the table */
     -fx-border-color: rgba(204, 204, 204, 0);     /* Border color of the table */
-    -fx-font-family: "Pixelify Sans", 'sans-serif';
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
+    -fx-font-family: "Inknut Antiqua", 'serif';
+
     /*-fx-fill: black;*/
     -fx-font-size: 12px;
-    -fx-font-weight: bolder;
 }
 
 .table-view .column-header-background .filler {
@@ -101,8 +107,9 @@
 
 
 .controls{
-    -fx-font-family: "Pixelify Sans", 'sans-serif';
-    -fx-font-size: 12;
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
+    -fx-font-family: "Inknut Antiqua", 'serif';
+    -fx-font-size: 10;
 }
 
 .button {

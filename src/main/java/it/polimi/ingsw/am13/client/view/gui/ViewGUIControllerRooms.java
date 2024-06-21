@@ -73,7 +73,9 @@ public class ViewGUIControllerRooms extends ViewGUIController {
 
     public void showStartupScreen(boolean isSocket, String ip, int port) {
         nPlayersSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 4, 2));
-        colorBox.getItems().addAll(ColorToken.values());
+        if(colorBox.getItems().isEmpty()) {
+            colorBox.getItems().addAll(ColorToken.values());
+        }
     }
 
     public void showRooms(List<RoomIF> rooms) {

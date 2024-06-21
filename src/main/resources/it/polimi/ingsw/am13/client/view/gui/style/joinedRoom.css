@@ -1,3 +1,61 @@
-.background {
-    -fx-background-image: url("img/frontPage.png");
+@font-face {
+    src: url('font/PixelifySans-VariableFont_wght.ttf');
+}
+
+@font-face {
+    src: url('font/InknutAntiqua-Regular.ttf');
+}
+
+.header {
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
+    -fx-font-family: "Inknut Antiqua", 'serif';
+
+    -fx-font-size: 22px;
+}
+
+.player-table {
+    -fx-font-size: 17px;
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
+    -fx-font-family: "Inknut Antiqua", 'serif';
+}
+
+
+.player-table .column-header {
+    -fx-font-size: 20px;
+    -fx-alignment: CENTER;
+}
+
+.player-table .table-column {
+    -fx-alignment: CENTER;
+}
+
+.table-row-cell:filled {
+    -fx-text-alignment: center;
+    -fx-border-style: hidden hidden hidden hidden;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(0, 0, 0, 0);
+}
+
+.table-row-cell:filled .text {
+    -fx-font-size: 19px;
+}
+
+.table-row-cell:filled:focused .text {
+}
+
+.table-row-cell:filled:selected .text {
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: rgba(0, 0, 0, 0);
+}
+
+
+.font-button {
+    -fx-font-size: 12;
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
+    -fx-font-family: "Inknut Antiqua", 'serif';
+
 }

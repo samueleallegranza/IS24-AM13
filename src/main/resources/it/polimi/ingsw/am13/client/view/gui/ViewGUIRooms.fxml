@@ -23,18 +23,18 @@
       <children>
          <StackPane maxHeight="640.0" maxWidth="550.0" minHeight="600.0" minWidth="550.0" styleClass="container" StackPane.alignment="BOTTOM_CENTER">
             <children>
-               <StackPane styleClass="container-border" />
+               <StackPane prefWidth="653.0" styleClass="container-border" />
                <VBox alignment="BOTTOM_CENTER" maxHeight="440.0" minHeight="440.0" StackPane.alignment="BOTTOM_CENTER">
                   <children>
                       <HBox alignment="CENTER">
                           <TableView fx:id="roomsTable">
                               <columns>
-                                  <TableColumn fx:id="roomId" editable="false" prefWidth="55.0" reorderable="false" resizable="false" sortable="false" text="GAME ID" />
-                                  <TableColumn fx:id="roomStatus" editable="false" prefWidth="60.0" reorderable="false" resizable="false" sortable="false" text="STATUS" />
-                                  <TableColumn fx:id="roomP1" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" styleClass="text-red" text="Player1" />
-                                  <TableColumn fx:id="roomP2" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player2" />
-                                  <TableColumn fx:id="roomP3" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player3" />
-                                  <TableColumn fx:id="roomP4" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player4" />
+                                  <TableColumn fx:id="roomId" editable="false" prefWidth="49.99999976158142" reorderable="false" resizable="false" sortable="false" text="ID" />
+                                  <TableColumn fx:id="roomStatus" editable="false" prefWidth="65.33332061767578" reorderable="false" resizable="false" sortable="false" text="Status" />
+                                  <TableColumn fx:id="roomP1" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player 1" />
+                                  <TableColumn fx:id="roomP2" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player 2" />
+                                  <TableColumn fx:id="roomP3" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player 3" />
+                                  <TableColumn fx:id="roomP4" editable="false" prefWidth="90.0" reorderable="false" resizable="false" sortable="false" text="Player 4" />
                                   <TableColumn fx:id="roomNP" editable="false" prefWidth="45.0" reorderable="false" resizable="false" sortable="false" text="#NP" />
                               </columns>
                            <columnResizePolicy>
@@ -61,12 +61,18 @@
                                              <Insets right="40.0" />
                                           </HBox.margin>
                                        </TextField>
-                                            <Label graphicTextGap="0.0" text="Token Color" wrapText="true" />
+                                            <Label graphicTextGap="0.0" text="Token Color" wrapText="true">
+                                          <HBox.margin>
+                                             <Insets right="5.0" />
+                                          </HBox.margin></Label>
                                             <ChoiceBox fx:id="colorBox" prefHeight="25.0" prefWidth="120.0" styleClass="textbox" />
                                     </children>
                                     <VBox.margin>
-                                       <Insets top="50.0" />
+                                       <Insets top="45.0" />
                                     </VBox.margin>
+                                    <padding>
+                                       <Insets bottom="10.0" />
+                                    </padding>
                                  </HBox>
                                  <HBox alignment="CENTER">
                                     <children>
@@ -90,10 +96,13 @@
                                     <VBox.margin>
                                        <Insets top="4.0" />
                                     </VBox.margin>
+                                    <padding>
+                                       <Insets bottom="20.0" />
+                                    </padding>
                                  </HBox>
                                      <HBox alignment="CENTER" spacing="10.0">
                                          <Label text="Target number of players" wrapText="true" />
-                                         <Spinner fx:id="nPlayersSpinner" styleClass="textbox">
+                                         <Spinner fx:id="nPlayersSpinner" prefHeight="35.0" prefWidth="67.0" styleClass="textbox">
                                        <HBox.margin>
                                           <Insets right="70.0" />
                                        </HBox.margin>
@@ -103,9 +112,9 @@
                                           <Cursor fx:constant="HAND" />
                                        </cursor>
                                     </Button>
-                                    <padding>
-                                       <Insets top="25.0" />
-                                    </padding>
+                                    <VBox.margin>
+                                       <Insets />
+                                    </VBox.margin>
                                      </HBox>
                               </children>
                            </VBox>

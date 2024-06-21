@@ -1,20 +1,39 @@
+/*@font-face {*/
+/*    src: url('font/PixelifySans-VariableFont_wght.ttf');*/
+/*}*/
+
 @font-face {
-    src: url('font/PixelifySans-VariableFont_wght.ttf');
+    src: url('font/InknutAntiqua-Regular.ttf');
 }
 
-
+@font-face {
+    src: url('font/UnifrakturCook-Bold.ttf');
+}
 
 /* JavaFX base classes (will override original style)*/
 
 .label {
     /*-fx-label-padding: 0;*/
     /*-fx-text-overrun: clip;*/
-    -fx-font-family: "Pixelify Sans", 'sans-serif';
+    -fx-font-family: "Inknut Antiqua", 'serif';
+    /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
 }
 
 
 
 /* Global styling */
+
+.font-header {
+    -fx-font-size: 33;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-font-family: "UnifrakturCook", cursive;
+}
+
+.font-action {
+    -fx-font-size: 29;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-font-family: "UnifrakturCook", cursive;
+}
 
 .font-regular {
     -fx-font-size: 25;
@@ -22,6 +41,12 @@
 
 .font-small {
     -fx-font-size: 17;
+}
+
+.font-playername {
+    -fx-font-size: 21;
+    -fx-spacing: 0;
+
 }
 
 .background {
@@ -39,7 +64,7 @@
 .player-banner {
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center; /* Center the image vertically (90%) and horizontally */
-    -fx-background-size: 350px auto; /* Stretch to 100% width of pane */
+    -fx-background-size: 90% auto;
 }
 
 .player-red {
