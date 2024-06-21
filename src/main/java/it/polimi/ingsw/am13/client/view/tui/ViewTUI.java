@@ -455,7 +455,7 @@ public class ViewTUI implements View {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         this.logs.logDisconnect(player);
-        if(viewTUIMatch != null)
+        if(viewTUIMatch != null && currentChatRoom == null)
             viewTUIMatch.printMatch();
         else
             System.out.println("player " + player.getNickname() + " has disconnected");
@@ -469,7 +469,7 @@ public class ViewTUI implements View {
     @Override
     public synchronized void showPlayerReconnected(PlayerLobby player) {
         this.logs.logReconnect(player);
-        if(viewTUIMatch != null)
+        if(viewTUIMatch != null && currentChatRoom == null)
             viewTUIMatch.printMatch();
         else
             System.out.println("player " + player.getNickname() + " has reconnected");

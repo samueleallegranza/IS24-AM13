@@ -451,8 +451,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
-        guideArea.setText("Drag a card in your hand to one of the blue boxes to play it\n Click a card to draw it\n"+
-                "Click on the banner a player to view its field");
+        guideArea.setText("""
+                Drag a card in your hand to one of the blue boxes to play it
+                 Click a card to draw it
+                Click on the banner a player to view its field""");
     }
 
     /**
@@ -691,7 +693,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
-//            notePlayer.play(PATTERNS[Math.abs(coord.getPosX()+coord.getPosY())%PATTERNS.length]);
             if(ParametersClient.SOUND_ENABLE)
                 Platform.runLater(()-> {
                     if(playCardSoundPlayer !=null) { //to avoid some exceptions on linux
@@ -1066,15 +1067,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             playerNodes.get(p).setEffect(null);
         }
 
-
         //this method is also called in the CALC POINTS phase
-        if(state.getCurrentPlayer()!=null){
+        if(state.getCurrentPlayer() != null) {
             DropShadow shadow = new DropShadow();
             shadow.setRadius(25);
             shadow.setOffsetX(0);
             shadow.setOffsetY(0);
             shadow.setSpread(0.5);
-            shadow.setColor(new Color(1,1,1,0.75));
+            shadow.setColor(new Color(1, 1, 1, 0.75));
             playerNodes.get(state.getCurrentPlayer()).setEffect(shadow);
         }
     }
@@ -1631,13 +1631,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         Rectangle clip = new Rectangle(0, totWidth);
         // Apply a GaussianBlur to the clip
         GaussianBlur blur = new GaussianBlur(20); // Adjust the radius as needed
+        blur.setRadius(75);
         clip.setEffect(blur);
 
         node.setClip(clip);
 
         Timeline timeline = new Timeline();
         KeyValue keyValue = new KeyValue(clip.widthProperty(), totWidth);
-        KeyFrame keyFrame = new KeyFrame(Duration.seconds(2), keyValue); // Duration of 2 seconds
+        KeyFrame keyFrame = new KeyFrame(Duration.seconds(1.25), keyValue); // Duration of 2 seconds
         timeline.getKeyFrames().add(keyFrame);
         timeline.play();
     }

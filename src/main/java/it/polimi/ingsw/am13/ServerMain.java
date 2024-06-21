@@ -31,6 +31,8 @@ public class ServerMain {
                 ParametersServer.POINTS_FOR_FINAL_PHASE = Integer.parseInt(args[i+1]);
             else if(Objects.equals(args[i], "--no_requirements"))
                 ParametersServer.CHECK_REQUIREMENTS = false;
+            else if(Objects.equals(args[i], "--no_timeout_reconnection"))
+                ParametersServer.alonePlayerWin = false;
 
         }
 
@@ -73,6 +75,7 @@ public class ServerMain {
                 \t--socket <socket port>:\t\tSets the socket port number
                 \t--points <point>\t\t\tSets the number of points to reach in order to trigger the final phase (20 by default, as in the rule book)
                 \t--no_requirements:\t\t\tDisables the check for the requirements for the objective card (not possible for the rule book)
+                \t--no_timeout_reconnection:\t\t\tDisables the check to make a player remained alone win
                 """;
     }
 }

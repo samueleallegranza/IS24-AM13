@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
 import it.polimi.ingsw.am13.model.card.CardPlayableIF;
-import it.polimi.ingsw.am13.model.player.Player;
 import it.polimi.ingsw.am13.model.player.PlayerIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
@@ -210,10 +209,6 @@ public class GameState implements Serializable {
      * @return the number of players that are currently connected
      */
     public int countConnected(){
-        int count=0;
-        for(PlayerLobby player : getPlayers())
-            if(getPlayerState(player).isConnected())
-                count++;
-        return count;
+        return players.values().stream().filter(PlayerState::isConnected).toList().size();
     }
 }

@@ -95,7 +95,7 @@ public class ViewTUIMatch {
         System.out.println(sectionLogs());
 
         // print menu (different based on player's turn status)
-        if(this.thisPlayer.equals(this.gameState.getCurrentPlayer())) {
+        if(thisPlayer.equals(gameState.getCurrentPlayer()) && gameState.countConnected() > 1) {
             // it's this player's turn. Force game flow: (1) place, (2) pick
             if (!flowCardPlaced) {
                 // player has to place a card first
@@ -114,7 +114,9 @@ public class ViewTUIMatch {
             }
         } else {
             // not this player's turn, can move around until its turn.
-            view.setCurrentMenu(new MenuTUI( "Wait for your turn",
+            String menuCommand = gameState.countConnected()>1 ? "Wait for your turn" :
+                    "You remained alone, wait for at least one of the other players to reconnect";
+            view.setCurrentMenu(new MenuTUI(menuCommand,
                     new MenuItemChangeField(this),
                     new MenuItemEnterChat(view),
                     itemForLegend

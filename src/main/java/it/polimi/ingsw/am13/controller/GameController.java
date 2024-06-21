@@ -109,7 +109,7 @@ public class GameController implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            if (gameModel.countConnected() == 1 && gameModel.fetchGameStatus() != null && reconnectionThread == null)
+            if (ParametersServer.alonePlayerWin && gameModel.countConnected() == 1 && gameModel.fetchGameStatus() != null && reconnectionThread == null)
                 startReconnectionTimer(timeToWait);
         }
     }
