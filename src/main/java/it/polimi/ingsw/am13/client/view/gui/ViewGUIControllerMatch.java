@@ -455,6 +455,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 Drag a card in your hand to one of the blue boxes to play it
                  Click a card to draw it
                 Click on the banner a player to view its field""");
+
+//        StackPane root=(StackPane) scene.getRoot();
+//        root.widthProperty().addListener((obs,oldVal,newVal)->{
+//            System.out.println(root.getScaleX()+" "+newVal+" "+oldVal);
+//            root.getChildren().getFirst().setScaleX(root.getScaleX()*newVal.doubleValue()/oldVal.doubleValue());});
+//        root.heightProperty().addListener((obs,oldVal,newVal)->{root.getChildren().get(1).setScaleY(root.getScaleY()*newVal.doubleValue()/oldVal.doubleValue());});
     }
 
     /**

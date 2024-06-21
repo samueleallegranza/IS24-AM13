@@ -151,3 +151,15 @@
 .manuscriptCounterImage {
     -fx-image: url("img/symbols/manuscript.png");
 }
+
+.chatSendButton{
+    -fx-background-image: url("img/sendMessage.png");
+    -fx-background-size: 25 25;
+    -fx-background-repeat: no-repeat;
+}
+
+.flipButton{
+    -fx-background-image: url("img/refreshIcon.png");
+    -fx-background-size: 25 25;
+    -fx-background-repeat: no-repeat;
+}

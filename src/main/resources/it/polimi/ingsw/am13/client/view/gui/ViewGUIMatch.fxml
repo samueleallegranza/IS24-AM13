@@ -301,15 +301,15 @@
                     <VBox alignment="CENTER" spacing="30.0">
                         <HBox alignment="CENTER" spacing="20.0">
                             <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                                <Button fx:id="flipButton0" prefHeight="25" prefWidth="25" />
+                                <Button fx:id="flipButton0" prefHeight="25" prefWidth="25" styleClass="flipButton"/>
                                 <ImageView fx:id="handCard0" fitHeight="100" fitWidth="150" />
                             </VBox>
                             <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                                <Button fx:id="flipButton1" prefHeight="25" prefWidth="25" />
+                                <Button fx:id="flipButton1" prefHeight="25" prefWidth="25" styleClass="flipButton"/>
                                 <ImageView fx:id="handCard1" fitHeight="100" fitWidth="150" />
                             </VBox>
                             <VBox minWidth="20.0" prefWidth="150.0" spacing="10.0" HBox.hgrow="ALWAYS">
-                                <Button fx:id="flipButton2" prefHeight="25" prefWidth="25" />
+                                <Button fx:id="flipButton2" prefHeight="25" prefWidth="25" styleClass="flipButton"/>
                                 <ImageView fx:id="handCard2" fitHeight="100" fitWidth="150" />
                             </VBox>
                         </HBox>
@@ -339,8 +339,8 @@
                                 <ChoiceBox fx:id="chatChoice" prefHeight="25" prefWidth="500" />
                                 <TextArea fx:id="chatArea" editable="false" prefHeight="300" prefWidth="500.0" wrapText="true" />
                                 <HBox prefHeight="25" prefWidth="500" spacing="5.0">
-                                    <TextField fx:id="chatField" minWidth="200.0" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="451.0" promptText="chat message" />
-                                    <Button onMouseClicked="#onClickSendMessage" prefWidth="50" text="send" />
+                                    <TextField fx:id="chatField" minWidth="470.0" onKeyPressed="#onChatTextFieldKeyPressed" prefHeight="25.0" prefWidth="451.0" promptText="chat message" />
+                                    <Button onMouseClicked="#onClickSendMessage" prefWidth="30" styleClass="chatSendButton"/>
                                 </HBox>
                             </VBox>
                         </AnchorPane>
