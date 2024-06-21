@@ -545,14 +545,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
-        if(state.countConnected()==1){
+        if(state.countConnected() == 1) {
             Platform.runLater(()-> {
                 updateActionLabel();
-                if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
-                    for (ImageView handCard : handCards)
-                        handCard.setOnDragDetected(null);
-                    pickablesContainer.setMouseTransparent(true);
+                for (ImageView handCard : handCards) {
+                    handCard.setOnDragDetected(null);
                 }
+                pickablesContainer.setMouseTransparent(true);
             });
         }
         log.logDisconnect(player);
@@ -566,7 +565,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
-        if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
+        if (displayPlayer.equals(thisPlayer) && thisPlayer.equals(state.getCurrentPlayer())) {
             Platform.runLater(() -> {
                 if(flowCardPlaced){
                     pickablesContainer.setMouseTransparent(false);
@@ -589,20 +588,22 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Show the start of the game by creating a semi transparent layer and displaying the init scene on top of it
      */
     public void showStartGame(){
-        StackPane topPane = (StackPane) this.getScene().getRoot();
+        if(state.getGameStatus() == GameStatus.INIT) {
+            StackPane topPane = (StackPane) this.getScene().getRoot();
 
-        // Create the semi-transparent layer
-        initOverlay = new Rectangle();
-        initOverlay.setOpacity(0.5);
-        overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
-        overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
-        topPane.widthProperty().addListener(overlayWidthListener);
-        topPane.heightProperty().addListener(overlayHeightListener);
-        topPane.getChildren().addAll(initOverlay, controllerInit.getScene().getRoot());
-        controllerInit.showStartGame();
+            // Create the semi-transparent layer
+            initOverlay = new Rectangle();
+            initOverlay.setOpacity(0.5);
+            overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
+            overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
+            topPane.widthProperty().addListener(overlayWidthListener);
+            topPane.heightProperty().addListener(overlayHeightListener);
+            topPane.getChildren().addAll(initOverlay, controllerInit.getScene().getRoot());
+            controllerInit.showStartGame();
 
-        log.logStartGame();
-        showLastLogs();
+            log.logStartGame();
+            showLastLogs();
+        }
     }
 
     /**
@@ -639,8 +640,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
-        stackPane.widthProperty().removeListener(overlayWidthListener);
-        stackPane.heightProperty().removeListener(overlayHeightListener);
+        if(overlayWidthListener != null)
+            stackPane.widthProperty().removeListener(overlayWidthListener);
+        if(overlayHeightListener != null)
+            stackPane.heightProperty().removeListener(overlayHeightListener);
 
         // First in game log
         log.logNextTurn();
@@ -729,7 +732,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param player who picked the card
      */
     public void showPickedCard(PlayerLobby player) {
-        if (this.thisPlayer.equals(player)){
+        if (player.equals(thisPlayer)){
             // After a card has been picked, the pickable cards should not be clickable
             pickablesContainer.setMouseTransparent(true);
         }
@@ -754,7 +757,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Make all the updates necessary to make it the turn of the next player
      */
     public void showNextTurn() {
-        if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
+        if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer) && state.countConnected() > 1) {
             for (int i = 0; i < handCards.size(); i++) {
                     ImageView handCard = handCards.get(i);
                     makeDraggable(i, handCard, flipButtons.get(i));
@@ -1346,7 +1349,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 actionLabel.setText("Game ended");
             else if(thisPlayer.equals(state.getCurrentPlayer())) {
                 if(state.countConnected()==1)
-                    actionLabel.setText("You are the only player left, please wait");
+                    actionLabel.setText("You're alone, wait");
                 else {
                     if (!flowCardPlaced)
                         actionLabel.setText("Play a card");

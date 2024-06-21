@@ -281,8 +281,8 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showStartGame(GameState state, Chat chat) {
+        this.state = state;
         Platform.runLater(() -> {
-            this.state = state;
             switchToScene(matchController);
             matchController.init(initController, winnerController, chat);
             matchController.showStartGame();
@@ -309,7 +309,7 @@ public class ViewGUI extends Application implements View {
             case GameStatus.IN_GAME -> {
                 showStartGame(state,chat);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
