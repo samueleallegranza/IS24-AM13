@@ -134,7 +134,7 @@ public class GameController implements Runnable {
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player was already connected when this method was called
      */
-    void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException {
+    void reconnectPlayer(GameListener gameListener) throws InvalidPlayerException, ConnectionException, GameStatusException {
         gameModel.reconnectPlayer(gameListener, this);
         int numberConnectedPlayers = gameModel.countConnected();
         if(numberConnectedPlayers > 1) {
@@ -273,7 +273,6 @@ public class GameController implements Runnable {
 
     /**
      * Picks one of the 6 cards on the table, and makes the game proceed to the next Turn.
-     * If there is no other turn to play after this one, it adds the objective points and calculates the winner.
      * @param card A playable card that should be in the field
      * @throws InvalidDrawCardException if the passed card is not on the table
      * @throws GameStatusException if this method is called in the INIT or CALC POINTS phase
@@ -291,7 +290,7 @@ public class GameController implements Runnable {
     /**
      * Advances to the next turn.
      * If the game is finished, it also adds the objective points and calculates the winner.
-     * If, after advancing to the next turn, the current player is not collected, it calls playCard and pickCard
+     * If, after advancing to the next turn, the current player is not connected, it calls playCard and pickCard
      * with null parameters so that the game can proceed correctly
      * @throws GameStatusException if any of the methods it calls is called in the wrong game phase
      */
@@ -304,7 +303,7 @@ public class GameController implements Runnable {
         }
 
         try {
-            if(!gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
+            if(gameModel.countConnected()>1 && !gameModel.fetchIsConnected(gameModel.fetchCurrentPlayer())){
                 //playCard and pickCard should not throw any exception since the player is not connected
                 //(so the methods are only called to make the game proceed, they won't actually change the state of the player or the table)
                 playCard(gameModel.fetchCurrentPlayer(),null,null,null);

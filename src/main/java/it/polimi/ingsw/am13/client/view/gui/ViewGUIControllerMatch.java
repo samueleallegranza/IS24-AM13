@@ -537,23 +537,47 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     /**
-     * It shows that a player disconnected from an ongoing game by calling the corresponding method on {@link ViewGUIController}.
+     * It shows that a player disconnected from an ongoing game by updating the player container
      * @param player Player who disconnected
      */
     @Override
     public void showPlayerDisconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
+        if(state.countConnected()==1){
+            Platform.runLater(()-> {
+                updateActionLabel();
+                if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
+                    for (ImageView handCard : handCards)
+                        handCard.setOnDragDetected(null);
+                    pickablesContainer.setMouseTransparent(true);
+                }
+            });
+        }
         log.logDisconnect(player);
         showLastLogs();
     }
 
     /**
-     * It shows that a player reconnected to an ongoing game by calling the corresponding method on {@link ViewGUIController}.
+     * It shows that a player reconnected to an ongoing game by updating the player container
      * @param player Player who reconnected
      */
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
         playerContainerUpdateConnection(player);
+        if (displayPlayer.equals(thisPlayer) && state.getCurrentPlayer().equals(thisPlayer)) {
+            Platform.runLater(() -> {
+                if(flowCardPlaced){
+                    pickablesContainer.setMouseTransparent(false);
+                }
+                else {
+                    for (int i = 0; i < handCards.size(); i++) {
+                        ImageView handCard = handCards.get(i);
+                        makeDraggable(i, handCard, flipButtons.get(i));
+                    }
+                }
+                updateActionLabel();
+            });
+        }
 
         log.logReconnect(player);
         showLastLogs();
@@ -899,7 +923,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         int finalI = i;
                         flipHandCard.setVisible(true);
                         flipHandCard.setOnMouseClicked(mouseEvent -> flipCard(finalI, handCard));
-                        if (!flowCardPlaced && thisPlayer.equals(state.getCurrentPlayer())) {
+                        if (!flowCardPlaced && thisPlayer.equals(state.getCurrentPlayer()) && state.countConnected()>1) {
                             makeDraggable(i, handCard,flipHandCard);
                         }
                     }
@@ -1033,7 +1057,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
     }
 
-    //TODO Indicare in qualche modo di chi è il turno
     /**
      * Updates player container labels representing the turn of the players. Every turn label is set to "waiting"
      * except for the player currently playing, which will be set to "TURN".
@@ -1043,13 +1066,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             playerNodes.get(p).setEffect(null);
         }
 
-        DropShadow shadow = new DropShadow();
-        shadow.setRadius(25);
-        shadow.setOffsetX(0);
-        shadow.setOffsetY(0);
-        shadow.setSpread(0.5);
-        shadow.setColor(new Color(1,1,1,0.75));
-        playerNodes.get(state.getCurrentPlayer()).setEffect(shadow);
+
+        //this method is also called in the CALC POINTS phase
+        if(state.getCurrentPlayer()!=null){
+            DropShadow shadow = new DropShadow();
+            shadow.setRadius(25);
+            shadow.setOffsetX(0);
+            shadow.setOffsetY(0);
+            shadow.setSpread(0.5);
+            shadow.setColor(new Color(1,1,1,0.75));
+            playerNodes.get(state.getCurrentPlayer()).setEffect(shadow);
+        }
     }
 
     /**
@@ -1318,10 +1345,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             if(state.getGameStatus() == GameStatus.CALC_POINTS || state.getGameStatus() == GameStatus.ENDED)
                 actionLabel.setText("Game ended");
             else if(thisPlayer.equals(state.getCurrentPlayer())) {
-                if(!flowCardPlaced)
-                    actionLabel.setText("Play a card");
-                else
-                    actionLabel.setText("Pick a card");
+                if(state.countConnected()==1)
+                    actionLabel.setText("You are the only player left, please wait");
+                else {
+                    if (!flowCardPlaced)
+                        actionLabel.setText("Play a card");
+                    else
+                        actionLabel.setText("Pick a card");
+                }
             } else
                 actionLabel.setText("Wait for your turn");
         });

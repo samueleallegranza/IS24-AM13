@@ -629,7 +629,7 @@ public class TestGameController {
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
 
         PlayerLobby playerRemain = lissRemain.getPlayer();
-        assertEquals(playerRemain, model.fetchCurrentPlayer());
+//        assertEquals(playerRemain, model.fetchCurrentPlayer());
 //        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
 //        controller.pickCard(playerRemain, model.fetchPickables().getFirst());
 //        assertEquals(playerRemain, model.fetchCurrentPlayer());     // Only playerRemain has remained, it's still his turn

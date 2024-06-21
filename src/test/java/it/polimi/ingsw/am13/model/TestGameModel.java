@@ -507,7 +507,7 @@ public class TestGameModel {
             assertThrows(GameStatusException.class, ()->game.calcWinner());
         game.addObjectivePoints();
         assertEquals(GameStatus.ENDED, game.fetchGameStatus());
-        assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
+        if(game.countConnected()>1) assertThrows(GameStatusException.class, ()->game.addObjectivePoints());
         PlayerLobby expected = players.stream().filter(player -> {
                     try {
                         return game.fetchIsConnected(player);

@@ -538,6 +538,8 @@ public class Match {
             throw new GameStatusException("We are currently in "+gameStatus+" phase, this method can only be called in the "+GameStatus.IN_GAME+" or "+GameStatus.FINAL_PHASE+" phases");
         if(turnActionsCounter!=1)
             throw new GameStatusException("It's not the moment for picking the card from the common field");
+        if(countConnected()==1 && cardIF!=null)
+            throw new GameStatusException("You are the only player connected: wait for someone else to reconnect");
 
         if(currentPlayer.isConnected() && fetchPickables().stream().anyMatch(Objects::nonNull)) {
             CardPlayable card;
