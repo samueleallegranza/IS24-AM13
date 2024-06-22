@@ -18,7 +18,7 @@ public class CardFactory {
     /**
      * Path to <code>card_data.json</code> file
      */
-    private final static String CARD_JSON_PATH = "src/main/resources/json/card_data.json";
+    private final static String CARD_JSON_PATH = "/json/card_data.json";
 
     /**
      * Deserializes a list of Resource cards from the <a href = "src/main/resources/json/card_data.json">card_data.json</a>
@@ -217,7 +217,7 @@ public class CardFactory {
      */
     private JsonNode getFrontsNode(String cardType) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonRootNode = mapper.readTree(new File(CARD_JSON_PATH));
+        JsonNode jsonRootNode = mapper.readTree(getClass().getResourceAsStream(CARD_JSON_PATH));
         JsonNode cardTypeNode = jsonRootNode.get("cards").get(cardType);
         return cardTypeNode.get("cardsFront");
     }
@@ -232,7 +232,7 @@ public class CardFactory {
     private JsonNode getBacksNode(String cardType) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            JsonNode jsonRootNode = mapper.readTree(new File(CARD_JSON_PATH));
+            JsonNode jsonRootNode = mapper.readTree((getClass().getResourceAsStream(CARD_JSON_PATH)));
             JsonNode cardTypeNode = jsonRootNode.get("cards").get(cardType);
             return cardTypeNode.get("cardsBack");
 
