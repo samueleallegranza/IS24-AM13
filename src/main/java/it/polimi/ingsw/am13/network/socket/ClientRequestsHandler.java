@@ -157,6 +157,7 @@ public class ClientRequestsHandler extends Thread {
             } else
                 try {
                     this.gameController.disconnectPlayer(player);
+                    System.out.printf("[Socket][Client:%d] Client disconnected\n", clientSocket.getPort());
                 } catch (InvalidPlayerException | LobbyException e) {
                     throw new RuntimeException(e);
                 } catch (ConnectionException ignore) {
