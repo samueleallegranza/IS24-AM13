@@ -48,7 +48,8 @@ public class ClientMain {
             else if(Objects.equals(args[i], "--skip_room")) {
                 ParametersClient.SKIP_ROOM = true;
                 ParametersClient.DEBUG_NPLAYERS = Integer.parseInt(args[i + 1]);
-            }
+            } else if(Objects.equals(args[i], "--client_ip"))
+                ParametersClient.CLIENT_IP = args[i+1];
         }
         ParametersClient.checkServerPort();
 
@@ -101,7 +102,8 @@ public class ClientMain {
             try {
                 //TODO: rivedi meglio questo setup x rmi
                 // server hostname should be the ip of this client (the correct network address)
-                //System.setProperty("java.rmi.server.hostname", "192.168.83.184");
+
+                System.setProperty("java.rmi.server.hostname", ParametersClient.CLIENT_IP);
                 registry = LocateRegistry.getRegistry(ParametersClient.SERVER_IP, ParametersServer.RMI_PORT);
                 LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ParametersServer.LOBBY_RMI_NAME);
                 networkHandler = new NetworkHandlerRMI(lobby, view);

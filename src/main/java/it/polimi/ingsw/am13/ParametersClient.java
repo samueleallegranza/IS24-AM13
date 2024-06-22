@@ -51,6 +51,11 @@ public class ParametersClient {
      */
     public static int SERVER_PORT = -1;
 
+    /**
+     * Server's ip (to which to connect)
+     */
+    public static String  CLIENT_IP = "localhost";
+
     private static final int  SOCKET_DEFAULT_PORT = 25566;
     private static final int RMI_DEFAULT_PORT = 25567;
 
