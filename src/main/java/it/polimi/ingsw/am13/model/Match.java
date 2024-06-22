@@ -621,6 +621,7 @@ public class Match {
         for(Player player : players)
             player.addObjectivePoints(deckObjective.showFromTable(0), deckObjective.showFromTable(1));
         gameStatus = GameStatus.ENDED;
+        currentPlayer=null;
     }
 
     /**
