@@ -520,6 +520,7 @@ public class TestGameController {
             currPlayer = model.fetchCurrentPlayer();
             for(LisForTest l : liss)
                 assertNotEquals(ControlAction.WINNER, l.actions.getLast());
+            //todo sistema in modo che non giochi se è l'unico rimasto
             controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
             controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
         }
