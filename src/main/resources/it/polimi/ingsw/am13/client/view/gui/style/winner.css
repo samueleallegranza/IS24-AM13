@@ -1,14 +1,17 @@
 .winnerTable {
     -fx-font-size: 20px; /* Change the font size for the entire TableView */
+    -fx-font-family: "Inknut Antiqua", 'serif';
     /*-fx-background-color: transparent;*/
 }
 
 .winnerTable .column-header {
     -fx-font-size: 20px; /* Change the font size for the column headers */
+    -fx-font-family: "Inknut Antiqua", 'serif';
 }
 
 .winnerTable .cell {
     -fx-font-size: 20px; /* Change the font size for the cells */
+    -fx-font-family: "Inknut Antiqua", 'serif';
 }
 
 VBox {

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.network.rmi;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.controller.LobbyException;
@@ -41,6 +42,11 @@ public class NetworkHandlerRMI implements NetworkHandler {
      * The user interface
      */
     private final View view;
+
+    /**
+     * Thread sending periodically pings to server
+     */
+    private Thread pingThread;
 
     /**
      * Initializes lobby and view
@@ -239,14 +245,39 @@ public class NetworkHandlerRMI implements NetworkHandler {
     /**
      * Ping the server
      */
-    @Override
-    public void ping() {
+    private void ping() {
         try {
             controller.updatePing();
         } catch (RemoteException e) {
             view.showException(e);
 //            throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Starts the thread sending pings to server
+     */
+    @Override
+    public void startPing() {
+        pingThread = new Thread(() -> {
+            while(!Thread.interrupted()) {
+                ping();
+                try {
+                    Thread.sleep(ParametersClient.sleepTime);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        });
+        pingThread.start();
+    }
+
+    /**
+     * Stops the thread sending pings to server
+     */
+    @Override
+    public void stopPing() {
+        pingThread.interrupt();
     }
 
     /**

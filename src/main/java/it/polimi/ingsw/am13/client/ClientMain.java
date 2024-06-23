@@ -126,6 +126,7 @@ public class ClientMain {
                 \t--rmi:\t\t\t\tStarts the application by using rmi to connect to the server (default is with socket)
                 \t--ip <ip>:\t\t\tSets the ip address of the server
                 \t--port <port>:\t\tSets the port number of the server
+                \t--client_ip <ip>:\t\t\tSets the ip address of the client
                 \t--no_sounds:\t\tDisables all the sounds during the game
                 \t--skip_room <number of player>:\t\tSkips the room phase, with the specified number of players for the room (debug purposes)
                 \t--skip_init:\t\tMakes the choices for the initialization phase automatic (debug purposes)

@@ -205,14 +205,6 @@ public class ViewGUI extends Application implements View {
     }
 
     /**
-     * @param msg Message to be shown
-     */
-    @Override
-    public synchronized void showGenericLogMessage(String msg) {
-        //TODO se non la usi magari levala
-    }
-
-    /**
      * Shows the list of rooms returned by the server, which the player can join/reconnect to.
      * It is called every time a player creates, leaves or joins a room, in order to keep the view up to date.
      * If it is called after this player has joined a room, it is used to initialise the table of players inside
@@ -435,6 +427,14 @@ public class ViewGUI extends Application implements View {
     @Override
     public void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers) {
         matchController.showChatMessage(sender,receivers);
+    }
+
+    /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    @Override
+    public void forceCloseApp() {
+        currentController.forceCloseApp();
     }
 
     public static void main(String[] args) {

@@ -5,26 +5,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="30.0" stylesheets="@style/winner.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerWinner">
+<VBox alignment="CENTER" spacing="40.0" stylesheets="@style/winner.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am13.client.view.gui.ViewGUIControllerWinner">
     <HBox alignment="CENTER">
-        <Label fx:id="winnerText" alignment="CENTER" contentDisplay="CENTER" prefHeight="150.0" prefWidth="614.0"
-               styleClass="winnerBigLabel" textAlignment="CENTER" wrapText="true">
+        <Label fx:id="winnerText" alignment="CENTER" contentDisplay="CENTER" styleClass="winnerBigLabel" textAlignment="CENTER" textOverrun="CLIP" wrapText="true">
             <font>
-                <Font size="20.0"/>
+                <Font size="20.0" />
             </font>
           <padding>
-              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
           </padding>
         </Label>
     </HBox>
     <HBox alignment="CENTER" VBox.vgrow="NEVER">
         <TableView fx:id="pointsTable" styleClass="winnerTable">
             <columns>
-                <TableColumn fx:id="playerColumn" editable="false" maxWidth="300.0" prefWidth="200.0" text="PLAYER"/>
-                <TableColumn fx:id="pointsColumn" editable="false" maxWidth="150.0" prefWidth="100.0" text="POINTS"/>
+                <TableColumn fx:id="playerColumn" editable="false" maxWidth="400.0" prefWidth="300.0" text="PLAYER" />
+                <TableColumn fx:id="pointsColumn" editable="false" maxWidth="200.0" prefWidth="150.0" text="POINTS" />
             </columns>
           <columnResizePolicy>
-              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
           </columnResizePolicy>
         </TableView>
     </HBox>

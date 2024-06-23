@@ -35,12 +35,6 @@ public interface View {
     void showException(Exception e);
 
     /**
-     * Show a generic message for log visible to the client
-     * @param msg Message to be shown
-     */
-    void showGenericLogMessage(String msg);
-
-    /**
      * Shows the list of rooms returned by the server, which the player can join/reconnect to
      * @param rooms List of rooms
      */
@@ -146,4 +140,8 @@ public interface View {
      */
     void showChatMessage(PlayerLobby sender, List<PlayerLobby> receivers);
 
+    /**
+     * Forces tbe close of the app. It should be used to end the app for anomalous reasons
+     */
+    void forceCloseApp();
 }

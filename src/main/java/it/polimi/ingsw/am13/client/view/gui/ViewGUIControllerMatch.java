@@ -45,10 +45,8 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.List;
 
@@ -223,7 +221,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private LogGUI log;
 
-
     /**
      * The sides on which each of the hand cards are being displayed
      */
@@ -281,8 +278,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Overlay rectangle for the init view
      */
     private Rectangle initOverlay;
-
+    /**
+     * Listener for the main window's width used for the overlay in init and winner view
+     */
     private ChangeListener<Number> overlayWidthListener;
+    /**
+     * Listener for the main window's height used for the overlay in init and winner view
+     */
     private ChangeListener<Number> overlayHeightListener;
 
 
@@ -509,7 +511,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             });
 
             //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
-            if (state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced) {
+            if (state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced && attemptedToPlayCardHand != null) {
                 Platform.runLater(() -> {
 //                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                     attemptedToPlayCardHand.setVisible(true);
@@ -588,6 +590,21 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         log.logReconnect(player);
         showLastLogs();
+    }
+
+    /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    @Override
+    public void forceCloseApp() {
+        networkHandler.stopPing();
+        Platform.runLater(() -> actionLabel.setText(">>ERROR<<"));
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Platform.runLater(() -> stage.close());
     }
 
     /**

@@ -80,9 +80,14 @@ public interface NetworkHandler {
     void pickCard(CardPlayableIF card);
 
     /**
-     * Ping the server
+     * Starts the thread sending pings to server
      */
-    void ping();
+    void startPing();
+
+    /**
+     * Stops the thread sending pings to server
+     */
+    void stopPing();
 
     /**
      * Send a chat message to the receivers (either a single player, or all the other players)

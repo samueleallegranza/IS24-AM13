@@ -106,4 +106,8 @@ public abstract class ViewGUIController {
      */
     public abstract void showPlayerReconnected(PlayerLobby player);
 
+    /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    public abstract void forceCloseApp();
 }

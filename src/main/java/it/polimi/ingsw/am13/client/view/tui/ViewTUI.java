@@ -121,12 +121,6 @@ public class ViewTUI implements View {
         //TODO basta così?
     }
 
-    @Override
-    public synchronized void showGenericLogMessage(String msg) {
-        System.out.println(msg);
-        //TODO basta così?
-    }
-
     /**
      * Prints the list of all rooms (with game started or not started)
      * @param rooms List of rooms
@@ -492,6 +486,16 @@ public class ViewTUI implements View {
                     printCurrentChat("");
                 else if (receivers.size() > 1 && currentChatRoom.size() > 1)
                     printCurrentChat("");
+    }
+
+    /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    @Override
+    public void forceCloseApp() {
+        ViewTUIConstants.clearScreen();
+        System.out.println("ERROR: Something went wrong, the app will be closed.");
+        System.exit(-1);
     }
 
     /**

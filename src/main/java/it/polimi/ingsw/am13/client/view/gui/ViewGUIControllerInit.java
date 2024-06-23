@@ -75,6 +75,13 @@ public class ViewGUIControllerInit extends ViewGUIController {
     }
 
     /**
+     * This method cannot be called
+     */
+    @Override
+    public void forceCloseApp() {
+    }
+
+    /**
      * Method that sets the player
      * @param thisPlayer the player associated to this {@link ViewGUIController}
      */

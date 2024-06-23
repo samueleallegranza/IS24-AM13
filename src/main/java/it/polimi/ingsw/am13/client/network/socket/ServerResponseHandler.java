@@ -3,7 +3,6 @@ package it.polimi.ingsw.am13.client.network.socket;
 import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
-import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.network.socket.message.response.*;
 
@@ -24,10 +23,6 @@ public class ServerResponseHandler extends Thread{
      * Handler of the representation of the game state
      */
     private GameStateHandler gameStateHandler;
-    /**
-     * The thread that regularly sends a ping
-     */
-    private PingThread pingThread;
     /**
      * The socket network handler that sends the messages from the client to the server
      */
@@ -74,7 +69,9 @@ public class ServerResponseHandler extends Thread{
                     msgResponse = (MsgResponse) in.readObject();
                 }
                  catch (ClassNotFoundException | IOException e) {
-                    throw new RuntimeException(e);
+                    view.showException(e);
+                    view.forceCloseApp();
+                    return;
                 }
                 try {
                     switch (msgResponse) {
@@ -106,7 +103,7 @@ public class ServerResponseHandler extends Thread{
                                 gameStateHandler = new GameStateHandler(msgResponseStartGame.getGameState());
                                 chat=new Chat(msgResponseStartGame.getGameState().getPlayers(),networkHandlerSocket.getPlayer());
                             }
-                            pingThread = new PingThread(networkHandlerSocket);
+                            networkHandlerSocket.startPing();
                             view.showStartGame(gameStateHandler.getState(),chat);
                         }
 
@@ -170,7 +167,7 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseEndGame msgResponseEndGame ->{
                            // if(gameStateHandler!=null)
                             socket.close();
-                            pingThread.stopPing();
+                            networkHandlerSocket.stopPing();
                             view.showEndGame();
                         }
 
@@ -181,7 +178,7 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseUpdateGameState msgResponseUpdateGameState -> {
                             gameStateHandler = new GameStateHandler(msgResponseUpdateGameState.getGameState());
                             chat = new Chat(msgResponseUpdateGameState.getGameState().getPlayers(),networkHandlerSocket.getPlayer());
-                            pingThread = new PingThread(networkHandlerSocket);
+                            networkHandlerSocket.startPing();
                             view.showStartGameReconnected(msgResponseUpdateGameState.getGameState(), msgResponseUpdateGameState.getPlayer(),chat);
                         }
 

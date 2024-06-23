@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.client.gamestate.GameStateHandler;
-import it.polimi.ingsw.am13.client.network.PingThread;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.*;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
@@ -41,12 +40,6 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      * Handler of the game's state
      */
     private GameStateHandler stateHandler;
-
-    /**
-     * Thread which will send periodically the pings to the server.
-     * If it is != null, is should be running.
-     */
-    private PingThread ping;
 
     private Chat chat;
 
@@ -102,7 +95,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         stateHandler = new GameStateHandler(state);
         chat=new Chat(state.getPlayers(),player);
         view.showStartGame(stateHandler.getState(),chat);
-        ping = new PingThread(networkHandler);      // It starts automatically
+        networkHandler.startPing();
     }
 
     /**
@@ -116,7 +109,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
         stateHandler = new GameStateHandler(state);
         chat = new Chat(state.getPlayers(),player);
         networkHandler.setController(controller);
-        ping = new PingThread(networkHandler);
+        networkHandler.startPing();
         view.showStartGameReconnected(stateHandler.getState(), player,chat);
     }
 
@@ -219,7 +212,7 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
      */
     public void updateEndGame() throws RemoteException {
         view.showEndGame();
-        ping.stopPing();
+        networkHandler.stopPing();
         // TODO: devo chiudere anche altro?
     }
 

@@ -84,6 +84,21 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     }
 
     /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    @Override
+    public void forceCloseApp() {
+        Platform.runLater(() -> roomLabel.setText("There are problems at server-side, the app will be automatically closed in a few seconds"));
+        networkHandler.stopPing();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Platform.runLater(() -> stage.close());
+    }
+
+    /**
      * Update the label of this room
      */
     private void updateRoomLabel() {

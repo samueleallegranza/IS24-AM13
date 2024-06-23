@@ -6,6 +6,7 @@ import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -68,6 +69,20 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
     @Override
     public void showPlayerReconnected(PlayerLobby player) {
+    }
+
+    /**
+     * Force closing the app. It should be used to end the app for anomalous reasons
+     */
+    @Override
+    public void forceCloseApp() {
+        // I assume that an error message is already shown in an exception
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Platform.runLater(() -> stage.close());
     }
 
 

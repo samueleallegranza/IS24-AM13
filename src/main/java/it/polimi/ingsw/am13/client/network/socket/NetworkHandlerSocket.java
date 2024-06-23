@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am13.client.network.socket;
 
+import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.view.View;
 import it.polimi.ingsw.am13.model.card.CardObjectiveIF;
@@ -32,6 +33,11 @@ public class NetworkHandlerSocket implements NetworkHandler {
     private PlayerLobby latestPlayer;
 
     /**
+     * Thread sending periodically pings to server
+     */
+    private Thread pingThread;
+
+    /**
      * Initialize the output stream and start the server response handler
      * @param socket the socket which is used to communicate with the server
      * @param view the user interface
@@ -56,14 +62,14 @@ public class NetworkHandlerSocket implements NetworkHandler {
 
     /**
      * It sends the message to the server, by writing it to out, and then flushing and resetting out.
-     * @param messageCommand the message that has to be sent to the server
+     * @param messageCommand the message that has 0to be sent to the server
      */
     private void sendMessage(MsgCommand messageCommand){
         try {
             out.writeObject(messageCommand);
             flushReset();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // The server could have crashed...
         }
     }
 
@@ -167,9 +173,34 @@ public class NetworkHandlerSocket implements NetworkHandler {
     /**
      * Ping the server
      */
-    @Override
-    public synchronized void ping() {
+    private synchronized void ping() {
         sendMessage(new MsgCommandPing());
+    }
+
+    /**
+     * Starts the thread sending pings to server
+     */
+    @Override
+    public void startPing() {
+        pingThread = new Thread(() -> {
+            while(!Thread.interrupted()) {
+                ping();
+                try {
+                    Thread.sleep(ParametersClient.sleepTime);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        });
+        pingThread.start();
+    }
+
+    /**
+     * Stops the thread sending pings to server
+     */
+    @Override
+    public void stopPing() {
+        pingThread.interrupt();
     }
 
     /**
