@@ -180,6 +180,7 @@ public class Lobby {
         room.notifyEndGame();
         rooms.remove(gameId);
         controllers.remove(gameId);
+        System.out.println("Game " + gameId + " removed");
     }
 
     /**

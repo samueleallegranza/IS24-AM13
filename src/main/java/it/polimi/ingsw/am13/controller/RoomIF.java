@@ -34,10 +34,9 @@ public interface RoomIF extends Serializable {
     int getnPlayersTarget();
 
     /**
-     * @return Flag indicating if the game for this is started or not.
-     * It can change only once, when the room gets full for the first time
+     * @return Flag indicating if the game for this room is started or not.
+     * It can change only once, the unique time the room gets full (making the game start)
      */
     boolean isGameStarted();
-
 
 }

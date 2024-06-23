@@ -72,11 +72,6 @@ public class GameController implements Runnable {
                 if (System.currentTimeMillis() - gameListener.getPing() > ParametersServer.timeout) {
                     try {
                         disconnectPlayer(gameListener.getPlayer());
-                        if(gameModel.countConnected() == 0) {
-                            stopReconnectionTimer();
-                            Lobby.getInstance().endGame(getGameId());
-                            return;
-                        }
                     } catch (InvalidPlayerException | ConnectionException | LobbyException e) {
                         throw new RuntimeException(e);
                     }
@@ -109,13 +104,15 @@ public class GameController implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            if (ParametersServer.alonePlayerWin && gameModel.countConnected() == 1 && gameModel.fetchGameStatus() != null && reconnectionThread == null)
+            if (ParametersServer.alonePlayerWin && (gameModel.countConnected() == 1 || gameModel.countConnected() == 0)
+                    && gameModel.fetchGameStatus() != null && reconnectionThread == null)
                 startReconnectionTimer(timeToWait);
         }
     }
 
     /**
-     * Disconnects the player corresponding to the game listener and starts the reconnection timer if there is only one player left
+     * Disconnects the specified player and starts the reconnection timer if there is only one player left
+     * It ends the game if, after the disconnection, no players are
      * @param player Player to disconnect
      * @throws InvalidPlayerException if the player corresponding to gameListener is not one of the players of the match
      * @throws ConnectionException if the player had already been disconnected
@@ -139,10 +136,6 @@ public class GameController implements Runnable {
         int numberConnectedPlayers = gameModel.countConnected();
         if(numberConnectedPlayers > 1) {
             stopReconnectionTimer();
-            //todo le due righe successive non dovrebbero servire perché è disconnect player che fa passare al prossimo turno
-            //todo prima che le commentassi c'era && al posto di || quindi non entrava mai nell'if
-//            if (numberConnectedPlayers==2 && (gameModel.fetchGameStatus()==GameStatus.IN_GAME || gameModel.fetchGameStatus()==GameStatus.FINAL_PHASE))
-//                nextTurn();
         }
     }
 
@@ -166,6 +159,7 @@ public class GameController implements Runnable {
                             //We can stop waiting since someone interrupted this thread
                         }
                     }
+
                     int numberConnectedPlayers = gameModel.countConnected();
                     try {
                         if(numberConnectedPlayers == 0)

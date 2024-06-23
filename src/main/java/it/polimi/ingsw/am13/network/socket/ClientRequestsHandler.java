@@ -148,20 +148,26 @@ public class ClientRequestsHandler extends Thread {
         }
 
         if(gameListener != null) {
+            // I have a game listener, so I entered a room --> I must communicate to Lobby and/or gameController to disconnect me
+
             if (gameController == null) {
+                // I have entered a room but not started a game, I must communicate to Lobby
                 try {
                     lobby.leaveRoom(gameListener);
                 } catch (LobbyException e) {
                     throw new RuntimeException(e);
                 }
+
             } else
+                // I entered a game, I must communicate to gameController
                 try {
                     this.gameController.disconnectPlayer(player);
-                    System.out.printf("[Socket][Client:%d] Client disconnected\n", clientSocket.getPort());
                 } catch (InvalidPlayerException | LobbyException e) {
                     throw new RuntimeException(e);
                 } catch (ConnectionException ignore) {
                 }
+
+            System.out.printf("[Socket][Client:%d] Client disconnected\n", clientSocket.getPort());
         }
 
         // run() returns, the Thread ends its life.
@@ -208,6 +214,7 @@ public class ClientRequestsHandler extends Thread {
      */
     public void handleEndGame() {
         // reset PlayerLobby, GameListener and GameController as they are not useful anymore
+        logResponse("endGame");
         this.player = null;
         this.gameListener = null;
         this.gameController = null;

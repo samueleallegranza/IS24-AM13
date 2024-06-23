@@ -6,6 +6,8 @@ target/
 ### Custom ###
 .idea/
 *.class
+*.MF
+*.jar
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
