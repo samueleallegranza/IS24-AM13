@@ -13,8 +13,9 @@ public interface FieldIF {
 
     /**
      * @return A list of all coordinated where a card has been already positioned.
-     * The list is empty if no cards has been placed yet. For how the game works, the coordinate (0,0), is the list
-     * is not empty, must be present
+     * The list is empty if no cards has been placed yet. For how the game works, the coordinate (0,0), if the list
+     * is not empty, must be present.
+     * The coordinates are listed in the same order they where placed, from the oldest to the latest one
      */
     List<Coordinates> getCoordinatesPlaced();
 

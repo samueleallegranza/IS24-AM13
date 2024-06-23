@@ -32,7 +32,7 @@ public class Field implements FieldIF, Serializable {
      * Constructor of the Field. It initializes all resource counters to 0.
      */
     public Field() {
-        field = new HashMap<>();
+        field = new LinkedHashMap<>();
         resources = new HashMap<>();
 
         // Initialization of resources

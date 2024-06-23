@@ -7,10 +7,7 @@ import it.polimi.ingsw.am13.model.card.Resource;
 import it.polimi.ingsw.am13.model.player.FieldIF;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Representation of one player's field.
@@ -34,14 +31,15 @@ public class FieldState implements Serializable {
      * @param field Field to build the representation of
      */
     public FieldState(FieldIF field) {
-        this.field = new HashMap<>();
+        this.field = new LinkedHashMap<>();
         for(Coordinates c : field.getCoordinatesPlaced())
             this.field.put(c, field.getCardSideAtCoord(c).clone());
         this.availableCoords = new ArrayList<>(field.getAvailableCoords());
     }
 
     /**
-     * @return List of coordinates where there is a card placed
+     * @return List of coordinates where there is a card placed.
+     * The list is ordered from the first placed coordinates to the latest ones
      */
     public List<Coordinates> getPlacedCoords() {
         return new ArrayList<>(field.keySet());
