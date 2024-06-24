@@ -94,7 +94,10 @@ public class ServerMain {
                     args -> ParametersServer.CHECK_REQUIREMENTS = false),
             new PromptCommand("no_timeout_reconnection",
                     "Disables the timeout for reconnection",
-                    args -> ParametersServer.alonePlayerWin = false)
+                    args -> ParametersServer.alonePlayerWin = false),
+            new PromptCommand("no_pings",
+                    "Disables the check of the clients' ping",
+                    args -> ParametersServer.checkPings = false)
     );
     /**
      * Map associating the command key to the command itself

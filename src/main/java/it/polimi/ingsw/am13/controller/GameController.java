@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * This is a controller for a single game/match
  */
-public class GameController implements Runnable {
+public class GameController {
     /**
      * The model of the game
      */
@@ -41,7 +41,8 @@ public class GameController implements Runnable {
         } catch (GameStatusException e) {
             throw new RuntimeException(e);
         }
-        new Thread(this).start();
+        if(ParametersServer.checkPings)
+            new Thread(this::checkPing).start();
     }
 
     /**
@@ -60,7 +61,7 @@ public class GameController implements Runnable {
      * This method checks the pings of each game listener every <code>sleepTime</code> ms
      * and disconnects players whose game listener ping is too old
      */
-    public void run(){
+    public void checkPing() {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

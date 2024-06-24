@@ -22,8 +22,14 @@ public class ParametersServer {
     public static final Long timeToWaitReconnection = 10000L;
     /**
      * Flag indication if a player who remained alone must be declared winner
+     * Debug purposes only
      */
     public static boolean alonePlayerWin = true;
+    /**
+     * Flag indicating if the server must check the pings of the clients.
+     * Debug purposes only
+     */
+    public static boolean checkPings = true;
 
     // NETWORK (ip, port)
 

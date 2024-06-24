@@ -12,9 +12,7 @@ import it.polimi.ingsw.am13.model.exceptions.InvalidPlayerException;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implementation of a game listener for RMI connection.
@@ -23,9 +21,8 @@ import java.util.Map;
  */
 public class GameListenerServerRMI implements GameListener {
 
-    //TODO: per ora problema di latenza è gestito chiamando i metodi RMI in modo asincrono con thread,
-    // ma è da rivedere se veramente questo aiuta...
-    // RISOLVI IL PRIMA POSSIBILE
+    //TODO: ho aggiunto un modo per essere sicuri dell'ordine di chiamate rmi
+    // fai un test quanto prima
 
     /**
      * Long representing the last time the ping was updated
@@ -47,6 +44,12 @@ public class GameListenerServerRMI implements GameListener {
      * Controller of the game, null until the startGaame / reconnectGame update is received
      */
     private transient GameController controller;
+
+    /**
+     * Queue of the RMI calls to perform.
+     * It is used to be sure of the order of the calls, performed in different threads
+     */
+    private transient final Queue<Thread> calls = new LinkedList<>();
 
     /**
      * Creates a new server-side game listener wrapping the client-side listener
@@ -91,12 +94,6 @@ public class GameListenerServerRMI implements GameListener {
         void run() throws RemoteException;
     }
 
-
-
-    //TODO: gestione di RemoteException da rivedere. Tipo, può succedere che  anche se mi arrivano i ping
-    // (non disconnetto il player), non riesco a inviare l'update?
-
-
     /**
      * Tries to execute a generic RMI call for a fixed number of attempts, that it stops and do nothing.
      * This is done asynchronously via a new thread.
@@ -104,13 +101,23 @@ public class GameListenerServerRMI implements GameListener {
      * @param fun RMI function to be called
      */
     private void tryRMICall(RunnableRMI fun, String res) {
-        new Thread(() -> {
+        Thread newCall = new Thread(() -> {
+            synchronized (calls) {
+                while (Thread.currentThread() != calls.peek()) {
+                    try {
+                        calls.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
             try {
                 fun.run();
                 logResponse(res);
             } catch (RemoteException e) {
                 System.out.printf("[RMI][%s] Unable to contact the client\n", player.getNickname());
-                if(controller!=null) {
+                if (controller != null) {
                     try {
                         controller.disconnectPlayer(player);
                     } catch (InvalidPlayerException | LobbyException ex) {
@@ -119,8 +126,16 @@ public class GameListenerServerRMI implements GameListener {
                     }
                 }
             }
-            //TODO: disconnetti il player se la chiamata non va a buon fine...
-        }).start();
+            synchronized (calls) {
+                calls.poll();
+                calls.notifyAll();
+            }
+        });
+
+        synchronized (calls) {
+            calls.add(newCall);
+        }
+        newCall.start();
     }
 
     /**
