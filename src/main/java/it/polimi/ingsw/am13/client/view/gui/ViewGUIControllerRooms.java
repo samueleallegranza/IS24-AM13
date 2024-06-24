@@ -87,7 +87,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
 
 
-    public void showStartupScreen(boolean isSocket, String ip, int port) {
+    public void showStartupScreen() {
         nPlayersSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 4, 2));
         if(colorBox.getItems().isEmpty()) {
             colorBox.getItems().addAll(ColorToken.values());
@@ -102,7 +102,8 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomId.setCellValueFactory(new PropertyValueFactory<>("gameId"));
         roomStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isGameStarted() ? "started" : "waiting"));
 
-        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().getFirst().getNickname()));
+        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().isEmpty() ?
+                "" : cellData.getValue().getPlayers().getFirst().getNickname()));
         roomP1.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {

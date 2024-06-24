@@ -6,8 +6,8 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -59,12 +59,15 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     }
 
     /**
-     * It is never called because the only action that the player can perform in this scene
-     * is leaving the room (which is always valid)
      * @param e Exception to be shown
      */
     @Override
     public void showException(Exception e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("An error occurred");
+        alert.setContentText(e.getMessage());
+        alert.showAndWait();
     }
 
     /**
@@ -89,7 +92,7 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     @Override
     public void forceCloseApp() {
         Platform.runLater(() -> roomLabel.setText("There are problems at server-side, the app will be automatically closed in a few seconds"));
-        networkHandler.stopPing();
+
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -147,10 +150,9 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
 
     /**
      * Leave the room when the player clicks on the corresponding button
-     * @param actionEvent a click performed by the client
      */
     @FXML
-    public void onLeaveRoomClick(ActionEvent actionEvent) {
+    public void onLeaveRoomClick() {
         networkHandler.leaveRoom();
     }
 }

@@ -19,7 +19,7 @@ public class ParametersServer {
     /**
      * How much time (in ms) the controller waits for a client to reconnect when only 1 player or fewer are connected
      */
-    public static final Long timeToWaitReconnection = 10000L;
+    public static final Long timeToWaitReconnection = 60000L;
     /**
      * Flag indication if a player who remained alone must be declared winner
      * Debug purposes only

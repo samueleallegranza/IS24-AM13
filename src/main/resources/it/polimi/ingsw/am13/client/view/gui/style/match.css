@@ -163,3 +163,7 @@
     -fx-background-size: 25 25;
     -fx-background-repeat: no-repeat;
 }
+
+.homepageButton {
+    -fx-background-image: url("img/homepage-daCanc.jpg");
+}

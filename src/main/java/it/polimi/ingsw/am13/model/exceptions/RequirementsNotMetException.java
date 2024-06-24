@@ -5,6 +5,6 @@ package it.polimi.ingsw.am13.model.exceptions;
  */
 public class RequirementsNotMetException extends ModelException {
     public RequirementsNotMetException() {
-        super();
+        super("The requirements to play this card are not met");
     }
 }

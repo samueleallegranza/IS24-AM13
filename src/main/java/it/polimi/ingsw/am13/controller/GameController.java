@@ -105,6 +105,15 @@ public class GameController {
                     throw new RuntimeException(e);
                 }
             }
+            if(gameModel.fetchGameStatus() == GameStatus.ENDED && gameModel.countConnected() == 0) {
+                // The disconnected player is the last one after the end of the game
+                // Hence I can destroy immediately the game
+                try {
+                    Lobby.getInstance().endGame(getGameId());
+                    return;
+                } catch (LobbyException ignored) {
+                }
+            }
             if (ParametersServer.alonePlayerWin && (gameModel.countConnected() == 1 || gameModel.countConnected() == 0)
                     && gameModel.fetchGameStatus() != null && reconnectionThread == null)
                 startReconnectionTimer(timeToWait);

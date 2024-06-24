@@ -73,7 +73,7 @@ public class Lobby {
      */
     private boolean isNickInvalid(GameListener player) {
         String nick = player.getPlayer().getNickname();
-        return rooms.values().stream().flatMap(r -> r.getPlayers().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
+        return rooms.values().stream().flatMap(r -> r.getPlayersInGame().stream()).map(PlayerLobby::getNickname).toList().contains(nick);
     }
 
     /**

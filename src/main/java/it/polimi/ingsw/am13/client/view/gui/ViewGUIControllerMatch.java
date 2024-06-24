@@ -315,6 +315,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Controller for the winner view
      */
     private ViewGUIControllerWinner controllerWinner;
+    /**
+     * Main view handler of the client
+     */
+    private ViewGUI view;
 
     // ----------------------------------------------------------------
     // CONSTANTS
@@ -388,11 +392,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param controllerWinner Controller for the winner view. It has not to be already set
      * @param chat Chat instance
      */
-    public void init(ViewGUIControllerInit controllerInit, ViewGUIControllerWinner controllerWinner, Chat chat) {
+    public void init(ViewGUI view, ViewGUIControllerInit controllerInit, ViewGUIControllerWinner controllerWinner, Chat chat) {
         // First internal state initialization
         this.controllerInit = controllerInit;
         this.controllerWinner = controllerWinner;
         this.chat = chat;
+        this.view = view;
         controllerInit.setGameState(state);
         controllerInit.setThisPlayer(thisPlayer);
         controllerWinner.setGameState(state);
@@ -1030,11 +1035,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 //                                    label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
 //                            }
 //                            case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
+                            //TODO si può togliere?
                         } else {
                             throw new RuntimeException("Error while labeling in playerContainer");
                         }
                     } catch (Exception ignore) {
                         // this node is an imageView
+                        // TODO questo warning è molto sospetto...
                         ImageView imgView = (ImageView) playerNode;
                         if (imgView.getId().equals("online")) {
                             imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
@@ -1667,6 +1674,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         KeyFrame keyFrame = new KeyFrame(Duration.seconds(1.25), keyValue); // Duration of 2 seconds
         timeline.getKeyFrames().add(keyFrame);
         timeline.play();
+    }
+
+    /**
+     * Action performed to return to homepage, actually disconnecting voluntarily from the game
+     */
+    @FXML
+    private void onReturnRoomClick() {
+        networkHandler.stopPing();
+        view.showStartupScreen(ParametersClient.IS_SOCKET, ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT);
+        networkHandler.getRooms();
     }
 
     // ----------------------------------------------------------------

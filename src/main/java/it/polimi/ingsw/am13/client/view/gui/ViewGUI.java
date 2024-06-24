@@ -190,8 +190,10 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showStartupScreen(boolean isSocket, String ip, int port) {
+        thisPlayer = null;
+        state = null;
         switchToScene(roomsController);
-        roomsController.showStartupScreen(isSocket, ip, port);
+        roomsController.showStartupScreen();
     }
 
     /**
@@ -213,14 +215,19 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showRooms(List<RoomIF> rooms) {
-        if(thisPlayer == null)
+        if(thisPlayer == null) {
+//            thisPlayer = null;
+//            state = null;
+//            switchToScene(roomsController);
             roomsController.showRooms(rooms);
-        else {
+        } else {
             // This should be the response after invocation of getRooms() for thisPlayer joining a room or
             // one of the players in that room leaving it
             for(RoomIF room : rooms)
-                if(room.getPlayers().contains(thisPlayer))
+                if(room.getPlayers().contains(thisPlayer)) {
                     joinedRoomController.setRoom(room);
+                    break;
+                }
             joinedRoomController.showRooms(rooms);
         }
     }
@@ -276,7 +283,7 @@ public class ViewGUI extends Application implements View {
         this.state = state;
         Platform.runLater(() -> {
             switchToScene(matchController);
-            matchController.init(initController, winnerController, chat);
+            matchController.init(this, initController, winnerController, chat);
             matchController.showStartGame();
         });
     }
@@ -293,20 +300,17 @@ public class ViewGUI extends Application implements View {
         this.state = state;
         this.thisPlayer = thisPlayer;
 
-        switch (state.getGameStatus()) {
-            case GameStatus.INIT -> {
-                showStartGame(state,chat); // sets the init visualization screen
-                showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
+        if(state.getGameStatus() == GameStatus.INIT) {
+            showStartGame(state,chat); // sets the init visualization screen
+            showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
+        } else if(state.getGameStatus()==GameStatus.IN_GAME || state.getGameStatus()==GameStatus.FINAL_PHASE) {
+            showStartGame(state,chat);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            case GameStatus.IN_GAME -> {
-                showStartGame(state,chat);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                showInGame();
-            }
+            showInGame();
         }
     }
 

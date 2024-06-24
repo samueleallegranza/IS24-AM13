@@ -116,7 +116,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             this.player = clientLis.getPlayer();
         } catch (LobbyException | RemoteException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -140,7 +139,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             this.player = clientLis.getPlayer();
         } catch (LobbyException | RemoteException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -163,7 +161,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             this.player = clientLis.getPlayer();
         } catch (LobbyException | RemoteException | ConnectionException | GameStatusException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         } catch (InvalidPlayerException e) {
             //TODO pensa a questa gestione
             throw new RuntimeException(e);
@@ -179,7 +176,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             lobby.leaveRoom(player);
         } catch (LobbyException | RemoteException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
         this.player = null;
     }
@@ -194,7 +190,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             controller.playStarter(side);
         } catch (RemoteException | InvalidPlayCardException | GameStatusException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -208,7 +203,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             controller.choosePersonalObjective(card);
         } catch (RemoteException | InvalidChoiceException | VariableAlreadySetException | GameStatusException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -224,7 +218,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             controller.playCard(card, side, coords);
         } catch (RemoteException | RequirementsNotMetException | InvalidPlayCardException | GameStatusException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -238,7 +231,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             controller.pickCard(card);
         } catch (RemoteException | InvalidDrawCardException | GameStatusException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
@@ -250,7 +242,6 @@ public class NetworkHandlerRMI implements NetworkHandler {
             controller.updatePing();
         } catch (RemoteException e) {
             view.showException(e);
-//            throw new RuntimeException(e);
         }
     }
 
