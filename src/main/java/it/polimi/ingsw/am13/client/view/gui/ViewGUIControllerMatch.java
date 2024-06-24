@@ -511,7 +511,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             });
 
             //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
-            if (state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced && attemptedToPlayCardHand != null) {
+            if (state.getCurrentPlayer()!=null && state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced && attemptedToPlayCardHand != null) {
                 Platform.runLater(() -> {
 //                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                     attemptedToPlayCardHand.setVisible(true);

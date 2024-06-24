@@ -4,6 +4,7 @@ import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
+import it.polimi.ingsw.am13.model.player.PlayerIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 import javafx.application.Platform;
@@ -13,7 +14,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Controller of the 'Rooms' scene, where the rooms are listed and the user can create/join/reconnect to a room
@@ -189,20 +194,46 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomNP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().size() + "/" + cellData.getValue().getnPlayersTarget()));
 
         if(ParametersClient.SKIP_ROOM) {
-            if(rooms.isEmpty())
-                networkHandler.createRoom("Harry", new Token(ColorToken.RED), ParametersClient.DEBUG_NPLAYERS);
+            boolean noGameToComplete=true;
+            for(RoomIF room1 :rooms)
+                if(!room1.isGameStarted())
+                    noGameToComplete=false;
+            if(noGameToComplete)
+                networkHandler.createRoom(findFreeNickname(rooms), new Token(ColorToken.RED), ParametersClient.DEBUG_NPLAYERS);
             else {
                 RoomIF room = rooms.getFirst();
+                for(RoomIF room1 :rooms)
+                    if(!room1.isGameStarted())
+                        room = room1;
+                String nickname=findFreeNickname(rooms);
                 switch (room.getPlayers().size()) {
-                    case 1 -> networkHandler.joinRoom("Hermione", new Token(ColorToken.BLUE), room.getGameId());
-                    case 2 -> networkHandler.joinRoom("Ron", new Token(ColorToken.GREEN), room.getGameId());
-                    case 3 -> networkHandler.joinRoom("Voldemort", new Token(ColorToken.YELLOW), room.getGameId());
+                    case 1 -> networkHandler.joinRoom(nickname, new Token(ColorToken.BLUE), room.getGameId());
+                    case 2 -> networkHandler.joinRoom(nickname, new Token(ColorToken.GREEN), room.getGameId());
+                    case 3 -> networkHandler.joinRoom(nickname, new Token(ColorToken.YELLOW), room.getGameId());
                     default -> throw new RuntimeException();
                 }
             }
         }
     }
 
+    private String findFreeNickname(List<RoomIF> rooms){
+        List<String> nicknames = Arrays.asList("Harry","Hermione", "Ron", "Voldemort","Dumbledore","Hagrid","Sirius","Snake","Weirdeye","Pachoc","Draco","Bella","Luna");
+        String nickname="niiiii";
+        for (String s : nicknames) {
+            boolean notContained = true;
+            for(RoomIF room1 : rooms)
+                for (PlayerLobby player : room1.getPlayers())
+                    if (s.equals(player.getNickname())) {
+                        notContained = false;
+                        break;
+                    }
+            if (notContained) {
+                nickname = s;
+                break;
+            }
+        }
+        return nickname;
+    }
     @FXML
     public void onCreateRoomButtonClick(){
         if (nicknameField.getText().isEmpty()){
