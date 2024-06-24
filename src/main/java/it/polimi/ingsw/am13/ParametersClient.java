@@ -49,24 +49,14 @@ public class ParametersClient {
     /**
      * Server's port (to which to connect)
      */
-    public static int SERVER_PORT = -1;
+    public static int SERVER_PORT = 25566;      // Must be set to the default socket port
 
     /**
      * Server's ip (to which to connect)
      */
     public static String  CLIENT_IP = "localhost";
 
-    private static final int  SOCKET_DEFAULT_PORT = 25566;
-    private static final int RMI_DEFAULT_PORT = 25567;
-
-    /**
-     * Checks if the server's port was chosen, and sets the default port if it was not.
-     * It should be called after IS_SOCKET is definitively set
-     */
-    public static void checkServerPort() {
-        if(SERVER_PORT == -1)
-            SERVER_PORT = IS_SOCKET ? SOCKET_DEFAULT_PORT : RMI_DEFAULT_PORT;
-    }
+    public static final int RMI_DEFAULT_PORT = 25567;       // The socket default port is the default value of SERVER_PORT
 
     // VARIOUS
 

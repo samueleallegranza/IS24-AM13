@@ -8,32 +8,32 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ServerMain {
 
     public static void main(String[] args) {
 
         // ### 1. Check if arguments passed are valid (will replace default ports and default ip)
-        if(List.of(args).contains("--help")) {
+        List<String> argsList = List.of(args);
+        if(argsList.contains("--help")) {
             System.out.println(generateHelp());
             System.exit(0);
         }
-        for(int i=0 ; i<args.length ; i++) {
-            if(Objects.equals(args[i], "--ip"))
-                ParametersServer.SERVER_IP = args[i+1];
-            else if(Objects.equals(args[i], "--rmi"))
-                ParametersServer.RMI_PORT = Integer.parseInt(args[i+1]);
-            else if(Objects.equals(args[i], "--socket"))
-                ParametersServer.SOCKET_PORT = Integer.parseInt(args[i+1]);
-            else if(Objects.equals(args[i], "--points"))
-                ParametersServer.POINTS_FOR_FINAL_PHASE = Integer.parseInt(args[i+1]);
-            else if(Objects.equals(args[i], "--no_requirements"))
-                ParametersServer.CHECK_REQUIREMENTS = false;
-            else if(Objects.equals(args[i], "--no_timeout_reconnection"))
-                ParametersServer.alonePlayerWin = false;
 
+        Queue<String> argsQueue = new LinkedList<>(argsList);
+        while(!argsQueue.isEmpty()) {
+            String commandKey = argsQueue.poll();
+            PromptCommand command = commands.get(commandKey);
+            if(command == null) {
+                System.out.println("The arguments list is wrong (parameter '" + commandKey + "' is not accepted)\nType --help for the list of possible commands");
+                System.exit(-1);
+            }
+
+            List<String> commandArgs = new ArrayList<>();
+            while(!argsQueue.isEmpty() && !argsQueue.peek().startsWith("--"))
+                commandArgs.add(argsQueue.poll());
+            command.getAction().accept(commandArgs);
         }
 
         System.out.println("Socket port\t\t\t: " + ParametersServer.SOCKET_PORT);
@@ -67,15 +67,42 @@ public class ServerMain {
      * @return Help string for the server app
      */
     private static String generateHelp() {
-        return """
-                Help for game Codex Naturalis (server)
-                Accepted commands:
-                \t--ip <ip>:\t\t\t\t\tIp address of the server, to which the clients must connect
-                \t--rmi <rmi port>:\t\t\tSets the rmi port number
-                \t--socket <socket port>:\t\tSets the socket port number
-                \t--points <point>\t\t\tSets the number of points to reach in order to trigger the final phase (20 by default, as in the rule book)
-                \t--no_requirements:\t\t\tDisables the check for the requirements for the objective card (not possible for the rule book)
-                \t--no_timeout_reconnection:\t\t\tDisables the check to make a player remained alone win
-                """;
+        StringBuilder sb = new StringBuilder("Help for game Codex Naturalis (server)\nAccepted commands:\n");
+        for(PromptCommand command : commandsList)
+            sb.append(String.format("%-30s: %s\n", command.getCommand(), command.getDescription()));
+        return sb.toString();
+    }
+
+    /**
+     * List of accepted commands from the client command line
+     */
+    private static final List<PromptCommand> commandsList = List.of(
+            new PromptCommand("ip",
+                    "(<ip>) Sets the IP address of the server",
+                    args -> ParametersServer.SERVER_IP = args.removeFirst()),
+            new PromptCommand("rmi",
+                    "(<rmi port>) Sets the RMI port",
+                    args -> ParametersServer.RMI_PORT = Integer.parseInt(args.getFirst())),
+            new PromptCommand("socket",
+                    "(<socket port>) Sets the socket port",
+                    args -> ParametersServer.SOCKET_PORT = Integer.parseInt(args.getFirst())),
+            new PromptCommand("points",
+                    "<points>) Sets the points needed for the final phase",
+                    args -> ParametersServer.POINTS_FOR_FINAL_PHASE = Integer.parseInt(args.getFirst())),
+            new PromptCommand("no_requirements",
+                    "Disables the requirement checks",
+                    args -> ParametersServer.CHECK_REQUIREMENTS = false),
+            new PromptCommand("no_timeout_reconnection",
+                    "Disables the timeout for reconnection",
+                    args -> ParametersServer.alonePlayerWin = false)
+    );
+    /**
+     * Map associating the command key to the command itself
+     */
+    private final static Map<String, PromptCommand> commands;
+    static {
+        commands = new HashMap<>();
+        for(PromptCommand command : commandsList)
+            commands.put(command.getCommand(), command);
     }
 }

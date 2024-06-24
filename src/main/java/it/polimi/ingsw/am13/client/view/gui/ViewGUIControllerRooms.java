@@ -4,7 +4,6 @@ import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
 import it.polimi.ingsw.am13.controller.RoomIF;
 import it.polimi.ingsw.am13.model.player.ColorToken;
-import it.polimi.ingsw.am13.model.player.PlayerIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import it.polimi.ingsw.am13.model.player.Token;
 import javafx.application.Platform;
@@ -14,11 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Controller of the 'Rooms' scene, where the rooms are listed and the user can create/join/reconnect to a room
@@ -217,8 +213,10 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
 
     private String findFreeNickname(List<RoomIF> rooms){
-        List<String> nicknames = Arrays.asList("Harry","Hermione", "Ron", "Voldemort","Dumbledore","Hagrid","Sirius","Snake","Weirdeye","Pachoc","Draco","Bella","Luna");
-        String nickname="niiiii";
+        List<String> nicknames = Arrays.asList("Harry","Hermione", "Ron", "Voldemort", "Dumbledore", "Hagrid", "Sirius",
+                "Snake", "Weirdeye", "Pachoc", "Draco", "Lucius", "Bella", "Luna", "Cedric", "Umbridge", "McGrannit",
+                "Fred", "George", "Dobby");
+        String nickname="niiiii";       //TODO: sono confuso...
         for (String s : nicknames) {
             boolean notContained = true;
             for(RoomIF room1 : rooms)

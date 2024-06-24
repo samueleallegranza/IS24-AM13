@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.client;
 
 import it.polimi.ingsw.am13.ParametersClient;
 import it.polimi.ingsw.am13.ParametersServer;
+import it.polimi.ingsw.am13.PromptCommand;
 import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.client.network.rmi.NetworkHandlerRMI;
 import it.polimi.ingsw.am13.client.network.socket.NetworkHandlerSocket;
@@ -17,8 +18,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ClientMain {
 
@@ -29,29 +29,21 @@ public class ClientMain {
             System.out.println(generateHelp());
             System.exit(0);
         }
-        if(argsList.contains("--tui"))
-            ParametersClient.IS_TUI = true;
-        if(argsList.contains("--rmi"))
-            ParametersClient.IS_SOCKET = false;
-        if(argsList.contains("--skip_init"))
-            ParametersClient.SKIP_INIT = true;
-        if(argsList.contains("--skip_turns"))
-            ParametersClient.SKIP_TURNS = true;
-        if(argsList.contains("--no_sounds"))
-            ParametersClient.SOUND_ENABLE = false;
 
-        for(int i=0 ; i<args.length ; i++) {
-            if(Objects.equals(args[i], "--ip"))
-                ParametersClient.SERVER_IP = args[i+1];
-            else if(Objects.equals(args[i], "--port"))
-                ParametersClient.SERVER_PORT = Integer.parseInt(args[i+1]);
-            else if(Objects.equals(args[i], "--skip_room")) {
-                ParametersClient.SKIP_ROOM = true;
-                ParametersClient.DEBUG_NPLAYERS = Integer.parseInt(args[i + 1]);
-            } else if(Objects.equals(args[i], "--client_ip"))
-                ParametersClient.CLIENT_IP = args[i+1];
+        Queue<String> argsQueue = new LinkedList<>(argsList);
+        while(!argsQueue.isEmpty()) {
+            String commandKey = argsQueue.poll();
+            PromptCommand command = commands.get(commandKey);
+            if(command == null) {
+                System.out.println("The arguments list is wrong (parameter '" + commandKey + "' is not accepted)\nType --help for the list of possible commands");
+                System.exit(-1);
+            }
+
+            List<String> commandArgs = new ArrayList<>();
+            while(!argsQueue.isEmpty() && !argsQueue.peek().startsWith("--"))
+                commandArgs.add(argsQueue.poll());
+            command.getAction().accept(commandArgs);
         }
-        ParametersClient.checkServerPort();
 
         // check that ip and port are valid
         InetAddress ipInet;
@@ -119,18 +111,58 @@ public class ClientMain {
      * @return Help string for the client app
      */
     private static String generateHelp() {
-        return """
-                Help for game Codex Naturalis (client)
-                Accepted commands:
-                \t--tui:\t\t\t\tStarts the application with Text User Interface (default is with Graphical User Interface)
-                \t--rmi:\t\t\t\tStarts the application by using rmi to connect to the server (default is with socket)
-                \t--ip <ip>:\t\t\tSets the ip address of the server
-                \t--port <port>:\t\tSets the port number of the server
-                \t--client_ip <ip>:\t\t\tSets the ip address of the client
-                \t--no_sounds:\t\tDisables all the sounds during the game
-                \t--skip_room <number of player>:\t\tSkips the room phase, with the specified number of players for the room (debug purposes)
-                \t--skip_init:\t\tMakes the choices for the initialization phase automatic (debug purposes)
-                \t--skip_turns:\t\tMakes the choices for the turn-based phase automatic (debug purposes)
-                """;
+        StringBuilder sb = new StringBuilder("Help for game Codex Naturalis (client)\nAccepted commands:\n");
+        for(PromptCommand command : commandsList)
+            sb.append(String.format("%-15s: %s\n", command.getCommand(), command.getDescription()));
+        return sb.toString();
+    }
+
+    /**
+     * List of accepted commands from the client command line
+     */
+    private static final List<PromptCommand> commandsList = List.of(
+            new PromptCommand("tui",
+                    "Starts the application with Text User Interface (default is with Graphical User Interface)",
+                    args -> ParametersClient.IS_TUI = true),
+            new PromptCommand("rmi",
+                    "Starts the application by using rmi to connect to the server (default is with socket)",
+                    args -> {
+                        ParametersClient.IS_SOCKET = false;
+                        ParametersClient.SERVER_PORT = ParametersClient.RMI_DEFAULT_PORT;
+                    }),
+            new PromptCommand("skip_room",
+                    "(<number of players>) Skips the room phase, with the specified number of players for the room (debug purposes)",
+                    args -> {
+                        ParametersClient.SKIP_ROOM = true;
+                        ParametersClient.DEBUG_NPLAYERS = Integer.parseInt(args.getFirst());
+                    }),
+            new PromptCommand("skip_init",
+                    "Makes the choices for the initialization phase automatic (debug purposes)",
+                    args -> ParametersClient.SKIP_INIT = true),
+            new PromptCommand("skip_turns",
+                    "Makes the choices for the turn-based phase automatic (debug purposes)",
+                    args -> ParametersClient.SKIP_TURNS = true),
+            new PromptCommand("no_sounds",
+                    "Disables all the sounds during the game",
+                    args -> ParametersClient.SOUND_ENABLE = false),
+            new PromptCommand("ip",
+                    "(<ip) Sets the IP address of the server",
+                    args -> ParametersClient.SERVER_IP = args.getFirst()),
+            new PromptCommand("port",
+                    "(<port>) Sets the port number of the server",
+                    args -> ParametersClient.SERVER_PORT = Integer.parseInt(args.getFirst())),
+            new PromptCommand("client_ip",
+                    "(<ip>) Sets the IP address of the client",
+                    args -> ParametersClient.CLIENT_IP = args.getFirst())
+    );
+
+    /**
+     * Map associating the command key to the command itself
+     */
+    private final static Map<String, PromptCommand> commands;
+    static {
+        commands = new HashMap<>();
+        for(PromptCommand command : commandsList)
+            commands.put(command.getCommand(), command);
     }
 }

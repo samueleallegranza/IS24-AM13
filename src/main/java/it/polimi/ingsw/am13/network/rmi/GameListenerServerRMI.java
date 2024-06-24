@@ -27,11 +27,6 @@ public class GameListenerServerRMI implements GameListener {
     // ma è da rivedere se veramente questo aiuta...
     // RISOLVI IL PRIMA POSSIBILE
 
-    // TODO: sistema sistema di log di server, come x Socket (guarda ClientRequestHandler e GameListenerServerSocket)
-
-    // TODO (possibile problema): ad ora se il server crasha, i client non se ne accorgono
-    //  Forse basta gestire meglio le RemoteException di NetworkHandlerRMI...
-
     /**
      * Long representing the last time the ping was updated
      */
@@ -114,7 +109,6 @@ public class GameListenerServerRMI implements GameListener {
                 fun.run();
                 logResponse(res);
             } catch (RemoteException e) {
-//                throw new RuntimeException(e);
                 System.out.printf("[RMI][%s] Unable to contact the client\n", player.getNickname());
                 if(controller!=null) {
                     try {

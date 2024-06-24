@@ -21,8 +21,6 @@ import java.util.*;
  */
 public class GameControllerRMI extends UnicastRemoteObject implements GameControllerRMIIF {
 
-    // TODO: non dovrebbe servire transient sugli attributi, ma ragionaci meglio
-
     /**
      * Wrapped gameController
      */
@@ -156,7 +154,7 @@ public class GameControllerRMI extends UnicastRemoteObject implements GameContro
     @Override
     public void transmitChatMessage(List<PlayerLobby> receivers, String text) throws RemoteException{
         if((receivers.size()!=1 && receivers.size()!=gameController.getPlayers().size()-1)
-        || (!gameController.getPlayers().containsAll(receivers)) || receivers.contains(player))
+        || (!new HashSet<>(gameController.getPlayers()).containsAll(receivers)) || receivers.contains(player))
             throw new RuntimeException();
         gameController.transmitChatMessage(player,receivers,text);
     }

@@ -33,18 +33,12 @@ import java.util.Map;
  */
 public class LobbyRMI extends UnicastRemoteObject implements LobbyRMIIF {
 
-    // TODO: non dovrebbe servire transient sugli attributi, ma ragionaci meglio
-
-    //TODO: pensa se implementare i registri RMI qua o su ServerMain
-
     /**
      * Map between players and their corresponding listeners.
      * The listeners are specific for the RMI connection.
      * Hence note that these are only part of the clients, in particular those who chose to communicate via RMI
      */
     private final Map<PlayerLobby, GameListenerServerRMI> mapLis;
-
-    //TODO: it should not need pattern singleton also for LobbyRMI, it is uniquely exposed to the network via rmi registry binding...
 
     /**
      * Stored instance of lobby (only for not to keep calling <code>Lobby.getInstance()</code>)
