@@ -145,7 +145,7 @@ public class ViewTUI implements View {
                         PlayerLobby player = r.getPlayersInGame().get(i);
                         p[i] = player.getNickname();
                         if (!r.getPlayers().contains(player))     // This player is disconnected
-                            pToShow[i] = p[i] + " (⚠)";
+                            pToShow[i] = p[i] + "  ⚠ ";
                         else
                             pToShow[i] = p[i];
                     } else
