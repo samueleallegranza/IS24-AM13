@@ -40,7 +40,7 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
                 <StackPane maxHeight="110.0" maxWidth="320.0" minHeight="110.0" minWidth="320.0" prefHeight="110.0" prefWidth="320.0" styleClass="player-banner" GridPane.rowIndex="0">
-                    <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
+                    <Label id="player" contentDisplay="CENTER" prefWidth="177.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
@@ -58,7 +58,7 @@
                   <StackPane.margin>
                      <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
-                    <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
+                    <Label id="player" contentDisplay="CENTER" prefWidth="177.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
@@ -72,7 +72,7 @@
                   <StackPane.margin>
                      <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
-                    <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
+                    <Label id="player" contentDisplay="CENTER" prefWidth="177.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
@@ -86,7 +86,7 @@
                   <StackPane.margin>
                      <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
-                    <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
+                    <Label id="player" contentDisplay="CENTER" prefWidth="177.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
@@ -329,7 +329,7 @@
                     </HBox.margin>
                     <Tab text="Log">
                         <AnchorPane minHeight="0.0" minWidth="0.0">
-                            <TextArea fx:id="logArea" editable="false" layoutX="-10.0" prefHeight="197.0" prefWidth="424.0" text="loading log...&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
+                            <TextArea fx:id="logArea" editable="false" layoutX="-10.0" prefHeight="197.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
                         <font>
                            <Font name="Monospaced Bold" size="11.0" />
                         </font></TextArea>
@@ -347,16 +347,14 @@
                            </VBox.margin></ChoiceBox>
                                 <TextArea fx:id="chatArea" editable="false" wrapText="true" />
                                 <HBox spacing="5.0" VBox.vgrow="ALWAYS">
-                                    <TextField fx:id="chatField" onKeyPressed="#onChatTextFieldKeyPressed"
-                                               prefWidth="465.0" promptText="chat message"/>
-                                    <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT"
-                                            onMouseClicked="#onClickSendMessage">
+                                    <TextField fx:id="chatField" onKeyPressed="#onChatTextFieldKeyPressed" prefWidth="465.0" promptText="chat message" />
+                                    <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" onMouseClicked="#onClickSendMessage">
                                         <styleClass>
-                                            <String fx:value="chatSendButton"/>
-                                            <String fx:value="btn-symbol"/>
+                                            <String fx:value="chatSendButton" />
+                                            <String fx:value="btn-symbol" />
                                         </styleClass>
                                         <HBox.margin>
-                                            <Insets top="3.0"/>
+                                            <Insets top="3.0" />
                                         </HBox.margin>
                                     </Button>
                                 </HBox>
@@ -376,10 +374,8 @@
                     </Tab>
                     <Tab text="Settings">
                         <AnchorPane>
-                            <VBox prefHeight="200.0" prefWidth="100.0"/>
-                            <Button contentDisplay="CENTER" layoutX="38.0" layoutY="38.0" mnemonicParsing="false"
-                                    onAction="#onReturnRoomClick" prefHeight="84.0" prefWidth="131.0"
-                                    styleClass="homepageButton" text="Quit match"/>
+                            <VBox prefHeight="200.0" prefWidth="100.0" />
+                            <Button contentDisplay="CENTER" layoutX="38.0" layoutY="38.0" mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Quit match" />
                         </AnchorPane>
                     </Tab>
                 </TabPane>
