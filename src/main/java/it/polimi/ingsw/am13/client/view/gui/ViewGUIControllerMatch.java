@@ -377,7 +377,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Horizontal offset of overlapped tokens
      */
-    private static final double TOKEN_X_OFFSET = 15;
+    private static final double TOKEN_X_OFFSET = 7;
     /**
      * Token dimension (square shape) relative to width (x) of the score tracker
      */
