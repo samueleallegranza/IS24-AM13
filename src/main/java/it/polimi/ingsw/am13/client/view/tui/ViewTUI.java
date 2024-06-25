@@ -157,7 +157,7 @@ public class ViewTUI implements View {
                         r.getGameId()+1, r.isGameStarted() ? "started" : "waiting",
                         pToShow[0], pToShow[1], pToShow[2], pToShow[3], r.getPlayers().size() +"/"+ r.getnPlayersTarget()
                 );
-                for (int i = 0; i < r.getPlayers().size(); i++)
+                for (int i = 0; i < r.getPlayersInGame().size(); i++)
                     formatted = formatted.replace(p[i], ViewTUIConstants.colorNickname(r.getPlayersInGame().get(i)));
                 System.out.print(formatted);
             }

@@ -1536,6 +1536,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             animation.setOnFinished(actionEvent -> {
                     synchronized (player) {
                         lastTokenAnimations.replace(player, null);
+                        tokenImgs.get(player).toFront();
                     }
                 }
             );
@@ -1544,6 +1545,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if(lastTokenAnimation != null) {     // An animation is still playing
                     lastTokenAnimation.setOnFinished(actionEvent -> {
                         savedPoints.replace(player, points);
+                        tokenImgs.get(player).toFront();
                         animation.play();
                         lastTokenAnimations.replace(player, animation);
                     });
