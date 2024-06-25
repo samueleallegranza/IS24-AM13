@@ -40,70 +40,58 @@
                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 </rowConstraints>
                 <StackPane maxHeight="110.0" maxWidth="320.0" minHeight="110.0" minWidth="320.0" prefHeight="110.0" prefWidth="320.0" styleClass="player-banner" GridPane.rowIndex="0">
-                    <padding>
-                        <Insets left="66.0" />
-                    </padding>
-                    <ImageView id="online" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
-                  <StackPane.margin>
-                     <Insets top="30.0" />
-                  </StackPane.margin></ImageView>
                     <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
                   <StackPane.margin>
-                     <Insets left="45.0" top="15.0" />
+                     <Insets left="92.0" top="23.0" />
                   </StackPane.margin>
                     </Label>
+                    <ImageView id="online" fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                  <StackPane.margin>
+                     <Insets left="55.0" top="32.0" />
+                  </StackPane.margin></ImageView>
                 </StackPane>
                 <StackPane maxHeight="110.0" maxWidth="320.0" minHeight="110.0" minWidth="320.0" prefHeight="110.0" prefWidth="320.0" styleClass="player-banner" GridPane.rowIndex="1">
-                    <padding>
-                        <Insets left="66.0" />
-                    </padding>
-                    <ImageView id="online" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                    <ImageView id="online" fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
                   <StackPane.margin>
-                     <Insets top="30.0" />
+                     <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
                     <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
                   <StackPane.margin>
-                     <Insets left="45.0" top="15.0" />
+                     <Insets left="92.0" top="23.0" />
                   </StackPane.margin>
                     </Label>
                 </StackPane>
                 <StackPane maxHeight="110.0" maxWidth="320.0" minHeight="110.0" minWidth="320.0" prefHeight="110.0" prefWidth="320.0" styleClass="player-banner" GridPane.rowIndex="2">
-                    <padding>
-                        <Insets left="66.0" />
-                    </padding>
-                    <ImageView id="online" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                    <ImageView id="online" fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
                   <StackPane.margin>
-                     <Insets top="30.0" />
+                     <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
                     <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
                   <StackPane.margin>
-                     <Insets left="45.0" top="15.0" />
+                     <Insets left="92.0" top="23.0" />
                   </StackPane.margin>
                     </Label>
                 </StackPane>
                 <StackPane maxHeight="110.0" maxWidth="320.0" minHeight="110.0" minWidth="320.0" prefHeight="110.0" prefWidth="320.0" styleClass="player-banner" GridPane.rowIndex="3">
-                    <padding>
-                        <Insets left="66.0" />
-                    </padding>
-                    <ImageView id="online" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
+                    <ImageView id="online" fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_LEFT">
                   <StackPane.margin>
-                     <Insets top="30.0" />
+                     <Insets left="55.0" top="32.0" />
                   </StackPane.margin></ImageView>
                     <Label id="player" contentDisplay="CENTER" prefWidth="160.0" styleClass="font-playername" text="player_1" textFill="WHITE" StackPane.alignment="TOP_LEFT">
                         <font>
                             <Font size="24.0" />
                         </font>
                   <StackPane.margin>
-                     <Insets left="45.0" top="15.0" />
+                     <Insets left="92.0" top="23.0" />
                   </StackPane.margin>
                     </Label>
                 </StackPane>
@@ -151,7 +139,7 @@
                      <String fx:value="field" />
                   </styleClass>
                     </ScrollPane>
-                    <GridPane alignment="CENTER" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" vgap="5.0" StackPane.alignment="BOTTOM_RIGHT">
+                    <GridPane alignment="CENTER" hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="275.0" prefWidth="150.0" vgap="5.0" StackPane.alignment="BOTTOM_RIGHT">
                         <columnConstraints>
                             <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" />
                             <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="20.0" />
@@ -230,7 +218,7 @@
                     </ImageView>
                     <Label fx:id="turnsCounterLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" ellipsisString="" minHeight="40.0" minWidth="273.0" mouseTransparent="true" prefHeight="40.0" prefWidth="273.0" styleClass="font-playername" text="-3 to end game" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_LEFT">
                         <StackPane.margin>
-                            <Insets top="113.0" />
+                            <Insets top="117.0" />
                         </StackPane.margin>
                         <font>
                             <Font size="18.0" />
@@ -244,11 +232,8 @@
                         <Image url="@style/img/field-player-container.png" />
                     </ImageView>
                     <Label fx:id="displayPlayerLabel" ellipsisString="" minHeight="40.0" minWidth="273.0" prefHeight="40.0" prefWidth="273.0" styleClass="font-playername" text="player_name" textFill="WHITE" wrapText="true" StackPane.alignment="TOP_RIGHT">
-                        <font>
-                            <Font size="18.0" />
-                        </font>
                         <StackPane.margin>
-                            <Insets bottom="10.0" left="10.0" top="118.0" />
+                            <Insets bottom="10.0" left="10.0" top="123.0" />
                         </StackPane.margin>
                     </Label>
 
@@ -393,6 +378,7 @@
                  <content>
                    <AnchorPane>
                         <children>
+                           <VBox prefHeight="200.0" prefWidth="100.0" />
                            <Button contentDisplay="CENTER" layoutX="38.0" layoutY="38.0" mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Quit match" />
                         </children>
                      </AnchorPane>

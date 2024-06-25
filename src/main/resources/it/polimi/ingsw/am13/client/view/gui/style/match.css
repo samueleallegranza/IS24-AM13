@@ -40,13 +40,12 @@
 }
 
 .font-small {
-    -fx-font-size: 17;
+    -fx-font-size: 14;
 }
 
 .font-playername {
-    -fx-font-size: 21;
+    -fx-font-size: 17;
     -fx-spacing: 0;
-
 }
 
 .background {

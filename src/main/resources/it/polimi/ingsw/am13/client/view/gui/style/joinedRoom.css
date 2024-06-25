@@ -21,6 +21,7 @@
 .player-table .column-header {
     -fx-font-size: 17px;
     -fx-alignment: CENTER;
+    -fx-text-alignment: center;
 }
 
 .player-table .table-column {

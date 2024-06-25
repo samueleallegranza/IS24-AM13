@@ -40,37 +40,44 @@
                             <Image url="@style/img/border-field-corner-top-right.png" />
                         </image>
                     </ImageView>
-               <VBox alignment="TOP_CENTER" maxHeight="400.0" maxWidth="308.0" minHeight="400.0" minWidth="250.0" prefHeight="400.0" prefWidth="308.0" stylesheets="@style/joinedRoom.css" StackPane.alignment="CENTER">
-                  <children>
-                     <Label fx:id="roomLabel" alignment="CENTER" prefHeight="58.0" prefWidth="314.0" styleClass="header" stylesheets="@style/joinedRoom.css" text="Room">
-                        <VBox.margin>
-                           <Insets bottom="40.0" />
-                        </VBox.margin>
-                     </Label>
-                     <TableView fx:id="joinedRoomTable" maxHeight="240.0" maxWidth="250.0" minHeight="240.0" minWidth="250.0" styleClass="player-table" stylesheets="@style/joinedRoom.css">
-                       <columns>
-                         <TableColumn fx:id="joinedRoomPlayersColumn" editable="false" minWidth="5.0" prefWidth="247.99995923042297" resizable="false" sortable="false" styleClass="player-table" text="Players" />
-                       </columns>
-                        <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                        </columnResizePolicy>
-                     </TableView>
-                     <Button mnemonicParsing="false" onAction="#onLeaveRoomClick" styleClass="font-button" stylesheets="@style/rooms.css" text="Leave Room">
-                        <VBox.margin>
-                           <Insets top="30.0" />
-                        </VBox.margin>
-                        <cursor>
-                           <Cursor fx:constant="HAND" />
-                        </cursor>
-                     </Button>
-                  </children>
-               </VBox>
+                    <VBox alignment="TOP_CENTER" maxHeight="400.0" maxWidth="308.0" minHeight="400.0" minWidth="250.0" prefHeight="400.0" prefWidth="308.0" stylesheets="@style/joinedRoom.css" StackPane.alignment="CENTER">
+                        <children>
+                            <Label fx:id="roomLabel" alignment="CENTER" prefHeight="58.0" prefWidth="314.0" styleClass="header" stylesheets="@style/joinedRoom.css" text="Room">
+                                <VBox.margin>
+                                    <Insets bottom="40.0" />
+                                </VBox.margin>
+                            </Label>
+                            <TableView fx:id="joinedRoomTable" maxHeight="240.0" maxWidth="250.0" minHeight="240.0" minWidth="250.0" prefHeight="240.0" prefWidth="98.0" styleClass="player-table" stylesheets="@style/joinedRoom.css">
+                                <columns>
+                                    <TableColumn fx:id="joinedRoomPlayersColumn" editable="false" minWidth="5.0" prefWidth="247.99995923042297" resizable="false" sortable="false" styleClass="player-table">
+                              <graphic>
+                                 <StackPane prefHeight="44.0" prefWidth="154.0">
+                                    <children>
+                                       <Label text="Players " />
+                                    </children>
+                                 </StackPane>
+                              </graphic></TableColumn>
+                                </columns>
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                </columnResizePolicy>
+                            </TableView>
+                            <Button mnemonicParsing="false" onAction="#onLeaveRoomClick" styleClass="font-button" stylesheets="@style/rooms.css" text="Leave Room">
+                                <VBox.margin>
+                                    <Insets top="30.0" />
+                                </VBox.margin>
+                                <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                </cursor>
+                            </Button>
+                        </children>
+                    </VBox>
                 </children>
             </StackPane>
         </children>
     </StackPane>
-   <cursor>
-      <Cursor fx:constant="DEFAULT" />
-   </cursor>
+    <cursor>
+        <Cursor fx:constant="DEFAULT" />
+    </cursor>
 
 </VBox>
