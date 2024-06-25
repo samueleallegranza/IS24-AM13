@@ -213,7 +213,6 @@ public class GameListenerClientRMI extends UnicastRemoteObject implements GameLi
     public void updateEndGame() throws RemoteException {
         view.showEndGame();
         networkHandler.stopPing();
-        // TODO: devo chiudere anche altro?
     }
 
     /**

@@ -27,8 +27,6 @@ import java.util.Map;
  */
 public class Lobby {
 
-    //TODO: rivedi meglio i synchronized, dovrebbero servire ovunque ma bho
-
     /**
      * Unique instance of this class (implementing Singleton pattern)
      */
@@ -204,7 +202,9 @@ public class Lobby {
         return controller;
     }
 
-    //TODO: ripensaci
+    /**
+     * Test purposes only
+     */
     public static void resetLobby() {
         instance = new Lobby();
     }

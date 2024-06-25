@@ -158,6 +158,8 @@ public class Room extends ListenerHandler implements RoomIF {
         else
             notifyPlayerDisconnected(player);
             // In this case (network crash) the removed player must not be notified
+        if(gameStarted)
+            lis.closeConnection();
         return getListeners().isEmpty();
     }
 
@@ -194,7 +196,7 @@ public class Room extends ListenerHandler implements RoomIF {
     private void notifyPlayerDisconnected(PlayerLobby player){
         for (GameListener listener : getListeners()){
             if(listener.getPlayer().equals(player))
-                listener.updateCloseSocket();
+                listener.closeConnection();
             else
                 listener.updatePlayerDisconnected(player);
         }

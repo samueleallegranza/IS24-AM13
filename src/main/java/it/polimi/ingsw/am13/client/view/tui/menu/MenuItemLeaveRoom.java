@@ -8,7 +8,6 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
  */
 public class MenuItemLeaveRoom extends MenuItem {
 
-    //TODO da implementare (Federico: potrei averlo fatto)
     /**
      * Build a new item for leaving the room
      */

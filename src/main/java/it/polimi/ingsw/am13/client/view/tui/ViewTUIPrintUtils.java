@@ -256,7 +256,6 @@ public class ViewTUIPrintUtils {
      * @return the string associated to those objective cards
      */
     public static String objectiveCards(CardObjectiveIF obj1, CardObjectiveIF obj2) {
-        // FIXME: Dont have access to CardObjectiveIF information!
         List<String> info1 = createInfoForObjective(obj1);
         List<String> info2 = createInfoForObjective(obj2);
 

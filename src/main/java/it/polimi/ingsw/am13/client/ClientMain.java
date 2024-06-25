@@ -63,11 +63,9 @@ public class ClientMain {
             return;
         }
 
-        View view;
-        NetworkHandler networkHandler;
         if (ParametersClient.IS_TUI) {
-            view = new ViewTUI();
-            networkHandler = initConnection(view);
+            ViewTUI view = new ViewTUI();
+            NetworkHandler networkHandler = initConnection(view);
             // Sets the network handler for the view, in order to allow it to send commands/messages to the server
             view.setNetworkHandler(networkHandler);
             view.showStartupScreen(ParametersClient.IS_SOCKET, ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT);
@@ -97,9 +95,6 @@ public class ClientMain {
         } else {
             Registry registry;
             try {
-                //TODO: rivedi meglio questo setup x rmi
-                // server hostname should be the ip of this client (the correct network address)
-
                 System.setProperty("java.rmi.server.hostname", ParametersClient.CLIENT_IP);
                 registry = LocateRegistry.getRegistry(ParametersClient.SERVER_IP, ParametersServer.RMI_PORT);
                 LobbyRMIIF lobby = (LobbyRMIIF) registry.lookup(ParametersServer.LOBBY_RMI_NAME);

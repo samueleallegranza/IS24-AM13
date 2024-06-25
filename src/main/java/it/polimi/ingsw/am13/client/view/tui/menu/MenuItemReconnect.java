@@ -4,8 +4,6 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.model.player.ColorToken;
 import it.polimi.ingsw.am13.model.player.Token;
 
-// TODO testare
-
 /**
  * Menu item to reconnect a player to an ongoing game
  */

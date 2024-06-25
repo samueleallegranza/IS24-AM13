@@ -159,11 +159,9 @@ public class NetworkHandlerRMI implements NetworkHandler {
         try {
             lobby.reconnectPlayer(clientLis);
             this.player = clientLis.getPlayer();
-        } catch (LobbyException | RemoteException | ConnectionException | GameStatusException e) {
+        } catch (LobbyException | RemoteException | ConnectionException | GameStatusException | InvalidPlayerException e) {
+            System.out.println(e.getClass());
             view.showException(e);
-        } catch (InvalidPlayerException e) {
-            //TODO pensa a questa gestione
-            throw new RuntimeException(e);
         }
     }
 

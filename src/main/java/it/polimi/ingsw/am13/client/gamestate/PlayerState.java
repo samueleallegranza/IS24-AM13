@@ -26,7 +26,7 @@ public class PlayerState implements Serializable {
      * List of (2) possible objective card, from with the player must choose for their personal objective card to hold for the game.
      * Null if they have not been set yet.
      */
-    private List<CardObjectiveIF> possibleHandObjectives;
+    private final List<CardObjectiveIF> possibleHandObjectives;
 
     /**
      * Personal objective card of the player. Null if it has not been chosen yet.
@@ -89,17 +89,6 @@ public class PlayerState implements Serializable {
      */
     public List<CardObjectiveIF> getPossibleHandObjectives() {
         return possibleHandObjectives;
-    }
-
-    /**
-     * Sets the player's (2) possible objective cards.
-     * Following game's rules, this method should be used only once if the possible objective cards are not already set.
-     * Note that it is not created another list
-     * @param possibleHandObjectives List of possible objective cards to set
-     */
-    //todo rimuovi dato che non è usato?
-    void setPossibleHandObjectives(List<CardObjectiveIF> possibleHandObjectives) {
-        this.possibleHandObjectives = possibleHandObjectives;
     }
 
     /**

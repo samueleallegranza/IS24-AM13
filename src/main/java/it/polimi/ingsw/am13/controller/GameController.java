@@ -10,7 +10,6 @@ import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import java.util.List;
 import java.util.Objects;
 
-//TODO it might be necessary to add some synchronized (should be correct now, but I am still not sure)
 /**
  * This is a controller for a single game/match
  */
@@ -90,7 +89,6 @@ public class GameController {
      * disconnection method only for tests
      */
     public synchronized void disconnectPlayer(PlayerLobby player, long timeToWait) throws InvalidPlayerException {
-        // TODO: gestisci meglio ConnectionException, cerca di non fare controlli ridondanti...
         if(gameModel.fetchIsConnected(player)) {
             try {
                 gameModel.disconnectPlayer(player);
@@ -287,7 +285,6 @@ public class GameController {
             throw new InvalidPlayerException("The passed player is not the current player");
         gameModel.pickCard(card);
         if(gameModel.countConnected()>=1)
-            //TODO: si potrebbe anche usare >...
             nextTurn();
     }
 

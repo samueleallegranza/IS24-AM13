@@ -11,8 +11,6 @@ import java.util.*;
  */
 public class CardSidePlayable implements CardSidePlayableIF {
 
-    //TODO: transient in corners dovrebbe andare bene, ma potrebbe dare problemi per calcCornersCovered...
-
     /**
      * It stores the resources needed to play this card side(it's empty if no resource is required)
      */
@@ -40,7 +38,7 @@ public class CardSidePlayable implements CardSidePlayableIF {
     final private Color color;
 
     /**
-     * The id of this card
+     * Unique id of the card: (r, g, s, o for type), number or 3 digits (in order of pdf).
      */
     final private String id;
 

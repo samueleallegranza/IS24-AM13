@@ -76,7 +76,6 @@ public class TestRoom {
         assertTrue(room.isGameStarted());
         assertEquals(2, room.getPlayers().size());
 
-        //TODO: sistema il parametro null di reconnect che dovrebbe essere il game model...
         assertThrows(LobbyException.class, ()->room.joinRoom(liss.getFirst()));
         room.reconnectToRoom(liss.getFirst(), null,null);
         assertEquals(3, room.getPlayers().size());

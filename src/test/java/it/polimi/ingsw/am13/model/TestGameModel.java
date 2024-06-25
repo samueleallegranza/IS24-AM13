@@ -802,7 +802,6 @@ public class TestGameModel {
         }
     }
 
-    // TODO da rivedere (ogni tanto faila)
     @Test
     public void testDisconnectionsForWinnerMaxPoints() throws InvalidPlayersNumberException, GameStatusException, InvalidPlayCardException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException, ConnectionException, InvalidPlayerException, LobbyException {
         players = List.of(
@@ -875,7 +874,7 @@ public class TestGameModel {
 //            System.out.println(c);
 //        }
         findWinner();
-        assertNotEquals(game.fetchFirstPlayer(), game.calcWinner());
+        assertFalse(game.calcWinner().contains(game.fetchFirstPlayer()));
 //        System.out.println(game.calcWinner().getNickname());
     }
 

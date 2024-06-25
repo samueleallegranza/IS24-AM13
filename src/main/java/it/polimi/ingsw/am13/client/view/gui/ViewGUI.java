@@ -19,8 +19,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
 
-// TODO: guarda meglio come gestire le platform.runlater()
-
 /**
  * This class is the JavaFX application, and it implements the View interface.
  * It initializes the stage when it is called by ClientMain.
@@ -125,10 +123,6 @@ public class ViewGUI extends Application implements View {
 
         // Creation/initialization of all the scenes that will be used
         roomsController = createScene(ViewGUIControllerRooms.class, "ViewGUIRooms.fxml");
-        joinedRoomController = createScene(ViewGUIControllerJoinedRoom.class, "ViewGUIJoinedRoom.fxml");
-        initController = createScene(ViewGUIControllerInit.class, "ViewGUIInit.fxml");
-        matchController = createScene(ViewGUIControllerMatch.class, "ViewGUIMatch.fxml");
-        winnerController = createScene(ViewGUIControllerWinner.class, "ViewGUIWinner.fxml");
 
         showStartupScreen(isSocket, ip, port);
         networkHandler.getRooms();
@@ -178,8 +172,7 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public void setNetworkHandler(NetworkHandler networkHandler) {
-        // TODO non dovrebbe servire x gui
-//        viewGUIController.setNetworkHandler(networkHandler);
+        this.networkHandler = networkHandler;
     }
 
     /**
@@ -192,6 +185,14 @@ public class ViewGUI extends Application implements View {
     public synchronized void showStartupScreen(boolean isSocket, String ip, int port) {
         thisPlayer = null;
         state = null;
+        try {
+            joinedRoomController = createScene(ViewGUIControllerJoinedRoom.class, "ViewGUIJoinedRoom.fxml");
+            initController = createScene(ViewGUIControllerInit.class, "ViewGUIInit.fxml");
+            matchController = createScene(ViewGUIControllerMatch.class, "ViewGUIMatch.fxml");
+            winnerController = createScene(ViewGUIControllerWinner.class, "ViewGUIWinner.fxml");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         switchToScene(roomsController);
         roomsController.showStartupScreen();
     }
@@ -394,7 +395,6 @@ public class ViewGUI extends Application implements View {
      */
     @Override
     public synchronized void showWinner() {
-            //todo forse si potrebbe visualizzare in qualche modo che ha vinto perché è l'unico giocatore rimasto
         matchController.showWinner();
     }
 

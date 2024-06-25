@@ -54,7 +54,7 @@ public class TestGameController {
     public void testUpdatePing() throws LobbyException {
         testCreation();
         for(LisForTest l : liss)
-            assertNotEquals(ControlAction.UPDATE_PING, l.actions);
+            assertNotEquals(ControlAction.UPDATE_PING, l.actions.getLast());
         List<Integer> dim0 = liss.stream().map(l -> l.actions.size()).toList();
 
         controller.updatePing(liss.getFirst().getPlayer());
@@ -601,7 +601,7 @@ public class TestGameController {
     }
 
     @Test
-    public void testDisconnectionPing() throws LobbyException, InterruptedException, InvalidPlayerException, InvalidPlayCardException, GameStatusException, InvalidChoiceException, VariableAlreadySetException, RequirementsNotMetException, InvalidDrawCardException {
+    public void testDisconnectionPing() throws LobbyException, InterruptedException, InvalidPlayerException, InvalidPlayCardException, GameStatusException, InvalidChoiceException, VariableAlreadySetException {
         testCreation();
 
         // Game has started, and now a player disconnects for network crash
@@ -613,7 +613,7 @@ public class TestGameController {
 //        System.out.println(model.fetchFirstPlayer());
         Thread.sleep(5000);
         for(LisForTest l : lissOthers) {
-            List<ControlAction> last3 = l.actions.stream().skip(l.actions.size()-3).toList();
+//            List<ControlAction> last3 = l.actions.stream().skip(l.actions.size()-3).toList();
             //todo fix this
 //            assertTrue(last3.containsAll(List.of(ControlAction.DISCONNECTED, ControlAction.CHOOSE_OBJ, ControlAction.PLAY_STARTER)));
         }
@@ -630,7 +630,7 @@ public class TestGameController {
         Thread.sleep(5000);
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
 
-        PlayerLobby playerRemain = lissRemain.getPlayer();
+//        PlayerLobby playerRemain = lissRemain.getPlayer();
 //        assertEquals(playerRemain, model.fetchCurrentPlayer());
 //        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
 //        controller.pickCard(playerRemain, model.fetchPickables().getFirst());

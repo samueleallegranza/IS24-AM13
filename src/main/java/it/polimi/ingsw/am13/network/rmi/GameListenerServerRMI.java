@@ -180,7 +180,6 @@ public class GameListenerServerRMI implements GameListener {
                         new GameControllerRMI(controller, player));
             } catch (InvalidPlayerException e) {
                 throw new RuntimeException(e);
-                //TODO pensaci meglio: può succedere?
             }
         }, "startedGame");
     }
@@ -201,7 +200,6 @@ public class GameListenerServerRMI implements GameListener {
                         new GameControllerRMI(controller, player),
                         player);
             } catch (InvalidPlayerException e) {
-//                //TODO: pensaci meglio: può succedere?
                 throw new RuntimeException(e);
             }
         }, "updatedGameState");
@@ -307,8 +305,8 @@ public class GameListenerServerRMI implements GameListener {
     }
 
     @Override
-    public void updateCloseSocket() {
-        //TODO: lato socket lo uso per chiudere il socket del client, qua valuta se serve fare qualcosa.
+    public void closeConnection() {
+        // With RMI nothing must be done
     }
 
     /**

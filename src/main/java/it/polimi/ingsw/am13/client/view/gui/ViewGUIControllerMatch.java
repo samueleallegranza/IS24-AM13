@@ -528,10 +528,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 alert.showAndWait();
             });
 
-            //TODO sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
+            // Sometimes we get a "player doesn't have this card exception", even if should be a req not met exception
             if (state.getCurrentPlayer()!=null && state.getCurrentPlayer().equals(thisPlayer) && !flowCardPlaced && attemptedToPlayCardHand != null) {
                 Platform.runLater(() -> {
-//                handCardsContainer.getChildren().add(attemptedToPlayCardHand);
                     attemptedToPlayCardHand.setVisible(true);
                     attemptedToPlayFlipButton.setVisible(true);
                     fieldContainer.getChildren().remove(attemptedToPlayCardField);
@@ -768,7 +767,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 }
                 List<CardPlayableIF> pickablesForSkip = new ArrayList<>(state.getPickables().stream().filter(Objects::nonNull).toList());
                 Collections.shuffle(pickablesForSkip);
-                networkHandler.pickCard(pickablesForSkip.getFirst());       // I assume there is at least 1 card
+                if(!pickablesForSkip.isEmpty())
+                    networkHandler.pickCard(pickablesForSkip.getFirst());       // I assume there is at least 1 card
             }).start();
         }
     }
@@ -856,8 +856,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             playTransitionAppearLeftRight(turnsCounterLabel, turnsCounterLabel.getWidth());
         });
     }
-
-    //TODO: magari nei log scrivi anche che tipo di carta è stata giocata / pescata
 
     // ----------------------------------------------------------------
     //      OVERLAYER FOR WINNER
@@ -1103,7 +1101,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param player Player which needs its connection status label to be updated
      */
     private void playerContainerUpdateConnection(PlayerLobby player) {
-        //TODO: Check if written in a decent way :)
         StackPane sPane = (StackPane) playerNodes.get(player);
         for(Node node: sPane.getChildren()) {
             if (Objects.requireNonNull(node) instanceof ImageView) {
@@ -1115,10 +1112,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                         Platform.runLater(() -> imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-offline.png")))));
                 }
             }
-//            Label label = (Label) node;
-//            if(label.getId().equals("online")) {
-//                Platform.runLater(() -> label.setText(state.getPlayerState(player).isConnected() ? "online" : "disconnected"));
-//            }
         }
     }
 
@@ -1291,7 +1284,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             box.setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
                 int handIndex = Integer.parseInt(db.getString());
-                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex)); //todo eccezione index out of bound (2 con handplayable grande 2, come è possibile che sia capitato? avevo fatto vari switchplayer)
+                networkHandler.playCard(finalHandPlayable.get(handIndex), coordinates, handCardSides.get(handIndex));
                 String cardId = finalHandPlayable.get(handIndex).getId();
                 ImageView newCardImg = new ImageView();
                 displayCard(cardId,handCardSides.get(handIndex),newCardImg);

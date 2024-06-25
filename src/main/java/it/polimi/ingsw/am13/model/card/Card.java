@@ -10,9 +10,8 @@ import java.util.Objects;
  */
 public abstract class Card implements CardIF {
 
-    //TODO: specifica struttura che usiamo per id della carta (idem su costruttore)
     /**
-     * Unique id of the card.
+     * Unique id of the card (r, g, s, o for type), number or 3 digits (in order of pdf).
      */
     private final String id;
 

@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class ViewTUIMatch {
 
-    //TODO: magari aggiungi legenda da qualche parte per i simboli usati
-
     //TODO: magari aggiungi un contatore per le risorse attualmente in campo
 
     private final ViewTUI view;
@@ -187,7 +185,7 @@ public class ViewTUIMatch {
 
     private String sectionLogs() {
         String logString = "";
-        for(String log: this.logs.getLogMessages()) {
+        for(String log: this.logs.getLogMessages().reversed()) {
             String logLine = "";
             logLine = logLine.concat("║" + log);
             logLine = String.format("%-100s║\n", logLine);

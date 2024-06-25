@@ -133,7 +133,7 @@ public class LisForTest implements GameListener {
      * Updates the client that a player has disconnected and the corresponding socket must be closed.
      */
     @Override
-    public void updateCloseSocket() {
+    public void closeConnection() {
 
     }
 

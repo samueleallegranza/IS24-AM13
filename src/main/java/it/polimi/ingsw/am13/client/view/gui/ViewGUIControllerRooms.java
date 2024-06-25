@@ -136,17 +136,12 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomId.setCellValueFactory(new PropertyValueFactory<>("gameId"));
         roomStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isGameStarted() ? "started" : "waiting"));
 
-        //TODO: se va bene a tutti showare così i giocatori, togli codice commentato
-
-//        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().isEmpty() ?
-//                "" : cellData.getValue().getPlayers().getFirst().getNickname()));
         roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 0)));
         roomP1.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (!(item == null || empty) && !getTableView().getItems().get(getIndex()).getPlayersInGame().isEmpty()) {
                     Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().getFirst().getToken());
-//                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().getFirst().getToken().getColor().name());
                     Label label = new Label(item);
                     label.setTextFill(color);
                     setGraphic(label);
@@ -154,13 +149,6 @@ public class ViewGUIControllerRooms extends ViewGUIController {
             }
         });
 
-//        roomP2.setCellValueFactory(cellData -> {
-//            try {
-//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(1).getNickname());
-//            } catch (IndexOutOfBoundsException e) {
-//                return new SimpleStringProperty("-");
-//            }
-//        });
         roomP2.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 1)));
         roomP2.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -173,20 +161,12 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setText(item);
                     if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 1) {
                         Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(1).getToken());
-//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(1).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }
             }
         });
 
-//        roomP3.setCellValueFactory(cellData -> {
-//            try {
-//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(2).getNickname());
-//            } catch (IndexOutOfBoundsException e) {
-//                return new SimpleStringProperty("-");
-//            }
-//        });
         roomP3.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 2)));
         roomP3.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -199,20 +179,12 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setText(item);
                     if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 2) {
                         Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(2).getToken());
-//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(2).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }
             }
         });
 
-//        roomP4.setCellValueFactory(cellData -> {
-//            try {
-//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(3).getNickname());
-//            } catch (IndexOutOfBoundsException e) {
-//                return new SimpleStringProperty("-");
-//            }
-//        });
         roomP4.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 3)));
         roomP4.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -225,7 +197,6 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setText(item);
                     if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 3) {
                         Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(3).getToken());
-//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(3).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }
@@ -261,7 +232,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         List<String> nicknames = Arrays.asList("Harry","Hermione", "Ron", "Voldemort", "Dumbledore", "Hagrid", "Sirius",
                 "Snake", "Weirdeye", "Pachoc", "Draco", "Lucius", "Bella", "Luna", "Cedric", "Umbridge", "McGrannit",
                 "Fred", "George", "Dobby");
-        String nickname="niiiii";       //TODO: sono confuso...
+        String nickname="niiiii";
         for (String s : nicknames) {
             boolean notContained = true;
             for(RoomIF room1 : rooms)

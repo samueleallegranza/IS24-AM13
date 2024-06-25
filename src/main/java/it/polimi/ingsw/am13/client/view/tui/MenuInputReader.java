@@ -70,19 +70,18 @@ public class MenuInputReader extends Thread {
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
-                        String args="";
+                        StringBuilder args= new StringBuilder();
                         boolean foundPref=false;
                         for (int i = 0; i < input.length(); i++) {
                             if(foundPref)
-                                args+=input.charAt(i);
+                                args.append(input.charAt(i));
                             else if(input.charAt(i)==' ')
                                 foundPref=true;
                         }
                         //input.substring(input.indexOf(" ") + 1)
-                        menuItem.executeCommand(args, networkHandler);
+                        menuItem.executeCommand(args.toString(), networkHandler);
                     } catch (InvalidTUICommandException e) {
                         view.showException(e);
-                        //TODO forse da gestire meglio
                     }
                 } else {
                     view.showException(new InvalidTUICommandException("Invalid command. Please, try again"));

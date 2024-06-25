@@ -195,7 +195,7 @@ public class GameListenerServerSocket implements GameListener {
      * Updates the client that a player has disconnected and the corresponding socket must be closed.
      */
     @Override
-    public void updateCloseSocket(){
+    public void closeConnection(){
         clientRequestsHandler.handleDisconnection();
     }
 
@@ -288,7 +288,7 @@ public class GameListenerServerSocket implements GameListener {
                 clientRequestsHandler.logResponse(msg.getType());
         } catch (IOException e) {
             // The client could have crashed, i do nothing
-            //TODO: potrebbe essere gestita diversamente?
+            clientRequestsHandler.handleDisconnection();
         }
     }
 

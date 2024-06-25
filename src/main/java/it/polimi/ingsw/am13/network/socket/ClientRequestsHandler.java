@@ -16,9 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-// TODO: Discuss about Exceptions. Should we add a new one for this class?
-// TODO: togli parametro command dove non serve? (vedi warning)
-
 /**
  * This class listens for request messages coming from a client connected via socket.
  * It has a corresponding handle method for each possible {@link MsgCommand}
@@ -106,7 +103,7 @@ public class ClientRequestsHandler extends Thread {
                 newCommand = (MsgCommand) this.inputStream.readObject();
             } catch (IOException e) {
                 /*
-                    TODO: Refine Exception management at this point. Here is what I guess should happen:
+                    What should happen:
                         ->  If the inputStream gets closed in handleDisconnection(), then a EOFException is thrown, which
                             is a subclass of IOException. When this happens, we have to close the socket and end the Thread
                         ->  If something strange happens, we should (only after EOFException management!) catch the
@@ -124,11 +121,11 @@ public class ClientRequestsHandler extends Thread {
 
             // Understand which command has been sent and act accordingly
             switch (newCommand) {
-                case MsgCommandGetRooms command ->                  handleGetRooms(command);
+                case MsgCommandGetRooms ignored ->                  handleGetRooms();
                 case MsgCommandCreateRoom command ->                handleCreateRoom(command);
                 case MsgCommandJoinRoom command ->                  handleJoinRoom(command);
-                case MsgCommandLeaveRoom command ->                 handleLeaveRoom(command);
-                case MsgCommandPing command ->                      handlePing(command);
+                case MsgCommandLeaveRoom ignored ->                 handleLeaveRoom();
+                case MsgCommandPing ignored ->                      handlePing();
                 case MsgCommandPlayStarter command ->               handlePlayStarter(command);
                 case MsgCommandChoosePersonalObjective command ->   handleChoosePersonalObjective(command);
                 case MsgCommandPlayCard command ->                  handlePlayCard(command);
@@ -195,7 +192,6 @@ public class ClientRequestsHandler extends Thread {
      * @return True if GameController is set, False otherwise.
      */
     private boolean assertGameController() {
-        // TODO: maybe should be handled differently (Exception for this class?)
         return this.gameController != null;
     }
 
@@ -220,7 +216,6 @@ public class ClientRequestsHandler extends Thread {
         this.gameController = null;
     }
 
-    // TODO: Implement this function in GameListenerServerSocket, it needs to be called in the appropriate update
     /**
      * Handler which should be called from the GameListener when the player results disconnected (connection crash or
      * closed the application). When this happens, the inputStream associated with the client gets closed.
@@ -236,7 +231,6 @@ public class ClientRequestsHandler extends Thread {
         try {
             this.inputStream.close();
         } catch (IOException e) {
-            // TODO: Investigate more on this matter
             System.out.printf("[Socket][Client:%d] " +
                     "handleDisconnection() called but IOException occurred when closing Input Stream." +
                     "Please investigate (socket already closed?)\n", clientSocket.getPort());
@@ -289,12 +283,8 @@ public class ClientRequestsHandler extends Thread {
 
     /**
      * Command handler for "ping" command. Updates the game controller about the last ping received.
-     * @param command MsgCommandPing command
      */
-    private void handlePing(MsgCommandPing command) {
-        // logCommand("ping");
-
-        // TODO: What do we do when the gameController is null? Note that this is replicated in many other handlers.
+    private void handlePing() {
         if(assertGameController()) {
             // update last ping
             this.gameController.updatePing(this.player);
@@ -304,9 +294,8 @@ public class ClientRequestsHandler extends Thread {
     /**
      * Command handler for "getRooms" command. This command is handled differently compared with others as no player is
      * associated with the request.
-     * @param command MsgCommandGetRooms command
      */
-    private synchronized void handleGetRooms(MsgCommandGetRooms command) {
+    private synchronized void handleGetRooms() {
         // [!] Special case message: client has no PlayerLobby linked to it.
         //     Response is custom managed here.
 
@@ -403,9 +392,8 @@ public class ClientRequestsHandler extends Thread {
     /**
      * Command handler for "leaveRoom" command. If the player is inside a room, he leaves it.
      * Otherwise, an error is sent back to client
-     * @param command a MsgCommandLeaveRoom command
      */
-    private void handleLeaveRoom(MsgCommandLeaveRoom command) {
+    private void handleLeaveRoom() {
         logCommand("leaveRoom");
 
         // try to leave the current Room

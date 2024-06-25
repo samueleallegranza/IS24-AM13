@@ -116,9 +116,10 @@ public class ViewTUI implements View {
         if(e.getMessage() != null)
             System.out.println(e.getMessage());
         else
-            System.out.println(e.getClass().getName());
+            System.out.println("Generic error message arrived (" +
+                    e.getClass().getName().substring(e.getClass().getName().lastIndexOf(".")+1) + ")");
         currentMenu.printMenu();
-        //TODO basta così?
+        // TODO: magari ristampa il field se stai mostrando il field
     }
 
     /**
@@ -214,14 +215,13 @@ public class ViewTUI implements View {
      */
     @Override
     public synchronized void showPlayerLeftRoom(PlayerLobby player) {
-        // TODO se lo chiamo quando il gioco è avviato, mi perdo l'informazione su thisPlayer e mando a quel paese il menu.
-        //  E' una situazione da gestire?
-
         if(thisPlayer.equals(player)) {
             // I left the room
             System.out.println("You left the room");
             thisPlayer = null;
-            changeAndPrintMenu("", new MenuItemUpdateRoomList(),
+            changeAndPrintMenu("",
+                    new MenuItemReconnect(),
+                    new MenuItemUpdateRoomList(),
                     new MenuItemCreateRoom(),
                     new MenuItemJoinRoom());
         } else {
@@ -237,25 +237,25 @@ public class ViewTUI implements View {
      */
     @Override
     public synchronized void showStartGame(GameState gameState, Chat chat) {
-        // TODO cosa fare se gameState è già impostato? (sarebbe stato già chiamato startgame...)
-        //  E' una situazione da gestire (tipo player left room)?
-        this.gameState = gameState;
-        this.chat = chat;
+        if(this.gameState == null) {
+            this.gameState = gameState;
+            this.chat = chat;
 
-        // initialize log
-        this.logs = new LogTUI(gameState);
+            // initialize log
+            this.logs = new LogTUI(gameState);
 
-        // print
-        ViewTUIConstants.clearScreen();
-        System.out.print("Game started.\n");
-        changeAndPrintMenu(
-                ViewTUIPrintUtils.starterCards(gameState.getPlayerState(thisPlayer).getStarterCard()) +
-                "\nPlease choose the side of your starter card:",
-                new MenuItemPlayStarter()
-        );
+            // print
+            ViewTUIConstants.clearScreen();
+            System.out.print("Game started.\n");
+            changeAndPrintMenu(
+                    ViewTUIPrintUtils.starterCards(gameState.getPlayerState(thisPlayer).getStarterCard()) +
+                            "\nPlease choose the side of your starter card:",
+                    new MenuItemPlayStarter()
+            );
 
-        if(ParametersClient.SKIP_INIT){
-            inputReader.getNetworkHandler().playStarter(Side.SIDEBACK);
+            if (ParametersClient.SKIP_INIT) {
+                inputReader.getNetworkHandler().playStarter(Side.SIDEBACK);
+            }
         }
     }
 
@@ -343,7 +343,6 @@ public class ViewTUI implements View {
      */
     @Override
     public synchronized void showInGame() {
-        // TODO non mi dovrebbero arrivare + showInGame, ma se succedesse?
         viewTUIMatch = new ViewTUIMatch(this, gameState, thisPlayer);
         this.viewTUIMatch.setLogs(this.logs);
         viewTUIMatch.setDisplayPlayer(thisPlayer);
@@ -383,7 +382,7 @@ public class ViewTUI implements View {
         logs.logNextTurn();
         if(thisPlayer.equals(gameState.getCurrentPlayer()))
             viewTUIMatch.setDisplayPlayer(thisPlayer);
-        if(currentChatRoom == null)     //TODO: magari si può forzare la comparsa del field in questo caso...
+        if(currentChatRoom == null)
             viewTUIMatch.printMatch();
         else if(thisPlayer.equals(gameState.getCurrentPlayer()))
             printCurrentChat("Now it's your turn");
@@ -439,7 +438,6 @@ public class ViewTUI implements View {
     @Override
     public synchronized void showEndGame() {
         System.out.println("The game has ended");
-        // TODO aggiungi networkHandler che chiama getRooms
     }
 
     /**
@@ -453,7 +451,6 @@ public class ViewTUI implements View {
             viewTUIMatch.printMatch();
         else
             System.out.println("player " + player.getNickname() + " has disconnected");
-            //TODO sistema con i log
     }
 
     /**
@@ -467,7 +464,6 @@ public class ViewTUI implements View {
             viewTUIMatch.printMatch();
         else
             System.out.println("player " + player.getNickname() + " has reconnected");
-            //TODO sistema con i log
     }
 
     /**
