@@ -59,7 +59,6 @@ public class ServerMain {
             Registry registry = LocateRegistry.createRegistry(ParametersServer.RMI_PORT);
             registry.bind(ParametersServer.LOBBY_RMI_NAME, new LobbyRMI());
         } catch (RemoteException e) {
-            //TODO: capisci come gestire
             throw new RuntimeException(e);
         } catch (AlreadyBoundException e) { // Should never happen, unless ServerMain is run more than once
             throw new RuntimeException(e);

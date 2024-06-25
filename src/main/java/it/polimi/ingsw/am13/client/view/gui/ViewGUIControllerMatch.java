@@ -875,7 +875,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         turnsCounterLabel.setVisible(false);
 
-        //TODO: facciamo muovere anche i token sullo scoreboard?
         state.getPlayers().forEach(this::updateTokenPosition);
     }
 

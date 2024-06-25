@@ -134,7 +134,6 @@ public class LisForTest implements GameListener {
      */
     @Override
     public void updateCloseSocket() {
-        //TODO: gestisci
 
     }
 
