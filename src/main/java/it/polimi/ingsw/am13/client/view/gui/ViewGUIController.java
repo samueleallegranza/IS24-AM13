@@ -5,7 +5,10 @@ import it.polimi.ingsw.am13.client.network.NetworkHandler;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 /**
  * Abstract class for the GUI controllers (the classes implementing the logic behind the various scenes)
@@ -76,6 +79,7 @@ public abstract class ViewGUIController {
     public void switchToScene() {
         Platform.runLater(() -> {
             stage.setTitle(getSceneTitle());
+            stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/codex-logo.png"))));
             stage.setScene(scene);
             stage.show();
         });
