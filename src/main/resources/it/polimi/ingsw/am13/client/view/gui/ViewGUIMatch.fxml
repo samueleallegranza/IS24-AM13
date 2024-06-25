@@ -346,7 +346,7 @@
             </HBox>
         </VBox>
     </HBox>
-   <Button mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="872.0" prefWidth="1180.0" styleClass="homepageButton" StackPane.alignment="CENTER">
+   <Button mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="90.0" prefWidth="160.0" styleClass="homepageButton" StackPane.alignment="CENTER">
       <StackPane.margin>
          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
       </StackPane.margin>

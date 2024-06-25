@@ -673,14 +673,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(overlayHeightListener != null)
             stackPane.heightProperty().removeListener(overlayHeightListener);
 
-        // First in game log
-        log.logNextTurn();
-        showLastLogs();
+        // First in game log (if phase is actually in game)
+        if(state.getGameStatus() == GameStatus.IN_GAME) {
+            log.logNextTurn();
+            showLastLogs();
+        }
 
         //display hand playable
         displayPlayer=null;
         switchToPlayer(thisPlayer);
         updateActionLabel();
+
+        // init points to > 0 if in_game is called after a reconnection
+        state.getPlayers().forEach(this::updateTokenPosition);
 
         playAudio("startGame.mp3");
 

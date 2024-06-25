@@ -216,9 +216,6 @@ public class ViewGUI extends Application implements View {
     @Override
     public synchronized void showRooms(List<RoomIF> rooms) {
         if(thisPlayer == null) {
-//            thisPlayer = null;
-//            state = null;
-//            switchToScene(roomsController);
             roomsController.showRooms(rooms);
         } else {
             // This should be the response after invocation of getRooms() for thisPlayer joining a room or
@@ -300,17 +297,22 @@ public class ViewGUI extends Application implements View {
         this.state = state;
         this.thisPlayer = thisPlayer;
 
-        if(state.getGameStatus() == GameStatus.INIT) {
-            showStartGame(state,chat); // sets the init visualization screen
-            showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
-        } else if(state.getGameStatus()==GameStatus.IN_GAME || state.getGameStatus()==GameStatus.FINAL_PHASE) {
-            showStartGame(state,chat);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        try {
+            if(state.getGameStatus() == GameStatus.INIT) {
+                showStartGame(state,chat); // sets the init visualization screen
+                showChosenPersonalObjective(thisPlayer); // instantly skips to the waiting page
+            } else if(state.getGameStatus()==GameStatus.IN_GAME || state.getGameStatus()==GameStatus.FINAL_PHASE) {
+                showStartGame(state,chat);
+                Thread.sleep(200);
+                showInGame();
+            } else if(state.getGameStatus()==GameStatus.ENDED) {
+                showStartGame(state,chat);
+                Thread.sleep(200);
+                matchController.showUpdatePoints();
+                matchController.showWinner();
             }
-            showInGame();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -250,6 +250,18 @@ public class GameModel implements GameModelIF {
         return match.getFieldByPlayer(player);
     }
 
+    /**
+     * @return Winner of the game if the phase is ENDED, null otherwise
+     */
+    @Override
+    public List<PlayerLobby> fetchWinner() {
+        try {
+            return match.calcWinner();
+        } catch (GameStatusException e) {
+            return null;
+        }
+    }
+
 
     // METHODS CALLABLE IN PHASE <null>
 

@@ -119,4 +119,9 @@ public interface GameModelIF {
      */
     FieldIF fetchPlayerField(PlayerLobby player) throws InvalidPlayerException;
 
+    /**
+     * @return Winner of the game if the phase is ENDED, null otherwise
+     */
+    List<PlayerLobby> fetchWinner();
+
 }

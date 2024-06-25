@@ -166,4 +166,5 @@
 
 .homepageButton {
     -fx-background-image: url("img/homepage-daCanc.jpg");
+    -fx-background-size: cover;
 }

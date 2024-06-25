@@ -84,7 +84,7 @@ public class GameState implements Serializable {
         this.currentPlayer = model.fetchCurrentPlayer();
         this.firstPlayer = model.fetchFirstPlayer();
         this.turnsToEnd = -1;
-        this.winner = null;
+        this.winner = model.fetchWinner();
     }
 
     /**
