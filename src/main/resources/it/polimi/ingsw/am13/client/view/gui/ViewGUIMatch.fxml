@@ -389,13 +389,17 @@
                             </VBox>
                         </AnchorPane>
                     </Tab>
+               <Tab text="Settings">
+                 <content>
+                   <AnchorPane>
+                        <children>
+                           <Button contentDisplay="CENTER" layoutX="38.0" layoutY="38.0" mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Quit match" />
+                        </children>
+                     </AnchorPane>
+                 </content>
+               </Tab>
                 </TabPane>
             </HBox>
         </VBox>
     </HBox>
-   <Button mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="90.0" prefWidth="160.0" styleClass="homepageButton" StackPane.alignment="CENTER">
-      <StackPane.margin>
-         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-      </StackPane.margin>
-   </Button>
 </StackPane>

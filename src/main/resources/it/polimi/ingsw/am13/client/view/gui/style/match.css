@@ -165,8 +165,10 @@
 }
 
 .homepageButton {
-    -fx-background-image: url("img/homepage-daCanc.jpg");
-    -fx-background-size: cover;
+    -fx-font-size: 15px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+    -fx-padding: 0 0 4 0;
 }
 
 .zoomInButton {
