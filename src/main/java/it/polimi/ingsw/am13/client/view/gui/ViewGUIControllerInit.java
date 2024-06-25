@@ -47,7 +47,7 @@ public class ViewGUIControllerInit extends ViewGUIController {
      */
     @Override
     public String getSceneTitle() {
-        return "Initial Phase";
+        return "Codex Naturalis - Initial Phase";
     }
 
     /**

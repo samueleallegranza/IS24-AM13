@@ -60,7 +60,7 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
      */
     @Override
     public String getSceneTitle() {
-        return "Codex";
+        return "Codex Naturalis - Room";
     }
 
     /**

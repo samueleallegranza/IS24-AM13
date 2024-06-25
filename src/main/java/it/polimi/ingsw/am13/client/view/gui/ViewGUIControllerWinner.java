@@ -59,7 +59,7 @@ public class ViewGUIControllerWinner extends ViewGUIController{
      */
     @Override
     public String getSceneTitle() {
-        return "Winner screem";
+        return "Codex Naturalis - Winner screen";
     }
 
     /**

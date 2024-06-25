@@ -53,7 +53,7 @@ public class ViewGUIControllerRooms extends ViewGUIController {
     }
     @Override
     public String getSceneTitle() {
-        return "Codex Rooms";
+        return "Codex Naturalis - Rooms selection";
     }
 
     @Override

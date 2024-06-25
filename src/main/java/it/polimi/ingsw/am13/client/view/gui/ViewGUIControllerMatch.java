@@ -508,7 +508,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     @Override
     public String getSceneTitle() {
-        return "Turn-based phase";
+        return "Codex Naturalis - Match";
     }
 
     /**
