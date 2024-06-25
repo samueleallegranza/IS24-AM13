@@ -94,6 +94,40 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         }
     }
 
+    /**
+     * Create a color object, choosing the color according to the given token
+     * @param token Token used to choose the color
+     * @return Color corresponding to the token
+     */
+    private Color chooseColorByToken(Token token) {
+        return switch (token.getColor()) {
+            case RED -> new Color(218/255.0,19/255.0,19/255.0,1);
+            case BLUE -> new Color(19/255.0,63/255.0,168/255.0,1);
+            case GREEN -> new Color(44/255.0,129/255.0,21/255.0,1);
+            case YELLOW -> new Color(204/255.0,139/255.0,14/255.0,1);
+        };
+    }
+
+    /**
+     * Generates the string for the one of the 4 player columns for the rooms table.
+     * It shows the player's nickname and if they are disconnected
+     * @param room Room of the considered row
+     * @param col Index of the column. Only 0, 1, 2, 3 is accepted
+     * @return String for the player. "-" if the column exceeds the number of players
+     */
+    private String createShownPlayerString(RoomIF room, int col) {
+        try {
+            PlayerLobby player = room.getPlayersInGame().get(col);
+            boolean isConnected = room.getPlayers().contains(player);
+
+            return String.format("%s%s",
+                    player.getNickname(),
+                    isConnected ? "" : " (⚠)");
+        } catch (IndexOutOfBoundsException e) {
+            return col<room.getnPlayersTarget() ? "-" : "X";
+        }
+    }
+
     public void showRooms(List<RoomIF> rooms) {
         roomsTable.getItems().clear();
         for (RoomIF room : rooms) {
@@ -102,13 +136,17 @@ public class ViewGUIControllerRooms extends ViewGUIController {
         roomId.setCellValueFactory(new PropertyValueFactory<>("gameId"));
         roomStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isGameStarted() ? "started" : "waiting"));
 
-        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().isEmpty() ?
-                "" : cellData.getValue().getPlayers().getFirst().getNickname()));
+        //TODO: se va bene a tutti showare così i giocatori, togli codice commentato
+
+//        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPlayers().isEmpty() ?
+//                "" : cellData.getValue().getPlayers().getFirst().getNickname()));
+        roomP1.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 0)));
         roomP1.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
-                if (!(item == null || empty) && !getTableView().getItems().get(getIndex()).getPlayers().isEmpty()) {
-                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().getFirst().getToken().getColor().name());
+                if (!(item == null || empty) && !getTableView().getItems().get(getIndex()).getPlayersInGame().isEmpty()) {
+                    Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().getFirst().getToken());
+//                    Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().getFirst().getToken().getColor().name());
                     Label label = new Label(item);
                     label.setTextFill(color);
                     setGraphic(label);
@@ -116,13 +154,14 @@ public class ViewGUIControllerRooms extends ViewGUIController {
             }
         });
 
-        roomP2.setCellValueFactory(cellData -> {
-            try {
-                return new SimpleStringProperty(cellData.getValue().getPlayers().get(1).getNickname());
-            } catch (IndexOutOfBoundsException e) {
-                return new SimpleStringProperty("-");
-            }
-        });
+//        roomP2.setCellValueFactory(cellData -> {
+//            try {
+//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(1).getNickname());
+//            } catch (IndexOutOfBoundsException e) {
+//                return new SimpleStringProperty("-");
+//            }
+//        });
+        roomP2.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 1)));
         roomP2.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -132,21 +171,23 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setStyle("");
                 } else {
                     setText(item);
-                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 1) {
-                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(1).getToken().getColor().name());
+                    if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 1) {
+                        Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(1).getToken());
+//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(1).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }
             }
         });
 
-        roomP3.setCellValueFactory(cellData -> {
-            try {
-                return new SimpleStringProperty(cellData.getValue().getPlayers().get(2).getNickname());
-            } catch (IndexOutOfBoundsException e) {
-                return new SimpleStringProperty("-");
-            }
-        });
+//        roomP3.setCellValueFactory(cellData -> {
+//            try {
+//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(2).getNickname());
+//            } catch (IndexOutOfBoundsException e) {
+//                return new SimpleStringProperty("-");
+//            }
+//        });
+        roomP3.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 2)));
         roomP3.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -156,21 +197,23 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setStyle("");
                 } else {
                     setText(item);
-                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 2) {
-                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(2).getToken().getColor().name());
+                    if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 2) {
+                        Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(2).getToken());
+//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(2).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }
             }
         });
 
-        roomP4.setCellValueFactory(cellData -> {
-            try {
-                return new SimpleStringProperty(cellData.getValue().getPlayers().get(3).getNickname());
-            } catch (IndexOutOfBoundsException e) {
-                return new SimpleStringProperty("-");
-            }
-        });
+//        roomP4.setCellValueFactory(cellData -> {
+//            try {
+//                return new SimpleStringProperty(cellData.getValue().getPlayers().get(3).getNickname());
+//            } catch (IndexOutOfBoundsException e) {
+//                return new SimpleStringProperty("-");
+//            }
+//        });
+        roomP4.setCellValueFactory(cellData -> new SimpleStringProperty(createShownPlayerString(cellData.getValue(), 3)));
         roomP4.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -180,8 +223,9 @@ public class ViewGUIControllerRooms extends ViewGUIController {
                     setStyle("");
                 } else {
                     setText(item);
-                    if (getTableView().getItems().get(getIndex()).getPlayers().size() > 3) {
-                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayers().get(3).getToken().getColor().name());
+                    if (getTableView().getItems().get(getIndex()).getPlayersInGame().size() > 3) {
+                        Color color = chooseColorByToken(getTableView().getItems().get(getIndex()).getPlayersInGame().get(3).getToken());
+//                        Color color = Color.valueOf(getTableView().getItems().get(getIndex()).getPlayersInGame().get(3).getToken().getColor().name());
                         setTextFill(color);
                     }
                 }

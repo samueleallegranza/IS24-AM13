@@ -63,6 +63,11 @@
     -fx-border-width: 2px;
 }
 
+.table-view .column-header .label {
+    -fx-alignment: CENTER-LEFT; /* Aligns the text to the left */
+    -fx-padding: 0 0 0 5px; /* Optional: Add some padding to the left */
+}
+
 .table-view .table-cell{
     -fx-padding: 2 0 2 10px;
 
