@@ -281,7 +281,7 @@ public class ViewGUI extends Application implements View {
         this.state = state;
         Platform.runLater(() -> {
             switchToScene(matchController);
-            matchController.init(this, initController, winnerController, chat);
+            matchController.init(initController, winnerController, chat);
             matchController.showStartGame();
         });
     }
