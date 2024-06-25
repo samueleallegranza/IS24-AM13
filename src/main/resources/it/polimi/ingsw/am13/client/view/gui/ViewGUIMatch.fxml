@@ -360,8 +360,21 @@
                     </Tab>
                     <Tab text="Settings">
                         <AnchorPane>
-                            <VBox prefHeight="200.0" prefWidth="100.0" />
-                            <Button contentDisplay="CENTER" layoutX="38.0" layoutY="38.0" mnemonicParsing="false" onAction="#onReturnRoomClick" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Quit match" />
+                            <VBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#onQuitGame" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Quit game">
+                                    <VBox.margin>
+                                        <Insets />
+                                    </VBox.margin>
+                                </Button>
+                                <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#onRestartGame" prefHeight="84.0" prefWidth="131.0" styleClass="homepageButton" text="Restart game">
+                                    <VBox.margin>
+                                        <Insets top="30.0" />
+                                    </VBox.margin>
+                                </Button>
+                        <padding>
+                           <Insets bottom="30.0" />
+                        </padding>
+                            </VBox>
                         </AnchorPane>
                     </Tab>
                 </TabPane>

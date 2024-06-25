@@ -21,9 +21,6 @@ import java.util.*;
  */
 public class GameListenerServerRMI implements GameListener {
 
-    //TODO: ho aggiunto un modo per essere sicuri dell'ordine di chiamate rmi
-    // fai un test quanto prima
-
     /**
      * Long representing the last time the ping was updated
      */

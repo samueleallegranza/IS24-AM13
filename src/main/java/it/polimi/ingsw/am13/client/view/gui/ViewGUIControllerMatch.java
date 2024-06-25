@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am13.client.view.gui;
 
 import it.polimi.ingsw.am13.ParametersClient;
+import it.polimi.ingsw.am13.client.ClientMain;
 import it.polimi.ingsw.am13.client.chat.Chat;
 import it.polimi.ingsw.am13.client.chat.ChatMessage;
 import it.polimi.ingsw.am13.client.gamestate.GameState;
@@ -48,6 +49,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -324,10 +326,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Controller for the winner view
      */
     private ViewGUIControllerWinner controllerWinner;
-    /**
-     * Main view handler of the client
-     */
-    private ViewGUI view;
 
     // ----------------------------------------------------------------
     // CONSTANTS
@@ -405,12 +403,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param controllerWinner Controller for the winner view. It has not to be already set
      * @param chat Chat instance
      */
-    public void init(ViewGUI view, ViewGUIControllerInit controllerInit, ViewGUIControllerWinner controllerWinner, Chat chat) {
+    public void init(ViewGUIControllerInit controllerInit, ViewGUIControllerWinner controllerWinner, Chat chat) {
         // First internal state initialization
         this.controllerInit = controllerInit;
         this.controllerWinner = controllerWinner;
         this.chat = chat;
-        this.view = view;
         controllerInit.setGameState(state);
         controllerInit.setThisPlayer(thisPlayer);
         controllerWinner.setGameState(state);
@@ -644,6 +641,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             log.logStartGame();
             showLastLogs();
+        } else {
+            state.getPlayers().forEach(this::playerContainerUpdateConnection);
         }
     }
 
@@ -1761,14 +1760,51 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         timeline.play();
     }
 
+    // ----------------------------------------------------------------
+    //    QUIT/RESTART METHODS
+    // ----------------------------------------------------------------
+
+    @FXML
+    private void onQuitGame() {
+        networkHandler.stopPing();
+        Platform.runLater(() -> stage.close());
+    }
+
     /**
-     * Action performed to return to homepage, actually disconnecting voluntarily from the game
+     * Action performed to return to homepage, actually disconnecting voluntarily from the game.
+     * For simplicity, it completely restarts the app, and works only if it was launch via jar
      */
     @FXML
-    private void onReturnRoomClick() {
+    private void onRestartGame() {
         networkHandler.stopPing();
-        view.showStartupScreen(ParametersClient.IS_SOCKET, ParametersClient.SERVER_IP, ParametersClient.SERVER_PORT);
-        networkHandler.getRooms();
+
+        // Complete restart of the application
+        final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final File currentJar;
+        try {
+            currentJar = new File(ClientMain.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        /* is it a jar file? */
+        if(!currentJar.getName().endsWith(".jar"))
+            return;
+
+        /* Build command: java -jar application.jar */
+        final ArrayList<String> command = new ArrayList<>();
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(currentJar.getPath());
+        command.addAll(List.of(ClientMain.argsAtLaunch));
+
+        final ProcessBuilder builder = new ProcessBuilder(command);
+        try {
+            builder.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.exit(0);
     }
 
     // ----------------------------------------------------------------

@@ -47,4 +47,9 @@ public interface PlayerIF {
      */
     FieldIF getField();
 
+    /**
+     * @return whether a player is currently connected or not
+     */
+    boolean isConnected();
+
 }

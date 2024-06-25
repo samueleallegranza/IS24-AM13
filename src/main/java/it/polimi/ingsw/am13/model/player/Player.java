@@ -110,7 +110,6 @@ public class Player implements Serializable, PlayerIF {
     }
 
     /**
-     *
      * @return whether a player is currently connected or not
      */
     public boolean isConnected() {

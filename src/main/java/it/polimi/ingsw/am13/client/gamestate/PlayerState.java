@@ -61,7 +61,7 @@ public class PlayerState implements Serializable {
         this.starterCard = player.getStarter();
         this.possibleHandObjectives = new ArrayList<>(player.getPossiblePersonalObjectives());
         this.handObjective = player.getPersonalObjective();
-        this.isConnected = true;
+        this.isConnected = player.isConnected();
         this.handPlayable = new ArrayList<>(player.getHandCards());
         this.points = player.getPoints();
         this.field = new FieldState(player.getField());

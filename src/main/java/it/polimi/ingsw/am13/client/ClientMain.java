@@ -22,7 +22,13 @@ import java.util.*;
 
 public class ClientMain {
 
+    /**
+     * Command line arguments with which the app was called
+     */
+    public static String[] argsAtLaunch;
+
     public static void main(String[] args) {
+        argsAtLaunch = args;
 
         List<String> argsList = List.of(args);
         if(argsList.contains("--help")) {

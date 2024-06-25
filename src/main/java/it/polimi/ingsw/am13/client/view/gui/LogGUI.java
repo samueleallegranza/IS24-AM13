@@ -192,9 +192,7 @@ public class LogGUI {
      * @param toAll True if the message is to all the players, false if it's for a specific player
      */
     public void logMessageReceived(PlayerLobby sender, boolean toAll) {
-        addToLog(String.format("[%s][%s] Sent message to %s",
-                this.currentTimeString(),
-                sender.getNickname(),
+        addToLog(sender, String.format("Sent message to %s",
                 toAll ? "all" : "you"));
     }
 
