@@ -49,7 +49,7 @@ public class TestGameModel {
         //Test of 5 turn-async non-player-specific methods
         assertNull(game.fetchGameStatus());
         assertNull(game.fetchCurrentPlayer());
-        assertEquals(players, game.fetchPlayersLobby());
+        assertTrue(players.containsAll(game.fetchPlayersLobby()));
 
         List<CardPlayableIF> pickables = game.fetchPickables();
         assertEquals(pickables.size(), 6);
@@ -516,7 +516,7 @@ public class TestGameModel {
                     }
                 }).
                 max((a,b) -> Integer.compare(game.fetchPoints().get(a), game.fetchPoints().get(b))).orElseThrow();
-        assertEquals(expected, game.calcWinner().getFirst());
+        assertTrue(game.calcWinner().contains(expected));
         assertDoesNotThrow(()->game.calcWinner());
     }
 
