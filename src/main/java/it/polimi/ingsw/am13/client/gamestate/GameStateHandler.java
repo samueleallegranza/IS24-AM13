@@ -170,5 +170,4 @@ public class GameStateHandler {
         state.setCurrentPlayer(state.getFirstPlayer());
 
     }
-
 }

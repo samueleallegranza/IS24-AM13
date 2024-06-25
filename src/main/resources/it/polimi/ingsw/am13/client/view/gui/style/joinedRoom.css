@@ -9,19 +9,17 @@
 .header {
     /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
     -fx-font-family: "Inknut Antiqua", 'serif';
-
     -fx-font-size: 22px;
 }
 
 .player-table {
-    -fx-font-size: 17px;
     /*-fx-font-family: "Pixelify Sans", 'sans-serif';*/
     -fx-font-family: "Inknut Antiqua", 'serif';
 }
 
 
 .player-table .column-header {
-    -fx-font-size: 20px;
+    -fx-font-size: 17px;
     -fx-alignment: CENTER;
 }
 
@@ -39,7 +37,7 @@
 }
 
 .table-row-cell:filled .text {
-    -fx-font-size: 19px;
+    -fx-font-size: 16px;
 }
 
 .table-row-cell:filled:focused .text {

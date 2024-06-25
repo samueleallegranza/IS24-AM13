@@ -34,6 +34,11 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
     private RoomIF thisRoom;
 
     /**
+     * Counter for the number of players currently in room
+     */
+    private int playerCount;
+
+    /**
      * Method that sets the player
      * @param player the player associated to this {@link ViewGUIController}
      */
@@ -105,8 +110,8 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
      * Update the label of this room
      */
     private void updateRoomLabel() {
-        Platform.runLater(() -> roomLabel.setText(String.format("Room %05d - %d/%d", thisRoom.getGameId(),
-                thisRoom.getPlayers().size(), thisRoom.getnPlayersTarget())));
+        Platform.runLater(() -> roomLabel.setText(String.format("Room %03d - %d/%d", thisRoom.getGameId(),
+                this.playerCount, thisRoom.getnPlayersTarget())));
     }
 
     /**
@@ -127,6 +132,7 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
         //joinedRoomPlayersColumn.setCellValueFactory(new PropertyValueFactory<PlayerLobby,String>("Nickname"));
         ObservableList<PlayerLobby> observablePlayer=FXCollections.observableList(new ArrayList<>(List.of(player)));
         joinedRoomTable.getItems().add(observablePlayer.getFirst());
+        this.playerCount++;
         updateRoomLabel();
     }
 
@@ -141,10 +147,15 @@ public class ViewGUIControllerJoinedRoom extends ViewGUIController {
         for(RoomIF room : rooms)
             if(room.getGameId() == thisRoom.getGameId())
                 myRoom = room;
+
         if(myRoom!=null) {
+            this.playerCount = 0;
             ObservableList<PlayerLobby> observablePlayers = FXCollections.observableList(myRoom.getPlayers());
-            for (PlayerLobby playerLobby : observablePlayers)
+            for (PlayerLobby playerLobby : observablePlayers) {
                 joinedRoomTable.getItems().add(playerLobby);
+                this.playerCount++;
+            }
+            updateRoomLabel();
         }
     }
 
