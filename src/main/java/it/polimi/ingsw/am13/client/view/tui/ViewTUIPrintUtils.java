@@ -383,9 +383,9 @@ public class ViewTUIPrintUtils {
         strPos.get(0).add(1,'─');
         strPos.get(0).add(2,'┐');
         strPos.get(1).add(0,(char)('0'+index/100));
-        index-=index/100;
+        index-=100*(index/100);
         strPos.get(1).add(1,(char)('0'+index/10));
-        index-=index/10;
+        index-=10*(index/10);
         strPos.get(1).add(2,(char)('0'+index));
         strPos.get(2).add(0,'└');
         strPos.get(2).add(1,'─');

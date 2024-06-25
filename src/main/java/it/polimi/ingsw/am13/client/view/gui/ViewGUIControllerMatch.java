@@ -47,6 +47,9 @@ import javafx.util.StringConverter;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
 
@@ -1763,10 +1766,26 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @FXML
     public void onClickShowRulebook(){
-        File file=   new File( Objects.requireNonNull(ViewGUIControllerMatch.class.getResource("/docs/CODEX_Rulebook_EN.pdf")).getFile());
+        File file=   new File( Objects.requireNonNull(getClass().getResource("/docs/CODEX_Rulebook_EN.pdf").getFile()));
+        //                            imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
+        InputStream manualAsStream= Objects.requireNonNull(getClass().getResourceAsStream("/docs/CODEX_Rulebook_EN.pdf"));
+        java.nio.file.Path tempOutput = null;
+        try {
+            tempOutput = Files.createTempFile("TempManual", ".pdf");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        tempOutput.toFile().deleteOnExit();
+        try {
+            Files.copy(manualAsStream, tempOutput, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        File userManual = new File (tempOutput.toFile().getPath());
         new Thread(() -> {
             try {
-                Desktop.getDesktop().open(file);
+                Desktop.getDesktop().open(userManual);
             } catch (IOException ignored) {
 
             }
