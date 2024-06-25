@@ -8,10 +8,7 @@ import it.polimi.ingsw.am13.model.player.PlayerIF;
 import it.polimi.ingsw.am13.model.player.PlayerLobby;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Representation of the state of the game in a certain instant.
@@ -75,7 +72,7 @@ public class GameState implements Serializable {
      */
     public GameState(GameModelIF model) {
         this.gameId = model.getGameId();
-        this.players = new HashMap<>();
+        this.players = new LinkedHashMap<>();
         for(PlayerIF p : model.fetchPlayers())
             this.players.put(p.getPlayerLobby(), new PlayerState(p));
         this.pickables = model.fetchPickables();
@@ -95,7 +92,8 @@ public class GameState implements Serializable {
     }
 
     /**
-     * @return List of players in the game. (should not change)
+     * @return List of players in the game. (should not change).
+     * The order is the order in a round, from the first player to the last one
      */
     public List<PlayerLobby> getPlayers() {
         return new ArrayList<>(players.keySet());

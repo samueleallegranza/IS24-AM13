@@ -33,7 +33,12 @@ public class ServerMain {
             List<String> commandArgs = new ArrayList<>();
             while(!argsQueue.isEmpty() && !argsQueue.peek().startsWith("--"))
                 commandArgs.add(argsQueue.poll());
-            command.getAction().accept(commandArgs);
+            try {
+                command.executeAction(commandArgs);
+            } catch (IllegalArgumentException e) {
+                System.out.println("For command " + commandKey + " only " + command.getParameterList().size() + " must be present");
+                System.exit(-1);
+            }
         }
 
         System.out.println("Socket port\t\t\t: " + ParametersServer.SOCKET_PORT);
@@ -69,7 +74,7 @@ public class ServerMain {
     private static String generateHelp() {
         StringBuilder sb = new StringBuilder("Help for game Codex Naturalis (server)\nAccepted commands:\n");
         for(PromptCommand command : commandsList)
-            sb.append(String.format("%-30s: %s\n", command.getCommand(), command.getDescription()));
+            sb.append(command.generateHelpString());
         return sb.toString();
     }
 
@@ -78,17 +83,21 @@ public class ServerMain {
      */
     private static final List<PromptCommand> commandsList = List.of(
             new PromptCommand("ip",
-                    "(<ip>) Sets the IP address of the server",
-                    args -> ParametersServer.SERVER_IP = args.removeFirst()),
+                    "Sets the IP address of the server",
+                    args -> ParametersServer.SERVER_IP = args.removeFirst(),
+                    "ip"),
             new PromptCommand("rmi",
-                    "(<rmi port>) Sets the RMI port",
-                    args -> ParametersServer.RMI_PORT = Integer.parseInt(args.getFirst())),
+                    "Sets the RMI port",
+                    args -> ParametersServer.RMI_PORT = Integer.parseInt(args.getFirst()),
+                    "rmi port"),
             new PromptCommand("socket",
-                    "(<socket port>) Sets the socket port",
-                    args -> ParametersServer.SOCKET_PORT = Integer.parseInt(args.getFirst())),
+                    "Sets the socket port",
+                    args -> ParametersServer.SOCKET_PORT = Integer.parseInt(args.getFirst()),
+                    "rmi port"),
             new PromptCommand("points",
-                    "<points>) Sets the points needed for the final phase",
-                    args -> ParametersServer.POINTS_FOR_FINAL_PHASE = Integer.parseInt(args.getFirst())),
+                    "Sets the points needed for the final phase",
+                    args -> ParametersServer.POINTS_FOR_FINAL_PHASE = Integer.parseInt(args.getFirst()),
+                    "number of points"),
             new PromptCommand("no_requirements",
                     "Disables the requirement checks",
                     args -> ParametersServer.CHECK_REQUIREMENTS = false),

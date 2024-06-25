@@ -42,7 +42,12 @@ public class ClientMain {
             List<String> commandArgs = new ArrayList<>();
             while(!argsQueue.isEmpty() && !argsQueue.peek().startsWith("--"))
                 commandArgs.add(argsQueue.poll());
-            command.getAction().accept(commandArgs);
+            try {
+                command.executeAction(commandArgs);
+            } catch (IllegalArgumentException e) {
+                System.out.println("For command " + commandKey + " exactly " + command.getParameterList().size() + " must be present");
+                System.exit(-1);
+            }
         }
 
         // check that ip and port are valid
@@ -113,7 +118,7 @@ public class ClientMain {
     private static String generateHelp() {
         StringBuilder sb = new StringBuilder("Help for game Codex Naturalis (client)\nAccepted commands:\n");
         for(PromptCommand command : commandsList)
-            sb.append(String.format("%-15s: %s\n", command.getCommand(), command.getDescription()));
+            sb.append(command.generateHelpString());
         return sb.toString();
     }
 
@@ -131,11 +136,11 @@ public class ClientMain {
                         ParametersClient.SERVER_PORT = ParametersClient.RMI_DEFAULT_PORT;
                     }),
             new PromptCommand("skip_room",
-                    "(<number of players>) Skips the room phase, with the specified number of players for the room (debug purposes)",
+                    "Skips the room phase, with the specified number of players for the room (debug purposes)",
                     args -> {
                         ParametersClient.SKIP_ROOM = true;
                         ParametersClient.DEBUG_NPLAYERS = Integer.parseInt(args.getFirst());
-                    }),
+                    }, "number of players"),
             new PromptCommand("skip_init",
                     "Makes the choices for the initialization phase automatic (debug purposes)",
                     args -> ParametersClient.SKIP_INIT = true),
@@ -146,14 +151,17 @@ public class ClientMain {
                     "Disables all the sounds during the game",
                     args -> ParametersClient.SOUND_ENABLE = false),
             new PromptCommand("ip",
-                    "(<ip) Sets the IP address of the server",
-                    args -> ParametersClient.SERVER_IP = args.getFirst()),
+                    "Sets the IP address of the server",
+                    args -> ParametersClient.SERVER_IP = args.getFirst(),
+                    "ip"),
             new PromptCommand("port",
-                    "(<port>) Sets the port number of the server",
-                    args -> ParametersClient.SERVER_PORT = Integer.parseInt(args.getFirst())),
+                    "Sets the port number of the server",
+                    args -> ParametersClient.SERVER_PORT = Integer.parseInt(args.getFirst()),
+                    "port"),
             new PromptCommand("client_ip",
-                    "(<ip>) Sets the IP address of the client",
-                    args -> ParametersClient.CLIENT_IP = args.getFirst())
+                    "Sets the IP address of the client",
+                    args -> ParametersClient.CLIENT_IP = args.getFirst(),
+                    "ip")
     );
 
     /**

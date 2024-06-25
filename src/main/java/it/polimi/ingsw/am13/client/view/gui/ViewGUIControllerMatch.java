@@ -300,6 +300,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private final Map<PlayerLobby, Integer> savedPoints = new HashMap<>();
     /**
+     * Map associating each player to the current graphical x-offset for their token on the scroeboard,
+     * with respect to the main coordinates of their points.
+     * In fact, to show overlapped token, the image of a token could be placed with a slight offset
+     */
+    private final Map<PlayerLobby, Double> tokenOffsetCoordinates = new HashMap<>();
+    /**
      * Flag indicating if the first scroll adjustment to center the starter card has already happened
      * Hence it is set to true each time the displayPlayer changes
      */
@@ -368,6 +374,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             -0.772287862513426, -0.857142857142857, -0.876476906552095, -0.857142857142857, -0.772287862513426, -0.66702470461869,
             -0.749731471535983
     );
+    /**
+     * Horizontal offset of overlapped tokens
+     */
+    private static final double TOKEN_X_OFFSET = 15;
     /**
      * Token dimension (square shape) relative to width (x) of the score tracker
      */
@@ -624,6 +634,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
             // Create the semi-transparent layer
             initOverlay = new Rectangle();
+            initOverlay.setMouseTransparent(true);
             initOverlay.setOpacity(0.5);
             overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
             overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
@@ -1007,50 +1018,18 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 stackPane.setOnMouseClicked((MouseEvent event) -> switchToPlayer(currPlayer));
 
                 ColorToken color = currPlayer.getToken().getColor();
-                String colorClass = null;
-                switch (color) {
-                    case GREEN : {
-                        colorClass = "player-green";
-                        break;
-                    }
-                    case BLUE : {
-                        colorClass = "player-blue";
-                        break;
-                    }
-                    case RED : {
-                        colorClass = "player-red";
-                        break;
-                    }
-                    case YELLOW : {
-                        colorClass = "player-yellow";
-                        break;
-                    }
-                }
+                String colorClass = "player-" + color.name().toLowerCase();
                 stackPane.getStyleClass().add(colorClass);
 
                 for(Node playerNode: stackPane.getChildren()) {
-                    // TODO: beautify, this is not great...
-                    try {
-                        // this node is a label
-                        Label label = (Label) playerNode;
+                    if(playerNode instanceof Label label) {
                         if (label.getId().equals("player")) {
                             String isYouPostfix = this.thisPlayer.equals(currPlayer) ? " (you)" : "";
                             label.setText(currPlayer.getNickname() + isYouPostfix);
-//                            case "turn" -> {
-//                                if(this.state.getCurrentPlayer()==null)
-//                                    label.setText("Initial phase");
-//                                else
-//                                    label.setText(this.state.getCurrentPlayer().equals(currPlayer) ? "TURN" : "waiting");
-//                            }
-//                            case "points" -> label.setText(this.state.getPlayerState(currPlayer).getPoints() + " pts");
-                            //TODO si può togliere?
                         } else {
                             throw new RuntimeException("Error while labeling in playerContainer");
                         }
-                    } catch (Exception ignore) {
-                        // this node is an imageView
-                        // TODO questo warning è molto sospetto...
-                        ImageView imgView = (ImageView) playerNode;
+                    } else if(playerNode instanceof ImageView imgView) {
                         if (imgView.getId().equals("online")) {
                             imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
                         }
@@ -1402,6 +1381,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Method associated to the button for zooming in the field
      */
+    @FXML
     public void onFieldZoomButtonAction() {
         if(fieldContainer.getScaleX()<3) {
             fieldContainer.setScaleX(fieldContainer.getScaleX() * 1.1);
@@ -1412,10 +1392,27 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Method associated to the button for zooming out the field
      */
+    @FXML
     public void onFieldDezoomButtonAction() {
         if(fieldContainer.getScaleX()>0.1) {
             fieldContainer.setScaleX(fieldContainer.getScaleY() / 1.1);
             fieldContainer.setScaleY(fieldContainer.getScaleY() / 1.1);
+        }
+    }
+
+    /**
+     * Method associated to the scroll (CTRL + scroll of mouse wheel) to zoom/dezoom the field
+     * @param scrollEvent Event of the scroll
+     */
+    @FXML
+    public void onMouseWheelScroll(ScrollEvent scrollEvent) {
+        if (scrollEvent.isControlDown()) {
+            double delta = scrollEvent.getDeltaY();
+            if (delta > 0) {
+                onFieldZoomButtonAction();
+            } else {
+                onFieldDezoomButtonAction();
+            }
         }
     }
 
@@ -1439,12 +1436,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private void initScoreTracker() {
         Platform.runLater(() -> {
+            int count = 0;
             for(PlayerLobby p : state.getPlayers()) {
                 savedPoints.put(p, 0);
+                tokenOffsetCoordinates.put(p, count*TOKEN_X_OFFSET);
                 ImageView tokenImg = createAndPositionTokenImage(p);
                 tokenImgs.put(p, tokenImg);
+                count++;
             }
-            tokenImgs.get(thisPlayer).toFront();
+//            tokenImgs.get(thisPlayer).toFront();
         });
         for(PlayerLobby p : state.getPlayers()) {
             lastTokenAnimations.put(p, null);
@@ -1483,9 +1483,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         newToken.setFitWidth(tokenDimRel2x * xDim);
 
         StackPane.setAlignment(newToken, Pos.BOTTOM_LEFT);
-        newToken.setTranslateX(xTranslToken.getFirst() * xDim);
+        newToken.setTranslateX(xTranslToken.getFirst() * xDim + tokenOffsetCoordinates.get(player));
         newToken.setTranslateY(yTranslToken.getFirst() * yDim);
         scoreTrackerContainer.getChildren().add(newToken);
+        newToken.toFront();
 
         return newToken;
     }
@@ -1508,14 +1509,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             tokenImgs.replace(player, token);
         }
 
-        ImageView token = tokenImgs.get(player);
         if (currentPoints / 29 < points / 29) {
             // I must go to 29 and concatenate another animation after that
             int finalAnimationPoints = (currentPoints / 29 + 1) * 29;
-            PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, 29);
+            PathTransition animation = createAnimationTokenMove(player, currentPoints % 29, 29);
+            tokenOffsetCoordinates.replace(player, 0.0);
             animation.setOnFinished(event -> {
                 synchronized (player) {
                     savedPoints.replace(player, finalAnimationPoints);
+                    tokenImgs.get(player).toFront();
                     updateTokenPositionRic(player);
                     lastTokenAnimations.replace(player, null);
                 }
@@ -1526,17 +1528,19 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 if(lastTokenAnimation != null) {     // An animation is still playing
                     lastTokenAnimation.setOnFinished(actionEvent -> {
                         savedPoints.replace(player, points);
+                        tokenImgs.get(player).toFront();
                         animation.play();
                         lastTokenAnimations.replace(player, animation);
                     });
                 } else {     // no animation is currently playing
                     savedPoints.replace(player, points);
+                    tokenImgs.get(player).toFront();
                     animation.play();
                 }
             }
 
         } else {
-            PathTransition animation = createAnimationTokenMove(token, currentPoints % 29, points % 29);
+            PathTransition animation = createAnimationTokenMove(player, currentPoints % 29, points % 29);
             animation.setOnFinished(actionEvent -> {
                     synchronized (player) {
                         lastTokenAnimations.replace(player, null);
@@ -1573,12 +1577,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     /**
      * Creates and plays an animation of the given token moving on the scoretrakcer.
      * The specified points must be the visible number on the scoretracker, and the token can move only forward
-     * @param token Token to be moved
+     * @param player Player whose token is to be moved
      * @param from Points where to start from. Must be a number >=0 and < 29
      * @param to Points where to arrive. Must be a number <code>>from</code>, so >0 and <=29
      * @return The transition animation (could be useful to add listeners...)
      */
-    private PathTransition createAnimationTokenMove(ImageView token, int from, int to) {
+    private PathTransition createAnimationTokenMove(PlayerLobby player, int from, int to) {
+        ImageView token = tokenImgs.get(player);
         double xDim = scoreTrackerContainer.getWidth();
         double yDim = scoreTrackerContainer.getHeight();
 
@@ -1587,12 +1592,38 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         path.setLayoutX(tokenDimRel2x*xDim/2);
         path.setLayoutY(tokenDimRel2x*xDim/2);
         scoreTrackerContainer.getChildren().add(path);
-        path.getElements().add(new MoveTo(xTranslToken.get(from) * xDim, yTranslToken.get(from) * yDim ));
+        path.getElements().add(new MoveTo(
+                xTranslToken.get(from) * xDim + tokenOffsetCoordinates.get(player),
+                yTranslToken.get(from) * yDim ));
+
+        // If from where i am now there are other tokens with offset > than mine, i must move them
+        List<PlayerLobby> inSameSpot = new ArrayList<>();
+        for(int i=0 ; i<5 ; i++) {
+            int finalI = i;
+            List<PlayerLobby> temp = savedPoints.entrySet().stream().filter(entry -> entry.getValue()==from+29*finalI).
+                    map(Map.Entry::getKey).toList();
+            if(!temp.isEmpty())
+                inSameSpot.addAll(temp);
+        }
+        for(PlayerLobby p : inSameSpot)
+            if(tokenOffsetCoordinates.get(p) > tokenOffsetCoordinates.get(player))
+                playAnimationTokenOffsetLess(p);
+
         for(int point=from+1 ; point<=to ; point++) {
+            int count = 0;
+            for(PlayerLobby p : state.getPlayers())
+                if(!p.equals(player) && savedPoints.get(p)%29==point)
+                    count++;
+
+            double offset = count * TOKEN_X_OFFSET;
+            tokenOffsetCoordinates.replace(player, offset);
             path.getElements().add(new LineTo(
-                    xTranslToken.get(point) * xDim,
+                    xTranslToken.get(point) * xDim + offset,
                     yTranslToken.get(point) * yDim));
         }
+
+        if(to == 29 && player.equals(thisPlayer))
+            tokenImgs.get(player).toFront();
 
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(0.25*(to-from))); // Set animation duration
@@ -1600,6 +1631,58 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         pathTransition.setNode(token);
         pathTransition.setCycleCount(1); // Play once
         return pathTransition;
+    }
+
+    /**
+     * Creates and plays an animation moving the token of the specified player of an 'offset less', if its
+     * token has an offset > 0.
+     * Updates the saved offset, too.
+     * @param player Player whose token is to be moved
+     */
+    private void playAnimationTokenOffsetLess(PlayerLobby player) {
+        if(tokenOffsetCoordinates.get(player) == 0)
+            return;
+
+        double xDim = scoreTrackerContainer.getWidth();
+        double yDim = scoreTrackerContainer.getHeight();
+        Path path = new Path();
+        path.setVisible(false);
+        path.setLayoutX(tokenDimRel2x * xDim / 2);
+        path.setLayoutY(tokenDimRel2x * xDim / 2);
+        scoreTrackerContainer.getChildren().add(path);
+        path.getElements().add(new MoveTo(
+                xTranslToken.get(savedPoints.get(player) % 29) * xDim + tokenOffsetCoordinates.get(player),
+                yTranslToken.get(savedPoints.get(player) % 29) * yDim));
+
+        tokenOffsetCoordinates.replace(player, tokenOffsetCoordinates.get(player) - TOKEN_X_OFFSET);
+        path.getElements().add(new LineTo(
+                xTranslToken.get(savedPoints.get(player) % 29) * xDim + tokenOffsetCoordinates.get(player),
+                yTranslToken.get(savedPoints.get(player) % 29) * yDim));
+
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.seconds(0.25)); // Set animation duration
+        pathTransition.setPath(path);
+        pathTransition.setNode(tokenImgs.get(player));
+        pathTransition.setCycleCount(1); // Play once
+        pathTransition.setOnFinished(actionEvent -> {
+            synchronized (player) {
+                lastTokenAnimations.replace(player, null);
+            }
+        });
+
+        synchronized (player) {
+            if(lastTokenAnimations.get(player) != null) {
+                lastTokenAnimations.get(player).setOnFinished(actionEvent -> {
+                    lastTokenAnimations.replace(player, pathTransition);
+                    pathTransition.play();
+                    tokenImgs.get(player).toFront();
+                });
+            } else {
+                lastTokenAnimations.replace(player, pathTransition);
+                pathTransition.play();
+                tokenImgs.get(player).toFront();
+            }
+        }
     }
 
     //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
@@ -1766,10 +1849,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
     @FXML
     public void onClickShowRulebook(){
-        File file=   new File( Objects.requireNonNull(getClass().getResource("/docs/CODEX_Rulebook_EN.pdf").getFile()));
-        //                            imgView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/polimi/ingsw/am13/client/view/gui/style/img/player-online.png"))));
         InputStream manualAsStream= Objects.requireNonNull(getClass().getResourceAsStream("/docs/CODEX_Rulebook_EN.pdf"));
-        java.nio.file.Path tempOutput = null;
+        java.nio.file.Path tempOutput;
         try {
             tempOutput = Files.createTempFile("TempManual", ".pdf");
         } catch (IOException e) {
@@ -1832,8 +1913,4 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 }
         );
     }
-
-
-
-
 }

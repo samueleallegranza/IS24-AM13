@@ -139,6 +139,7 @@ public class GameModel implements GameModelIF {
 
     /**
      * @return List of players
+     * The order is the one followed in a round, from the first player to the last one
      */
     public List<PlayerIF> fetchPlayers() {
         return new ArrayList<>(match.getPlayers());

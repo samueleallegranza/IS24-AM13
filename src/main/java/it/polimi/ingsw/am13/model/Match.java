@@ -107,18 +107,21 @@ public class Match {
         List<ColorToken> distinctColors = players.stream().map(p -> p.getPlayerLobby().getToken().getColor()).distinct().toList();
         if(distinctColors.size()!=players.size())
             throw new InvalidPlayersNumberException();
-        this.players = Collections.unmodifiableList(players);
-        playersMap = new HashMap<>();
-        for(Player p : players) {
-            playersMap.put(p.getPlayerLobby(), p);
-        }
 
         gameStatus = null;
-        Random rnd = new Random(System.currentTimeMillis());
-        firstPlayerIndex = rnd.nextInt(players.size());
-        firstPlayer = players.get(firstPlayerIndex);
         currentPlayer = null;
         turnsToEnd = -1;
+
+        List<Player> playersTemp = new ArrayList<>(players);
+        Collections.shuffle(playersTemp, new Random(System.currentTimeMillis()));
+        this.players = Collections.unmodifiableList(playersTemp);
+
+        firstPlayerIndex = 0;
+        firstPlayer = playersTemp.getFirst();
+        playersMap = new LinkedHashMap<>();
+        for(Player p : this.players) {
+            playersMap.put(p.getPlayerLobby(), p);
+        }
 
         LinkedList<CardResource> cardsResource;
         LinkedList<CardGold> cardsGold;
@@ -575,10 +578,10 @@ public class Match {
             throw new GameStatusException("It's not the moment to change turn, player still has to play and/or pick");
         turnActionsCounter = 0;
 
-        if(gameStatus==GameStatus.IN_GAME && checkFinalPhase()){
+        if(gameStatus==GameStatus.IN_GAME && checkFinalPhase()) {
             gameStatus = GameStatus.FINAL_PHASE;
             int currentPlayerIndex = players.indexOf(currentPlayer);
-            turnsToEnd=players.size()+(firstPlayerIndex-currentPlayerIndex-1+players.size())%players.size();
+            turnsToEnd = players.size() + (firstPlayerIndex-currentPlayerIndex-1+players.size()) % players.size();
         }
         else {
             if (gameStatus == GameStatus.FINAL_PHASE) {
@@ -593,7 +596,7 @@ public class Match {
         int i=0;
         while (players.get(i)!=currentPlayer)
             i++;
-        currentPlayer=players.get((i+1)%players.size());
+        currentPlayer = players.get((i+1)%players.size());
         return true;
     }
 

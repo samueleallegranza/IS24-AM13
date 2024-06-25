@@ -28,7 +28,8 @@ public interface GameModelIF {
     List<PlayerLobby> fetchPlayersLobby();
 
     /**
-     * @return List of players
+     * @return List of players.
+     * The order is the one followed in a round, from the first player to the last one
      */
     List<PlayerIF> fetchPlayers();
 
