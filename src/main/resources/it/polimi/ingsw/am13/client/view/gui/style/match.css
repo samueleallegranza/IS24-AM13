@@ -168,3 +168,141 @@
     -fx-background-image: url("img/homepage-daCanc.jpg");
     -fx-background-size: cover;
 }
+
+.zoomInButton {
+    -fx-background-image: url("img/zoom-in.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+}
+
+.zoomOutButton {
+    -fx-background-image: url("img/zoom-out.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+}
+
+.btn-reset {
+    -fx-font-size: 10px;
+    -fx-min-height: 26px;
+    -fx-max-height: 26px;
+    -fx-padding: 0 0 4 0;
+}
+.btn-symbol {
+    -fx-font-family: Arial;
+    -fx-font-size: 10px;
+    -fx-min-height: 26px;
+    -fx-max-height: 26px;
+    -fx-min-width:  26px;
+    -fx-max-width:  26px;
+    -fx-background-position: center;
+}
+
+
+
+/* Chat, logs & guide */
+
+* {
+    -fx-game-light-color: rgb(239, 226, 205);
+    -fx-game-primary-color: rgb(213, 192, 158);
+    -fx-game-hover-color: rgb(159, 130, 79);
+    -fx-game-selected-color: rgb(122, 92, 51);
+    -fx-game-border-color: #381e08;
+}
+
+.tab-pane {
+    -fx-font-family: "Inknut Antiqua", 'serif';
+    -fx-font-size: 10px;
+
+    -fx-background-insets: 0 0 0 0;
+}
+
+.tab-pane .tab:filled {
+    -fx-background-color: -fx-game-primary-color;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: -fx-game-hover-color;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: -fx-game-selected-color;
+
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10 0 10;
+}
+.tab-pane:top *.tab-header-area {
+    -fx-padding: 0 0 0 20;
+
+    /* NO SPACE LEFT OF FIRST TAB */
+    /* -fx-padding: 0 0 0 30; */
+}
+.tab-pane {
+    -fx-background-color: transparent;
+    -fx-tab-min-width: 70px;
+    -fx-tab-min-height: 24px;
+    -fx-tab-max-height: 24px;
+    -fx-border-insets: 0 0 0 0;
+}
+.tab-pane .tab {
+    -fx-border-color: -fx-game-border-color;
+    -fx-border-style: solid;
+    -fx-border-radius: 4px;
+
+    -fx-background-color: -fx-game-primary-color;
+}
+.tab-pane:focused .tab-header-area .headers-region .tab:selected .focus-indicator {
+    -fx-border-width: 0;
+    -fx-border-insets: 0 0 0 0;
+    -fx-border-radius: 0;
+}
+
+
+/* Text-area */
+text-area {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+.text-area .content {
+    -fx-background-color: -fx-game-light-color;
+
+    -fx-border-color: -fx-game-border-color;
+    -fx-border-style: solid;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+/* Spinner */
+.choice-box {
+    -fx-background-color: -fx-game-light-color;
+    -fx-border-color: -fx-game-border-color;
+    -fx-border-style: solid;
+    -fx-border-radius: 4px;
+}
+
+/* Button */
+.button {
+    -fx-font-family: "Inknut Antiqua", 'serif';
+    -fx-background-color: rgb(213, 192, 158);
+    -fx-border-color: #381e08;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-text-fill: black;
+}
+.button:hover {
+    -fx-background-color: rgb(159, 130, 79);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}
+.button:pressed {
+    -fx-background-color: rgb(122, 92, 51);
+    /*-fx-text-fill: white;*/
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}

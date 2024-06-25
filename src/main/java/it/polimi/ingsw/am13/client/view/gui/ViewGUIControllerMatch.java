@@ -459,9 +459,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         initPlayerContainer();
 
         guideArea.setText("""
-                Drag a card in your hand to one of the blue boxes to play it
-                 Click a card to draw it
-                Click on the banner a player to view its field""");
+                > Drag a card in your hand to one of the blue boxes to play it
+                > Click a card to draw it
+                > Click on the banner a player to view its field""");
 
 //        StackPane root=(StackPane) scene.getRoot();
 //        root.widthProperty().addListener((obs,oldVal,newVal)->{
