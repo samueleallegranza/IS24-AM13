@@ -11,15 +11,15 @@ public class ParametersServer {
     /**
      * Constant storing the timeout used to detect the disconnection of a client (in ms)
      */
-    public static final Long timeout = 4000L;
+    public static Long timeout = 4000L;
     /**
      * Constant storing the sleep time in ms of the threads managing connections (i.e. how often they repeat the checks)
      */
-    public static final Long sleepTime = 500L;
+    public static Long sleepTime = 500L;
     /**
      * How much time (in ms) the controller waits for a client to reconnect when only 1 player or fewer are connected
      */
-    public static final Long timeToWaitReconnection = 60000L;
+    public static Long timeToWaitReconnection = 60000L;
     /**
      * Flag indication if a player who remained alone must be declared winner
      * Debug purposes only

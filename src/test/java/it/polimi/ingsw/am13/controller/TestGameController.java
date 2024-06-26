@@ -2,6 +2,7 @@ package it.polimi.ingsw.am13.controller;
 
 import it.polimi.ingsw.am13.ControlAction;
 import it.polimi.ingsw.am13.LisForTest;
+import it.polimi.ingsw.am13.ParametersServer;
 import it.polimi.ingsw.am13.model.GameModelIF;
 import it.polimi.ingsw.am13.model.GameStatus;
 import it.polimi.ingsw.am13.model.card.*;
@@ -245,7 +246,7 @@ public class TestGameController {
         // A player disconnects
         PlayerLobby disPlayer = (currPlayer==liss.get(0).getPlayer()) ? liss.get(1).getPlayer() : liss.get(0).getPlayer();
         assertThrows(InvalidPlayerException.class, ()->controller.disconnectPlayer(new PlayerLobby("Pippo", ColorToken.RED)));
-        controller.disconnectPlayer(disPlayer, 2000);
+        controller.disconnectPlayer(disPlayer, 500);
         for(LisForTest l : liss)
             if(!l.getPlayer().equals(disPlayer)) {
                 assertEquals(ControlAction.DISCONNECTED, l.actions.getLast());
@@ -272,7 +273,7 @@ public class TestGameController {
             controller.playCard(p, model.fetchHandPlayable(p).getFirst(), Side.SIDEBACK,
                     model.fetchAvailableCoord(p).getFirst());
             if(p == disPlayer)
-                controller.disconnectPlayer(disPlayer, 2000);
+                controller.disconnectPlayer(disPlayer, 500);
             else {
                 CardPlayableIF cardDrawn = model.fetchPickables().getFirst();
                 controller.pickCard(p, cardDrawn);
@@ -294,7 +295,7 @@ public class TestGameController {
         }
         currPlayer = model.fetchCurrentPlayer();
         controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
-        controller.disconnectPlayer(disPlayer, 2000);
+        controller.disconnectPlayer(disPlayer, 500);
         for(LisForTest l : liss)
             if(!l.getPlayer().equals(disPlayer)) {
                 assertEquals(ControlAction.DISCONNECTED, l.actions.getLast());
@@ -306,9 +307,9 @@ public class TestGameController {
         LisForTest lisOnlu = liss.stream().filter(l->l.getPlayer().equals(model.fetchCurrentPlayer())).findFirst().orElseThrow();
         for(LisForTest l : liss)
             if(l != lisOnlu)
-                controller.disconnectPlayer(l.getPlayer(), 2000);
+                controller.disconnectPlayer(l.getPlayer(), 10000);
         // Now only 1 player has remained
-        Thread.sleep(1000);
+        Thread.sleep(500);
         assertEquals(ControlAction.DISCONNECTED, lisOnlu.actions.getLast());
         // Now 1 player reconnect in time for not making lisOnly win
         LisForTest lisOther = liss.getFirst()!=lisOnlu ? liss.getFirst() : liss.get(1);
@@ -318,33 +319,35 @@ public class TestGameController {
         int dim0 = lisOnlu.actions.size();
 
         // Even though I wait for enough time, player should not win, as time for reconnection stopped
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         assertEquals(dim0, lisOnlu.actions.size());
 
         // Now really 1 player remains
-        controller.disconnectPlayer(lisOther.getPlayer(), 2000);
-        Thread.sleep(3000);
+        controller.disconnectPlayer(lisOther.getPlayer(), 200);
+        Thread.sleep(1000);
         assertEquals(ControlAction.WINNER, lisOnlu.actions.getLast());
     }
 
     @Test
     public void testDisconnectionInit() throws LobbyException, InvalidPlayerException, InterruptedException {
         testCreation();
+        ParametersServer.timeout = 100L;
+        ParametersServer.sleepTime = 100L;
         PlayerLobby p1 = liss.getFirst().getPlayer();
-        controller.disconnectPlayer(p1, 2000);
+        controller.disconnectPlayer(p1, 100);
         assertThrows(InvalidPlayCardException.class,
                 ()->controller.playStarter(p1, Side.SIDEFRONT));
         assertThrows(VariableAlreadySetException.class,
                 ()->controller.choosePersonalObjective(p1, model.fetchPersonalObjectives(p1).getFirst()));
 
         PlayerLobby p2 = liss.get(1).getPlayer();
-        controller.disconnectPlayer(p2, 2000);
+        controller.disconnectPlayer(p2, 100);
         assertThrows(InvalidPlayCardException.class,
                 ()->controller.playStarter(p2, Side.SIDEFRONT));
         assertThrows(VariableAlreadySetException.class,
                 ()->controller.choosePersonalObjective(p2, model.fetchPersonalObjectives(p2).getFirst()));
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         assertEquals(ControlAction.WINNER, liss.getLast().actions.getLast());
         assertEquals(liss.getLast().getPlayer(), ((MsgResponseWinner)liss.getLast().updates.getLast()).getPlayer().getFirst());
     }
@@ -356,9 +359,9 @@ public class TestGameController {
         int id = model.getGameId();
         assertEquals(1, Lobby.getInstance().getRooms().stream().filter(r -> r.getGameId()==id).toList().size());
         for(LisForTest l : liss) {
-            controller.disconnectPlayer(l.getPlayer(), 2000);
+            controller.disconnectPlayer(l.getPlayer(), 100);
         }
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         assertTrue(Lobby.getInstance().getRooms().stream().filter(r -> r.getGameId()==id).toList().isEmpty());
     }
 
@@ -447,8 +450,8 @@ public class TestGameController {
 
         assertEquals(1, Lobby.getInstance().getRooms().size());
         for(PlayerLobby p : pl.keySet())
-            controller.disconnectPlayer(p, 2000);
-        Thread.sleep(2500);
+            controller.disconnectPlayer(p, 100);
+        Thread.sleep(1000);
         assertEquals(0, Lobby.getInstance().getRooms().size());
     }
 
@@ -520,7 +523,6 @@ public class TestGameController {
             currPlayer = model.fetchCurrentPlayer();
             for(LisForTest l : liss)
                 assertNotEquals(ControlAction.WINNER, l.actions.getLast());
-            //todo sistema in modo che non giochi se è l'unico rimasto
             controller.playCard(currPlayer, model.fetchHandPlayable(currPlayer).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(currPlayer).getFirst());
             controller.pickCard(currPlayer, model.fetchPickables().stream().filter(Objects::nonNull).findFirst().orElseThrow());
         }
@@ -531,15 +533,15 @@ public class TestGameController {
             if(l.getPlayer() != pToWin) {
                 assertEquals(ControlAction.WINNER, l.actions.getLast());
                 assertEquals(ControlAction.EXTRAN_POINTS, l.actions.get(l.actions.size()-2));
-//                assertEquals(pActuallyWon, ((MsgResponseWinner)l.updates.getLast()).getPlayer().getFirst());
+                assertTrue(((MsgResponseWinner)l.updates.getLast()).getPlayer().contains(pActuallyWon));
             }
         }
         assertNotEquals(ControlAction.WINNER, pl.get(pToWin).actions.getLast());
 
         assertEquals(1, Lobby.getInstance().getRooms().size());
-        controller.disconnectPlayer(liss.get(1).getPlayer(), 2000);
-        controller.disconnectPlayer(liss.get(2).getPlayer(), 2000);
-        Thread.sleep(2500);
+        controller.disconnectPlayer(liss.get(1).getPlayer(), 100);
+        controller.disconnectPlayer(liss.get(2).getPlayer(), 100);
+        Thread.sleep(100);
         assertEquals(0, Lobby.getInstance().getRooms().size());
     }
 
@@ -605,17 +607,18 @@ public class TestGameController {
         testCreation();
 
         // Game has started, and now a player disconnects for network crash
-//        liss.getLast().stopPing = true;
+        ParametersServer.timeout = 100L;
+        ParametersServer.sleepTime = 100L;
         LisForTest lisFirstCrash = liss.get(
                 (liss.stream().map(LisForTest::getPlayer).toList().indexOf(model.fetchFirstPlayer()) + 1) % 3);
         List<LisForTest> lissOthers = liss.stream().filter(l->l!=lisFirstCrash).toList();
+        int oldSize = lissOthers.getFirst().actions.size();
         lisFirstCrash.stopPing = true;
-//        System.out.println(model.fetchFirstPlayer());
-        Thread.sleep(5000);
+        while(lissOthers.getFirst().actions.size() == oldSize)
+            Thread.sleep(150);
         for(LisForTest l : lissOthers) {
-//            List<ControlAction> last3 = l.actions.stream().skip(l.actions.size()-3).toList();
-            //todo fix this
-//            assertTrue(last3.containsAll(List.of(ControlAction.DISCONNECTED, ControlAction.CHOOSE_OBJ, ControlAction.PLAY_STARTER)));
+            List<ControlAction> last3 = l.actions.stream().skip(l.actions.size()-3).toList();
+            assertTrue(last3.containsAll(List.of(ControlAction.DISCONNECTED, ControlAction.CHOOSE_OBJ, ControlAction.PLAY_STARTER)));
         }
 
         for(LisForTest l : lissOthers) {
@@ -623,33 +626,37 @@ public class TestGameController {
             controller.choosePersonalObjective(l.getPlayer(), model.fetchPersonalObjectives(l.getPlayer()).getFirst());
         }
 
-        // Now the turn-based phase has starter, and player who must play (first player) crashes
+        // Now the turn-based phase has started, and player who must play (first player) crashes
+        ParametersServer.timeToWaitReconnection = 500L;
         LisForTest lissCrash = liss.stream().filter(l->l.getPlayer().equals(model.fetchFirstPlayer())).findFirst().orElseThrow();
         LisForTest lissRemain = liss.stream().filter(l->l!= lissCrash && l!=lisFirstCrash).findFirst().orElseThrow();
+        oldSize = lissRemain.actions.size();
         lissCrash.stopPing = true;
-        Thread.sleep(5000);
+        while(lissRemain.actions.size() == oldSize)
+            Thread.sleep(150);
         assertEquals(ControlAction.NEXT_TURN, lissRemain.actions.getLast());
 
-//        PlayerLobby playerRemain = lissRemain.getPlayer();
-//        assertEquals(playerRemain, model.fetchCurrentPlayer());
-//        controller.playCard(playerRemain, model.fetchHandPlayable(playerRemain).getFirst(), Side.SIDEBACK, model.fetchAvailableCoord(playerRemain).getFirst());
-//        controller.pickCard(playerRemain, model.fetchPickables().getFirst());
-//        assertEquals(playerRemain, model.fetchCurrentPlayer());     // Only playerRemain has remained, it's still his turn
-//        assertNotEquals(ControlAction.WINNER, lissRemain.actions.getLast());
+        oldSize = lissRemain.actions.size();
+        PlayerLobby playerRemain = lissRemain.getPlayer();
+        System.out.println(playerRemain);
+        assertEquals(playerRemain, model.fetchCurrentPlayer());
+        assertNotEquals(ControlAction.WINNER, lissRemain.actions.getLast());
 
-        Thread.sleep(11000);
-        //todo fix this
-//        assertEquals(ControlAction.WINNER, lissRemain.actions.getLast());
-//        assertEquals(playerRemain, ((MsgResponseWinner)lissRemain.updates.getLast()).getPlayer().getFirst());
+        while(lissRemain.actions.size() == oldSize)
+            Thread.sleep(50);
+        assertEquals(ControlAction.WINNER, lissRemain.actions.getLast());
+        assertEquals(playerRemain, ((MsgResponseWinner)lissRemain.updates.getLast()).getPlayer().getFirst());
     }
 
     @Test
     public void testDisconnectionPingForAllPlayers() throws InvalidPlayerException, InvalidChoiceException, LobbyException, InvalidPlayCardException, VariableAlreadySetException, GameStatusException, InterruptedException {
         testPlayStarterAndChooseObj();
         assertEquals(1, Lobby.getInstance().getRooms().size());
-        liss.forEach(l -> l.stopPing=true);
-        Thread.sleep(5000);
-        //todo fix this
-//        assertTrue(Lobby.getInstance().getRooms().isEmpty());
+        ParametersServer.timeout = 50L;
+        ParametersServer.sleepTime = 50L;
+        ParametersServer.timeToWaitReconnection = 50L;
+        liss.forEach(l -> l.stopPing = true);
+        Thread.sleep(2500);
+        assertTrue(Lobby.getInstance().getRooms().isEmpty());
     }
 }
