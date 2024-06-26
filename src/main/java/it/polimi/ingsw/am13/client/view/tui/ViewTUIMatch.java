@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class ViewTUIMatch {
 
-    //TODO: magari aggiungi un contatore per le risorse attualmente in campo
-
     private final ViewTUI view;
     private final GameState gameState;
     private final PlayerLobby thisPlayer;
@@ -232,6 +230,7 @@ public class ViewTUIMatch {
         List<String> infoObj2 = ViewTUIPrintUtils.createInfoForObjective(gameState.getCommonObjectives().get(1));
         List<String> infoObj3 = ViewTUIPrintUtils.createInfoForObjective(gameState.getPlayerState(thisPlayer).getHandObjective());
 
+        List<String> counterLines = ViewTUIPrintUtils.createCounterLines(gameState.getPlayerState(thisPlayer).getField().getResourcesInField());
 
         return String.format(
                        """
@@ -241,15 +240,15 @@ public class ViewTUIMatch {
                         ║ R │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ ├───┘    %3s    └───┤ (1) ║
                         ║ E ├───┘    %3s    └───┤  ├───┘    %3s    └───┤  ├───┘    %3s    └───┤ ║ ├───┐           ┌───┤     ║
                         ║ S ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ │ %c │   %5s   │ %c │     ║
-                        ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘     ║
-                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                           ║
-                        ║   ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐ ║ ┌───┬───%c───%c───┬───┐     ║
-                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3s    │ %c │     ║
-                        ║ O ├───┘    %3s    └───┤  ├───┘    %3s    └───┤  ├───┘    %3s    └───┤ ║ ├───┘    %3s    └───┤ (2) ║
-                        ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤     ║
-                        ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │     ║
-                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘     ║
-                        ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                           ║
+                        ║   │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ └───┴───────────┴───┘     ║  ╔════════╗
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║                           ║  ║ %6s ║
+                        ║   ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐  ┌───┬───%c───%c───┬───┐ ║ ┌───┬───%c───%c───┬───┐     ║  ║ %6s ║
+                        ║ G │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │  │ %c │    %3s    │ %c │ ║ │ %c │    %3s    │ %c │     ║  ║ %6s ║
+                        ║ O ├───┘    %3s    └───┤  ├───┘    %3s    └───┤  ├───┘    %3s    └───┤ ║ ├───┘    %3s    └───┤ (2) ║  ║ %6s ║
+                        ║ L ├───┐           ┌───┤  ├───┐           ┌───┤  ├───┐           ┌───┤ ║ ├───┐           ┌───┤     ║  ║ %6s ║
+                        ║ D │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │  │ %c │   %5s   │ %c │ ║ │ %c │   %5s   │ %c │     ║  ║ %6s ║
+                        ║   └───┴───────────┴───┘  └───┴───────────┴───┘  └───┴───────────┴───┘ ║ └───┴───────────┴───┘     ║  ║ %6s ║
+                        ╠════════════════════════════[▽ OBJECTIVES ▽]═══════════════════════════╣                           ║  ╚════════╝
                         ║   ┌───────COMMON──────┐  ┌───────COMMON──────┐  ┌──────PERSONAL─────┐ ║ ┌───┬───%c───%c───┬───┐     ║
                         ║   │%s│  │%s│  │%s│ ║ │ %c │    %3s    │ %c │     ║
                         ║   │%s│  │%s│  │%s│ ║ ├───┘    %3s    └───┤ (3) ║
@@ -264,10 +263,18 @@ public class ViewTUIMatch {
                 hand.get(0).corners[3], hand.get(0).requirements, hand.get(0).corners[2],
                 deckRes.get(0).corners[3], deckRes.get(0).requirements, deckRes.get(0).corners[2], deckRes.get(1).corners[3], deckRes.get(1).requirements, deckRes.get(1).corners[2], deckRes.get(2).corners[3], deckRes.get(2).requirements, deckRes.get(2).corners[2],
 
+                counterLines.get(0),
+
                 deckGold.get(0).type, deckGold.get(0).side, deckGold.get(1).type, deckGold.get(1).side, deckGold.get(2).type, deckGold.get(2).side,  hand.get(1).type, hand.get(1).side,
+                counterLines.get(1),
                 deckGold.get(0).corners[0], deckGold.get(0).points, deckGold.get(0).corners[1], deckGold.get(1).corners[0], deckGold.get(1).points, deckGold.get(1).corners[1], deckGold.get(2).corners[0], deckGold.get(2).points, deckGold.get(2).corners[1], hand.get(1).corners[0], hand.get(1).points, hand.get(1).corners[1],
+                counterLines.get(2),
                 deckGold.get(0).color, deckGold.get(1).color, deckGold.get(2).color, hand.get(1).color,
+                counterLines.get(3), counterLines.get(4),
                 deckGold.get(0).corners[3], deckGold.get(0).requirements, deckGold.get(0).corners[2], deckGold.get(1).corners[3], deckGold.get(1).requirements, deckGold.get(1).corners[2], deckGold.get(2).corners[3], deckGold.get(2).requirements, deckGold.get(2).corners[2], hand.get(1).corners[3], hand.get(1).requirements, hand.get(1).corners[2],
+                counterLines.get(4),
+
+                counterLines.get(6),
 
                 hand.get(2).type, hand.get(2).side,
                 infoObj1.get(0), infoObj2.get(0), infoObj3.get(0),

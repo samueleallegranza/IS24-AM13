@@ -18,6 +18,22 @@ import java.util.stream.Collectors;
 public class ViewTUIPrintUtils {
 
     /**
+     * Creates the 7 lines that can be used as counter in TUI. There is 1 line per resource, and the symbols used are
+     * the same ones printed on the field
+     * @param resourcesInField Count of resources currently on the field
+     * @return List of size 7 of string lines for the counter. Each line is long 6 chars
+     */
+    public static List<String> createCounterLines(Map<Resource, Integer> resourcesInField) {
+        List<String> lines = new ArrayList<>();
+        for(Resource r : Resource.values())
+            if(r != Resource.NO_RESOURCE)
+                lines.add(String.format("%1s : %02d",
+                        ViewTUIConstants.resourceToSymbol(r),
+                        resourcesInField.get(r)));
+        return lines;
+    }
+
+    /**
      * Static class containing all the symbols related to a card side
      */
     public static class CardSideSymbolsBuilder {

@@ -38,7 +38,8 @@ public class MenuItemPlayStarter extends MenuItem {
         else if(args.getFirst().equals("back"))
             side = Side.SIDEBACK;
         else
-            throw new InvalidTUICommandException("The parameter must be an integer representing the objective card to choose starting from left (1/2)");
+            throw new InvalidTUICommandException("The parameter must be front/back, to choose whether to play the front side (to the left)" +
+                    "of the right side (to the right)");
 
         networkHandler.playStarter(side);
     }

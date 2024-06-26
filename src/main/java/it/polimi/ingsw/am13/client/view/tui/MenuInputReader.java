@@ -62,24 +62,22 @@ public class MenuInputReader extends Thread {
             if(Thread.interrupted()) System.exit(0);
 
             synchronized (view) {
-                // Get commandKey from input
+                // Get commandKey and commandArgs from input
+                String commandKey, commandArgs;
                 int endCommandKey = input.indexOf(" ");
-                if(endCommandKey == -1)
-                    endCommandKey = input.length();
-                MenuItem menuItem = view.getCurrentMenu().getItem(input.substring(0, endCommandKey));
+                if(endCommandKey == -1) {
+                    commandKey = input;
+                    commandArgs = "";
+                } else {
+                    commandKey = input.substring(0, endCommandKey);
+                    commandArgs = input.substring(endCommandKey + 1);
+                }
+
+                MenuItem menuItem = view.getCurrentMenu().getItem(commandKey);
                 if (menuItem != null) {
                     // Get args from input (first space excluded)
                     try {
-                        StringBuilder args= new StringBuilder();
-                        boolean foundPref=false;
-                        for (int i = 0; i < input.length(); i++) {
-                            if(foundPref)
-                                args.append(input.charAt(i));
-                            else if(input.charAt(i)==' ')
-                                foundPref=true;
-                        }
-                        //input.substring(input.indexOf(" ") + 1)
-                        menuItem.executeCommand(args.toString(), networkHandler);
+                        menuItem.executeCommand(commandArgs, networkHandler);
                     } catch (InvalidTUICommandException e) {
                         view.showException(e);
                     }

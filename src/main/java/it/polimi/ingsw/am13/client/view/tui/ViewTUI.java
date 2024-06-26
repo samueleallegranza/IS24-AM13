@@ -118,8 +118,10 @@ public class ViewTUI implements View {
         else
             System.out.println("Generic error message arrived (" +
                     e.getClass().getName().substring(e.getClass().getName().lastIndexOf(".")+1) + ")");
-        currentMenu.printMenu();
-        // TODO: magari ristampa il field se stai mostrando il field
+        if(viewTUIMatch != null && currentChatRoom == null)
+            viewTUIMatch.printMatch();
+        else
+            currentMenu.printMenu();
     }
 
     /**
