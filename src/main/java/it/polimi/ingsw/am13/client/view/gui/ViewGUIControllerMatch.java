@@ -16,7 +16,6 @@ import javafx.animation.PathTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -392,7 +391,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private MediaPlayer playCardSoundPlayer;
 
-    private final EventType<ScrollEvent> eventType=new EventType<ScrollEvent>("undoScroll");
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
     // ----------------------------------------------------------------
