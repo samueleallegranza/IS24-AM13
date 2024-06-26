@@ -1404,6 +1404,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             } else {
                 onFieldDezoomButtonAction();
             }
+            scrollEvent.consume();
         }
     }
 
