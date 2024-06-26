@@ -16,6 +16,7 @@ import javafx.animation.PathTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -391,7 +392,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private MediaPlayer playCardSoundPlayer;
 
-
+    private final EventType<ScrollEvent> eventType=new EventType<ScrollEvent>("undoScroll");
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
     // ----------------------------------------------------------------
@@ -632,6 +633,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             initOverlay = new Rectangle();
             initOverlay.setMouseTransparent(true);
             initOverlay.setOpacity(0.5);
+            initOverlay.setMouseTransparent(true);
             overlayWidthListener = (observable, oldValue, newValue) -> initOverlay.setWidth(newValue.doubleValue());
             overlayHeightListener = (observable, oldValue, newValue) -> initOverlay.setHeight(newValue.doubleValue());
             topPane.widthProperty().addListener(overlayWidthListener);
@@ -1374,7 +1376,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     @FXML
     public void onFieldZoomButtonAction() {
-        if(fieldContainer.getScaleX()<3) {
+        if (fieldContainer.getScaleX() < 3) {
             fieldContainer.setScaleX(fieldContainer.getScaleX() * 1.1);
             fieldContainer.setScaleY(fieldContainer.getScaleY() * 1.1);
         }
@@ -1386,7 +1388,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     public void onFieldDezoomButtonAction() {
         if(fieldContainer.getScaleX()>0.1) {
-            fieldContainer.setScaleX(fieldContainer.getScaleY() / 1.1);
+            fieldContainer.setScaleX(fieldContainer.getScaleX() / 1.1);
             fieldContainer.setScaleY(fieldContainer.getScaleY() / 1.1);
         }
     }
@@ -1401,7 +1403,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             double delta = scrollEvent.getDeltaY();
             if (delta > 0) {
                 onFieldZoomButtonAction();
-            } else {
+            } else if (delta < 0){
                 onFieldDezoomButtonAction();
             }
             scrollEvent.consume();
@@ -1554,6 +1556,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     animation.play();
                 }
             }
+//            fieldScrollPane.setVvalue(fieldScrollPane.getVvalue()+delta/fieldScrollPane.getHeight());
+
+            //fieldScrollPane.getVvalue() * fieldScrollPane.getHeight() / fieldContainer.getPrefHeight()
+                    //+ 0.5 * (fieldScrollPane.getHeight()-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight());
         }
     }
 
