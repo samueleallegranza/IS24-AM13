@@ -79,7 +79,7 @@ public class Match {
     private int turnsToEnd;
 
     /**
-     * This variable keeps track of how players have chosen their objective card and played their starter card
+     * This variable keeps track of how many players have chosen their objective card and played their starter card
      */
     private int countSetup;
 
