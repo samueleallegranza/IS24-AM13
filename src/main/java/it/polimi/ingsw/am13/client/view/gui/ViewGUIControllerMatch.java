@@ -1872,6 +1872,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         musicPlayer = new MediaPlayer(new Media(Objects.requireNonNull(
                 getClass().getResource("/music/" + musicTracksMap.get(trackKey))).toExternalForm()));
+        musicPlayer.setOnEndOfMedia(() -> musicPlayer.seek(Duration.ZERO));
     }
 
     /**
