@@ -261,6 +261,19 @@
 
 /* Settings inside tab-pane */
 
+.tab-pane .settingsLabel {
+    -fx-font-family: "Inknut Antiqua", 'serif';
+    -fx-background-color: rgb(213, 192, 158);
+    -fx-border-color: #381e08;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-text-fill: black;
+    -fx-font-size: 15px;
+    -fx-pref-height: 42;
+    -fx-pref-width: 140;
+    -fx-padding: 0 0 0 0;
+}
+
 .tab-pane .settingsButton {
     -fx-font-size: 15px;
     -fx-pref-height: 42;
@@ -302,7 +315,7 @@ text-area {
 }
 
 /* Button */
-.button, .toggle-button {
+.button {
     -fx-font-family: "Inknut Antiqua", 'serif';
     -fx-background-color: rgb(213, 192, 158);
     -fx-border-color: #381e08;
@@ -318,4 +331,25 @@ text-area {
     -fx-background-color: rgb(122, 92, 51);
     /*-fx-text-fill: white;*/
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
+}
+
+.buttonMute {
+    -fx-background-image: url("img/mute.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+}
+.buttonUnmute {
+    -fx-background-image: url("img/unmute.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+}
+.buttonPlay {
+    -fx-background-image: url("img/playMusic.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+}
+.buttonPause {
+    -fx-background-image: url("img/pauseMusic.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
 }

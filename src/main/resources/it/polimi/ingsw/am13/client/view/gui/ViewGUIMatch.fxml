@@ -372,13 +372,21 @@
                                     </VBox.margin>
                                 </Button>
                                 <HBox alignment="CENTER" spacing="20.0">
-                                    <ToggleButton fx:id="soundsVolButton" mnemonicParsing="false" styleClass="settingsButton" text="Sounds volume" />
+                                    <Label alignment="CENTER" contentDisplay="CENTER" styleClass="settingsLabel" text="Sounds volume" />
+                                    <Button fx:id="soundsButton" mnemonicParsing="false" onAction="#onSoundButtonClick" styleClass="btn-symbol" />
                                     <Slider fx:id="soundsVolSlider" blockIncrement="0.05" max="1.0" value="0.5" />
                                 </HBox>
                                 <HBox alignment="CENTER" spacing="20.0">
-                                    <Button contentDisplay="CENTER" mnemonicParsing="false" styleClass="settingsButton" text="Music volume" />
+                                    <Label alignment="CENTER" contentDisplay="CENTER" styleClass="settingsLabel" text="Music volume" />
+                                    <Button fx:id="musicButton" mnemonicParsing="false" onAction="#onMusicButtonClick" >
+                                        <styleClass>
+                                            <String fx:value="btn-symbol" />
+                                            <String fx:value="buttonPlay" />
+                                        </styleClass>
+                                    </Button>
                                     <Slider fx:id="musicVolSlider" blockIncrement="0.05" majorTickUnit="0.05" max="1.0" minorTickCount="0" value="0.5" />
                                 </HBox>
+                        <ChoiceBox fx:id="musicTrackChoice" prefWidth="70.0" />
                         <padding>
                            <Insets bottom="30.0" />
                         </padding>

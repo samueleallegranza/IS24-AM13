@@ -34,6 +34,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -52,11 +54,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
-
-
-// TODO: sistema suoni, cambiali e aggiusta volume
-// TODO: aggiungi bottone per attivare musica di sottofondo
-
 
 /**
  * Controller of 'Match' scene, where player can actually play the most of the game
@@ -206,9 +203,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private TextArea guideArea;
 
     @FXML
-    private ToggleButton soundsVolButton;
+    private Button soundsButton;
     @FXML
     private Slider soundsVolSlider;
+    @FXML
+    private Button musicButton;
     @FXML
     private Slider musicVolSlider;
 
@@ -332,6 +331,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private ViewGUIControllerWinner controllerWinner;
 
+    /**
+     * Flag indicating if sounds must be played
+     */
+    private boolean soundsOn;
+
     // ----------------------------------------------------------------
     // CONSTANTS
     // ----------------------------------------------------------------
@@ -391,10 +395,31 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
-//    /**
-//     * Player of the sounds effects that are played when a card is played
-//     */
-//    private MediaPlayer playCardSoundPlayer;
+    @FXML
+    private ChoiceBox<String> musicTrackChoice;
+
+    /**
+     * Map associating the strings shown in the choice box for the music tracks with the respective
+     * file name of the audio file.
+     * All audio files must be in /music dir
+     */
+    public static final Map<String, String> musicTracksMap;
+    static {
+        Map<String, String> tempMap = new LinkedHashMap<>();
+        tempMap.put("A", "skylight-simon-folwar-main-version-25232-03-28.mp3");
+        tempMap.put("B", "medieval-background-196571.mp3");
+        tempMap.put("C", "12ToccataAndFugueInDMinor.mp3");
+        musicTracksMap = Collections.unmodifiableMap(tempMap);
+    }
+
+    /**
+     * Flag indicating if the current background music track has begun or not
+     */
+    private boolean musicAlreadyStarted;
+    /**
+     * Player of the background music
+     */
+    private MediaPlayer musicPlayer;
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
@@ -472,11 +497,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
-        // Init of sounds volume
-        soundsVolSlider.setDisable(!ParametersClient.START_WITH_SOUNDS);
-        soundsVolButton.setSelected(ParametersClient.START_WITH_SOUNDS);
-        soundsVolButton.setOnAction(e -> soundsVolSlider.setDisable(!soundsVolButton.isSelected()));
-            // If soundsVolButton is selected, i can change volume, otherwise the sounds are disabled
+        // Init of sounds / music section
+        initMusicSettings();
 
         guideArea.setText("""
                 > Drag a card in your hand to one of the blue boxes to play it
@@ -630,6 +652,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     public void showStartGame(){
         if(state.getGameStatus() == GameStatus.INIT) {
+            playAudio("startGame.mp3");
             StackPane topPane = (StackPane) this.getScene().getRoot();
 
             // Create the semi-transparent layer
@@ -682,6 +705,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * adding the log message, updating the hand playable, field and players container
      */
     public void showInGame() {
+        System.out.println(ParametersClient.START_WITH_SOUNDS);
+        System.out.println(musicPlayer);
+        System.out.println(musicPlayer.getStatus());
+        if(ParametersClient.START_WITH_SOUNDS && musicPlayer!=null && musicPlayer.getStatus()!=MediaPlayer.Status.PLAYING)
+            onMusicButtonClick();
+
         StackPane stackPane = (StackPane) this.getScene().getRoot();
         stackPane.getChildren().remove(controllerInit.getScene().getRoot());
         stackPane.getChildren().remove(initOverlay);
@@ -703,8 +732,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         // init points to > 0 if in_game is called after a reconnection
         state.getPlayers().forEach(this::updateTokenPosition);
-
-        playAudio("startGame.mp3");
 
         playersContainerUpdateTurns();
 
@@ -746,14 +773,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
-//            if(ParametersClient.SOUND_ENABLE)
-//                Platform.runLater(()-> {
-//                    if(playCardSoundPlayer !=null) { //to avoid some exceptions on linux
-//                        playCardSoundPlayer.setStartTime(Duration.millis((1000 + playCardSoundPlayer.getStartTime().toMillis()) % 480000));
-//                        playCardSoundPlayer.setStopTime(Duration.millis(1000 + playCardSoundPlayer.getStartTime().toMillis()));
-//                        playCardSoundPlayer.play();
-//                    }
-//                });
+            playAudio("cardAction.mp3");
         }
 
         updateTokenPosition(player);
@@ -796,8 +816,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             if (playersHandsPlayable.get(player).get(i) == null)
                 playersHandsPlayable.get(player).set(i, pickedCard);
         }
-        if(player.equals(displayPlayer))
+        if(player.equals(displayPlayer)) {
             displayHandPlayable();
+            playAudio("cardAction.mp3");
+        }
         displayPickablesAndCommonObjs();
 
         log.logPickedCard(player);
@@ -816,7 +838,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
-            playAudio("yourTurn.wav");
+            playAudio("yourTurn.mp3");
         }
         playersContainerUpdateTurns();
 
@@ -924,10 +946,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             mainRoot.getChildren().add(overlayPane);
         });
 
-        if(state.getWinner().contains(thisPlayer))
-            playAudio("endWinner-daCambiare.mp3");
-        else
-            playAudio("endLoser-daCambiare.mp3");
+        playAudio("endGame.mp3");
     }
 
     public synchronized void showEndGame() {
@@ -1572,7 +1591,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         for(PlayerLobby p : inSameSpot)
             if(tokenOffsetCoordinates.get(p) > tokenOffsetCoordinates.get(player)) {
-                System.out.println("offset per " + p);
                 PathTransition animationOffset = createAnimationTokenOffsetLess(p);
                 if(animationOffset != null) {
                     animations.add(animationOffset);
@@ -1684,17 +1702,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     /**
-     * Plays the specified audio file if {@link ViewGUIControllerMatch#soundsVolButton} is selecting,
+     * Plays the specified audio file if audio is currently on,
      * with volume indicated by {@link ViewGUIControllerMatch#soundsVolSlider}
      * The file must be in relative path /sounds with respect to the fxml file
      * @param fileName Name of the audio file, comprehensive of the extension.
      *                 The file must be located in sounds directory of the project
      */
     private void playAudio(String fileName) {
-        if(soundsVolButton.isSelected()) {
+        if(soundsOn) {
             if (System.getProperty("os.name").toLowerCase().contains("win")) {
                 Platform.runLater(() -> {
-                    System.out.println(fileName);
                     AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
                     audioClip.setVolume(soundsVolSlider.getValue());
                     audioClip.play();
@@ -1725,7 +1742,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     // ----------------------------------------------------------------
-    //    QUIT/RESTART METHODS
+    //    SETTINGS METHODS
     // ----------------------------------------------------------------
 
     @FXML
@@ -1769,6 +1786,120 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             throw new RuntimeException(e);
         }
         System.exit(0);
+    }
+
+    /**
+     * Sets the right image for sounds button in settings
+     */
+    private void selectSoundsImage() {
+        soundsButton.getStyleClass().remove("buttonUnmute");
+        soundsButton.getStyleClass().remove("buttonMute");
+        soundsButton.getStyleClass().add(soundsOn ? "buttonMute" : "buttonUnmute");
+    }
+
+    /**
+     * Handler of the click of the sound button in settings.
+     * It enables/disables the sound effects when playing, changing the image for the button
+     */
+    @FXML
+    public void onSoundButtonClick() {
+        soundsOn = !soundsOn;
+        selectSoundsImage();
+        soundsVolSlider.setDisable(!soundsOn);
+    }
+
+    /**
+     * Sets the right image for background music button in settings
+     * @param playing True if the player is set to be playing, false otherwise
+     */
+    private void selectMusicImage(boolean playing) {
+        musicButton.getStyleClass().remove("buttonPlay");
+        musicButton.getStyleClass().remove("buttonPause");
+        musicButton.getStyleClass().add(playing ? "buttonPause" : "buttonPlay");
+    }
+
+    /**
+     * Handler of the click of the music button in settings.
+     * It plays or pauses the background music.
+     * If the music is played from the beginning, it does it with a fade-in sound effect.
+     * It also changes the button icon and disables the track choice box if the music is playing
+     */
+    @FXML
+    public void onMusicButtonClick() {
+        if(musicPlayer != null && musicPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            musicPlayer.pause();
+            selectMusicImage(false);
+            musicTrackChoice.setDisable(false);
+        } else {
+            startPlayingMusic();
+            selectMusicImage(true);
+            musicTrackChoice.setDisable(true);
+        }
+    }
+
+    /**
+     * Starts playing the current track selected in the music track choice box.
+     * If the track is played for the first time, it does it with a fade-in sound effect
+     */
+    private void startPlayingMusic() {
+        if(musicAlreadyStarted) {
+            musicPlayer.play();
+        } else{
+            if(musicPlayer == null)
+                changeMusicToPlay(musicTrackChoice.getValue());
+
+            musicAlreadyStarted = true;
+            musicPlayer.play();
+            // Start music with fade-in
+            musicPlayer.setVolume(0); // Start from volume 0
+            Timeline fadeInTimeline = new Timeline(
+                    new KeyFrame(Duration.ZERO, new KeyValue(musicPlayer.volumeProperty(), 0)),
+                    new KeyFrame(Duration.seconds(3), new KeyValue(musicPlayer.volumeProperty(), musicVolSlider.getValue()))
+            );
+            fadeInTimeline.play();
+        }
+    }
+
+    /**
+     * It changes the current track chosen for the player of background music.
+     * If the player is currently playing, it is paused.
+     * At the end the player is not activated
+     * @param trackKey Track to choose for the player
+     */
+    private void changeMusicToPlay(String trackKey) {
+        if (musicPlayer != null) {
+            musicPlayer.stop();
+        }
+        musicPlayer = new MediaPlayer(new Media(Objects.requireNonNull(
+                getClass().getResource("/music/" + musicTracksMap.get(trackKey))).toExternalForm()));
+    }
+
+    /**
+     * It initializes the sounds and music section in settings
+     */
+    private void initMusicSettings() {
+        // If enabled, i can change volume, otherwise the sounds are disabled
+        soundsVolSlider.setDisable(!ParametersClient.START_WITH_SOUNDS);
+        soundsOn = ParametersClient.START_WITH_SOUNDS;
+        selectSoundsImage();
+
+        musicVolSlider.setValue(1.0);
+        musicVolSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(musicPlayer != null)
+                musicPlayer.setVolume(newValue.doubleValue());
+        });
+
+        musicTracksMap.keySet().forEach(track -> musicTrackChoice.getItems().add(track));
+        musicTrackChoice.setValue(musicTracksMap.keySet().iterator().next());
+        changeMusicToPlay(musicTracksMap.keySet().iterator().next());
+        musicTrackChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (musicPlayer != null) {
+                musicPlayer.stop();
+            }
+            musicPlayer = new MediaPlayer(new Media(
+                    Objects.requireNonNull(getClass().getResource("/music/" + musicTracksMap.get(newValue))).toExternalForm()));
+            musicAlreadyStarted = false;
+        });
     }
 
     // ----------------------------------------------------------------
