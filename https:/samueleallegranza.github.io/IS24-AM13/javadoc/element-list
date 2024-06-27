@@ -1,10 +1,9 @@
+module:it.polimi.ingsw.am13
 it.polimi.ingsw.am13
-it.polimi.ingsw.am13.client
 it.polimi.ingsw.am13.client.chat
 it.polimi.ingsw.am13.client.gamestate
 it.polimi.ingsw.am13.client.network
 it.polimi.ingsw.am13.client.network.rmi
-it.polimi.ingsw.am13.client.network.socket
 it.polimi.ingsw.am13.client.view
 it.polimi.ingsw.am13.client.view.gui
 it.polimi.ingsw.am13.client.view.tui
@@ -16,7 +15,3 @@ it.polimi.ingsw.am13.model.card.points
 it.polimi.ingsw.am13.model.exceptions
 it.polimi.ingsw.am13.model.player
 it.polimi.ingsw.am13.network.rmi
-it.polimi.ingsw.am13.network.socket
-it.polimi.ingsw.am13.network.socket.message
-it.polimi.ingsw.am13.network.socket.message.command
-it.polimi.ingsw.am13.network.socket.message.response
