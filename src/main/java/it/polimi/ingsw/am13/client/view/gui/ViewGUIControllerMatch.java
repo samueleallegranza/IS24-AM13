@@ -497,13 +497,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
-        // Init of sounds / music section
-        initMusicSettings();
-
         guideArea.setText("""
                 > Drag a card in your hand to one of the blue boxes to play it
                 > Click a card to draw it
                 > Click on the banner a player to view its field""");
+
+        // Init of sounds / music section
+        initMusicSettings();
     }
 
     /**
@@ -705,9 +705,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * adding the log message, updating the hand playable, field and players container
      */
     public void showInGame() {
-        System.out.println(ParametersClient.START_WITH_SOUNDS);
-        System.out.println(musicPlayer);
-        System.out.println(musicPlayer.getStatus());
         if(ParametersClient.START_WITH_SOUNDS && musicPlayer!=null && musicPlayer.getStatus()!=MediaPlayer.Status.PLAYING)
             onMusicButtonClick();
 
@@ -1084,18 +1081,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 displayHandObjective();
             displayPlayerLabel.setText(displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
-
-//            if(ParametersClient.SOUND_ENABLE)
-//                Platform.runLater(()-> {
-//                    if(System.getProperty("os.name").toLowerCase().contains("win")) {
-//                        //init fugue player
-//                        Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
-//                        playCardSoundPlayer = new MediaPlayer(fugueMedia);
-//                        playCardSoundPlayer.setVolume(0.001);
-//                        playCardSoundPlayer.setStartTime(Duration.millis(0));
-//                        playCardSoundPlayer.setStopTime(Duration.millis(1000));
-//                    }
-//                });
         }
     }
 
@@ -1659,8 +1644,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
 
         return animation;
     }
-
-    //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
 
     // ----------------------------------------------------------------
     //      COMMON
