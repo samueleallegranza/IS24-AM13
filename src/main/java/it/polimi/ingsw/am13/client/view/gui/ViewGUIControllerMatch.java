@@ -406,9 +406,15 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     public static final Map<String, String> musicTracksMap;
     static {
         Map<String, String> tempMap = new LinkedHashMap<>();
-        tempMap.put("A", "skylight-simon-folwar-main-version-25232-03-28.mp3");
-        tempMap.put("B", "medieval-background-196571.mp3");
-        tempMap.put("C", "12ToccataAndFugueInDMinor.mp3");
+        tempMap.put("A", "01choice-skylight-simon-folwar-main-version-25232-03-28.mp3");
+        tempMap.put("B", "02choice-medieval-background-196571.mp3");
+        tempMap.put("C", "03choice-12ToccataAndFugueInDMinor.mp3");
+        tempMap.put("D", "achaidh-cheide-kevin-macleod-main-version-18632-02-14.mp3");
+        tempMap.put("E", "alexander-nakarada-medieval-loop-one.mp3");
+        tempMap.put("F", "alexander-nakarada-tavern-loop-one.mp3");
+        tempMap.put("G", "alex-productions-medieval-and-celtic-music-lands.mp3");
+        tempMap.put("H", "soft-background-music-179711.mp3");
+        tempMap.put("I", "epic-emotinal-inspirational-207071.mp3");
         musicTracksMap = Collections.unmodifiableMap(tempMap);
     }
 
