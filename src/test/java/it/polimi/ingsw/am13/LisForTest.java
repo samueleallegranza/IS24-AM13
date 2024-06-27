@@ -58,7 +58,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updatePlayerJoinedRoom(PlayerLobby player) {
         actions.add(ControlAction.JOIN_ROOM);
-        updates.add(new MsgResponsePlayerJoinedRooom(player));
+        updates.add(new MsgResponsePlayerJoinedRoom(player));
     }
 
     @Override
@@ -159,7 +159,7 @@ public class LisForTest implements GameListener {
     @Override
     public void updateGameModel(GameModelIF model, GameController controller, PlayerLobby player) {
         actions.add(ControlAction.UPDATE_GAMEMODEL);
-        updates.add(new MsgResponsePlayerJoinedRooom(player));
+        updates.add(new MsgResponsePlayerJoinedRoom(player));
     }
 
     @Override

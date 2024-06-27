@@ -75,7 +75,7 @@ public class GameListenerServerSocket implements GameListener {
      */
     @Override
     public void updatePlayerJoinedRoom(PlayerLobby player) {
-        sendMessage(new MsgResponsePlayerJoinedRooom(player));
+        sendMessage(new MsgResponsePlayerJoinedRoom(player));
     }
 
     /**

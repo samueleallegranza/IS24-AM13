@@ -78,8 +78,8 @@ public class ServerResponseHandler extends Thread{
                         case MsgResponseGetRooms msgResponseGetRooms ->
                             view.showRooms(msgResponseGetRooms.getRooms());
 
-                        case MsgResponsePlayerJoinedRooom msgResponsePlayerJoinedRooom ->
-                            view.showPlayerJoinedRoom(msgResponsePlayerJoinedRooom.getPlayer());
+                        case MsgResponsePlayerJoinedRoom msgResponsePlayerJoinedRoom ->
+                            view.showPlayerJoinedRoom(msgResponsePlayerJoinedRoom.getPlayer());
 
                         case MsgResponsePlayerLeftRoom msgResponsePlayerLeftRoom ->
                             view.showPlayerLeftRoom(msgResponsePlayerLeftRoom.getPlayer());

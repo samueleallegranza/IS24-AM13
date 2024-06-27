@@ -1545,8 +1545,8 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Creates and plays an animation of the given token moving on the scoretrakcer.
      * The specified points must be the visible number on the scoretracker, and the token can move only forward
      * @param player Player whose token is to be moved
-     * @param from Points where to start from. Must be a number >=0 and < 29
-     * @param to Points where to arrive. Must be a number <code>>from</code>, so >0 and <=29
+     * @param from Points where to start from. Must be a number &ge;0 and &lt; 29
+     * @param to Points where to arrive. Must be a number <code>&gt;from</code>, so &gt;0 and &le;29
      * @return The transition animation (could be useful to add listeners...)
      */
     private List<PathTransition> createAnimationTokenMove(PlayerLobby player, int from, int to, List<PlayerLobby> animationPlayers) {

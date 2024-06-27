@@ -96,7 +96,7 @@ public class TestLobby {
         assertFalse(r1.isGameStarted());
         for(int i=0 ; i<=1 ; i++) {
             assertEquals(ControlAction.JOIN_ROOM, liss[i].actions.getLast());
-            assertEquals(ps[1], ((MsgResponsePlayerJoinedRooom)liss[i].updates.getLast()).getPlayer());
+            assertEquals(ps[1], ((MsgResponsePlayerJoinedRoom)liss[i].updates.getLast()).getPlayer());
         }
         assertEquals(0, liss[3].actions.size());
         assertEquals(1, liss[4].actions.size());        // Notifies of joining room must be sent only to listeners in that room
@@ -109,7 +109,7 @@ public class TestLobby {
         // Now the game is started, so 2 notifies are sent
         for(int i=0 ; i<=2 ; i++) {
             assertEquals(ControlAction.JOIN_ROOM, liss[i].actions.get(liss[i].actions.size()-2));
-            assertEquals(ps[2], ((MsgResponsePlayerJoinedRooom)liss[i].updates.get(liss[i].updates.size()-2)).getPlayer());
+            assertEquals(ps[2], ((MsgResponsePlayerJoinedRoom)liss[i].updates.get(liss[i].updates.size()-2)).getPlayer());
             assertEquals(ControlAction.START_GAME, liss[i].actions.getLast());
             GameState state = ((MsgResponseStartGame)liss[i].updates.getLast()).getGameState();
             assertEquals(id1, state.getGameId());
