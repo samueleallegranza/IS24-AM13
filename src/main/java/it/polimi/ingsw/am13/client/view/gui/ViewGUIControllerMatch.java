@@ -34,8 +34,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -54,6 +52,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
+
+
+// TODO: sistema suoni, cambiali e aggiusta volume
+// TODO: aggiungi bottone per attivare musica di sottofondo
+
 
 /**
  * Controller of 'Match' scene, where player can actually play the most of the game
@@ -202,6 +205,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     @FXML
     private TextArea guideArea;
 
+    @FXML
+    private ToggleButton soundsVolButton;
+    @FXML
+    private Slider soundsVolSlider;
+    @FXML
+    private Slider musicVolSlider;
+
     // ----------------------------------------------------------------
     // PRIVATE STATE VARIABLE FOR CONTROLLER'S LOGIC USE
     // ----------------------------------------------------------------
@@ -314,11 +324,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     private boolean firstFieldScrollAdjustment = true;
 
     /**
-     * Last playing animations for the players' token. If the token of a player is not moving, the animation is null
-     */
-    private final Map<PlayerLobby, PathTransition> lastTokenAnimations = new HashMap<>();
-
-    /**
      * Controller for the initialization view
      */
     private ViewGUIControllerInit controllerInit;
@@ -386,10 +391,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      */
     private static final long THINKING_TIME = 100;
 
-    /**
-     * Player of the sounds effects that are played when a card is played
-     */
-    private MediaPlayer playCardSoundPlayer;
+//    /**
+//     * Player of the sounds effects that are played when a card is played
+//     */
+//    private MediaPlayer playCardSoundPlayer;
 
     // ----------------------------------------------------------------
     //      CONTROLLER METHODS
@@ -467,16 +472,16 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         playerNodes = new HashMap<>();
         initPlayerContainer();
 
+        // Init of sounds volume
+        soundsVolSlider.setDisable(!ParametersClient.START_WITH_SOUNDS);
+        soundsVolButton.setSelected(ParametersClient.START_WITH_SOUNDS);
+        soundsVolButton.setOnAction(e -> soundsVolSlider.setDisable(!soundsVolButton.isSelected()));
+            // If soundsVolButton is selected, i can change volume, otherwise the sounds are disabled
+
         guideArea.setText("""
                 > Drag a card in your hand to one of the blue boxes to play it
                 > Click a card to draw it
                 > Click on the banner a player to view its field""");
-
-//        StackPane root=(StackPane) scene.getRoot();
-//        root.widthProperty().addListener((obs,oldVal,newVal)->{
-//            System.out.println(root.getScaleX()+" "+newVal+" "+oldVal);
-//            root.getChildren().getFirst().setScaleX(root.getScaleX()*newVal.doubleValue()/oldVal.doubleValue());});
-//        root.heightProperty().addListener((obs,oldVal,newVal)->{root.getChildren().get(1).setScaleY(root.getScaleY()*newVal.doubleValue()/oldVal.doubleValue());});
     }
 
     /**
@@ -741,14 +746,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         if(player.equals(displayPlayer)){
             displayHandPlayable();
             displayField();
-            if(ParametersClient.SOUND_ENABLE)
-                Platform.runLater(()-> {
-                    if(playCardSoundPlayer !=null) { //to avoid some exceptions on linux
-                        playCardSoundPlayer.setStartTime(Duration.millis((1000 + playCardSoundPlayer.getStartTime().toMillis()) % 480000));
-                        playCardSoundPlayer.setStopTime(Duration.millis(1000 + playCardSoundPlayer.getStartTime().toMillis()));
-                        playCardSoundPlayer.play();
-                    }
-                });
+//            if(ParametersClient.SOUND_ENABLE)
+//                Platform.runLater(()-> {
+//                    if(playCardSoundPlayer !=null) { //to avoid some exceptions on linux
+//                        playCardSoundPlayer.setStartTime(Duration.millis((1000 + playCardSoundPlayer.getStartTime().toMillis()) % 480000));
+//                        playCardSoundPlayer.setStopTime(Duration.millis(1000 + playCardSoundPlayer.getStartTime().toMillis()));
+//                        playCardSoundPlayer.play();
+//                    }
+//                });
         }
 
         updateTokenPosition(player);
@@ -811,7 +816,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         }
         if(state.getCurrentPlayer().equals(thisPlayer)) {
             flowCardPlaced = false;
-            playAudio("yourTurn.wav",0.1);
+            playAudio("yourTurn.wav");
         }
         playersContainerUpdateTurns();
 
@@ -965,7 +970,7 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                     ImageView handCard = handCards.get(i);
                     Button flipHandCard = flipButtons.get(i);
                     handCard.setVisible(true);
-                    if (thisPlayer.equals(displayPlayer)) {
+                    if (thisPlayer.equals(displayPlayer) || state.getGameStatus()==GameStatus.ENDED) {
                         handCardSides.set(i,Side.SIDEFRONT);
                         int finalI = i;
                         flipHandCard.setVisible(true);
@@ -994,10 +999,11 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Display the personal objective card
      */
     public void displayHandObjective(){
-        if(thisPlayer.equals(displayPlayer))
-            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
-        else
+        if (!thisPlayer.equals(displayPlayer) && state.getGameStatus()!=GameStatus.ENDED) {
             displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEBACK, handObjective);
+        } else {
+            displayCard(state.getPlayerState(displayPlayer).getHandObjective().getId(), Side.SIDEFRONT, handObjective);
+        }
     }
 
     /**
@@ -1060,17 +1066,17 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             displayPlayerLabel.setText(displayPlayer.getNickname());
             pickablesContainer.setMouseTransparent(!displayPlayer.equals(thisPlayer));
 
-            if(ParametersClient.SOUND_ENABLE)
-                Platform.runLater(()-> {
-                    if(System.getProperty("os.name").toLowerCase().contains("win")) {
-                        //init fugue player
-                        Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
-                        playCardSoundPlayer = new MediaPlayer(fugueMedia);
-                        playCardSoundPlayer.setVolume(0.001);
-                        playCardSoundPlayer.setStartTime(Duration.millis(0));
-                        playCardSoundPlayer.setStopTime(Duration.millis(1000));
-                    }
-                });
+//            if(ParametersClient.SOUND_ENABLE)
+//                Platform.runLater(()-> {
+//                    if(System.getProperty("os.name").toLowerCase().contains("win")) {
+//                        //init fugue player
+//                        Media fugueMedia = new Media(Objects.requireNonNull(getClass().getResource("/sounds/" + "12ToccataAndFugueInDMinor.mp3")).toString());
+//                        playCardSoundPlayer = new MediaPlayer(fugueMedia);
+//                        playCardSoundPlayer.setVolume(0.001);
+//                        playCardSoundPlayer.setStartTime(Duration.millis(0));
+//                        playCardSoundPlayer.setStopTime(Duration.millis(1000));
+//                    }
+//                });
         }
     }
 
@@ -1438,9 +1444,6 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             }
 //            tokenImgs.get(thisPlayer).toFront();
         });
-        for(PlayerLobby p : state.getPlayers()) {
-            lastTokenAnimations.put(p, null);
-        }
     }
 
     /**
@@ -1501,63 +1504,25 @@ public class ViewGUIControllerMatch extends ViewGUIController {
             tokenImgs.replace(player, token);
         }
 
+        List<PathTransition> animations;
+        List<PlayerLobby> animationPlayers = new ArrayList<>();
+        int finalAnimationPoints;
+
         if (currentPoints / 29 < points / 29) {
             // I must go to 29 and concatenate another animation after that
-            int finalAnimationPoints = (currentPoints / 29 + 1) * 29;
-            PathTransition animation = createAnimationTokenMove(player, currentPoints % 29, 29);
+            finalAnimationPoints = (currentPoints / 29 + 1) * 29;
+            animations = createAnimationTokenMove(player, currentPoints % 29, 29, animationPlayers);
             tokenOffsetCoordinates.replace(player, 0.0);
-            animation.setOnFinished(event -> {
-                synchronized (player) {
-                    savedPoints.replace(player, finalAnimationPoints);
-                    tokenImgs.get(player).toFront();
-                    updateTokenPositionRic(player);
-                    lastTokenAnimations.replace(player, null);
-                }
-            });
-
-            synchronized (player) {
-                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
-                if(lastTokenAnimation != null) {     // An animation is still playing
-                    lastTokenAnimation.setOnFinished(actionEvent -> {
-                        savedPoints.replace(player, points);
-                        tokenImgs.get(player).toFront();
-                        animation.play();
-                        lastTokenAnimations.replace(player, animation);
-                    });
-                } else {     // no animation is currently playing
-                    savedPoints.replace(player, points);
-                    tokenImgs.get(player).toFront();
-                    animation.play();
-                }
-            }
-
         } else {
-            PathTransition animation = createAnimationTokenMove(player, currentPoints % 29, points % 29);
-            animation.setOnFinished(actionEvent -> {
-                    synchronized (player) {
-                        lastTokenAnimations.replace(player, null);
-                        tokenImgs.get(player).toFront();
-                    }
-                }
-            );
-            synchronized (player) {
-                PathTransition lastTokenAnimation = lastTokenAnimations.get(player);
-                if(lastTokenAnimation != null) {     // An animation is still playing
-                    lastTokenAnimation.setOnFinished(actionEvent -> {
-                        savedPoints.replace(player, points);
-                        tokenImgs.get(player).toFront();
-                        animation.play();
-                        lastTokenAnimations.replace(player, animation);
-                    });
-                } else {     // no animation is currently playing
-                    savedPoints.replace(player, points);
-                    animation.play();
-                }
-            }
-//            fieldScrollPane.setVvalue(fieldScrollPane.getVvalue()+delta/fieldScrollPane.getHeight());
+            animations = createAnimationTokenMove(player, currentPoints % 29, points % 29, animationPlayers);
+            finalAnimationPoints = points;
+        }
 
-            //fieldScrollPane.getVvalue() * fieldScrollPane.getHeight() / fieldContainer.getPrefHeight()
-                    //+ 0.5 * (fieldScrollPane.getHeight()-fieldContainer.getPrefHeight()) / fieldContainer.getPrefHeight());
+        savedPoints.replace(player, finalAnimationPoints);
+        animations.getLast().setOnFinished(actionEvent -> updateTokenPosition(player));
+        for(int i=0 ; i<animations.size() ; i++) {
+            animations.get(i).play();
+            tokenImgs.get(animationPlayers.get(i)).toFront();
         }
     }
 
@@ -1580,10 +1545,12 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * @param to Points where to arrive. Must be a number <code>>from</code>, so >0 and <=29
      * @return The transition animation (could be useful to add listeners...)
      */
-    private PathTransition createAnimationTokenMove(PlayerLobby player, int from, int to) {
+    private List<PathTransition> createAnimationTokenMove(PlayerLobby player, int from, int to, List<PlayerLobby> animationPlayers) {
         ImageView token = tokenImgs.get(player);
         double xDim = scoreTrackerContainer.getWidth();
         double yDim = scoreTrackerContainer.getHeight();
+
+        List<PathTransition> animations = new ArrayList<>();
 
         Path path = new Path();
         path.setVisible(false);
@@ -1604,8 +1571,14 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 inSameSpot.addAll(temp);
         }
         for(PlayerLobby p : inSameSpot)
-            if(tokenOffsetCoordinates.get(p) > tokenOffsetCoordinates.get(player))
-                playAnimationTokenOffsetLess(p);
+            if(tokenOffsetCoordinates.get(p) > tokenOffsetCoordinates.get(player)) {
+                System.out.println("offset per " + p);
+                PathTransition animationOffset = createAnimationTokenOffsetLess(p);
+                if(animationOffset != null) {
+                    animations.add(animationOffset);
+                    animationPlayers.add(p);
+                }
+            }
 
         for(int point=from+1 ; point<=to ; point++) {
             int count = 0;
@@ -1628,7 +1601,10 @@ public class ViewGUIControllerMatch extends ViewGUIController {
         pathTransition.setPath(path);
         pathTransition.setNode(token);
         pathTransition.setCycleCount(1); // Play once
-        return pathTransition;
+
+        animations.add(pathTransition);
+        animationPlayers.add(player);
+        return animations;
     }
 
     /**
@@ -1637,9 +1613,9 @@ public class ViewGUIControllerMatch extends ViewGUIController {
      * Updates the saved offset, too.
      * @param player Player whose token is to be moved
      */
-    private void playAnimationTokenOffsetLess(PlayerLobby player) {
+    private PathTransition createAnimationTokenOffsetLess(PlayerLobby player) {
         if(tokenOffsetCoordinates.get(player) == 0)
-            return;
+            return null;
 
         double xDim = scoreTrackerContainer.getWidth();
         double yDim = scoreTrackerContainer.getHeight();
@@ -1657,30 +1633,13 @@ public class ViewGUIControllerMatch extends ViewGUIController {
                 xTranslToken.get(savedPoints.get(player) % 29) * xDim + tokenOffsetCoordinates.get(player),
                 yTranslToken.get(savedPoints.get(player) % 29) * yDim));
 
-        PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(0.25)); // Set animation duration
-        pathTransition.setPath(path);
-        pathTransition.setNode(tokenImgs.get(player));
-        pathTransition.setCycleCount(1); // Play once
-        pathTransition.setOnFinished(actionEvent -> {
-            synchronized (player) {
-                lastTokenAnimations.replace(player, null);
-            }
-        });
+        PathTransition animation = new PathTransition();
+        animation.setDuration(Duration.seconds(0.25)); // Set animation duration
+        animation.setPath(path);
+        animation.setNode(tokenImgs.get(player));
+        animation.setCycleCount(1); // Play once
 
-        synchronized (player) {
-            if(lastTokenAnimations.get(player) != null) {
-                lastTokenAnimations.get(player).setOnFinished(actionEvent -> {
-                    lastTokenAnimations.replace(player, pathTransition);
-                    pathTransition.play();
-                    tokenImgs.get(player).toFront();
-                });
-            } else {
-                lastTokenAnimations.replace(player, pathTransition);
-                pathTransition.play();
-                tokenImgs.get(player).toFront();
-            }
-        }
+        return animation;
     }
 
     //if you need methods related to other player to use as a reference, see 28/05, before ~7pm
@@ -1725,23 +1684,23 @@ public class ViewGUIControllerMatch extends ViewGUIController {
     }
 
     /**
-     * Plays the audio file specified by the name.
+     * Plays the specified audio file if {@link ViewGUIControllerMatch#soundsVolButton} is selecting,
+     * with volume indicated by {@link ViewGUIControllerMatch#soundsVolSlider}
      * The file must be in relative path /sounds with respect to the fxml file
-     * @param fileName Name of the file, with the extension too
+     * @param fileName Name of the audio file, comprehensive of the extension.
+     *                 The file must be located in sounds directory of the project
      */
-    private void playAudio(String fileName, double volume) {
-        if(ParametersClient.SOUND_ENABLE)
-            if(System.getProperty("os.name").toLowerCase().contains("win")) {
+    private void playAudio(String fileName) {
+        if(soundsVolButton.isSelected()) {
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
                 Platform.runLater(() -> {
+                    System.out.println(fileName);
                     AudioClip audioClip = new AudioClip(Objects.requireNonNull(getClass().getResource("/sounds/" + fileName)).toString());
-                    audioClip.setVolume(volume);
+                    audioClip.setVolume(soundsVolSlider.getValue());
                     audioClip.play();
                 });
             }
-    }
-
-    private void playAudio(String fileName) {
-        playAudio(fileName,0.3);
+        }
     }
 
     /**

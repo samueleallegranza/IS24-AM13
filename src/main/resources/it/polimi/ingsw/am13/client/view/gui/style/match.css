@@ -163,13 +163,6 @@
     -fx-background-repeat: no-repeat;
 }
 
-.homepageButton {
-    -fx-font-size: 15px;
-    -fx-min-height: 40px;
-    -fx-max-height: 40px;
-    -fx-padding: 0 0 4 0;
-}
-
 .zoomInButton {
     -fx-background-image: url("img/zoom-in.png");
     -fx-background-size: 20 20;
@@ -266,6 +259,25 @@
     -fx-border-radius: 0;
 }
 
+/* Settings inside tab-pane */
+
+.tab-pane .settingsButton {
+    -fx-font-size: 15px;
+    -fx-pref-height: 42;
+    -fx-pref-width: 140;
+    -fx-padding: 0 0 0 0;
+}
+
+.slider .track {
+    -fx-background-color: -fx-game-light-color;
+}
+
+.slider .thumb {
+    -fx-background-color: -fx-game-primary-color;
+    -fx-effect: dropshadow(three-pass-box, -fx-game-border-color, 10, 0.5, 0, 0); /* Add drop shadow effect */
+    /*-fx-border-color: -fx-game-border-color;*/
+}
+
 
 /* Text-area */
 text-area {
@@ -290,7 +302,7 @@ text-area {
 }
 
 /* Button */
-.button {
+.button, .toggle-button {
     -fx-font-family: "Inknut Antiqua", 'serif';
     -fx-background-color: rgb(213, 192, 158);
     -fx-border-color: #381e08;
@@ -298,11 +310,11 @@ text-area {
     -fx-border-radius: 2;
     -fx-text-fill: black;
 }
-.button:hover {
+.button:hover, .toggle-button:hover, .toggle-button:selected {
     -fx-background-color: rgb(159, 130, 79);
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
 }
-.button:pressed {
+.button:pressed, .toggle-button:pressed {
     -fx-background-color: rgb(122, 92, 51);
     /*-fx-text-fill: white;*/
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);

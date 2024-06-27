@@ -150,7 +150,7 @@ public class ClientMain {
                     args -> ParametersClient.SKIP_TURNS = true),
             new PromptCommand("no_sounds",
                     "Disables all the sounds during the game",
-                    args -> ParametersClient.SOUND_ENABLE = false),
+                    args -> ParametersClient.START_WITH_SOUNDS = false),
             new PromptCommand("ip",
                     "Sets the IP address of the server",
                     args -> ParametersClient.SERVER_IP = args.getFirst(),

@@ -60,5 +60,5 @@ public class ParametersClient {
 
     // VARIOUS
 
-    public static boolean SOUND_ENABLE = true;
+    public static boolean START_WITH_SOUNDS = true;
 }
