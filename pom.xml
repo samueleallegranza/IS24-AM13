@@ -150,7 +150,7 @@
             <configuration>
                 <show>private</show>
                 <!--                    <additionalOptions>-private -splitindex</additionalOptions>-->
-                <sourcepath>src/main/java</sourcepath>
+                <sourcepath>src/main</sourcepath>
                 <!--                    <subpackages>network</subpackages>-->
             </configuration>
         </plugin>
