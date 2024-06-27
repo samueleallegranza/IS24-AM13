@@ -165,7 +165,7 @@
                 <version>3.7.0</version>
                 <configuration>
                     <show>private</show>
-                    <sourcepath>src/main/java/it/polimi/ingsw/am13</sourcepath>
+<!--                    <sourcepath>src/main/java/it/polimi/ingsw/am13</sourcepath>-->
 <!--                    <subpackages>client</subpackages>-->
                 </configuration>
             </plugin>
