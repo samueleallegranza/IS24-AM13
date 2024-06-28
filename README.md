@@ -1,7 +1,7 @@
 # Codex Naturalis
 **_An online multiplayer videogame of the the boardgame Codex Naturalis_**
 
-[![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://samueleallegranza.github.io/IS24-AM13/javadoc/)
+[![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://lbattini.github.io/IS24-AM13/javadoc/)
 
 Authors: _Samuele Allegranza, Matteo Arrigo, Lorenzo Battini, Federico Bulloni_
 

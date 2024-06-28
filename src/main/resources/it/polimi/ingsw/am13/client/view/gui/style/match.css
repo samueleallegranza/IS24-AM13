@@ -323,11 +323,11 @@ text-area {
     -fx-border-radius: 2;
     -fx-text-fill: black;
 }
-.button:hover, .toggle-button:hover, .toggle-button:selected {
+.button:hover {
     -fx-background-color: rgb(159, 130, 79);
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
 }
-.button:pressed, .toggle-button:pressed {
+.button:pressed {
     -fx-background-color: rgb(122, 92, 51);
     /*-fx-text-fill: white;*/
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 4, 0, 0, 0);
