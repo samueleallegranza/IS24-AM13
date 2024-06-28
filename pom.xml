@@ -202,6 +202,7 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                         <exclude>**/img/**</exclude>
                                         <exclude>**/sounds/**</exclude>
+                                        <exclude>**/music/**</exclude>
                                         <exclude>**/docs/**</exclude>
                                     </excludes>
                                 </filter>
